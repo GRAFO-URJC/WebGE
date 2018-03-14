@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/layout}">
+    <head>
+        <link rel="stylesheet" type="text/css" href="../css/main.css" />
+        <title>Secured</title>
+    </head>
+    <body>
+        <div layout:fragment="content" th:remove="tag">
+            <h1>This is a secured page!</h1>
+
+            <a href="/" th:href="@{/}">New experiment</a>
+
+            <a href="/" th:href="@{/}">Repository of experiments</a>
+
+            <a href="/user/profile" th:href="@{/user/profile}">Profile</a>
+
+            <a href="/" th:href="@{/}">Back to home page</a>
+
+            <a href="/logout" th:href="@{/logout}">Logout</a>
+        </div>
+    </body>
+</html>
