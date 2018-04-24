@@ -1,5 +1,7 @@
 package engine.util;
 
+import org.apache.commons.math3.stat.StatUtils;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.math3.stat.StatUtils;
 
 /**
  * Obtains several statistics from a population file log.
@@ -150,10 +151,10 @@ public class StatsFromPopulationFile {
         // Genes usados:
         str.append(";").append(StatUtils.mean(usedGenes)).append(";").append(Math.sqrt(StatUtils.variance(usedGenes)));
         // Incluye la moda (tantos elementos como haya si empatan en numero de apariciones
-        double[] mode = StatUtils.mode(usedGenes);
-        for (int i=0; i<mode.length; i++) {
-            str.append(";").append(mode[i]);
-            if (i != (mode.length - 1)) {
+        double[] modeVal = StatUtils.mode(usedGenes);
+        for (int i=0; i<modeVal.length; i++) {
+            str.append(";").append(modeVal[i]);
+            if (i != (modeVal.length - 1)) {
                 str.append(",");
             }
         }
