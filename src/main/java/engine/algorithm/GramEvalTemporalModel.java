@@ -462,7 +462,7 @@ public class GramEvalTemporalModel extends AbstractProblemGE {
             // Evaluate all the models
             for (int i = 0; i < strSols.size(); ++i) {
                 evaluator.evaluateExpression(i);
-                createDataPlot(evaluator.getTimeTable(),"Evaluation", "Sol. "+i, strSols.get(i));
+//                createDataPlot(evaluator.getTimeTable(),"Evaluation", "Sol. "+i, strSols.get(i));
             }
             return true;
         } else {
