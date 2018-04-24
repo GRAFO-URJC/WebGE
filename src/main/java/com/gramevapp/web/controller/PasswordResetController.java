@@ -20,7 +20,7 @@ public class PasswordResetController {
     }
 
     @GetMapping
-    public String showPasswordReset(Model model) {
+    public String showPasswordReset() {
         return "resetPassword";
     }
 

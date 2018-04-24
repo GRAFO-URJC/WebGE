@@ -1,0 +1,26 @@
+#selected {
+    background-color: #F5F5F5;
+}
+
+/*----------------------------------
+        SIDEBAR
+        ----------------------------------*/
+input[type=radio],
+input[type=checkbox] {
+
+}
+
+form input[type="radio"]:checked + label {
+    background-color: #a5a4a4;
+}
+
+.hiddeRadio{
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    opacity: 0;
+}
+
+input[class="hiddenInput"] {
+    display: none;
+}

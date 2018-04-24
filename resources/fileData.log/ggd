@@ -1,0 +1,12 @@
+[user]
+	name = smensito
+	email = alberto.nii@hotmail.com
+[gui]
+	recentrepo = C:/Users/Nino/Desktop
+[credential]
+	helper = manager
+[filter "lfs"]
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process

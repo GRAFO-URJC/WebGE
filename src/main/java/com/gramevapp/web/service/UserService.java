@@ -1,5 +1,6 @@
 package com.gramevapp.web.service;
 
+import com.gramevapp.web.model.Experiment;
 import com.gramevapp.web.model.Role;
 import com.gramevapp.web.model.User;
 import com.gramevapp.web.model.UserRegistrationDto;
@@ -58,6 +59,13 @@ public class UserService {
         user.setEmail(registration.getEmail());
         user.setPassword(passwordEncoder.encode(registration.getPassword()));
         user.setUsername(registration.getUsername().toLowerCase());
+        /*user.setAddress(registration.getAddress());
+        user.setCity(registration.getCity());
+        user.setState(registration.getState());
+        user.setZipcode(registration.getZipcode());
+        user.setWorkInformation(registration.getWorkInformation());
+        user.setStudyInformation(registration.getStudyInformation());
+        user.setAboutMe(registration.getAboutMe());*/
         user.setRoles(Arrays.asList(new Role("ROLE_USER")));    // Later we can change the role of the user
 
         return userRepository.save(user);

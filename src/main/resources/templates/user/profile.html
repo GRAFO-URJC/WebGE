@@ -1,153 +1,260 @@
 <!DOCTYPE html>
-<!-- BOOTSTRAP OBTAINED => https://bootsnipp.com/snippets/qrBX0 -->
-<html lang="en">
-<head>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
-    <link rel="stylesheet" type="text/css" href="https://bootswatch.com/paper/bootstrap.min.css" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-    <meta charset="UTF-8" />
-    <title>Profile</title>
-</head>
-<body>
-    <div class="">
-        <!-- UI - X Starts -->
-        <div class="ui-67">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.w3.org/1999/xhtml"
+      lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-            <!-- Head Starts -->
-            <div class="ui-head bg-lblue">
-                <!-- Details -->
-                <div class="ui-details">
-                    <!-- Name -->
-                    <h3 id="name-header">Steve Miller</h3>
-                    <!-- Designation -->
-                    <h4>Client Account</h4>
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css" /> <!-- For the profile template -->
+        <link th:href="@{/assets/dist/css/profile.css}" rel="stylesheet" id="profile-css" />
+
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+        <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+
+        <title>Profile</title>
+    </head>
+
+    <!--
+        Attribute th:field will replace attributes value, id and name in your input tag.
+
+        Instead, use plain th:id, th:value and th:name without using th:field. Then you will get what you wanted.
+    -->
+    <body>
+
+        <!-- Header -->
+        <header class="navbar navbar-default navbar-static-top" id="header">
+            <div class="container">
+
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".header-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" th:href="@{/}">WebGE <i>by URJC</i></a>
                 </div>
-                <!-- Image -->
-                <div class="ui-image">
-                    <!-- User Image -->
-                    <img src="https://api.adorable.io/avatars/285/abott@adorable.png" alt="Profile Picture" class="img-responsive" width="100" height="100" />
+
+                <div class="collapse navbar-collapse header-collapse">
+                    <ul sec:authorize="isAuthenticated()" class="nav navbar-nav">
+                        <li><a th:href="@{/}">Home</a></li>
+                        <li><a th:href="@{/user/experiment/experimentRepository}">Experiments</a></li>
+                        <li><a th:href="@{/user/profile}">Profile</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Submenu<span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">Option One</a></li>
+                                <li><a href="#">Option Two</a></li>
+                                <li><a href="#">Option Three</a></li>
+                                <li><a href="#">Option Four</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <p sec:authorize="isAuthenticated()" class="navbar-text navbar-right btn btn-default"><a  th:href="@{/logout}">Logout</a></p>
+                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-default"><a th:href="@{/registration}">Registration</a></p>
+                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-default"><a th:href="@{/user}">Login</a></p>
+
                 </div>
             </div>
-            <!-- Head Ends -->
+        </header>
+        <!-- END Header -->
 
-            <!-- Content Starts -->
-            <div class="ui-content">
+        <!-- Main -->
+        <div class="container">
+            <div id="forms" class="panel panel-default">
+                <header class="panel-heading">
+                    <h2>Profile information</h2>
+                </header>
 
-                <div class="row">
+                <section class="panel-body center-block">
+                    <div class="card hovercard">
+                        <div class="card-background">
+                            <img class="card-bkimg" src="https://api.adorable.io/avatars/285/abott@adorable.png" />
+                            <!-- http://lorempixel.com/850/280/people/9/ -->
+                        </div>
+                        <div class="useravatar">
+                            <img alt="" src="https://api.adorable.io/avatars/285/abott@adorable.png"/>
+                        </div>
+                        <div class="card-info">
+                            <b><span class="card-title" th:text="${userLogged.getUsername()}"></span></b>
+                        </div>
+                    </div>
+                </section>
 
-                    <div class="col-sm-8 col-md-8 col-lg-8 col-lg-offset-2 acc-col">
-                        <section>
-                            <h3>Contact Information</h3>
-                            <form class="ng-pristine ng-valid" role="form">
+                <section>
+                    <div class="btn-pref btn-group btn-group-justified btn-group-lg" role="group" aria-label="...">
+                        <div class="btn-group" role="group">
+                            <button type="button" id="userInformation" class="btn btn-primary" href="#tab1" data-toggle="tab"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                                User information
+                            </button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" id="workStudyInformation" class="btn btn-default" href="#tab2" data-toggle="tab"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                Work / Study information
+                            </button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" id="updatePassword" class="btn btn-default" href="#tab3" data-toggle="tab"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+                                Update password
+                            </button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" id="aboutMeSection" class="btn btn-default" href="#tab4" data-toggle="tab"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                                About me
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="well">
+                    <div class="tab-content">
+                        <section id="tab1" class="tab-pane fade in active">
+                            <form th:action="@{/user/updateUserBasicInfo}" th:object="${userBasicInfo}" class="form-horizontal" role="form" method="post">
+
                                 <div class="row">
-                                    <div class="col-sm-12">
-                                        <label for="inputName" class="control-label">Name:</label>
-                                        <input type="text" class="form-control" id="inputName" />
+                                    <div class="form-group col-lg-6 col-sm-6">
+                                        <label class="control-label" for="firstName">First name:</label>
+                                        <input type="text" class="form-control" th:name="firstName" th:id="firstName" id="firstName" th:value="${userLogged.getFirstName()}" />
+                                    </div>
+                                    <div class="form-group col-lg-6 col-sm-6">
+                                        <label class="control-label" for="lastName">Last name:</label>
+                                        <input type="text" class="form-control" th:name="lastName" th:id="lastName" id="lastName" th:value="${userLogged.getLastName()}"/>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="form-group col-lg-6 col-sm-6">
+                                        <label class="control-label" for="email">Email:</label>
+                                        <input type="email" class="form-control" th:name="email" th:id="email" id="email" th:value="${userLogged.getEmail()}"/>
+                                    </div>
+                                    <div class="form-group col-lg-6 col-sm-6">
+                                        <label class="control-label" for="phone">Phone Number:</label>
+                                        <input type="tel" class="form-control" th:name="phone" th:id="phone" id="phone" th:value="${userLogged.getPhone()}" />
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="form-group col-lg-12 col-sm-12">
+                                        <label class="control-label" for="addressDirection">Direction:</label>
+                                        <input type="text" class="form-control" th:name="addressDirection" th:id="addressDirection" id="addressDirection" th:value="${userLogged.getAddressDirection()}"/>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-sm-6">
-                                        <label for="inputEmail3" class="control-label">Email:</label>
-                                        <input type="email" class="form-control" id="inputEmail3" />
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <label for="inputPassword3" class="control-label">Phone Number:</label>
-                                        <input type="text" class="form-control" id="inputPassword3" />
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-4">
-                                        <label for="inputEmail3" class="control-label">Address:</label>
-                                        <input type="email" class="form-control" id="inputEmail3" />
-                                    </div>
-                                    <div class="col-sm-4">
-                                        <label for="inputPassword3" class="control-label">City:</label>
-                                        <input type="text" class="form-control" id="inputPassword3" />
+                                    <div class="form-group col-lg-4 col-sm-4">
+                                        <label class="control-label" for="city">City:</label>
+                                        <input type="text" class="form-control" th:name="city" th:id="city" id="city" th:value="${userLogged.getCity()}"/>
                                     </div>
 
-                                    <div class="col-sm-2">
-                                        <label for="inputPassword3" class="control-label">State/Province:</label>
-                                        <input type="text" class="form-control" id="inputPassword3" />
+                                    <div class="form-group col-lg-4 col-sm-4">
+                                        <label class="control-label" for="state">State/Province:</label>
+                                        <input type="text" class="form-control" th:name="state" th:id="state" id="state" th:value="${userLogged.getState()}"/>
                                     </div>
 
-                                    <div class="col-sm-2">
-                                        <label for="inputPassword3" class="control-label">Zipcode:</label>
-                                        <input type="text" class="form-control" id="inputPassword3" />
+                                    <div class="form-group col-lg-4 col-sm-4">
+                                        <label class="control-label" for="zipcode">Zipcode:</label>
+                                        <input type="text" class="form-control" th:name="zipcode" th:id="zipcode" id="zipcode" th:value="${userLogged.getZipcode()}"/>
                                     </div>
                                 </div>
 
                                 <br/>
 
-                                <div class="col-sm-12">
-                                    <div class="btn-div">
-                                        <a href="https://creativethoughtz.com" class="btn btn-success pull-right">Update</a>
+                                <div class="row">
+                                    <div class="form-group col-lg-12 col-sm-12">
+                                        <button type="submit" class="btn-primary btn-lg center-block">Update</button>
                                     </div>
                                 </div>
                             </form>
                         </section>
 
-                        <section>
-                            <h3>Login Information</h3>
-                            <form class="" role="form">
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <label for="inputEmail3" class="control-label">Password:</label>
-                                        <div class="">
-                                            <input type="password" class="form-control" id="inputEmail3" />
+                        <section class="tab-pane fade in" id="tab2">
+                            <div class="box">
+                                <form th:action="@{/user/updateStudy}" th:object="${userStudy}" class="form-horizontal" role="form" method="post">
+                                    <div class="row">
+                                        <div class="form-group col-lg-12 col-sm-12">
+                                            <label class="control-label" for="studyInformation">Study:</label>
+                                            <input class="form-control" type="text" th:name="studyInformation" th:id="studyInformation" id="studyInformation" th:value="${userLogged.getStudyInformation()}"/>
                                         </div>
-                                    </div>
-                                    <div class="col-sm-12">
-                                        <label for="inputPassword3" class="control-label">Confirm:</label>
-                                        <div class="">
-                                            <input type="password" class="form-control" id="inputPassword3" />
+                                        <div class="form-group col-lg-12 col-sm-12">
+                                            <label class="control-label" for="workInformation">Work:</label>
+                                            <input class="form-control" type="text" th:name="workInformation" th:id="workInformation" id="workInformation" th:value="${userLogged.getWorkInformation()}"/>
                                         </div>
                                     </div>
 
                                     <br/>
 
-                                    <div class="col-sm-12">
-                                        <div class="btn-div">
-                                            <a href="https://creativethoughtz.com" class="btn btn-success pull-right">Update</a>
+                                    <div class="row">
+                                        <div class="form-group col-lg-12 col-sm-12">
+                                            <button type="submit" class="btn-primary btn-lg center-block">Update</button>
                                         </div>
                                     </div>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
                         </section>
 
-                        <section>
-                            <h3>Personal Information</h3>
-                            <form class="ng-pristine ng-valid" role="form">
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <label for="inputPassword3" class="col-sm-12 control-label">About Me:</label>
-                                        <div class="">
-                                            <textarea rows="5" class="form-control" id="inputPassword3"></textarea>
+                        <section class="tab-pane fade in" id="tab3">
+                            <div class="box">
+                                <form th:action="@{/user/updateUserPassword}" th:object="${userPassword}" class="form-horizontal" role="form" method="post">
+                                    <div class="row">
+                                        <div class="form-group col-lg-6 col-sm-6">
+                                            <label class="control-label" for="password">Password:</label>
+                                            <input class="form-control" type="password" th:name="password" th:id="password" id="password" />
+                                        </div>
+                                        <div class="form-group col-lg-6 col-sm-6">
+                                            <label class="control-label" for="confirmPassword">Confirm:</label>
+                                            <input class="form-control" type="password" th:name="confirmPassword" th:id="confirmPassword" id="confirmPassword" />
                                         </div>
                                     </div>
 
                                     <br/>
 
-                                    <div class="col-sm-12">
-                                        <div class="btn-div">
-                                            <a href="https://creativethoughtz.com" class="btn btn-success pull-right">Update</a>
+                                    <div class="row">
+                                        <div class="form-group col-lg-12 col-sm-12">
+                                            <button type="submit" class="btn-primary btn-lg center-block">Update</button>
                                         </div>
                                     </div>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
                         </section>
 
+                        <section class="tab-pane fade in" id="tab4">
+                            <div class="box">
+                                <form th:action="@{/user/updateAboutMe}" th:object="${userAboutMe}" class="form-horizontal" role="form" method="post">
+                                    <div class="row">
+                                        <div class="form-group col-lg-12 col-sm-12">
+                                            <label class="control-label" for="aboutMe">About Me:</label>
+                                            <textarea class="form-control" rows="7" th:name="aboutMe" th:id="aboutMe" id="aboutMe"  th:inline="text">[[${userLogged.getAboutMe()}]]</textarea>
+                                        </div>
+                                    </div>
+
+                                    <br/>
+
+                                    <div class="row">
+                                        <div class="form-group col-lg-12 col-sm-12">
+                                            <button type="submit" class="btn-primary btn-lg center-block">Update</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </section>
                     </div>
-                    <!-- col-8 -->
                 </div>
-
             </div>
-            <!-- Content Ends -->
         </div>
-        <!-- UI - X Ends -->
-    </div>
-</body>
+
+
+    <!-- JS -->
+    <script>
+        $(document).ready(function() {
+            $(".btn-pref .btn").click(function () {
+                $(".btn-pref .btn").removeClass("btn-primary").addClass("btn-default");
+                // $(".tab").addClass("active"); // instead of this do the below
+                $(this).removeClass("btn-default").addClass("btn-primary");
+            });
+        });
+    </script>
+    <!-- END JS -->
+
+    </body>
 </html>

@@ -3,18 +3,18 @@ package com.gramevapp.web.model;
 import com.gramevapp.web.abstractClasses.AbstractDomainClass;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 @Entity
-//@Table(uniqueConstraints = @UniqueConstraint(columnNames = "role"), name = "role")
 @Table(name = "role")
-public class Role {
+public class Role implements Serializable {
     // Admin, normal user, user with privilages (?) ....
 
     @Id
-    @Column(name = "id", nullable = false, updatable= false)
+    @Column(name = "ROLE_ID", nullable = false, updatable= false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
@@ -70,31 +70,7 @@ public class Role {
     public String getRole() {
         return role;
     }
-
     public void setRole(String role) {
         this.role = role;
     }
-
-    /*public List<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
-    }
-
-    public void addUser(User user){
-        if(!this.users.contains(user)){
-            this.users.add(user);
-        }
-
-        if(!user.getRoles().contains(this)){
-            user.getRoles().add(this);
-        }
-    }
-
-    public void removeUser(User user){
-        this.users.remove(user);
-        user.getRoles().remove(this);
-    }*/
 }

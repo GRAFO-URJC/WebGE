@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.w3.org/1999/xhtml"
+      lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css" /> <!-- For the profile template -->
+        <link th:href="@{/assets/dist/css/bootstrap.css}" rel="stylesheet" id="main-css" />
+        <link th:href="@{/assets/dist/css/configExperiment.css}" rel="stylesheet" id="configExperiment-css" />
+
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+        <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+
+        <title>Experiment testing area</title>
+    </head>
+
+    <!--
+        Attribute th:field will replace attributes value, id and name in your input tag.
+
+        Instead, use plain th:id, th:value and th:name without using th:field. Then you will get what you wanted.
+    -->
+    <body>
+    <div>
+
+        <!-- Header -->
+        <header class="navbar navbar-default navbar-static-top" id="header">
+            <div class="container">
+
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".header-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" th:href="@{/}">WebGE <i>by URJC</i></a>
+                </div>
+
+                <div class="collapse navbar-collapse header-collapse">
+                    <ul sec:authorize="isAuthenticated()" class="nav navbar-nav">
+                        <li><a th:href="@{/}">Home</a></li>
+                        <li><a th:href="@{/user/experiment/experimentRepository}">Experiments</a></li>
+                        <li><a th:href="@{/user/profile}">Profile</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Submenu<span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">Option One</a></li>
+                                <li><a href="#">Option Two</a></li>
+                                <li><a href="#">Option Three</a></li>
+                                <li><a href="#">Option Four</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <p sec:authorize="isAuthenticated()" class="navbar-text navbar-right btn btn-default"><a  th:href="@{/logout}">Logout</a></p>
+                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-default"><a th:href="@{/registration}">Registration</a></p>
+                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-default"><a th:href="@{/user}">Login</a></p>
+
+                </div>
+            </div>
+        </header>
+        <!-- END Header -->
+
+        <!-- Main -->
+        <div class="container">
+            <div id="forms" class="panel panel-default">
+                <header class="panel-heading">
+                    <h2>Experiment configuration area</h2>
+                </header>
+
+                <section class="panel-body">
+                    <form th:action="@{/user/experiment/start}"  enctype="multipart/form-data" th:object="${configExp}" role="form" method="POST">
+
+                        <div class="row center-block form-horizontal">
+
+                            <!-- Experiment NAME and DESCRIPTION -->
+                            <div class="row form-group">
+                                 <div class="col-sm-12 col-md-12 col-lg-12" >
+                                     <div th:classappend="${#fields.hasErrors('experimentName')}? 'has-error':'experimentName error'">
+                                         <input type="text" class="form-control" id="experimentName" name="experimentName" th:value="${configuration.getExperimentName()}" placeholder="Name of the experiment" />
+                                     </div>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <div th:classappend="${#fields.hasErrors('experimentDescription')}? 'has-error':'experimentDescription error'">
+                                        <input type="text" class="form-control" id="experimentDescription" name="experimentDescription" th:value="${configuration.getExperimentDescription()}" placeholder="Description of the experiment" />
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- END Experiment NAME and DESCRIPTION -->
+
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                <hr/>
+                            </div>
+
+                            <!-- Properties -->
+                            <div class="col-sm-12 col-md-6 col-lg-6">
+                                <div class="row form-group">
+                                    <div class="jumbotron row form-group">
+                                        <h3>Properties of the experiment</h3>
+                                    </div>
+                                    <div class="col-sm-12 col-md-4 col-lg-4">
+                                        <label for="generations">Generations:</label>
+                                        <div th:classappend="${#fields.hasErrors('generations')}? 'has-error':'generations error'">
+                                            <input type="number" class="text-center" th:min="0" th:value="${configuration.getGenerations()}" name="generations" id="generations"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-4 col-lg-4">
+                                        <label for="crossoverProb">Crossover Prob.:</label>
+                                        <div th:classappend="${#fields.hasErrors('crossoverProb')}? 'has-error':'crossoverProb error'">
+                                            <input type="number" class="text-center" th:min="0" th:step="0.01" th:value="${configuration.getCrossoverProb()}" name="crossoverProb" id="crossoverProb"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-4 col-lg-4">
+                                        <label for="populationSize">Population size:</label>
+                                        <div th:classappend="${#fields.hasErrors('populationSize')}? 'has-error':'populationSize error'">
+                                            <input type="number" class="text-center" th:min="0" th:max="100000" th:value="${configuration.getPopulationSize()}" name="populationSize" id="populationSize" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row form-group">
+                                    <div class="col-sm-12 col-md-4 col-lg-4">
+                                        <label for="mutationProb">Mutation Prob.:</label>
+                                        <div th:classappend="${#fields.hasErrors('mutationProb')}? 'has-error':'mutationProb error'">
+                                            <input type="number" class="text-center" th:min="0" th:step="0.01" th:value="${configuration.getMutationProb()}" name="mutationProb" id="mutationProb"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-4 col-lg-4">
+                                        <label for="maxWraps">Max wraps:</label>
+                                        <div th:classappend="${#fields.hasErrors('maxWraps')}? 'has-error':'maxWraps error'">
+                                            <input type="number" class="text-center" th:min="0" th:value="${configuration.getMaxWraps()}" value="3" name="maxWraps" id="maxWraps"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-4 col-lg-4">
+                                        <label for="numCodons">Num. Codons:</label>
+                                        <div th:classappend="${#fields.hasErrors('numCodons')}? 'has-error':'numCodons error'">
+                                            <input type="number" class="text-center" th:min="0" th:value="${configuration.getNumCodons()}" value="100" name="numCodons" id="numCodons" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row form-group text-center">
+                                    <div class="col-sm-12 col-md-6 col-lg-6">
+                                        <label for="tournament">Tournament:</label>
+                                        <div th:classappend="${#fields.hasErrors('tournament')}? 'has-error':'tournament error'">
+                                            <input type="number" class="text-center" th:min="0" th:value="${configuration.getTournament()}" value="2" name="tournament" id="tournament" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-6">
+                                        <label for="numberRuns">Number of runs:</label>
+                                        <div th:classappend="${#fields.hasErrors('numberRuns')}? 'has-error':'numberRuns error'">
+                                            <input type="number" class="text-center" th:min="0" th:value="${configuration.getNumberRuns()}" value="1" name="numberRuns" id="numberRuns" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- END Properties -->
+
+                            <!-- Grammar file -->
+                            <div class="col-sm-12 col-md-6 col-lg-6 center-block">
+                                <div class="jumbotron row form-group">
+                                    <h3>Grammar file information</h3>
+                                </div>
+                                <div class="row form-group center-block">
+                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                        <span>Upload your grammar file: <input type="file" name="grammarFile" id="grammarFile"/></span>
+                                        <p class="help-block">Select or drop your grammar to be run here</p>
+                                    </div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                        <div th:classappend="${#fields.hasErrors('grammarName')}? 'has-error':'grammarName error'">
+                                            <input type="text" class="form-control" th:value="${grammar.getGrammarName()}" name="grammarName" id="grammarName" placeholder="Name of the grammar" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <br/>
+
+                                <div class="row form-group">
+                                    <div class="col-sm-12 col-md-12 col-lg-12" >
+                                        <div th:classappend="${#fields.hasErrors('grammarDescription')}? 'has-error':'grammarDescription error'">
+                                            <input type="text" class="form-control" th:value="${grammar.getGrammarDescription()}" name="grammarDescription" id="grammarDescription" placeholder="Description of the grammar" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <br/>
+
+                                <div class="row form-group">
+                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                        <div th:classappend="${#fields.hasErrors('fileText')}? 'has-error':'fileText error'">
+                                            <textarea rows="5" class="form-control" th:text="${grammar.getFileText()}" placeholder="Grammar file "  name="fileText" id="fileText" th:inline="text" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <br/>
+
+                                <div class="row form-group text-center">
+                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                        <a name="downloadGrammarButton" id="downloadGrammarButton" class="btn-default btn-sm">Download grammar</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- END Grammar file -->
+
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                <hr/>
+                            </div>
+
+                            <!-- Training Test Validation files -->
+                            <div class="col-sm-12 col-md-12 col-lg-12 center-block">
+                                <div class="jumbotron row form-group">
+                                    <h3>Data type information</h3>
+                                </div>
+                                <div class="row form-group center-block text-center">
+                                    <div class="col-sm-12 col-md-12 col-lg-8">
+                                        <div th:classappend="${#fields.hasErrors('dataTypeName')}? 'has-error':'dataTypeName error'">
+                                            <input type="text" class="form-control" name="dataTypeName" id="dataTypeName" th:value="${type.getDataTypeName()}" placeholder="Name" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-sm-12 col-md-12 col-lg-12 text-center">
+                                        <div th:classappend="${#fields.hasErrors('dataTypeDescription')}? 'has-error':'dataTypeDescription error'">
+                                            <input type="text" class="form-control" name="dataTypeDescription" id="dataTypeDescription" th:value="${type.getDataTypeDescription()}" placeholder="Description of the file" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row form-group text-center">
+                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                        <input type="radio" value="Training" th:name="dataTypeType" th:id="dataTypeType" th:value="${type.getDataTypeType()}" checked="checked"/> Training
+                                        <input type="radio" value="Validation" th:name="dataTypeType" th:id="dataTypeType" th:value="${type.getDataTypeType()}" /> Validation
+                                        <input type="radio" value="Test" th:name="dataTypeType" th:id="dataTypeType" th:value="${type.getDataTypeType()}" /> Test
+                                    </div>
+                                </div>
+
+                                <div class="row form-group">
+                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                        <input type="file" name="typeFile" id="typeFile"/>
+                                    </div>
+                                </div>
+
+                                <!-- Data Type table to load -->
+                                <input class="hiddeRadio" type="radio" th:id="radioDataType" th:name="radioDataType" checked="checked" />
+                                <div th:if="${not #lists.isEmpty(dataTypeList)}">
+                                    <h2>Data type files</h2>
+                                    <table class="table table-hover" id="expTypeTable">
+                                        <thead>
+                                        <tr>
+                                            <th scope="col">   </th>
+                                            <th scope="col">Id ExpDataType</th>
+                                            <th scope="col">File name</th>
+                                            <th scope="col">File description</th>
+                                            <th scope="col">File type</th>
+                                            <th scope="col">Creation date</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr id="" th:each="dataType, iterStat : ${dataTypeList}">     <!-- We are using model Experiment and not ExperimentDto -->
+                                            <td scope="row"><input type="radio" th:id="radioDataType" th:name="radioDataType" th:value="${dataType.getId()}" /></td>
+                                            <td scope="row"><label th:text="${dataType.getId()}" th:id="'expDataTypeIdList'+${iterStat.count}" th:name="expDataTypeIdList" /></td>
+                                            <td scope="row"><label th:text="${dataType.getDataTypeName()}" th:name="expDataTypeNameList" th:id="expDataTypeNameList" /></td>
+                                            <td scope="row"><label th:text="${dataType.getDataTypeDescription()}" th:name="expDataTypeDescriptionList" th:id="expDataTypeDescriptionList" /></td>
+                                            <td scope="row"><label th:text="${dataType.getDataTypeType()}" th:name="expDataTypeTypeList" th:id="expDataTypeTypeList" /></td>
+                                            <td scope="row"><label th:text="${dataType.getCreationDate()}" th:name="status" th:id="status" /></td>
+                                            <!--<td scope="row"><a class="btn-default btn-sm" onclick="fillInput($(user.getId()) ,$(dataType.getId()),  $(dataType.getDataTypeName()))" id="loadDataTypeButton" name="loadDataTypeButton">select</a></td>-->
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- END Data Type table to load grammar -->
+
+                                <div class="row form-group text-center">
+                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                        <a name="downloadTypeButton" id="downloadTypeButton" class="btn-default btn-sm">Download</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- END Training Test Validation files -->
+
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                <hr/>
+                            </div>
+
+                            <!--  Save Clone and Run -->
+                            <div class="row text-center">
+                                <div class="col-sm-4 col-md-4 col-lg-4">
+                                    <button type="submit" id="saveExperimentButton" name="saveExperimentButton" class="btn-primary btn-lg">Save experiment</button>
+                                </div>
+                                <div class="col-sm-4 col-md-4 col-lg-4">
+                                    <button type="submit" id="cloneExperimentButton" name="cloneExperimentButton" class="btn-primary btn-lg">Clone experiment</button>
+                                </div>
+                                <div class="col-sm-4 col-md-4 col-lg-4">
+                                    <button type="submit" id="runExperimentButton" name="runExperimentButton" class="btn-primary btn-lg">Run experiment</button>
+                                </div>
+                            </div>
+                            <!-- END Save Clone and Run -->
+
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+        <!-- END Main -->
+
+        <!-- RUN SECTION -->
+        <div class="container" th:if="${not #lists.isEmpty(runList)}">
+            <div id="forms" class="panel panel-default">
+                <header class="panel-heading">
+                    <h2>Experiment runs area information</h2>
+                </header>
+
+                <section class="panel-body">
+                    <div>
+                        <h2>List of runs</h2>
+                        <table class="table table-hover" id="expTypeTable">
+                            <thead>
+                            <tr>
+                                <th scope="col"># Run</th>
+                                <th scope="col">Experiment name</th>
+                                <th scope="col">Experiment description</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Creation date</th>
+                                <th scope="col">Last modification date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <th:block th:each="run, iterStat : ${runList}">
+                                    <tr>
+                                        <form th:action="@{/user/experiment/runList}" th:object="${runObj}" method="GET" class="form-horizontal">
+                                            <input type="text" class="hiddenInput" th:name="id" th:id="id" th:value="${run.getId()}" />
+                                            <td scope="row"><label th:text="${run.getId()}" /></td>
+                                            <td scope="row"><label th:name="runName" th:id="runName" th:text="${run.getRunName()}" /></td>
+                                            <td scope="row"><label th:name="runDescription" th:id="runDescription" th:text="${run.getRunDescription()}" /></td>
+                                            <td scope="row"><label th:name="status" th:id="status" th:text="${run.getStatus()}" /></td>
+                                            <td scope="row"><label th:name="iniDate" th:id="iniDate" th:text="${run.getIniDate()}" /></td>
+                                            <td scope="row"><label th:name="lastDate" th:id="lastDate" th:text="${run.getLastDate()}" /></td>
+
+                                            <td scope="row">
+                                                <button type="submit" id="loadExperimentButton" name="loadExperimentButton" class="btn-default loadButton">Load experiment</button>
+                                            </td>
+                                            <td scope="row">
+                                                <a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse" class="accordion-toggle">More details <span class="glyphicon glyphicon-chevron-down"></span></a>
+                                            </td>
+                                        </form>
+                                    </tr>
+
+                                    <tr>
+                                        <td colspan="9">
+                                            <div class="panel-collapse collapse" th:id="'collapse'+${iterStat.index}">
+                                                <h4><b>Run details </b></h4>
+                                                <br/>
+                                                <ul class="list-inline">
+                                                    <li>
+                                                        <span class="glyphicon glyphicon-chevron-right">
+                                                            Experiment ID:
+                                                            <label th:text="${configuration.getId()}"></label>
+                                                        </span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </th:block>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+*        <!-- END RUN SECTION -->
+
+    </div>
+
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/mainGramEv.js"></script>
+
+    <script>
+        // Load the file in grammar text area
+        // External data file handling starts here
+        var control = document.getElementById("grammarFile");
+        control.addEventListener("change", function(event){
+            var reader = new FileReader();
+            reader.onload = function(event){
+                var contents = event.target.result;
+                document.getElementById('fileText').value = contents;
+            };
+            reader.onerror = function(event){
+                console.error("File could not be read! Code " + event.target.error.code);
+            };
+            console.log("Filename: " + control.files[0].name);
+            reader.readAsText(control.files[0]);
+        }, false);
+    </script>
+
+    <script>
+        // Download grammar text area file
+        function saveTextAsFile() {
+            var textToWrite = document.getElementById('fileText').value;
+            var textFileAsBlob = new Blob([ textToWrite ], { type: 'text/plain' });
+            var fileNameToSaveAs =  document.getElementById('grammarName').value;
+
+            var downloadLink = document.createElement("a");
+            downloadLink.download = fileNameToSaveAs+".txt";
+            downloadLink.innerHTML = "Download File";
+
+            if (window.webkitURL != null) {
+                // Chrome allows the link to be clicked without actually adding it to the DOM.
+                downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+            } else {
+                // Firefox requires the link to be added to the DOM before it can be clicked.
+                downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+                downloadLink.onclick = destroyClickedElement;
+                downloadLink.style.display = "none";
+                document.body.appendChild(downloadLink);
+            }
+
+            downloadLink.click();
+        }
+
+        var button = document.getElementById('downloadGrammarButton');
+        button.addEventListener('click', saveTextAsFile);
+
+        function destroyClickedElement(event) {
+            // remove the link from the DOM
+            document.body.removeChild(event.target);
+        }
+    </script>
+
+    <script>
+        /*$("#radioDataType").click(function(){
+            $("#expTypeTable tr").attr({"id" : "selected"}).siblings().removeAttr('id');
+            var value=$(this).find('td:first').html();
+            alert(value);
+        });*/
+    </script>
+
+    </body>
+</html>

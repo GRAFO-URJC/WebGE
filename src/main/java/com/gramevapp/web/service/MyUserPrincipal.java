@@ -8,7 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
 // http://www.baeldung.com/spring-security-authentication-with-a-database
-
 public class MyUserPrincipal implements UserDetails {
     private User user;
 
@@ -16,9 +15,18 @@ public class MyUserPrincipal implements UserDetails {
     private Collection<SimpleGrantedAuthority> authorities;
     private String username;
     private String password;
+    private String firstName;
     private Boolean enabled = true;
 
     public MyUserPrincipal(){}
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
     public void setAuthorities(Collection<SimpleGrantedAuthority> authorities) {
         this.authorities = authorities;

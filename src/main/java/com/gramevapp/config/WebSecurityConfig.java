@@ -26,7 +26,7 @@ public class WebSecurityConfig
     @Autowired
     private LoggingAccessDeniedHandler accessDeniedHandler;
 
-    public static final String REALM_NAME = "memorynotfound.com";
+    public static final String REALM_NAME = "webge.com";
 
     @Autowired
     private MyUserDetailsService myUserDetailsService;
@@ -38,7 +38,6 @@ public class WebSecurityConfig
     @Override
     public void configure(AuthenticationManagerBuilder auth)
             throws Exception {
-
         auth.jdbcAuthentication()
                 .dataSource(dataSource)
                 .usersByUsernameQuery("select email, password, enabled from user where email=?")
@@ -56,14 +55,15 @@ public class WebSecurityConfig
                         "/",
                         "/js/**",
                         "/css/**",
+                        "/css/main.css",
                         "/img/**",
+                        "/assets/**",
                         "/webjars/**").permitAll()
                 .antMatchers("/user/**").hasRole("USER")    // Only users can access to /user/whatever
                 .antMatchers("/admin/**").access("hasAnyAuthority('ADMIN')")
                 .anyRequest().authenticated()
             .and()
                 .formLogin().loginPage("/login")
-                //.usernameParameter("username").passwordParameter("password")
                 .permitAll()
             .and()
             .logout()
@@ -96,13 +96,4 @@ public class WebSecurityConfig
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
-
-
-    /*@Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()     // This is good for test -> But we are going to use data base access
-                .withUser("user").password("password").roles("USER")
-                .and()
-                .withUser("manager").password("password").roles("MANAGER");
-    }*/
 }

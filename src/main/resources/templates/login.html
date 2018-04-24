@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <link rel="stylesheet" th:href="@{/assets/dist/css/bootstrap.css}" />
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+        <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+
+        <title>Login</title>
+    </head>
+    <body>
+
+
+        <!-- Header -->
+        <header class="navbar navbar-default navbar-static-top" id="header">
+            <div class="container">
+
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".header-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" th:href="@{/}">WebGE <i>by URJC</i></a>
+                </div>
+
+                <div class="collapse navbar-collapse header-collapse">
+                    <ul sec:authorize="isAuthenticated()" class="nav navbar-nav">
+                        <li><a th:href="@{/}">Home</a></li>
+                        <li><a th:href="@{/user/experiment/experimentRepository}">Experiments</a></li>
+                        <li><a th:href="@{/user/profile}">Profile</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Submenu<span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">Option One</a></li>
+                                <li><a href="#">Option Two</a></li>
+                                <li><a href="#">Option Three</a></li>
+                                <li><a href="#">Option Four</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <p sec:authorize="isAuthenticated()" class="navbar-text navbar-right btn btn-default"><a  th:href="@{/logout}">Logout</a></p>
+                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-default"><a th:href="@{/registration}">Registration</a></p>
+                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-default"><a th:href="@{/user}">Login</a></p>
+
+                </div>
+            </div>
+        </header>
+        <!-- END Header -->
+
+        <!-- Main -->
+        <div class="container">
+            <div id="forms" class="panel panel-default">
+                <header class="panel-heading">
+                    <h2>Login Area </h2>
+                </header>
+
+                <section class="panel-body center-block text-center" style="width: 330px;">
+                    <form th:action="@{/login}" method="post">
+                        <div th:if="${param.error}">
+                            <div class="alert alert-danger">
+                                Invalid username or password.
+                            </div>
+                        </div>
+                        <div th:if="${param.logout}">
+                            <div class="alert alert-info">
+                                You have been logged out.
+                            </div>
+                        </div>
+
+                        <div class="form-group col-lg-12">
+                            <label class="control-label h3" for="username">Username:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                                <input type="text"
+                                       class="text-center"
+                                       id="username"
+                                       name="username"
+                                       autofocus="autofocus"
+                                       placeholder="Username"
+                                       style="width: 250px;  padding-right: 40px;"/>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-lg-12">
+                            <label class="control-label h3" for="password">Password:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                                <input type="password"
+                                       class="text-center"
+                                       id="password"
+                                       name="password"
+                                       placeholder="Password"
+                                       style="width: 250px; padding-right: 40px;"/>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 text-center">
+                            <input type="submit" class="btn-primary btn-lg" name="login-submit" id="login-submit" value="Log In" />
+                        </div>
+
+                        <div class="col-lg-12 text-center h4">
+                            <br/>
+                            <p><a th:href="@{/registration}">Sign in</a></p>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    <!-- END Main -->
+
+    </body>
+</html>
