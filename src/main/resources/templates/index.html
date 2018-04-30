@@ -6,74 +6,71 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        <!--[if lte IE 8]><script th:href="@{/assets/js/ie/html5shiv.js}" rel="stylesheet" media="screen" /><![endif]-->
-        <link th:href="@{/assets/css/main.css}" rel="stylesheet" />
-        <!--[if lte IE 8]><link th:href="@{/assets/css/ie8.css}" rel="stylesheet" /><![endif]-->
+        <link rel="stylesheet" th:href="@{/assets/dist/css/bootstrap.css}" />
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+        <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 
-        <title>Welcome index</title>
+        <title>Gramatical evaluation App</title>
     </head>
-    <body class="landing">
-        <div id="page-wrapper">
+    <body>
 
-            <!-- Header -->
-            <header id="header">
-                <h1><a th:href="@{/}">WebGE</a> by URJC</h1>
-                <nav id="nav">
-                    <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li>
-                            <a href="#" class="icon fa-angle-down">Layouts</a>
-                            <ul>
-                                <li><a href="generic.html">Generic</a></li>
-                                <li><a href="contact.html">Contact</a></li>
-                                <li><a href="elements.html">Elements</a></li>
-                                <li>
-                                    <a href="#">Submenu</a>
-                                    <ul>
-                                        <li><a href="#">Option One</a></li>
-                                        <li><a href="#">Option Two</a></li>
-                                        <li><a href="#">Option Three</a></li>
-                                        <li><a href="#">Option Four</a></li>
-                                    </ul>
-                                </li>
+        <!-- Header -->
+        <header class="navbar navbar-default navbar-static-top" id="header">
+            <div class="container">
+
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".header-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" th:href="@{/}">WebGE <i>by URJC</i></a>
+                </div>
+
+                <div class="collapse navbar-collapse header-collapse">
+                    <ul sec:authorize="isAuthenticated()" class="nav navbar-nav">
+                        <li><a th:href="@{/}">Home</a></li>
+                        <li><a th:href="@{/user/experiment/experimentRepository}">Experiments</a></li>
+                        <li><a th:href="@{/user/profile}">Profile</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Submenu<span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">Option One</a></li>
+                                <li><a href="#">Option Two</a></li>
+                                <li><a href="#">Option Three</a></li>
+                                <li><a href="#">Option Four</a></li>
                             </ul>
                         </li>
-                        <li>
-                            <div sec:authorize="isAuthenticated()">
-                                <a class="button" th:href="@{/logout}">Logout</a>
-                            </div>
+                    </ul>
 
-                            <div sec:authorize="isAnonymous()">
-                                <a class="button" th:href="@{/user}">Login</a>
-                                <a class="button special" th:href="@{/registration}">Register</a>
-                            </div>
-                        </li>
-                    </ul>
-                </nav>
-            </header>
+                    <p sec:authorize="isAuthenticated()" class="navbar-text navbar-right btn btn-default"><a  th:href="@{/logout}">Logout</a></p>
+                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-default"><a th:href="@{/registration}">Registration</a></p>
+                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-default"><a th:href="@{/user}">Login</a></p>
 
-            <!-- Banner -->
-            <section id="banner">
-                <h2>Welcome</h2>
-                <div>
-                    <ul class="actions">
-                        <li><a href="/user" th:href="@{/user}" class="button special">Log in</a></li>
-                        <li><a href="/registration" th:href="@{/registration}" class="button special">Sign in</a></li>
-                    </ul>
-                    <ul>
-                        <li><a href="#" class="button">Learn More</a></li>
-                    </ul>
                 </div>
-            </section>
+            </div>
+        </header>
+        <!-- END Header -->
 
-            <!-- Scripts -->
-            <script src="../resources/static/assets/js/jquery.min.js"></script>
-            <script src="../resources/static/assets/js/jquery.dropotron.min.js"></script>
-            <script src="../resources/static/assets/js/jquery.scrollgress.min.js"></script>
-            <script src="../resources/static/assets/js/skel.min.js"></script>
-            <script src="../resources/static/assets/js/util.js"></script>
-            <!--[if lte IE 8]><script src="../resources/static/assets/js/ie/respond.min.js"></script><![endif]-->
-            <script src="../resources/static/assets/js/main.js"></script>
+        <!-- Main -->
+        <div class="container">
+            <div id="forms" class="panel panel-default">
+                <header class="panel-heading">
+                    <h2>Welcome</h2>
+                </header>
+
+                <section class="panel-body center-block text-center" style="width: 330px;">
+                    <div class="form-group col-lg-12">
+                        <a th:href="@{/user}" class="btn-primary btn-lg">Log in</a>
+                        <a th:href="@{/registration}" class="btn-primary btn-lg">Sign in</a>
+                    </div>
+                    <div class="form-group col-lg-12">
+                        <a href="#" class="btn-default btn-lg">Learn More</a>
+                    </div>
+                </section>
+            </div>
         </div>
+        <!-- END Main -->
+
     </body>
 </html>

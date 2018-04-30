@@ -5,25 +5,23 @@ import com.gramevapp.web.repository.ExperimentDataTypeRepository;
 import com.gramevapp.web.repository.ExperimentRepository;
 import com.gramevapp.web.repository.ExperimentRowTypeRepository;
 import com.gramevapp.web.repository.GrammarRepository;
-import com.opencsv.bean.CsvToBean;
-import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.bean.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 // We use repositories ExperimentDataType, ExperimentRowType here too.
 @Service
 public class ExperimentService {
-
-    // Test path
-    private static final String SAMPLE_CSV_FILE_PATH = "resources/csv/EjemBasico.csv";
 
     @Autowired
     private ExperimentRepository experimentRepository;
@@ -37,41 +35,44 @@ public class ExperimentService {
     @Autowired
     private ExperimentRowTypeRepository experimentRowTypeRepository;
 
-    // Load all the data of ExperimentDataTypeFile (Id, userId, name, description/status, modificationDate, List<ExpRowType>,..)
-    public void loadExperimentDataTypeFile() throws IOException{
-
-
-        Reader reader = Files.newBufferedReader(Paths.get(SAMPLE_CSV_FILE_PATH));
-        //loadExperimentRowTypeFile(reader);
-    }
-
-
     // Add ExperimentDataType file into the DD.BB. - Just the Validation, Test, Training text
     // - This means read line by line the file, create a ExperimentRowType by line,
     // add the line in the list and upload the row in the DDBB
     public void loadExperimentRowTypeFile(Reader fileTypeReader, ExperimentDataType expDataType){
+        /*HeaderColumnNameMappingStrategy<ExperimentRowType> strategy
+                = new HeaderColumnNameMappingStrategy<>();
+        strategy.setType(ExperimentRowType.class);*/
 
-            try {
-                CsvToBean csvToBean = new CsvToBeanBuilder(fileTypeReader)
-                        .withType(ExperimentRowType.class)
-                        .withIgnoreLeadingWhiteSpace(true)
-                        .build();
+        ColumnPositionMappingStrategy strategy = new ColumnPositionMappingStrategy();
+        strategy.setType(ExperimentRowType.class);
+        String[] fields = {"Y", "X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8", "X9", "X10"};
+        strategy.setColumnMapping(fields);
 
-                List<ExperimentRowType> expRowsType = csvToBean.parse();
+        try {
+            CsvToBean csvToBean = new CsvToBeanBuilder(fileTypeReader)
+                    .withSeparator(';')
+                    .withMappingStrategy(strategy)
+                    .withType(ExperimentRowType.class)
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .build();
 
-                for (ExperimentRowType expRowType : expRowsType) {
-                    ExperimentRowType expRow = expDataType.addExperimentRowType(expRowType);
+            List<ExperimentRowType> expRowsType = csvToBean.parse();
 
-                    experimentRowTypeRepository.save(expRow);
+            //expRowsType.forEach(System.out::println);
 
-                    System.out.println("Id Row : " + expRowType.getId());
-                    System.out.println("String row : " + expRowType.getRowString());
-                    System.out.println("---------------------------");
-                }
+            for (ExperimentRowType expRowType : expRowsType) {
+                ExperimentRowType expRow = expDataType.addExperimentRowType(expRowType);
+
+                experimentRowTypeRepository.save(expRow);
+
+                System.out.println("# Y Custom : " + expRowType.getYCustom());
+                System.out.println("X1 : " + expRowType.getX1());
+                System.out.println("---------------------------");
             }
-            catch(Exception e){
-                e.printStackTrace();
-            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     public ExperimentDataType saveDataType(ExperimentDataType expDataType){
@@ -115,4 +116,13 @@ public class ExperimentService {
         return experimentDataTypeRepository.findById(id);
     }
 
+}
+
+class CustomMappingStrategy<T> extends ColumnPositionMappingStrategy<T> {
+    private static final String[] HEADER = new String[]{"# Y custom", "X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8", "X9", "X10"};
+
+    @Override
+    public String[] generateHeader() {
+        return HEADER;
+    }
 }

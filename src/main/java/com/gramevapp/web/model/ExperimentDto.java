@@ -8,14 +8,14 @@ public class ExperimentDto {
     private String experimentName;
     private String experimentDescription;
     private Integer generations = 1000;
-    private Integer populationSize = 50;
+    private Integer populationSize = 100;
     private Integer maxWraps = 3;
     private Integer tournament = 2;
     private Double crossoverProb = 0.5;
     private Double mutationProb = 0.5;
     private String initialization = "";       // Random OR Sensible
     private String results = "";             // Text file with the results of the experiments
-    private Integer numCodons =10;
+    private Integer numCodons = 100;
     private Integer numberRuns = 1;
     private String defaultGrammar = "";
     private String defaultExpDataType = "";

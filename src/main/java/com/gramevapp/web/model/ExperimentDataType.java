@@ -55,8 +55,6 @@ public class ExperimentDataType {
 
     // https://www.thoughts-on-java.org/hibernate-tips-map-bidirectional-many-one-association/
     @OneToMany(mappedBy ="expDataTypeId", cascade= CascadeType.ALL)
-    //@JoinColumn(name="IdExperimentRowType")
-    //@IndexColumn(name="idx")
     private List<ExperimentRowType> listRowsFile;
 
     public ExperimentDataType(){

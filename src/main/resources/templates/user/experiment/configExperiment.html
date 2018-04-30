@@ -95,7 +95,7 @@
                                 <hr/>
                             </div>
 
-                            <!-- Properties -->
+                            <!-- PropertiesDto -->
                             <div class="col-sm-12 col-md-6 col-lg-6">
                                 <div class="row form-group">
                                     <div class="jumbotron row form-group">
@@ -157,7 +157,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- END Properties -->
+                            <!-- END PropertiesDto -->
 
                             <!-- Grammar file -->
                             <div class="col-sm-12 col-md-6 col-lg-6 center-block">
@@ -231,9 +231,9 @@
 
                                 <div class="row form-group text-center">
                                     <div class="col-sm-12 col-md-12 col-lg-12">
-                                        <input type="radio" value="Training" th:name="dataTypeType" th:id="dataTypeType" th:value="${type.getDataTypeType()}" checked="checked"/> Training
-                                        <input type="radio" value="Validation" th:name="dataTypeType" th:id="dataTypeType" th:value="${type.getDataTypeType()}" /> Validation
-                                        <input type="radio" value="Test" th:name="dataTypeType" th:id="dataTypeType" th:value="${type.getDataTypeType()}" /> Test
+                                        <input type="radio" th:name="dataTypeType" th:id="dataTypeType" th:value="traininng" checked="checked"/> Training
+                                        <input type="radio" th:name="dataTypeType" th:id="dataTypeType" th:value="validation" /> Validation
+                                        <input type="radio" th:name="dataTypeType" th:id="dataTypeType" th:value="test" /> Test
                                     </div>
                                 </div>
 
@@ -244,7 +244,7 @@
                                 </div>
 
                                 <!-- Data Type table to load -->
-                                <input class="hiddeRadio" type="radio" th:id="radioDataType" th:name="radioDataType" checked="checked" />
+                                <input class="hiddeRadio" type="radio" th:name="radioDataType" th:id="radioDataType" checked="checked" />
                                 <div th:if="${not #lists.isEmpty(dataTypeList)}">
                                     <h2>Data type files</h2>
                                     <table class="table table-hover" id="expTypeTable">
@@ -332,7 +332,7 @@
                                     <tr>
                                         <form th:action="@{/user/experiment/runList}" th:object="${runObj}" method="GET" class="form-horizontal">
                                             <input type="text" class="hiddenInput" th:name="id" th:id="id" th:value="${run.getId()}" />
-                                            <td scope="row"><label th:text="${run.getId()}" /></td>
+                                            <td scope="row"><label th:text="${run.getId()}"/></td>
                                             <td scope="row"><label th:name="runName" th:id="runName" th:text="${run.getRunName()}" /></td>
                                             <td scope="row"><label th:name="runDescription" th:id="runDescription" th:text="${run.getRunDescription()}" /></td>
                                             <td scope="row"><label th:name="status" th:id="status" th:text="${run.getStatus()}" /></td>

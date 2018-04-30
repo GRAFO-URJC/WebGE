@@ -83,7 +83,7 @@ public class GramEvalTemporalModel extends AbstractProblemGE {
             realDataCopied = 0;
         }
         
-        if (this.properties.getProperty(engine.data.Common.SENSIBLE_INITIALIZATION) != null) {
+        if (this.properties.getProperty(engine.data.Common.SENSIBLE_INITIALIZATION) != null) { // Not initializated in properties
             this.setSensibleInitialization(true,Double.valueOf(this.properties.getProperty(engine.data.Common.SENSIBLE_INITIALIZATION)));
         }
         
@@ -411,21 +411,21 @@ public class GramEvalTemporalModel extends AbstractProblemGE {
 
                 // Just for interrupted executions:
                 System.out.println("\n\n@@;" + problem.generatePhenotype(solutions.get(0)).toString() + "\n\n");
-                /*
+
             // Now we evaluate the solution in the validation engine.data
             logger.info("Validation of solutions[0] with fitness " + solutions.get(0).getObjective(0));
             problem.evaluate(solutions);
             Solution<Variable<Integer>> solution = solutions.get(0);
             problem.evaluator.setTimeTable(problem.dataTable.getValidationTable());
             double validationFitness = problem.dataTable.evaluate(problem.evaluator, solution, 0);
-            if (Boolean.valueOf(properties.getProperty(engine.data.Common.VIEW_RESULTS_PROP))) {
+            /*if (Boolean.valueOf(properties.getProperty(engine.data.Common.VIEW_RESULTS_PROP))) {
                 createDataPlot(problem.evaluator.getTimeTable(), "Predicted value (validation)", "yp (" + validationFitness + ")", problem.generatePhenotype(solution).toString());
-            }
+            }*/
             logger.info("Validation fitness for solutions[0] = " + validationFitness);
             logger.info("Average error for solutions[0]");
             logger.info("Training = " + problem.dataTable.computeAvgError(problem.dataTable.getTrainingTable()));
             logger.info("Validation = " + problem.dataTable.computeAvgError(problem.dataTable.getValidationTable()));
-                 */
+
             }
 
             for (String s : GramEvalTemporalModel.executionReport) {
@@ -620,7 +620,7 @@ public class GramEvalTemporalModel extends AbstractProblemGE {
      * Opens the log population file to add the string that was passed as a 
      * parameter.
      * 
-     * @param str 
+     * @param str
      */
     private static void addToLogFile(String str) {
         try {
