@@ -15,9 +15,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.*;
 import java.util.ArrayList;
@@ -120,7 +117,7 @@ public class ExperimentController {
 
             // DATE TIMESTAMP
             Calendar calendar = Calendar.getInstance();
-            java.sql.Date currentTimestamp = new java.sql.Date(calendar.getTime().getTime());
+            java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
             // END - DATE TIMESTAMP
 
             updExp.updateExperiment(grammar, expDataType, expDto.getExperimentName(), expDto.getExperimentDescription() ,expDto.getGenerations(),

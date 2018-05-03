@@ -42,7 +42,7 @@ public class PropertiesDto {
     private Double crossoverProb;
     private String bnfPathFile;     // = "resources/files/grammar/poli10varopt.bnf"; -- Grammar file
     private Integer objectives;
-    private String classPathSeparator = "=\\:";
+    private String classPathSeparator = "=\\;";
     private Integer executions;
     private String loggerLevel;
     private Double mutationProb;
@@ -50,7 +50,7 @@ public class PropertiesDto {
     private Integer logPopulation;
     private Integer chromosomeLength;   // NumCodons
     private Integer numIndividuals;     // Population value - Population size
-    private Integer numGenerations;     // Num generations??
+    private Integer numGenerations;     // Num generations - Generations
     private Boolean viewResults;
     private Integer maxWraps;
     private Integer modelWidth;
@@ -64,7 +64,7 @@ public class PropertiesDto {
 
     private String initialization;      // Random OR Sensible  -- SensibleInitialization
     private String results;             // Text file with the results of the experiments
-    private Integer numberRuns;         // Num generations??
+    private Integer numberRuns;         // Num executions. Execute the experiment N times and obtain N solutions.
 
     public PropertiesDto() {
     }

@@ -12,7 +12,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Observer;
 import java.util.Properties;
@@ -416,12 +415,12 @@ public class GramEvalTemporalModel extends AbstractProblemGE {
             logger.info("Validation of solutions[0] with fitness " + solutions.get(0).getObjective(0));
             problem.evaluate(solutions);
             Solution<Variable<Integer>> solution = solutions.get(0);
-            problem.evaluator.setTimeTable(problem.dataTable.getValidationTable());
-            double validationFitness = problem.dataTable.evaluate(problem.evaluator, solution, 0);
+            // problem.evaluator.setTimeTable(problem.dataTable.getValidationTable());
+            // double validationFitness = problem.dataTable.evaluate(problem.evaluator, solution, 0);
             /*if (Boolean.valueOf(properties.getProperty(engine.data.Common.VIEW_RESULTS_PROP))) {
                 createDataPlot(problem.evaluator.getTimeTable(), "Predicted value (validation)", "yp (" + validationFitness + ")", problem.generatePhenotype(solution).toString());
             }*/
-            logger.info("Validation fitness for solutions[0] = " + validationFitness);
+            // logger.info("Validation fitness for solutions[0] = " + validationFitness);
             logger.info("Average error for solutions[0]");
             logger.info("Training = " + problem.dataTable.computeAvgError(problem.dataTable.getTrainingTable()));
             logger.info("Validation = " + problem.dataTable.computeAvgError(problem.dataTable.getValidationTable()));
@@ -432,7 +431,7 @@ public class GramEvalTemporalModel extends AbstractProblemGE {
                 log.add(i + ";" + s);
             }
 
-            i++;
+             i++;
         }
 
         System.out.flush();

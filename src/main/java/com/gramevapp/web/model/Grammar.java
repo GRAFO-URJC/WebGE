@@ -37,7 +37,9 @@ public class Grammar {
     @Column
     private String grammarDescription;
 
-    @Column
+    //@Lob
+    //@Column(name="CONTENT", length=512)
+    @Column(columnDefinition = "TEXT") // https://stackoverflow.com/questions/31833337/hibernate-could-not-execute-statement-sql-n-a-saving-nested-object
     private String fileText; // This is the text on the file - That's written in a areaText - So we can take it as a String
 
     public Grammar(){

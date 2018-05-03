@@ -332,7 +332,7 @@
                                     <tr>
                                         <form th:action="@{/user/experiment/runList}" th:object="${runObj}" method="GET" class="form-horizontal">
                                             <input type="text" class="hiddenInput" th:name="id" th:id="id" th:value="${run.getId()}" />
-                                            <td scope="row"><label th:text="${run.getId()}"/></td>
+                                            <td scope="row"><label th:text="${run.getId()}" /></td>
                                             <td scope="row"><label th:name="runName" th:id="runName" th:text="${run.getRunName()}" /></td>
                                             <td scope="row"><label th:name="runDescription" th:id="runDescription" th:text="${run.getRunDescription()}" /></td>
                                             <td scope="row"><label th:name="status" th:id="status" th:text="${run.getStatus()}" /></td>
