@@ -39,9 +39,6 @@ public class ExperimentService {
     // - This means read line by line the file, create a ExperimentRowType by line,
     // add the line in the list and upload the row in the DDBB
     public void loadExperimentRowTypeFile(Reader fileTypeReader, ExperimentDataType expDataType){
-        /*HeaderColumnNameMappingStrategy<ExperimentRowType> strategy
-                = new HeaderColumnNameMappingStrategy<>();
-        strategy.setType(ExperimentRowType.class);*/
 
         ColumnPositionMappingStrategy strategy = new ColumnPositionMappingStrategy();
         strategy.setType(ExperimentRowType.class);
@@ -65,9 +62,9 @@ public class ExperimentService {
 
                 experimentRowTypeRepository.save(expRow);
 
-                System.out.println("# Y Custom : " + expRowType.getYCustom());
+                /*System.out.println("# Y Custom : " + expRowType.getYCustom());
                 System.out.println("X1 : " + expRowType.getX1());
-                System.out.println("---------------------------");
+                System.out.println("---------------------------");*/
             }
         }
         catch(Exception e){
@@ -116,13 +113,4 @@ public class ExperimentService {
         return experimentDataTypeRepository.findById(id);
     }
 
-}
-
-class CustomMappingStrategy<T> extends ColumnPositionMappingStrategy<T> {
-    private static final String[] HEADER = new String[]{"# Y custom", "X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8", "X9", "X10"};
-
-    @Override
-    public String[] generateHeader() {
-        return HEADER;
-    }
 }

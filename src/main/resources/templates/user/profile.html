@@ -18,7 +18,6 @@
 
     <!--
         Attribute th:field will replace attributes value, id and name in your input tag.
-
         Instead, use plain th:id, th:value and th:name without using th:field. Then you will get what you wanted.
     -->
     <body>
@@ -113,48 +112,79 @@
                         <section id="tab1" class="tab-pane fade in active">
                             <form th:action="@{/user/updateUserBasicInfo}" th:object="${userBasicInfo}" class="form-horizontal" role="form" method="post">
 
+                                <!-- Error handling -->
+                                <div class="col-lg-12">
+                                    <p class="text-warning"
+                                       th:each="error: ${#fields.errors('firstName')}"
+                                       th:text="${error}">Validation error
+                                    </p>
+
+                                    <p class="text-warning"
+                                       th:each="error : ${#fields.errors('lastName')}"
+                                       th:text="${error}">Validation error</p>
+
+                                    <p class="text-warning"
+                                       th:each="error : ${#fields.errors('email')}"
+                                       th:text="${error}">Validation error</p>
+
+                                    <p class="text-warning"
+                                       th:each="error : ${#fields.errors('phone')}"
+                                       th:text="${error}">Validation error</p>
+                                </div>
+                                <!-- END error handling -->
+
                                 <div class="row">
                                     <div class="form-group col-lg-6 col-sm-6">
                                         <label class="control-label" for="firstName">First name:</label>
-                                        <input type="text" class="form-control" th:name="firstName" th:id="firstName" id="firstName" th:value="${userLogged.getFirstName()}" />
+                                        <div th:classappend="${#fields.hasErrors('firstName')}? 'has-error':'firstName error'">
+                                            <input type="text" class="form-control" th:name="firstName" id="firstName" th:value="${userLogged.getFirstName()}" />
+                                        </div>
                                     </div>
                                     <div class="form-group col-lg-6 col-sm-6">
                                         <label class="control-label" for="lastName">Last name:</label>
-                                        <input type="text" class="form-control" th:name="lastName" th:id="lastName" id="lastName" th:value="${userLogged.getLastName()}"/>
+                                        <div th:classappend="${#fields.hasErrors('lastName')}? 'has-error':'lastName error'">
+                                            <input type="text" class="form-control" th:name="lastName" id="lastName" th:value="${userLogged.getLastName()}"/>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="form-group col-lg-6 col-sm-6">
                                         <label class="control-label" for="email">Email:</label>
-                                        <input type="email" class="form-control" th:name="email" th:id="email" id="email" th:value="${userLogged.getEmail()}"/>
+                                        <div th:classappend="${#fields.hasErrors('email')}? 'has-error':'email error'">
+                                            <input type="email" class="form-control" th:name="email" id="email" th:value="${userLogged.getEmail()}"/>
+                                        </div>
                                     </div>
                                     <div class="form-group col-lg-6 col-sm-6">
                                         <label class="control-label" for="phone">Phone Number:</label>
-                                        <input type="tel" class="form-control" th:name="phone" th:id="phone" id="phone" th:value="${userLogged.getPhone()}" />
+                                        <div th:classappend="${#fields.hasErrors('phone')}? 'has-error':'email error'">
+                                            <input type="tel" class="form-control" th:name="phone" id="phone" th:value="${userLogged.getPhone()}" />
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="form-group col-lg-12 col-sm-12">
                                         <label class="control-label" for="addressDirection">Direction:</label>
-                                        <input type="text" class="form-control" th:name="addressDirection" th:id="addressDirection" id="addressDirection" th:value="${userLogged.getAddressDirection()}"/>
+                                        <div th:classappend="${#fields.hasErrors('addressDirection')}? 'has-error':'addressDirection error'">
+                                            <input type="text" class="form-control" th:name="addressDirection" id="addressDirection" th:value="${userLogged.getAddressDirection()}"/>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="form-group col-lg-4 col-sm-4">
                                         <label class="control-label" for="city">City:</label>
-                                        <input type="text" class="form-control" th:name="city" th:id="city" id="city" th:value="${userLogged.getCity()}"/>
+                                        <input type="text" class="form-control" th:name="city" id="city" th:value="${userLogged.getCity()}"/>
                                     </div>
 
                                     <div class="form-group col-lg-4 col-sm-4">
                                         <label class="control-label" for="state">State/Province:</label>
-                                        <input type="text" class="form-control" th:name="state" th:id="state" id="state" th:value="${userLogged.getState()}"/>
+                                        <input type="text" class="form-control" th:name="state" id="state" th:value="${userLogged.getState()}"/>
                                     </div>
 
                                     <div class="form-group col-lg-4 col-sm-4">
                                         <label class="control-label" for="zipcode">Zipcode:</label>
-                                        <input type="text" class="form-control" th:name="zipcode" th:id="zipcode" id="zipcode" th:value="${userLogged.getZipcode()}"/>
+                                        <input type="text" class="form-control" th:name="zipcode" id="zipcode" th:value="${userLogged.getZipcode()}"/>
                                     </div>
                                 </div>
 
@@ -174,11 +204,11 @@
                                     <div class="row">
                                         <div class="form-group col-lg-12 col-sm-12">
                                             <label class="control-label" for="studyInformation">Study:</label>
-                                            <input class="form-control" type="text" th:name="studyInformation" th:id="studyInformation" id="studyInformation" th:value="${userLogged.getStudyInformation()}"/>
+                                            <input class="form-control" type="text" th:name="studyInformation" id="studyInformation" th:value="${userLogged.getStudyInformation()}"/>
                                         </div>
                                         <div class="form-group col-lg-12 col-sm-12">
                                             <label class="control-label" for="workInformation">Work:</label>
-                                            <input class="form-control" type="text" th:name="workInformation" th:id="workInformation" id="workInformation" th:value="${userLogged.getWorkInformation()}"/>
+                                            <input class="form-control" type="text" th:name="workInformation" id="workInformation" th:value="${userLogged.getWorkInformation()}"/>
                                         </div>
                                     </div>
 
@@ -199,11 +229,11 @@
                                     <div class="row">
                                         <div class="form-group col-lg-6 col-sm-6">
                                             <label class="control-label" for="password">Password:</label>
-                                            <input class="form-control" type="password" th:name="password" th:id="password" id="password" />
+                                            <input class="form-control" type="password" th:name="password" id="password" />
                                         </div>
                                         <div class="form-group col-lg-6 col-sm-6">
                                             <label class="control-label" for="confirmPassword">Confirm:</label>
-                                            <input class="form-control" type="password" th:name="confirmPassword" th:id="confirmPassword" id="confirmPassword" />
+                                            <input class="form-control" type="password" th:name="confirmPassword" id="confirmPassword" />
                                         </div>
                                     </div>
 
@@ -224,7 +254,7 @@
                                     <div class="row">
                                         <div class="form-group col-lg-12 col-sm-12">
                                             <label class="control-label" for="aboutMe">About Me:</label>
-                                            <textarea class="form-control" rows="7" th:name="aboutMe" th:id="aboutMe" id="aboutMe"  th:inline="text">[[${userLogged.getAboutMe()}]]</textarea>
+                                            <textarea class="form-control" style="resize: none;" rows="7" th:name="aboutMe" id="aboutMe" th:inline="text">[[${userLogged.getAboutMe()}]]</textarea>
                                         </div>
                                     </div>
 

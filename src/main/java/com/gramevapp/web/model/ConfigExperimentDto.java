@@ -1,13 +1,21 @@
 package com.gramevapp.web.model;
 
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class ConfigExperimentDto {
-    @NotEmpty(message = "Please, enter experiment name")
+    private static final String PATTERN = "^[\\p{L} .'-]+$";;  // https://stackoverflow.com/questions/15805555/java-regex-to-validate-full-name-allow-only-spaces-and-letters
+
+    @Pattern(regexp = PATTERN, message = "Experiment name cannot contain strange characters")
+    @NotEmpty(message = "Enter experiment name")
     private String experimentName="";
     @NotEmpty(message = "Enter experiment description")
     private String experimentDescription;
@@ -35,9 +43,9 @@ public class ConfigExperimentDto {
     @Max(value=100)
     @NotNull
     private Double mutationProb = 0.5;
-    @NotEmpty
+    @NotEmpty(message = "Initialization cannot be empty")
     private String initialization = " ";       // Random OR Sensible
-    @NotEmpty
+    @NotEmpty(message = "Results cannot be empty")
     private String results = " ";             // Text file with the results of the experiments
     @Min(value=0)
     @Max(value=100)
@@ -47,22 +55,53 @@ public class ConfigExperimentDto {
     @Max(value=100)
     @NotNull
     private Integer numberRuns = 1;
-    @NotEmpty
+    @NotEmpty(message = "Defaulta grammar file cannot be empty")
     private String defaultGrammar = " ";
-    @NotEmpty
+    @NotEmpty(message = "Default experiment data type file cannot be empty")
     private String defaultExpDataType = " ";
-    @NotEmpty
+    @Pattern(regexp = PATTERN, message = "Grammar file name cannot contain strange characters")
+    @NotEmpty(message = "Grammar file description cannot be empty")
     private String grammarName = " ";
-    @NotEmpty
+    @NotEmpty(message = "Grammar file name cannot be empty")
     private String grammarDescription = " ";
-    @NotEmpty
+    @NotEmpty(message = "Grammar file cannot be empty")
     private String fileText = " "; // This is the text on the file - That's written in an areaText - So we can take it as a String
-    @NotEmpty
+    @NotEmpty(message = "Data type file name cannot be empty")
+    @Pattern(regexp = PATTERN, message = "Data type file name cannot contain strange characters")
     private String dataTypeName = " ";
-    @NotEmpty
+    @NotEmpty(message = "Data type file description cannot be empty")
     private String dataTypeDescription = " "; // status
-    @NotEmpty
+    @NotEmpty(message = "Choose one data type option")
     private String dataTypeType = " ";        // Validation, test, training
+
+    /**
+     * 0 -> Root Mean Squared Error (RMSE)
+     1 -> Clarke Error Grid (CEG)
+     2 -> Bi-objective: RMSE & CEG
+     3 -> R Square (R^2)
+     4 -> Absolute Error (Abs. Error)
+     5 -> Mean Absolute Relative Deviation (MARD)
+     */
+    @NotEmpty
+    private String objective;
+
+    private MultipartFile typeFile;
+
+    public String getObjective() {
+        return objective;
+    }
+
+    public void setObjective(String objective) {
+        this.objective = objective;
+    }
+
+    public MultipartFile getTypeFile() {
+        return typeFile;
+    }
+
+    public void setTypeFile(MultipartFile typeFile) {
+        this.typeFile = typeFile;
+    }
 
     public String getExperimentName() {
         return experimentName;

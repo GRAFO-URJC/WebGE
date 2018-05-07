@@ -6,12 +6,11 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css" /> <!-- For the profile template -->
+        <!--<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css" /> -->
         <link th:href="@{/assets/dist/css/bootstrap.css}" rel="stylesheet" id="main-css" />
         <link th:href="@{/assets/dist/css/configExperiment.css}" rel="stylesheet" id="configExperiment-css" />
 
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
-        <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 
         <title>Experiment testing area</title>
     </head>
@@ -70,13 +69,23 @@
                 </header>
 
                 <section class="panel-body">
-                    <form th:action="@{/user/experiment/start}"  enctype="multipart/form-data" th:object="${configExp}" role="form" method="POST">
-
+                    <form th:action="@{/user/experiment/start}" enctype="multipart/form-data" th:object="${configExp}" role="form" method="POST">
                         <div class="row center-block form-horizontal">
+
+                            <p class="text-warning"
+                               th:if="${#fields.hasGlobalErrors()}"
+                               th:each="error : ${#fields.errors('global')}"
+                               th:text="${error}">Validation error</p>
 
                             <!-- Experiment NAME and DESCRIPTION -->
                             <div class="row form-group">
                                  <div class="col-sm-12 col-md-12 col-lg-12" >
+                                     <!-- Error handling -->
+                                     <p class="text-warning"
+                                        th:each="error: ${#fields.errors('experimentName')}"
+                                        th:text="${error}">Validation error
+                                     </p>
+                                     <!-- END error handling -->
                                      <div th:classappend="${#fields.hasErrors('experimentName')}? 'has-error':'experimentName error'">
                                          <input type="text" class="form-control" id="experimentName" name="experimentName" th:value="${configuration.getExperimentName()}" placeholder="Name of the experiment" />
                                      </div>
@@ -84,6 +93,11 @@
                             </div>
                             <div class="row form-group">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <!-- Error handling -->
+                                    <p class="text-warning"
+                                       th:each="error : ${#fields.errors('experimentDescription')}"
+                                       th:text="${error}">Validation error</p>
+                                    <!-- END error handling -->
                                     <div th:classappend="${#fields.hasErrors('experimentDescription')}? 'has-error':'experimentDescription error'">
                                         <input type="text" class="form-control" id="experimentDescription" name="experimentDescription" th:value="${configuration.getExperimentDescription()}" placeholder="Description of the experiment" />
                                     </div>
@@ -156,6 +170,25 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <!--0 -> Root Mean Squared Error (RMSE)
+                                1 -> Clarke Error Grid (CEG)
+                                2 -> Bi-objective: RMSE & RMSE
+                                3 -> R Square (R^2)
+                                4 -> Absolute Error (Abs. Error)
+                                5 -> Mean Absolute Relative Deviation (MARD) -->
+                                <div class="row form-group text-center">
+                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                        <label for="tournament">Tournament:</label>
+                                        <select class="form-control" name="objective">
+                                            <option value="RMSE">Root Mean Squared Error (RMSE)</option>
+                                            <option value="CEG">Clarke Error Grid (CEG)</option>
+                                            <option value="RMSECEG">Bi-objective: RMSE y CEG</option>
+                                            <option value="R2">R Square (R^2)</option>
+                                            <option value="MARD">Mean Absolute Relative Deviation (MARD)</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                             <!-- END PropertiesDto -->
 
@@ -172,6 +205,12 @@
                                 </div>
                                 <div class="row form-group">
                                     <div class="col-sm-12 col-md-12 col-lg-12">
+                                        <!-- Error handling -->
+                                        <p class="text-warning"
+                                           th:each="error: ${#fields.errors('grammarName')}"
+                                           th:text="${error}">Validation error
+                                        </p>
+                                        <!-- END error handling -->
                                         <div th:classappend="${#fields.hasErrors('grammarName')}? 'has-error':'grammarName error'">
                                             <input type="text" class="form-control" th:value="${grammar.getGrammarName()}" name="grammarName" id="grammarName" placeholder="Name of the grammar" />
                                         </div>
@@ -181,6 +220,11 @@
 
                                 <div class="row form-group">
                                     <div class="col-sm-12 col-md-12 col-lg-12" >
+                                        <!-- Error handling -->
+                                        <p class="text-warning"
+                                           th:each="error : ${#fields.errors('grammarDescription')}"
+                                           th:text="${error}">Validation error</p>
+                                        <!-- END error handling -->
                                         <div th:classappend="${#fields.hasErrors('grammarDescription')}? 'has-error':'grammarDescription error'">
                                             <input type="text" class="form-control" th:value="${grammar.getGrammarDescription()}" name="grammarDescription" id="grammarDescription" placeholder="Description of the grammar" />
                                         </div>
@@ -190,6 +234,12 @@
 
                                 <div class="row form-group">
                                     <div class="col-sm-12 col-md-12 col-lg-12">
+                                        <!-- Error handling -->
+                                        <p class="text-warning"
+                                           th:each="error: ${#fields.errors('fileText')}"
+                                           th:text="${error}">Validation error
+                                        </p>
+                                        <!-- END error handling -->
                                         <div th:classappend="${#fields.hasErrors('fileText')}? 'has-error':'fileText error'">
                                             <textarea rows="5" class="form-control" th:text="${grammar.getFileText()}" placeholder="Grammar file "  name="fileText" id="fileText" th:inline="text" />
                                         </div>
@@ -214,15 +264,26 @@
                                 <div class="jumbotron row form-group">
                                     <h3>Data type information</h3>
                                 </div>
-                                <div class="row form-group center-block text-center">
+                                <div class="row form-group center-block">
                                     <div class="col-sm-12 col-md-12 col-lg-8">
+                                        <!-- Error handling -->
+                                        <p class="text-warning"
+                                           th:each="error : ${#fields.errors('dataTypeName')}"
+                                           th:text="${error}">Validation error</p>
+                                        <!-- END error handling -->
                                         <div th:classappend="${#fields.hasErrors('dataTypeName')}? 'has-error':'dataTypeName error'">
                                             <input type="text" class="form-control" name="dataTypeName" id="dataTypeName" th:value="${type.getDataTypeName()}" placeholder="Name" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row form-group">
-                                    <div class="col-sm-12 col-md-12 col-lg-12 text-center">
+                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                        <!-- Error handling -->
+                                        <p class="text-warning"
+                                           th:each="error: ${#fields.errors('dataTypeDescription')}"
+                                           th:text="${error}">Validation error
+                                        </p>
+                                        <!-- END error handling -->
                                         <div th:classappend="${#fields.hasErrors('dataTypeDescription')}? 'has-error':'dataTypeDescription error'">
                                             <input type="text" class="form-control" name="dataTypeDescription" id="dataTypeDescription" th:value="${type.getDataTypeDescription()}" placeholder="Description of the file" />
                                         </div>
@@ -231,6 +292,11 @@
 
                                 <div class="row form-group text-center">
                                     <div class="col-sm-12 col-md-12 col-lg-12">
+                                        <!-- Error handling -->
+                                        <p class="text-warning"
+                                           th:each="error : ${#fields.errors('dataTypeType')}"
+                                           th:text="${error}">Validation error</p>
+                                        <!-- END error handling -->
                                         <input type="radio" th:name="dataTypeType" th:id="dataTypeType" th:value="traininng" checked="checked"/> Training
                                         <input type="radio" th:name="dataTypeType" th:id="dataTypeType" th:value="validation" /> Validation
                                         <input type="radio" th:name="dataTypeType" th:id="dataTypeType" th:value="test" /> Test
@@ -239,12 +305,20 @@
 
                                 <div class="row form-group">
                                     <div class="col-sm-12 col-md-12 col-lg-12">
-                                        <input type="file" name="typeFile" id="typeFile"/>
+                                        <!-- Error handling -->
+                                        <p class="text-warning"
+                                           th:each="error: ${#fields.errors('typeFile')}"
+                                           th:text="${error}">Validation error
+                                        </p>
+                                        <!-- END error handling -->
+                                        <div th:classappend="${#fields.hasErrors('typeFile')}? 'has-error':'typeFile error'">
+                                            <input type="file" name="typeFile" id="typeFile" required="required" />
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Data Type table to load -->
-                                <input class="hiddeRadio" type="radio" th:name="radioDataType" th:id="radioDataType" checked="checked" />
+                                <input class="hiddenRadio" type="radio" th:name="radioDataType" th:id="radioDataTypeHidden" checked="checked" />
                                 <div th:if="${not #lists.isEmpty(dataTypeList)}">
                                     <h2>Data type files</h2>
                                     <table class="table table-hover" id="expTypeTable">
@@ -260,7 +334,7 @@
                                         </thead>
                                         <tbody>
                                         <tr id="" th:each="dataType, iterStat : ${dataTypeList}">     <!-- We are using model Experiment and not ExperimentDto -->
-                                            <td scope="row"><input type="radio" th:id="radioDataType" th:name="radioDataType" th:value="${dataType.getId()}" /></td>
+                                            <td scope="row"><input type="radio" th:id="radioDataType" th:name="radioDataType" th:value="${dataType.getId()}" onclick="check()"/></td>
                                             <td scope="row"><label th:text="${dataType.getId()}" th:id="'expDataTypeIdList'+${iterStat.count}" th:name="expDataTypeIdList" /></td>
                                             <td scope="row"><label th:text="${dataType.getDataTypeName()}" th:name="expDataTypeNameList" th:id="expDataTypeNameList" /></td>
                                             <td scope="row"><label th:text="${dataType.getDataTypeDescription()}" th:name="expDataTypeDescriptionList" th:id="expDataTypeDescriptionList" /></td>
@@ -271,7 +345,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <!-- END Data Type table to load grammar -->
+                                <!-- END Data Type table to load -->
 
                                 <div class="row form-group text-center">
                                     <div class="col-sm-12 col-md-12 col-lg-12">
@@ -431,11 +505,13 @@
     </script>
 
     <script>
-        /*$("#radioDataType").click(function(){
-            $("#expTypeTable tr").attr({"id" : "selected"}).siblings().removeAttr('id');
-            var value=$(this).find('td:first').html();
-            alert(value);
-        });*/
+        function check(event) {
+            if(document.getElementById('radioDataType').checked)
+                document.querySelector('#typeFile').required = false;
+            /*var check = document.getElementsByName('radioDataType');
+            if (check[0].checked == true)
+                document.querySelector('#typeFile').required = false;*/
+        }
     </script>
 
     </body>

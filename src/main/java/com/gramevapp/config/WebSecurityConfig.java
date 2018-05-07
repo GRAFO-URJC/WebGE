@@ -40,8 +40,8 @@ public class WebSecurityConfig
             throws Exception {
         auth.jdbcAuthentication()
                 .dataSource(dataSource)
-                .usersByUsernameQuery("select email, password, enabled from user where email=?")
-                .authoritiesByUsernameQuery("select email, role_name from users_roles where email=?")
+                .usersByUsernameQuery("select username, password, enabled from user where username=?")
+                .authoritiesByUsernameQuery("select username, role_name from users_roles where username=?")
                 .passwordEncoder(passwordEncoder());    // When user is doing the login -> We will encode the password with the Hash. thus we will compare the DB password with the user
         // auth.authenticationProvider(authenticationProvider());   // If we turn on this - Our login authenticator will not be the D.B.
     }

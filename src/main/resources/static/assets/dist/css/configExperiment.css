@@ -14,7 +14,12 @@ form input[type="radio"]:checked + label {
     background-color: #a5a4a4;
 }
 
-.hiddeRadio{
+.jumbotron {
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+.hiddenRadio{
     -moz-appearance: none;
     -webkit-appearance: none;
     appearance: none;

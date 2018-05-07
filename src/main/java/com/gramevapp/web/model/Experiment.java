@@ -76,8 +76,8 @@ public class Experiment {
     private Double mutationProb = 0.5;
     @Column
     private String initialization = "";       // Random OR Sensible
-    //@Column
-    //private List<String> objective;
+    @Column
+    private String objective;
     @Column
     private String results = "";             // Text file with the results of the experiments
     @Column
@@ -107,7 +107,7 @@ public class Experiment {
         this.idRunList = idRunList;
     }
 
-    public Experiment(User userId, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, Date creationDate, Date modificationDate) {
+    public Experiment(User userId, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date creationDate, Date modificationDate) {
         this.userId = userId;
         this.experimentName = experimentName;
         this.experimentDescription = experimentDescription;
@@ -121,6 +121,7 @@ public class Experiment {
         this.results = results;
         this.numCodons = numCodons;
         this.numberRuns = numberRuns;
+        this.objective = objective;
 
         this.idExpDataTypeList = new ArrayList<>();
         this.idGrammarList = new ArrayList<>();
@@ -130,7 +131,7 @@ public class Experiment {
         this.creationDate = creationDate;
     }
 
-    public Experiment(User userId, String experimentName, String experimentDescription, List<Grammar> idGrammarList, List<ExperimentDataType> idExpDataTypeList, List<Run> idRunList, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, Date creationDate, Date modificationDate) {
+    public Experiment(User userId, String experimentName, String experimentDescription, List<Grammar> idGrammarList, List<ExperimentDataType> idExpDataTypeList, List<Run> idRunList, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date creationDate, Date modificationDate) {
         this.userId = userId;
         this.experimentName = experimentName;
         this.experimentDescription = experimentDescription;
@@ -147,8 +148,17 @@ public class Experiment {
         this.results = results;
         this.numCodons = numCodons;
         this.numberRuns = numberRuns;
+        this.objective = objective;
         this.modificationDate = modificationDate;
         this.creationDate = creationDate;
+    }
+
+    public String getObjective() {
+        return objective;
+    }
+
+    public void setObjective(String objective) {
+        this.objective = objective;
     }
 
     public Grammar getDefaultGrammar() {

@@ -14,7 +14,7 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(nullable = true)    //  True because the real user will be the email
+    @Column(nullable = false)
     private String username;
     @Column(nullable = false)
     private String password;

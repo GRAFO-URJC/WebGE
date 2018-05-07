@@ -29,45 +29,67 @@ public class UserController {
             return "redirect:/login";
         }
 
-        User user = userService.findByEmail(authentication.getName());
-        //UserDetails user = myUserDetailsService.loadUserByUsername(authentication.getName());
+        User user = userService.findByUsername(authentication.getName());
+
+        UserUpdateBasicInfoDto upBasicInfoDto = new UserUpdateBasicInfoDto();
+        UserUpdateAboutDto upAboutDto = new UserUpdateAboutDto();
+        UserUpdatePasswordDto upPassDto = new UserUpdatePasswordDto();
+        UserUpdateStudyDto upStudy = new UserUpdateStudyDto();
 
         model.addAttribute("userLogged", user);
-        //userService.loadUserByUsername(authentication.getName());
+        model.addAttribute("userBasicInfo", upBasicInfoDto);
+        model.addAttribute("userPassword", upPassDto);
+        model.addAttribute("userStudy", upStudy);
+        model.addAttribute("userAboutMe", upAboutDto);
+
         return "user/profile";
     }
 
     @RequestMapping(value="/user/updateUserPassword", method=RequestMethod.POST)
-    public String updateUserPassword(@ModelAttribute("userPassword") @Valid UserUpdatePasswordDto userUpDto){
+    public String updateUserPassword(Model model,
+                                     @ModelAttribute("userPassword") @Valid UserUpdatePasswordDto userUpDto,
+                                     BindingResult result){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if ((authentication instanceof AnonymousAuthenticationToken)) {    // User not authenticated
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
-        User user = userService.findByEmail(authentication.getName());
+        User user = userService.findByUsername(authentication.getName());
+        model.addAttribute("userLogged", user);     // If we don't set the model. In ${userLogged.getUsername()}" we will have fail
+
+        if(result.hasErrors()){
+            return "/user/profile";
+        }
+
         if(userUpDto.getPassword().equals(userUpDto.getConfirmPassword())) {
             user.setPassword(passwordEncoder.encode(userUpDto.getPassword()));
             userService.save(user);
         }
+
 
         return "redirect:/user/profile";
     }
 
     @RequestMapping(value="/user/updateStudy", method=RequestMethod.POST)
     public String updateUserStudy(Model model,
-                                  @ModelAttribute("userStudy") @Valid UserUpdateStudyDto userUpDto) {
+                                  @ModelAttribute("userStudy") @Valid UserUpdateStudyDto userUpDto,
+                                  BindingResult result) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if ((authentication instanceof AnonymousAuthenticationToken)) {    // User not authenticated
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
-        User user = userService.findByEmail(authentication.getName());
+        User user = userService.findByUsername(authentication.getName());
+        model.addAttribute("userLogged", user);     // If we don't set the model. In ${userLogged.getUsername()}" we will have fail
+
+        if(result.hasErrors())
+            return "/user/profile";
+
         user.setStudyInformation(userUpDto.getStudyInformation());
         user.setWorkInformation(userUpDto.getWorkInformation());
 
         userService.save(user);
 
-        model.addAttribute("userLogged", user);     // If we don't set the model. In ${userLogged.getUsername()}" we will have fail
         model.addAttribute("message", "Study/Work user information updated");
 
         return "redirect:/user/profile";
@@ -75,13 +97,21 @@ public class UserController {
 
     @RequestMapping(value="/user/updateUserBasicInfo",method=RequestMethod.POST)
     public String updateUserInformation(Model model,
-                                        @ModelAttribute("userBasicInfo") @Valid UserUpdateBasicInfoDto userUpDto){
+                                        @ModelAttribute("userBasicInfo") @Valid UserUpdateBasicInfoDto userUpDto,
+                                        BindingResult result){
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if ((authentication instanceof AnonymousAuthenticationToken)) {    // User not authenticated
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
-        User user = userService.findByEmail(authentication.getName());
+        User user = userService.findByUsername(authentication.getName());
+        model.addAttribute("userLogged", user);     // If we don't set the model. In ${userLogged.getUsername()}" we will have fail
+
+        if(result.hasErrors()){
+            return "/user/profile";
+        }
+
         user.setFirstName(userUpDto.getFirstName());
         user.setLastName(userUpDto.getLastName());
         user.setPhone(userUpDto.getPhone());
@@ -95,18 +125,24 @@ public class UserController {
 
         userService.save(user);
 
-        model.addAttribute("userLogged", user);     // If we don't set the model. In ${userLogged.getUsername()}" we will have fail
-        // ESTARÍA BIEN PONER UN MENSAJE DE QUE SE HA ACTUALIZADO LA INFORMACIÓN
+
         model.addAttribute("message", "Basic user information updated");
         return "/user/profile";
     }
 
     @RequestMapping(value="/user/updateAboutMe", method= RequestMethod.POST)
     public String updateAboutMe(Model model,
-                                @ModelAttribute("userAboutMe") @Valid UserUpdateAboutDto userUpDto){
+                                @ModelAttribute("userAboutMe") @Valid UserUpdateAboutDto userUpDto,
+                                BindingResult result){
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        User user = userService.findByEmail(authentication.getName());
+        User user = userService.findByUsername(authentication.getName());
+        model.addAttribute("userLogged", user);     // If we don't set the model. In ${userLogged.getUsername()}" we will have fail
+
+        if(result.hasErrors()){
+            return "/user/profile";
+        }
         user.setAboutMe(userUpDto.getAboutMe());
 
         userService.save(user);

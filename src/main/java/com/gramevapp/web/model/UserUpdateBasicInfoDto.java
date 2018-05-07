@@ -1,21 +1,36 @@
 package com.gramevapp.web.model;
 
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.format.annotation.NumberFormat;
+
 import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.Pattern;
 
 public class UserUpdateBasicInfoDto {
+
+    private static final String PATTERN = "^[\\p{L} .'-]+$";  // https://stackoverflow.com/questions/15805555/java-regex-to-validate-full-name-allow-only-spaces-and-letters
 
     private Long id;
 
     //  Basic info
-    private String FirstName;
-    private String LastName;
+    @Pattern(regexp = PATTERN, message = "First name cannot contain strange characters")
+    @NotEmpty
+    private String firstName;
+    @Pattern(regexp = PATTERN, message = "Last name cannot contain strange characters")
+    @NotEmpty
+    private String lastName;
+    @Email
+    @NotEmpty
     private String email;
+    @NumberFormat
     private Integer phone;
 
     //  Direction
     private String addressDirection;
     private String city;
     private String state;
+    @NumberFormat
     private Integer zipcode;
 
     @AssertTrue
@@ -66,19 +81,19 @@ public class UserUpdateBasicInfoDto {
     }
 
     public String getFirstName() {
-        return FirstName;
+        return firstName;
     }
 
     public void setFirstName(String firstName) {
-        this.FirstName = firstName;
+        this.firstName = firstName;
     }
 
     public String getLastName() {
-        return LastName;
+        return lastName;
     }
 
     public void setLastName(String lastName) {
-        this.LastName = lastName;
+        this.lastName = lastName;
     }
 
     public String getEmail() {

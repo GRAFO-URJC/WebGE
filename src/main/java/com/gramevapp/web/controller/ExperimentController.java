@@ -1,11 +1,11 @@
 package com.gramevapp.web.controller;
 
 import com.gramevapp.web.model.*;
+import com.gramevapp.web.other.FileValidator;
 import com.gramevapp.web.service.ExperimentService;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;
 import engine.algorithm.GramEvalTemporalModel;
-import jeco.core.algorithm.moge.AbstractProblemGE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,6 +34,15 @@ public class ExperimentController {
     @Autowired
     private RunService runService;
 
+    @ModelAttribute
+    public FileModelDto fileModel(){
+        return new FileModelDto();
+    }
+
+    private final String GRAMMAR_DIR_PATH = ".\\resources\\files\\grammar\\";
+    private final String DATATYPE_DIR_PATH = ".\\resources\\files\\dataType\\";
+    private final String PROPERTIES_DIR_PATH = ".\\resources\\files\\properties\\";
+
     @GetMapping("/user/experiment/configExperiment")
     public String configExperiment(Model model,
                                    @ModelAttribute("configuration") ExperimentDto expDto){
@@ -43,7 +52,7 @@ public class ExperimentController {
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
-        User user = userService.findByEmail(authentication.getName());
+        User user = userService.findByUsername(authentication.getName());
 
         // WE NEED TO ADD HERE THE EXPERIMENT INFO TO SEND IT TO configExperiment
         Experiment expConfig = experimentService.findExperimentById(expDto.getId());
@@ -97,7 +106,7 @@ public class ExperimentController {
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
-        User user = userService.findByEmail(authentication.getName());
+        User user = userService.findByUsername(authentication.getName());
 
         if (result.hasErrors()) {
             return "/user/experiment/configExperiment";
@@ -139,15 +148,21 @@ public class ExperimentController {
                                 @ModelAttribute("type") ExperimentDataTypeDto expDataTypeDto,
                                 @ModelAttribute("configuration")  ExperimentDto expDto,
                                 @RequestParam String radioDataType,
-                                @RequestParam("typeFile") MultipartFile multipartFile,
-                                @Valid @ModelAttribute("configExp") ConfigExperimentDto configExperimentDto)  throws IllegalStateException, IOException {
+                                @ModelAttribute("typeFile") FileModelDto fileModelDto,
+                                @ModelAttribute("configExp") @Valid ConfigExperimentDto configExperimentDto,
+                                BindingResult result)  throws IllegalStateException, IOException {
+
+        if (result.hasErrors()){
+            return "/user/experiment/configExperiment";
+        }
+
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if ((authentication instanceof AnonymousAuthenticationToken)) {    // User not authenticated
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
-        User user = userService.findByEmail(authentication.getName());
+        User user = userService.findByUsername(authentication.getName());
 
         // CONFIGURATION SECTION
         Grammar grammar = experimentService.findGrammarByUserIdAndName(user, grammarDto.getGrammarName());
@@ -188,7 +203,7 @@ public class ExperimentController {
         if(exp == null) {     // We create it
             exp = new Experiment(user, expDto.getExperimentName(), expDto.getExperimentDescription() ,expDto.getGenerations(),
                     expDto.getPopulationSize(), expDto.getMaxWraps(), expDto.getTournament(), expDto.getCrossoverProb(), expDto.getMutationProb(),
-                    expDto.getInitialization(), expDto.getResults(), expDto.getNumCodons(), expDto.getNumberRuns(), currentTimestamp, currentTimestamp);
+                    expDto.getInitialization(), expDto.getResults(), expDto.getNumCodons(), expDto.getNumberRuns(), expDto.getObjective() ,currentTimestamp, currentTimestamp);
 
             exp.addGrammar(grammar);
             exp.addExperimentDataType(expDataType);
@@ -210,6 +225,7 @@ public class ExperimentController {
             exp.setResults(expDto.getResults());
             exp.setNumCodons(expDto.getNumCodons());
             exp.setNumberRuns(expDto.getNumberRuns());
+            exp.setObjective(expDto.getObjective());
 
             exp.addGrammar(grammar);
             exp.addExperimentDataType(expDataType);
@@ -232,8 +248,8 @@ public class ExperimentController {
         experimentService.saveDataType(expDataType);
 
         // Grammar File
-        new File(".\\resources\\files\\grammar\\" + user.getId()).mkdirs(); // Create the directory to save datatype files
-        String grammarFilePath = ".\\resources\\files\\grammar\\" + user.getId() + "\\" + expDto.getExperimentName().replaceAll("\\s+", "") + grammar.getGrammarName().replaceAll("\\s+","") + ".bnf";
+        new File(GRAMMAR_DIR_PATH + user.getId()).mkdirs(); // Create the directory to save datatype files
+        String grammarFilePath = GRAMMAR_DIR_PATH + user.getId() + "\\" + expDto.getExperimentName().replaceAll("\\s+", "") + grammar.getGrammarName().replaceAll("\\s+","") + ".bnf";
 
         File grammarNewFile = new File(grammarFilePath);
         if (!grammarNewFile.exists()) {
@@ -254,33 +270,36 @@ public class ExperimentController {
         PropertiesDto propertiesDto = new PropertiesDto(0.0, expDto.getTournament(), 0, expDto.getCrossoverProb(), grammarFilePath, 0, 1, expDto.getMutationProb(), false, 1, expDto.getNumCodons(), expDto.getPopulationSize(), expDto.getGenerations(), false, expDto.getMaxWraps(), 500, expDto.getExperimentName(), expDto.getExperimentDescription());
 
         // Reader - FILE DATA TYPE - Convert MultipartFile into Generic Java File - Then convert it to Reader
-        String dataTypeDirectoryPath;
+        String dataTypeDirectoryPath = DATATYPE_DIR_PATH;
         if(expDataType.getDataTypeType().equals("validation")) {
-            dataTypeDirectoryPath = ".\\resources\\files\\dataType\\validation\\" + user.getId();
+            dataTypeDirectoryPath += "validation\\" + user.getId();
             propertiesDto.setValidationPath(dataTypeDirectoryPath);
             propertiesDto.setTrainingPath(dataTypeDirectoryPath +  "\\" + expDto.getExperimentName().replaceAll("\\s+", "") + expDataTypeDto.getDataTypeName().replaceAll("\\s+", "") + ".csv");
             propertiesDto.setValidation(true);
         }
         else if(expDataType.getDataTypeType().equals("test")){
-            dataTypeDirectoryPath = ".\\resources\\files\\dataType\\test\\" + user.getId();
+            dataTypeDirectoryPath += "test\\" + user.getId();
             propertiesDto.setTestPath(dataTypeDirectoryPath);
             propertiesDto.setTrainingPath(dataTypeDirectoryPath + "\\" + expDto.getExperimentName().replaceAll("\\s+", "") + expDataTypeDto.getDataTypeName().replaceAll("\\s+", "") + ".csv");   // TEMPORAL UNTIL KNOW IF WE NEED THIS OR NOT
             propertiesDto.setTest(true);
         }
         else {      // Training
-            dataTypeDirectoryPath = ".\\resources\\files\\dataType\\training\\" + user.getId();
+            dataTypeDirectoryPath += "training\\" + user.getId();
             propertiesDto.setTrainingPath(dataTypeDirectoryPath +  "\\" + expDto.getExperimentName().replaceAll("\\s+", "") + expDataTypeDto.getDataTypeName().replaceAll("\\s+", "") + ".csv");   // TEMPORAL UNTIL KNOW IF WE NEED THIS OR NOT
             propertiesDto.setTraining(true);
         }
 
-        new File(".\\resources\\files\\properties\\" + user.getId()).mkdirs(); // Create the directory to save datatype files
-        String propertiesFilePath = ".\\resources\\files\\properties\\" + user.getId() + "\\" + expDto.getExperimentName().replaceAll("\\s+", "") + ".properties";
+        new File(PROPERTIES_DIR_PATH + user.getId()).mkdirs(); // Create the directory to save datatype files
+        String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + "\\" + expDto.getExperimentName().replaceAll("\\s+", "") + ".properties";
 
         createPropertiesFile(propertiesFilePath, propertiesDto, expDto.getExperimentName(), currentTimestamp);  // Write in property file
 
         // END - Create PropertiesDto file
+        MultipartFile multipartFile = fileModelDto.getTypeFile();
 
-        if(radioDataType.equals("on")) {    // NULL if didn't select the dataType file from the list - ON if th:value is empty
+        // If Radio button and file path selected -> File path is selected
+        // NULL -> didn't select the dataType file from the list - ON if th:value in input is empty
+        if( (radioDataType.equals("on") && !multipartFile.isEmpty()) || (!radioDataType.equals("on") && !multipartFile.isEmpty()) ) {
             File tmpFile = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") +
                     multipartFile.getOriginalFilename());
             multipartFile.transferTo(tmpFile);
@@ -309,6 +328,10 @@ public class ExperimentController {
             while ((dataTypeRead = dataTypeInputStream.read(dataTypeBytes)) != -1) {
                 dataTypeOutputStream.write(dataTypeBytes, 0, dataTypeRead);
             }
+        }
+        else if(radioDataType.equals("on") && multipartFile.isEmpty()) {        // Radio button neither file path selected
+            result.rejectValue("typeFile", "error.typeFile", "Choose one file");
+            return "/user/experiment/configExperiment";
         }
         else{   // DataType selected from list
             // We won't save it, because already exists. But we are going to use it in our execution
@@ -368,7 +391,7 @@ public class ExperimentController {
             return "redirect:/login";
         }
 
-        User user = userService.findByEmail(authentication.getName());
+        User user = userService.findByUsername(authentication.getName());
 
         List<Experiment> lExperiment = experimentService.findByUserId(user);
 
@@ -388,7 +411,7 @@ public class ExperimentController {
             return "redirect:/login";
         }
 
-        User user = userService.findByEmail(authentication.getName());
+        User user = userService.findByUsername(authentication.getName());
 
         Long idExp = Long.parseLong(id);
 
@@ -420,7 +443,7 @@ public class ExperimentController {
             return "redirect:/login";
         }
 
-        User user = userService.findByEmail(authentication.getName());
+        User user = userService.findByUsername(authentication.getName());
 
         Long idRun = Long.parseLong(id);
         Run run = runService.findByUserIdAndId(user, idRun);

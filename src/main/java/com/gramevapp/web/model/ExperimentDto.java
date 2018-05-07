@@ -1,6 +1,5 @@
 package com.gramevapp.web.model;
 
-import org.hibernate.validator.constraints.NotEmpty;
 
 public class ExperimentDto {
     private Long id;
@@ -19,8 +18,25 @@ public class ExperimentDto {
     private Integer numberRuns = 1;
     private String defaultGrammar = "";
     private String defaultExpDataType = "";
+    /**
+     * 0 -> Root Mean Squared Error (RMSE)
+     1 -> Clarke Error Grid (CEG)
+     2 -> Bi-objective: RMSE & CEG
+     3 -> R Square (R^2)
+     4 -> Absolute Error (Abs. Error)
+     5 -> Mean Absolute Relative Deviation (MARD)
+     */
+    private String objective;
 
     public ExperimentDto() {
+    }
+
+    public String getObjective() {
+        return objective;
+    }
+
+    public void setObjective(String objective) {
+        this.objective = objective;
     }
 
     public String getExperimentName() {
