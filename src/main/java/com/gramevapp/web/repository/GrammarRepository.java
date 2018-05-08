@@ -1,7 +1,6 @@
 package com.gramevapp.web.repository;
 
 import com.gramevapp.web.model.Grammar;
-import com.gramevapp.web.model.Role;
 import com.gramevapp.web.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

@@ -1,11 +1,11 @@
 package com.gramevapp.web.controller;
 
 import com.gramevapp.web.model.*;
-import com.gramevapp.web.other.FileValidator;
 import com.gramevapp.web.service.ExperimentService;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;
-import engine.algorithm.GramEvalTemporalModel;
+import com.engine.algorithm.GramEvalTemporalModel;
+import com.engine.algorithm.RunGeObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -375,7 +375,9 @@ public class ExperimentController {
         int numObjectives = 1;  // Example
         int threadId = 1;
 
-        executeGramEv(properties, threadId, numObjectives);        // PropertiesDto properties, int threadId, int numObjectives
+        DiagramData diagramData = new DiagramData(user, run);
+
+        executeGramEv(properties, threadId, numObjectives, diagramData);        // PropertiesDto properties, int threadId, int numObjectives
 
         propertiesReader.close();
         // END - Execute program with experiment info
@@ -468,9 +470,13 @@ public class ExperimentController {
      *
      */
 
-    public void executeGramEv(Properties properties, int threadId, int numObjectives) throws IOException {
+    public void executeGramEv(Properties properties, int threadId, int numObjectives, DiagramData diagramData) throws IOException {
         GramEvalTemporalModel gramEvalTemporalModel = new GramEvalTemporalModel(properties, threadId, numObjectives);
-        gramEvalTemporalModel.runGE(properties, threadId, null);
+
+        RunGeObserver observer = new RunGeObserver();
+        observer.setDiagramData(diagramData);
+
+        gramEvalTemporalModel.runGE(properties, threadId, observer);
     }
 
 

@@ -55,7 +55,6 @@ public class WebSecurityConfig
                         "/",
                         "/js/**",
                         "/css/**",
-                        "/css/main.css",
                         "/img/**",
                         "/assets/**",
                         "/webjars/**").permitAll()

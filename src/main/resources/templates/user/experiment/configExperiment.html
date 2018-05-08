@@ -10,7 +10,25 @@
         <link th:href="@{/assets/dist/css/bootstrap.css}" rel="stylesheet" id="main-css" />
         <link th:href="@{/assets/dist/css/configExperiment.css}" rel="stylesheet" id="configExperiment-css" />
 
+        <script type="text/javascript" th:href="@{/assets/dist/d3/d3.v5.js}"></script>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+
+
+        <style> /* set the CSS */
+            body { font: 12px Arial;}
+            path {
+                stroke: steelblue;
+                stroke-width: 2;
+                fill: none;
+            }
+            .axis path,
+            .axis line {
+                fill: none;
+                stroke: grey;
+                stroke-width: 1;
+                shape-rendering: crispEdges;
+            }
+        </style>
 
         <title>Experiment testing area</title>
     </head>
@@ -349,7 +367,7 @@
 
                                 <div class="row form-group text-center">
                                     <div class="col-sm-12 col-md-12 col-lg-12">
-                                        <a name="downloadTypeButton" id="downloadTypeButton" class="btn-default btn-sm">Download</a>
+                                        <a name="downloadTypeButton" id="downloadTypeButton" class="btn-default btn-sm">Download data type file</a>
                                     </div>
                                 </div>
                             </div>
@@ -445,9 +463,84 @@
                 </section>
             </div>
         </div>
-*        <!-- END RUN SECTION -->
+        <!-- END RUN SECTION -->
 
+        <!-- D3 Section -->
+        <div class="container">
+            <div class="panel panel-default">
+                <header class="panel-heading">
+                    <h2>D3 Flow Diagram</h2>
+                </header>
+
+                <section class="panel-body">
+                    <div>
+                        <h2>D3 Diagram</h2>
+                    </div>
+                    <div id="d3">
+
+                    </div>
+                </section>
+            </div>
+        </div>
+        <!-- END D3 Section -->
     </div>
+
+    <!-- load the d3.js library -->
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+
+    <script>
+
+        // Set the dimensions of the canvas / graph
+        var margin = {top: 30, right: 20, bottom: 30, left: 50},
+            width = 600 - margin.left - margin.right,
+            height = 270 - margin.top - margin.bottom;
+        // Parse the date / time
+        var parseDate = d3.time.format("%d-%b-%y").parse;
+        // Set the ranges
+        var x = d3.time.scale().range([0, width]);
+        var y = d3.scale.linear().range([height, 0]);
+        // Define the axes
+        var xAxis = d3.svg.axis().scale(x)
+            .orient("bottom").ticks(5);
+        var yAxis = d3.svg.axis().scale(y)
+            .orient("left").ticks(5);
+        // Define the line
+        var valueline = d3.svg.line()
+            .x(function(d) { return x(d.date); })
+            .y(function(d) { return y(d.close); });
+
+        // Adds the svg canvas
+        var svg = d3.select("#d3")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+        // Get the data
+        d3.csv("/data.csv", function(error, data) {
+            data.forEach(function(d) {
+                d.date = parseDate(d.date);
+                d.close = +d.close;
+            });
+            // Scale the range of the data
+            x.domain(d3.extent(data, function(d) { return d.date; }));
+            y.domain([0, d3.max(data, function(d) { return d.close; })]);
+            // Add the valueline path.
+            svg.append("path")
+                .attr("class", "line")
+                .attr("d", valueline(data));
+            // Add the X Axis
+            svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
+            // Add the Y Axis
+            svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis);
+        });
+    </script>
 
     <script src="assets/js/main.js"></script>
     <script src="assets/js/mainGramEv.js"></script>
