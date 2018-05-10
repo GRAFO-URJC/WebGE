@@ -259,7 +259,7 @@
                                         </p>
                                         <!-- END error handling -->
                                         <div th:classappend="${#fields.hasErrors('fileText')}? 'has-error':'fileText error'">
-                                            <textarea rows="5" class="form-control" th:text="${grammar.getFileText()}" placeholder="Grammar file "  name="fileText" id="fileText" th:inline="text" />
+                                            <textarea rows="5" class="form-control" th:text="${grammar.getFileText()}" placeholder="Grammar file "  name="fileText" id="fileText" th:inline="text" style="resize: none;" />
                                         </div>
                                     </div>
                                 </div>

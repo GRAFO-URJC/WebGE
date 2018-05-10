@@ -1,6 +1,7 @@
 package com.gramevapp.web.controller;
 
 import com.gramevapp.web.model.*;
+import com.gramevapp.web.service.UploadFileService;
 import com.gramevapp.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -13,11 +14,15 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Base64;
 
 @Controller
 public class UserController {
     @Autowired
     UserService userService;
+
+    @Autowired
+    UploadFileService uploadFileService;
 
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -36,6 +41,10 @@ public class UserController {
         UserUpdatePasswordDto upPassDto = new UserUpdatePasswordDto();
         UserUpdateStudyDto upStudy = new UserUpdateStudyDto();
 
+        if(user.getUploadFile() == null)
+            user.setUploadFile(new UploadFile());
+
+        model.addAttribute("image", user.getUploadFile().getBData());
         model.addAttribute("userLogged", user);
         model.addAttribute("userBasicInfo", upBasicInfoDto);
         model.addAttribute("userPassword", upPassDto);
@@ -100,17 +109,16 @@ public class UserController {
                                         @ModelAttribute("userBasicInfo") @Valid UserUpdateBasicInfoDto userUpDto,
                                         BindingResult result){
 
+        if(result.hasErrors()){
+            return "/user/profile";
+        }
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if ((authentication instanceof AnonymousAuthenticationToken)) {    // User not authenticated
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
         User user = userService.findByUsername(authentication.getName());
-        model.addAttribute("userLogged", user);     // If we don't set the model. In ${userLogged.getUsername()}" we will have fail
-
-        if(result.hasErrors()){
-            return "/user/profile";
-        }
 
         user.setFirstName(userUpDto.getFirstName());
         user.setLastName(userUpDto.getLastName());
@@ -120,12 +128,25 @@ public class UserController {
         user.setCity(userUpDto.getCity());
         user.setZipcode(userUpDto.getZipcode());
 
+        UploadFile upUserPhoto = new UploadFile();
+        byte[] data = userUpDto.getUploadFile().getData();
+
+        String bData = Base64.getEncoder().encodeToString(data);
+
+        upUserPhoto.setData(data);
+        upUserPhoto.setBData(bData);
+
+        user.setUploadFile(upUserPhoto);
+
+        uploadFileService.saveUploadFile(userUpDto.getUploadFile());
+
         if(userService.findByEmail(userUpDto.getEmail())==null)
             user.setEmail(userUpDto.getEmail());
 
         userService.save(user);
 
-
+        model.addAttribute("image", user.getUploadFile().getBData());
+        model.addAttribute("userLogged", user);     // If we don't set the model. In ${userLogged.getUsername()}" we will have fail
         model.addAttribute("message", "Basic user information updated");
         return "/user/profile";
     }

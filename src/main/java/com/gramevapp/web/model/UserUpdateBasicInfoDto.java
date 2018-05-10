@@ -33,6 +33,8 @@ public class UserUpdateBasicInfoDto {
     @NumberFormat
     private Integer zipcode;
 
+    private UploadFile uploadFile;
+
     @AssertTrue
     private Boolean terms;
 
@@ -47,6 +49,14 @@ public class UserUpdateBasicInfoDto {
     }
 
     ;
+
+    public UploadFile getUploadFile() {
+        return uploadFile;
+    }
+
+    public void setUploadFile(UploadFile uploadFile) {
+        this.uploadFile = uploadFile;
+    }
 
     public String getAddressDirection() {
         return addressDirection;

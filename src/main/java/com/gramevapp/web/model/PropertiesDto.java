@@ -1,48 +1,33 @@
 package com.gramevapp.web.model;
 
+import com.gramevapp.web.other.BeanUtil;
+import com.gramevapp.web.service.UserService;
+import org.springframework.context.ApplicationContext;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.io.File;
+
 public class PropertiesDto {
-    /**
-     * # PropertiesDto for Pancreas Model Tools
-     #Thu Mar 22 12:55:57 CET 2018
-     LoggerBasePath=resources/files/properties
-     TrainingPath=resources/files/dataType/training/poly10-data-custom.csv
-     ValidationPath=resources/files/dataType/validation/poly10-data-custom.csv
-     TestPath=resources/files/dataType/test/poly10-data-custom.csv
-     ErrorThreshold=0.0
-     TournamentSize=2
-     WorkDir=resources/files/properties
-     RealDataCopied=0
-     CrossoverProb=0.65
-     BnfPathFile=resources/files/properties/poli10varopt.bnf    // Grammar file
-     Objectives=0
-     ClassPathSeparator=\:
-     Executions=1
-     LoggerLevel=INFO
-     MutationProb=0.02
-     NormalizeData=false
-     LogPopulation=1
-     ChromosomeLength=100
-     NumIndividuals=100
-     NumGenerations=300
-     ViewResults=false
-     MaxWraps=3
-     ModelWidth=500
-     */
+
+    private static final String LOGGER_BASE_PATH = "resources/files/logs/population";
+    private static final String WORK_DIR = "resources/files";
+    private static final String CLASS_PATH_SEPARATOR = "=\\;";
 
     private Long idExp;
 
-    private String LoggerBasePath = "resources/files/logs/population";
+    private String loggerBasePath;
     private String trainingPath;    // resources/files/dataType/training/poly10-data-custom.csv
     private String validationPath;  // resources/files/dataType/validation/poly10-data-custom.csv
     private String testPath;        // resources/files/dataType/test/poly10-data-custom.csv
     private Double errorThreshold;
     private Integer tournamentSize;
-    private String workDir = "resources/files";
+    private String workDir = WORK_DIR;
     private Integer realDataCopied;
     private Double crossoverProb;
     private String bnfPathFile;     // = "resources/files/grammar/poli10varopt.bnf"; -- Grammar file
     private Integer objectives;
-    private String classPathSeparator = "=\\;";
+    private String classPathSeparator = CLASS_PATH_SEPARATOR;
     private Integer executions;
     private String loggerLevel;
     private Double mutationProb;
@@ -88,6 +73,18 @@ public class PropertiesDto {
         this.modelWidth = modelWidth;
         this.experimentName = experimentName;
         this.experimentDescription = experimentDescription;
+
+        // http://codippa.com/how-to-autowire-objects-in-non-spring-classes/
+        //get application context
+        ApplicationContext context = BeanUtil.getAppContext();
+        // get instance of MainSpringClass (Spring Managed class)
+        UserService userService = (UserService) context.getBean("userService");
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.findByUsername(authentication.getName());
+
+        this.loggerBasePath = LOGGER_BASE_PATH + File.separator + user.getId();
+        new File(loggerBasePath).mkdirs();
     }
 
     public PropertiesDto(String trainingPath, Double errorThreshold, Integer tournamentSize, Integer realDataCopied, Double crossoverProb, String bnfPathFile, Integer objectives, Integer executions, String loggerLevel, Double mutationProb, Boolean normalizedData, Integer logPopulation, Integer chromosomeLength, Integer numIndividuals, Integer numGenerations, Boolean viewResults, Integer maxWraps, Integer modelWidth, String experimentName, String experimentDescription, String initialization, Integer numberRuns) {
@@ -113,6 +110,20 @@ public class PropertiesDto {
         this.experimentDescription = experimentDescription;
         this.initialization = initialization;
         this.numberRuns = numberRuns;
+
+        // http://codippa.com/how-to-autowire-objects-in-non-spring-classes/
+        //get application context
+        ApplicationContext context = BeanUtil.getAppContext();
+        // get instance of MainSpringClass (Spring Managed class)
+        UserService userService = (UserService) context.getBean("userService");
+        // use this spring object to call its methods
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.findByUsername(authentication.getName());
+
+        this.loggerBasePath = LOGGER_BASE_PATH + File.separator + user.getId();
+
+        new File(loggerBasePath).mkdirs();
     }
 
     public Long getIdExp() {
@@ -124,11 +135,33 @@ public class PropertiesDto {
     }
 
     public String getLoggerBasePath() {
-        return LoggerBasePath;
+        if(loggerBasePath == null) {
+            ApplicationContext context = BeanUtil.getAppContext();
+            UserService userService = (UserService) context.getBean("userService");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = userService.findByUsername(authentication.getName());
+
+            return LOGGER_BASE_PATH + File.separator + user.getId();
+        }
+        else
+            return loggerBasePath;
     }
 
     public void setLoggerBasePath(String loggerBasePath) {
-        LoggerBasePath = loggerBasePath;
+        this.loggerBasePath = loggerBasePath;
+
+        // http://codippa.com/how-to-autowire-objects-in-non-spring-classes/
+        //get application context
+        ApplicationContext context = BeanUtil.getAppContext();
+        // get instance of MainSpringClass (Spring Managed class)
+        UserService userService = (UserService) context.getBean("userService");
+        // use this spring object to call its methods
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.findByUsername(authentication.getName());
+
+        this.loggerBasePath = LOGGER_BASE_PATH + File.separator + user.getId();
+        new File(loggerBasePath).mkdirs();
     }
 
     public String getTrainingPath() {

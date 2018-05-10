@@ -3,6 +3,7 @@ package com.gramevapp.web.model;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 @Entity
@@ -82,6 +83,9 @@ public class User implements Serializable {
                     @JoinColumn(name = "experiment_name", referencedColumnName = "experiment_name")
             })*/
 
+    @JoinColumn(name = "FILE_UPLOAD_ID", unique = true)
+    @OneToOne(cascade = CascadeType.ALL)
+    private UploadFile uploadFile;
 
     public User(){
         this.listExperiments = new ArrayList<>();
@@ -90,6 +94,7 @@ public class User implements Serializable {
     public User(Long id) {
         this.id = id;
         this.listExperiments = new ArrayList<>();
+        this.uploadFile = new UploadFile();
     }
 
     public User(Long id, String username, String password, String email) {
@@ -97,6 +102,8 @@ public class User implements Serializable {
         this.username = username;
         this.password = password;
         this.email = email;
+
+        this.uploadFile = new UploadFile();
     }
 
     public User(String username, String password, String email, List<Role> roles) {
@@ -106,6 +113,7 @@ public class User implements Serializable {
         this.roles = roles;
 
         this.listExperiments = new ArrayList<>();
+        this.uploadFile = new UploadFile();
     }
 
     public User(String username, String password, String firstName, String lastname, String email, String addressDirection, Integer phone) {
@@ -116,7 +124,9 @@ public class User implements Serializable {
         this.email = email;
         this.addressDirection = addressDirection;
         this.phone = phone;
+
         this.listExperiments = new ArrayList<>();
+        this.uploadFile = new UploadFile();
     }
 
     public String getCity() {
@@ -268,6 +278,14 @@ public class User implements Serializable {
         this.failedLoginAttempts = failedLoginAttempts;
     }
 
+    public UploadFile getUploadFile() {
+        return uploadFile;
+    }
+
+    public void setUploadFile(UploadFile uploadFile) {
+        this.uploadFile = uploadFile;
+    }
+
     public Experiment addExperiment(Experiment experiment) {
         this.listExperiments.add(experiment);
         experiment.setUserId(this);
@@ -284,5 +302,10 @@ public class User implements Serializable {
                 ", password='" + "*********" + '\'' +
                 ", roles=" + roles +
                 '}';
+    }
+
+    public String getImage(){
+        String bphoto = Base64.getEncoder().encodeToString(uploadFile.getData());
+        return bphoto;
     }
 }

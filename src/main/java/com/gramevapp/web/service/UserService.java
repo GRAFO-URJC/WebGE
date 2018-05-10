@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 // Service = DAO
 // This will work as an intermediate between the real data and the action we want to do with that - We are the modifier
 
-@Service
+@Service("userService")
 @Transactional
 public class UserService {
     @Autowired

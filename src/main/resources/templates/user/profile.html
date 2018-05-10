@@ -74,7 +74,18 @@
                             <!-- http://lorempixel.com/850/280/people/9/ -->
                         </div>
                         <div class="useravatar">
-                            <img alt="" src="https://api.adorable.io/avatars/285/abott@adorable.png"/>
+                            <!--<input type="text" class="form-control" th:name="file" id="file" th:value="${image}" />
+                            <img src="${image}" />
+                            <img th:attr="src=@{${image}}" />
+                            <img src="data:image/png;base64,+${userLogged.getUploadFile().bData}" />
+                            <img src="data:image/png;base64,${userLogged.getUploadFile().bData}" />
+                            <img src="@{'data:image/png;base64,'+${userLogged.getUploadFile().bData}}" />
+                            <img src="@{'data:image/png;base64,'+${userLogged.getUploadFile().getBData()}}" />
+                            <img th:src="@{'data:image/png;base64,'+${userLogged.getUploadFile().bData}}" />
+                            <img th:src="@{'data:image/png;base64,'+${userLogged.getUploadFile().getBData()}}" />
+                            <img th:src="@{'data:image/png;base64,'+${userLogged.getImage()}}" />
+                            <img th:src="@{${userLogged.getUploadFile().getData()}}" />-->
+                            <img alt="" src="https://api.adorable.io/avatars/285/abott@adorable.png" />
                         </div>
                         <div class="card-info">
                             <b><span class="card-title" th:text="${userLogged.getUsername()}"></span></b>
@@ -134,6 +145,13 @@
                                 <!-- END error handling -->
 
                                 <div class="row">
+                                    <div class="form-group col-lg-12 col-sm-12">
+                                        <label class="control-label" for="UploadFile">Profile photo:</label>
+                                        <div>
+                                            <input type="file" id="UploadFile" th:name="uploadFile.data" size="50" />
+                                        </div>
+                                    </div>
+
                                     <div class="form-group col-lg-6 col-sm-6">
                                         <label class="control-label" for="firstName">First name:</label>
                                         <div th:classappend="${#fields.hasErrors('firstName')}? 'has-error':'firstName error'">

@@ -39,7 +39,7 @@ public class ExperimentController {
         return new FileModelDto();
     }
 
-    private final String GRAMMAR_DIR_PATH = "resources" + File.separator + "files" + File.separator + "grammar" + File.separator + "";
+    private final String GRAMMAR_DIR_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "grammar" + File.separator + "";
     private final String DATATYPE_DIR_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "dataType" + File.separator + "";
     private final String PROPERTIES_DIR_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "properties" + File.separator + "";
 
