@@ -12,7 +12,7 @@ public class PropertiesDto {
 
     private static final String LOGGER_BASE_PATH = "resources/files/logs/population";
     private static final String WORK_DIR = "resources/files";
-    private static final String CLASS_PATH_SEPARATOR = "=\\;";
+    private static final String CLASS_PATH_SEPARATOR = "\\;";
 
     private Long idExp;
 
