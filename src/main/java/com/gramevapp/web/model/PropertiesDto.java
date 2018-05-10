@@ -7,12 +7,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.File;
+import java.util.UUID;
 
 public class PropertiesDto {
 
     private static final String LOGGER_BASE_PATH = "resources/files/logs/population";
     private static final String WORK_DIR = "resources/files";
     private static final String CLASS_PATH_SEPARATOR = "\\;";
+
+    private UUID id = UUID.randomUUID();
 
     private Long idExp;
 
@@ -402,5 +405,13 @@ public class PropertiesDto {
 
     public void setTest(Boolean test) {
         isTest = test;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 }

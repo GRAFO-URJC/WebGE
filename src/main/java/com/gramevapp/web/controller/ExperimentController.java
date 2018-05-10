@@ -156,7 +156,6 @@ public class ExperimentController {
             return "/user/experiment/configExperiment";
         }
 
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if ((authentication instanceof AnonymousAuthenticationToken)) {    // User not authenticated
             System.out.println("User not authenticated");
@@ -249,7 +248,7 @@ public class ExperimentController {
 
         // Grammar File
         new File(GRAMMAR_DIR_PATH + user.getId()).mkdirs(); // Create the directory to save datatype files
-        String grammarFilePath = GRAMMAR_DIR_PATH + user.getId() + File.separator + expDto.getExperimentName().replaceAll("\\s+", "") + grammar.getGrammarName().replaceAll("\\s+","") + ".bnf";
+        String grammarFilePath = GRAMMAR_DIR_PATH + user.getId() + File.separator + expDto.getExperimentName() + "_" + grammar.getId() + ".bnf";
 
         File grammarNewFile = new File(grammarFilePath);
         if (!grammarNewFile.exists()) {
@@ -274,23 +273,23 @@ public class ExperimentController {
         if(expDataType.getDataTypeType().equals("validation")) {
             dataTypeDirectoryPath += "validation\\" + user.getId();
             propertiesDto.setValidationPath(dataTypeDirectoryPath);
-            propertiesDto.setTrainingPath(dataTypeDirectoryPath +  File.separator + expDto.getExperimentName().replaceAll("\\s+", "") + expDataTypeDto.getDataTypeName().replaceAll("\\s+", "") + ".csv");
+            propertiesDto.setTrainingPath(dataTypeDirectoryPath + File.separator + expDto.getExperimentName() + "_" + expDataType.getId() + ".csv");
             propertiesDto.setValidation(true);
         }
         else if(expDataType.getDataTypeType().equals("test")){
             dataTypeDirectoryPath += "test\\" + user.getId();
             propertiesDto.setTestPath(dataTypeDirectoryPath);
-            propertiesDto.setTrainingPath(dataTypeDirectoryPath + File.separator + expDto.getExperimentName().replaceAll("\\s+", "") + expDataTypeDto.getDataTypeName().replaceAll("\\s+", "") + ".csv");   // TEMPORAL UNTIL KNOW IF WE NEED THIS OR NOT
+            propertiesDto.setTrainingPath(dataTypeDirectoryPath + File.separator + expDto.getExperimentName() + "_" + expDataType.getId() + ".csv");   // TEMPORAL UNTIL KNOW IF WE NEED THIS OR NOT
             propertiesDto.setTest(true);
         }
         else {      // Training
             dataTypeDirectoryPath += "training\\" + user.getId();
-            propertiesDto.setTrainingPath(dataTypeDirectoryPath +  File.separator + expDto.getExperimentName().replaceAll("\\s+", "") + expDataTypeDto.getDataTypeName().replaceAll("\\s+", "") + ".csv");   // TEMPORAL UNTIL KNOW IF WE NEED THIS OR NOT
+            propertiesDto.setTrainingPath(dataTypeDirectoryPath + File.separator + expDto.getExperimentName() + "_" + expDataType.getId() + ".csv");   // TEMPORAL UNTIL KNOW IF WE NEED THIS OR NOT
             propertiesDto.setTraining(true);
         }
 
         new File(PROPERTIES_DIR_PATH + user.getId()).mkdirs(); // Create the directory to save datatype files
-        String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + expDto.getExperimentName().replaceAll("\\s+", "") + ".properties";
+        String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + expDto.getExperimentName() + "_" + propertiesDto.getId() + ".properties";
 
         createPropertiesFile(propertiesFilePath, propertiesDto, expDto.getExperimentName(), currentTimestamp);  // Write in property file
 
@@ -315,7 +314,7 @@ public class ExperimentController {
 
             dataTypeInputStream = multipartFile.getInputStream();
 
-            String dataTypeFilePath = dataTypeDirectoryPath + File.separator + expDto.getExperimentName().replaceAll("\\s+", "") + expDataTypeDto.getDataTypeName().replaceAll("\\s+", "") + ".csv";;
+            String dataTypeFilePath = dataTypeDirectoryPath + File.separator + expDto.getExperimentName() + "_" + expDataType.getId() + ".csv";;
 
             File dataTypeNewFile = new File(dataTypeFilePath);
             if (!dataTypeNewFile.exists()) {
