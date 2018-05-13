@@ -1,15 +1,16 @@
 package com.gramevapp.web.model;
 
 import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.Pattern;
 
 public class UserUpdateAboutDto {
 
+    private static final String PATTERN_NUM_LETTERS = "^[\\p{L} \\d .'-]+$";
+
     private Long id;
 
+    @Pattern(regexp = PATTERN_NUM_LETTERS, message = "Your user information cannot contain strange characters")
     private String aboutMe;
-
-    @AssertTrue
-    private Boolean terms;
 
     public Long getId() {
         return id;

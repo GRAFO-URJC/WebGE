@@ -2,6 +2,7 @@ package com.engine.algorithm;
 
 import java.util.HashMap;
 import java.util.HashSet;
+
 import jeco.core.algorithm.moga.NSGAII;
 import jeco.core.operator.crossover.CrossoverOperator;
 import jeco.core.operator.mutation.MutationOperator;
@@ -72,7 +73,7 @@ public class ModifiedNSGAII extends NSGAII<Variable<Integer>> {
         HashSet<String> hash = new HashSet<>(sols.size());
 
         for (Solution<Variable<Integer>> s : sols) {
-            String phen = ((GramEvalTemporalModel) problem).generatePhenotype(s).toString();
+            String phen = ((SymbolicRegressionGE) problem).generatePhenotype(s).toString();
             if (!hash.contains(phen)) {
                 filteredSols.add(s);
                 hash.add(phen);

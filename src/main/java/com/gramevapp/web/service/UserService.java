@@ -7,14 +7,18 @@ import com.gramevapp.web.model.UserRegistrationDto;
 import com.gramevapp.web.other.UserToUserDetails;
 import com.gramevapp.web.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,6 +31,7 @@ import java.util.stream.Collectors;
 @Service("userService")
 @Transactional
 public class UserService {
+
     @Autowired
     private UserRepository userRepository;
 
@@ -114,5 +119,20 @@ public class UserService {
 
     public User findByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    public User getLoggedInUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if ((authentication instanceof AnonymousAuthenticationToken)) {    // User not authenticated
+            System.out.println("User not authenticated");
+            return null;
+        }
+
+        User user = findByUsername(authentication.getName());
+        return user;
+    }
+
+    public void updateProfilePicture(User user, String profilePicture) {
+        this.userRepository.updateFilePath(user.getUsername(), profilePicture);
     }
 }

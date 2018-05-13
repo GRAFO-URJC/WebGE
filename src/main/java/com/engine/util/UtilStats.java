@@ -243,26 +243,26 @@ public class UtilStats {
      * @param props 
      */
     public static void setCEGPenalties(Properties props) {
-        if (props.getProperty(com.engine.data.Common.CEG_PENALTY_B) != null) {
-            penaltyB = Double.valueOf(props.getProperty(com.engine.data.Common.CEG_PENALTY_B));
+        if (props.getProperty(com.engine.util.Common.CEG_PENALTY_B) != null) {
+            penaltyB = Double.valueOf(props.getProperty(com.engine.util.Common.CEG_PENALTY_B));
         } else {
             penaltyB = DEFAULT_CEG_PENALTY_B;
         }
         
-        if (props.getProperty(com.engine.data.Common.CEG_PENALTY_C) != null) {
-            penaltyC = Double.valueOf(props.getProperty(com.engine.data.Common.CEG_PENALTY_C));
+        if (props.getProperty(com.engine.util.Common.CEG_PENALTY_C) != null) {
+            penaltyC = Double.valueOf(props.getProperty(com.engine.util.Common.CEG_PENALTY_C));
         } else {
             penaltyC = DEFAULT_CEG_PENALTY_C;
         }
         
-        if (props.getProperty(com.engine.data.Common.CEG_PENALTY_D) != null) {
-            penaltyD = Double.valueOf(props.getProperty(com.engine.data.Common.CEG_PENALTY_D));
+        if (props.getProperty(com.engine.util.Common.CEG_PENALTY_D) != null) {
+            penaltyD = Double.valueOf(props.getProperty(com.engine.util.Common.CEG_PENALTY_D));
         } else {
             penaltyD = DEFAULT_CEG_PENALTY_D;
         }
         
-        if (props.getProperty(com.engine.data.Common.CEG_PENALTY_E) != null) {
-            penaltyE = Double.valueOf(props.getProperty(com.engine.data.Common.CEG_PENALTY_E));
+        if (props.getProperty(com.engine.util.Common.CEG_PENALTY_E) != null) {
+            penaltyE = Double.valueOf(props.getProperty(com.engine.util.Common.CEG_PENALTY_E));
         } else {
             penaltyE = DEFAULT_CEG_PENALTY_E;
         }
