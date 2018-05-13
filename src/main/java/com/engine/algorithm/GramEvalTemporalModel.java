@@ -1,5 +1,5 @@
 package com.engine.algorithm;
-
+/*
 import static com.engine.data.Common.currentDateTimeAsFormattedString;
 import com.engine.data.NormalizedDataTable;
 import java.io.BufferedReader;
@@ -106,7 +106,7 @@ public class GramEvalTemporalModel extends AbstractProblemGE {
         currentJavaFile.append("\t\tif (getVariable(timeTable.get(0).length - 2, k) < 0) {\n");
         currentJavaFile.append("\t\t\treturn realData(k);\n");
         currentJavaFile.append("\t\t}\n\n");
-*/
+* /
         currentJavaFile.append("\t\t\tswitch(idxExpr) {\n");
         for (int i = 0; i < exprList.size(); ++i) {
             currentJavaFile.append("\t\t\t\tcase ").append(i).append(":\n");
@@ -419,7 +419,7 @@ public class GramEvalTemporalModel extends AbstractProblemGE {
             // double validationFitness = problem.dataTable.evaluate(problem.evaluator, solution, 0);
             /*if (Boolean.valueOf(properties.getProperty(com.engine.data.Common.VIEW_RESULTS_PROP))) {
                 createDataPlot(problem.evaluator.getTimeTable(), "Predicted value (validation)", "yp (" + validationFitness + ")", problem.generatePhenotype(solution).toString());
-            }*/
+            }* /
             // logger.info("Validation fitness for solutions[0] = " + validationFitness);
             logger.info("Average error for solutions[0]");
             logger.info("Training = " + problem.dataTable.computeAvgError(problem.dataTable.getTrainingTable()));
@@ -476,7 +476,7 @@ public class GramEvalTemporalModel extends AbstractProblemGE {
      * 
      * @param strSols
      * @return 
-     */
+     * /
     public ArrayList<double[]> validateAndReturnEvaluations(ArrayList<String> strSols) {
         
         ArrayList<double[]> data = new ArrayList<>();
@@ -501,7 +501,7 @@ public class GramEvalTemporalModel extends AbstractProblemGE {
             data.add(real);
             data.add(predicted);
             
-            /* Now continue evaluating the rest ot the models only taking predicted values. */
+            /* Now continue evaluating the rest ot the models only taking predicted values. * /
             for (int i = 1; i < strSols.size(); ++i) {
                 evaluator.evaluateExpression(i);
                 predicted = new double[timeTable.size()];
@@ -551,7 +551,7 @@ public class GramEvalTemporalModel extends AbstractProblemGE {
             }
             
             /* Now continue evaluating all the models (model 0 is evaluated again);
-               only take predicted value. */
+               only take predicted value. * /
             for (int i = 0; i < strSols.size(); ++i) {
                 header += strSols.get(i)+";";
                 evaluator.evaluateExpression(i);
@@ -620,7 +620,7 @@ public class GramEvalTemporalModel extends AbstractProblemGE {
      * parameter.
      * 
      * @param str
-     */
+     * /
     private static void addToLogFile(String str) {
         try {
             File file = new File(logPopulationOutputFile);
@@ -635,3 +635,4 @@ public class GramEvalTemporalModel extends AbstractProblemGE {
     
 
 }
+*/

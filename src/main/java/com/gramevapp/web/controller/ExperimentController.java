@@ -1,15 +1,12 @@
 package com.gramevapp.web.controller;
 
+import com.engine.algorithm.SymbolicRegressionGE;
 import com.gramevapp.web.model.*;
 import com.gramevapp.web.service.ExperimentService;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;
-import com.engine.algorithm.GramEvalTemporalModel;
 import com.engine.algorithm.RunGeObserver;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,6 +18,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
+
+import static com.engine.util.Common.OBJECTIVES_PROP;
+import static com.engine.util.Common.TRAINING_PATH_PROP;
 
 @Controller
 public class ExperimentController {
@@ -47,12 +47,12 @@ public class ExperimentController {
     public String configExperiment(Model model,
                                    @ModelAttribute("configuration") ExperimentDto expDto){
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if ((authentication instanceof AnonymousAuthenticationToken)) {    // User not authenticated
+
+        User user = userService.getLoggedInUser();
+        if(user == null){
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
-        User user = userService.findByUsername(authentication.getName());
 
         // WE NEED TO ADD HERE THE EXPERIMENT INFO TO SEND IT TO configExperiment
         Experiment expConfig = experimentService.findExperimentById(expDto.getId());
@@ -101,12 +101,11 @@ public class ExperimentController {
                                  @ModelAttribute("configuration") ExperimentDto expDto,
                                  BindingResult result) throws IllegalStateException, IOException  {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if ((authentication instanceof AnonymousAuthenticationToken)) {    // User not authenticated
+        User user = userService.getLoggedInUser();
+        if(user == null){
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
-        User user = userService.findByUsername(authentication.getName());
 
         if (result.hasErrors()) {
             return "/user/experiment/configExperiment";
@@ -146,7 +145,7 @@ public class ExperimentController {
     public String runExperiment(Model model,
                                 @ModelAttribute("grammar") GrammarDto grammarDto,
                                 @ModelAttribute("type") ExperimentDataTypeDto expDataTypeDto,
-                                @ModelAttribute("configuration")  ExperimentDto expDto,
+                                @ModelAttribute("configuration") ExperimentDto expDto,
                                 @RequestParam String radioDataType,
                                 @ModelAttribute("typeFile") FileModelDto fileModelDto,
                                 @ModelAttribute("configExp") @Valid ConfigExperimentDto configExperimentDto,
@@ -156,12 +155,11 @@ public class ExperimentController {
             return "/user/experiment/configExperiment";
         }
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if ((authentication instanceof AnonymousAuthenticationToken)) {    // User not authenticated
+        User user = userService.getLoggedInUser();
+        if(user == null){
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
-        User user = userService.findByUsername(authentication.getName());
 
         // CONFIGURATION SECTION
         Grammar grammar = experimentService.findGrammarByUserIdAndName(user, grammarDto.getGrammarName());
@@ -296,6 +294,8 @@ public class ExperimentController {
         // END - Create PropertiesDto file
         MultipartFile multipartFile = fileModelDto.getTypeFile();
 
+        String dataFilePath = "";
+
         // If Radio button and file path selected -> File path is selected
         // NULL -> didn't select the dataType file from the list - ON if th:value in input is empty
         if( (radioDataType.equals("on") && !multipartFile.isEmpty()) || (!radioDataType.equals("on") && !multipartFile.isEmpty()) ) {
@@ -303,10 +303,12 @@ public class ExperimentController {
                     multipartFile.getOriginalFilename());
             multipartFile.transferTo(tmpFile);
 
+            dataFilePath = tmpFile.getAbsolutePath();
+
             Reader reader = new FileReader(tmpFile);
             experimentService.loadExperimentRowTypeFile(reader, expDataType);   // Save row here
             reader.close();
-
+/*
             new File(dataTypeDirectoryPath).mkdirs(); // Create the directory to save datatype files
 
             InputStream dataTypeInputStream = null;
@@ -327,6 +329,7 @@ public class ExperimentController {
             while ((dataTypeRead = dataTypeInputStream.read(dataTypeBytes)) != -1) {
                 dataTypeOutputStream.write(dataTypeBytes, 0, dataTypeRead);
             }
+*/
         }
         else if(radioDataType.equals("on") && multipartFile.isEmpty()) {        // Radio button neither file path selected
             result.rejectValue("typeFile", "error.typeFile", "Choose one file");
@@ -361,6 +364,9 @@ public class ExperimentController {
         Properties properties = new Properties();
         properties.load(propertiesReader);
 
+        // TODO: no distinguir el tipo de fichero entre training, validation o test.
+        properties.setProperty(TRAINING_PATH_PROP,dataFilePath);
+
         /*String examplePath = ".\\resources\\example\\example.properties";
         File exampleFile = new File(examplePath);
         if (!exampleFile.exists()) {
@@ -371,12 +377,9 @@ public class ExperimentController {
 
         properties.store(out, "example");*/
 
-        int numObjectives = 1;  // Example
-        int threadId = 1;
-
         DiagramData diagramData = new DiagramData(user, run);
 
-        executeGramEv(properties, threadId, numObjectives, diagramData);        // PropertiesDto properties, int threadId, int numObjectives
+        executeGramEv(properties, diagramData);        // PropertiesDto properties, int threadId, int numObjectives
 
         propertiesReader.close();
         // END - Execute program with experiment info
@@ -386,13 +389,12 @@ public class ExperimentController {
 
     @RequestMapping(value="/user/experiment/experimentRepository", method=RequestMethod.GET)
     public String experimentRepository(Model model){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if ((authentication instanceof AnonymousAuthenticationToken)) {    // User not authenticated
+
+        User user = userService.getLoggedInUser();
+        if(user == null){
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
-
-        User user = userService.findByUsername(authentication.getName());
 
         List<Experiment> lExperiment = experimentService.findByUserId(user);
 
@@ -406,13 +408,11 @@ public class ExperimentController {
     public String expRepoSelected(Model model,
                                   @RequestParam String id){ // Exp ID
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if ((authentication instanceof AnonymousAuthenticationToken)) {    // User not authenticated
+        User user = userService.getLoggedInUser();
+        if(user == null){
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
-
-        User user = userService.findByUsername(authentication.getName());
 
         Long idExp = Long.parseLong(id);
 
@@ -438,13 +438,11 @@ public class ExperimentController {
     public String runList(Model model,
                           @RequestParam String id) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if ((authentication instanceof AnonymousAuthenticationToken)) {    // User not authenticated
+        User user = userService.getLoggedInUser();
+        if(user == null){
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
-
-        User user = userService.findByUsername(authentication.getName());
 
         Long idRun = Long.parseLong(id);
         Run run = runService.findByUserIdAndId(user, idRun);
@@ -469,13 +467,20 @@ public class ExperimentController {
      *
      */
 
-    public void executeGramEv(Properties properties, int threadId, int numObjectives, DiagramData diagramData) throws IOException {
-        GramEvalTemporalModel gramEvalTemporalModel = new GramEvalTemporalModel(properties, threadId, numObjectives);
+    public void executeGramEv(Properties properties, DiagramData diagramData) throws IOException {
+
+        int numObjectives = 1;
+        if ((properties.getProperty(OBJECTIVES_PROP) != null)
+                && (Integer.valueOf(properties.getProperty(OBJECTIVES_PROP)) == 2)) {
+            numObjectives = 2;
+        }
+
+        SymbolicRegressionGE ge = new SymbolicRegressionGE(properties,numObjectives);
 
         RunGeObserver observer = new RunGeObserver();
         observer.setDiagramData(diagramData);
 
-        gramEvalTemporalModel.runGE(properties, threadId, observer);
+        ge.runGE(observer);
     }
 
 

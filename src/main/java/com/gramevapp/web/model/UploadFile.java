@@ -1,15 +1,20 @@
 package com.gramevapp.web.model;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 @Entity
-@Table(name = "FILES_UPLOAD")
+@Table(name = "UPLOAD_FILE")
 public class UploadFile {
 
     @Id
-    @Column(name = "FILE_UPLOAD_ID")
+    @Column(name = "UPLOAD_FILE_ID")
     @GeneratedValue(strategy = GenerationType.AUTO, generator="native") // Efficiency  -> https://vladmihalcea.com/why-should-not-use-the-auto-jpa-generationtype-with-mysql-and-hibernate/
     @GenericGenerator(
             name = "native",
@@ -18,10 +23,10 @@ public class UploadFile {
 
     private String fileName;
 
-    @Lob
-    private byte[] data;
+    /*@Lob
+    private byte[] data;*/
 
-    private String bData;
+    private String filePath;
 
     public long getId() {
         return id;
@@ -40,20 +45,20 @@ public class UploadFile {
         this.fileName = fileName;
     }
 
-    @Column(name = "FILE_DATA")
+    /*@Column(name = "FILE_DATA")
     public byte[] getData() {
         return data;
     }
 
     public void setData(byte[] data) {
         this.data = data;
+    }*/
+
+    public String getFilePath() {
+        return filePath;
     }
 
-    public String getBData() {
-        return bData;
-    }
-
-    public void setBData(String bData) {
-        this.bData = bData;
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
 }

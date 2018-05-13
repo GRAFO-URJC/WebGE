@@ -3,6 +3,7 @@ package com.gramevapp.web.model;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.format.annotation.NumberFormat;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Pattern;
@@ -10,6 +11,7 @@ import javax.validation.constraints.Pattern;
 public class UserUpdateBasicInfoDto {
 
     private static final String PATTERN = "^[\\p{L} .'-]+$";  // https://stackoverflow.com/questions/15805555/java-regex-to-validate-full-name-allow-only-spaces-and-letters
+    private static final String PATTERN_NUM_LETTERS = "^[\\p{L} \\d .'-]+$";
 
     private Long id;
 
@@ -27,13 +29,16 @@ public class UserUpdateBasicInfoDto {
     private Integer phone;
 
     //  Direction
+    @Pattern(regexp = PATTERN_NUM_LETTERS, message = "Address direction cannot contain strange characters")
     private String addressDirection;
+    @Pattern(regexp = PATTERN, message = "City direction cannot contain strange characters")
     private String city;
+    @Pattern(regexp = PATTERN, message = "State direction cannot contain strange characters")
     private String state;
     @NumberFormat
     private Integer zipcode;
 
-    private UploadFile uploadFile;
+    private MultipartFile profilePicture;
 
     @AssertTrue
     private Boolean terms;
@@ -50,12 +55,12 @@ public class UserUpdateBasicInfoDto {
 
     ;
 
-    public UploadFile getUploadFile() {
-        return uploadFile;
+    public MultipartFile getProfilePicture() {
+        return profilePicture;
     }
 
-    public void setUploadFile(UploadFile uploadFile) {
-        this.uploadFile = uploadFile;
+    public void setProfilePicture(MultipartFile profilePicture) {
+        this.profilePicture = profilePicture;
     }
 
     public String getAddressDirection() {

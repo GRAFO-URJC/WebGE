@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class ConfigExperimentDto {
-    private static final String PATTERN = "^[\\p{L} .'-]+$";;  // https://stackoverflow.com/questions/15805555/java-regex-to-validate-full-name-allow-only-spaces-and-letters
+    private static final String PATTERN = "^[\\p{L} \\d .'-]+$";;  // https://stackoverflow.com/questions/15805555/java-regex-to-validate-full-name-allow-only-spaces-and-letters
 
     @Pattern(regexp = PATTERN, message = "Experiment name cannot contain strange characters")
     @NotEmpty(message = "Enter experiment name")
