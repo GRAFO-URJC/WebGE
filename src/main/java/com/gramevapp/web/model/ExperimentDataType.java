@@ -14,10 +14,10 @@ public class ExperimentDataType {
 
     @Id
     @Column(name = "EXPERIMENTDATATYPE_ID", nullable = false, updatable= false)
-    @GeneratedValue(strategy = GenerationType.AUTO, generator="native") // Efficiency  -> https://vladmihalcea.com/why-should-not-use-the-auto-jpa-generationtype-with-mysql-and-hibernate/
+    @GeneratedValue(strategy = GenerationType.AUTO) /* , generator="native") // Efficiency  -> https://vladmihalcea.com/why-should-not-use-the-auto-jpa-generationtype-with-mysql-and-hibernate/
     @GenericGenerator(
             name = "native",
-            strategy = "native")
+            strategy = "native")*/
     private Long id;
 
     @OneToOne(cascade=CascadeType.ALL)

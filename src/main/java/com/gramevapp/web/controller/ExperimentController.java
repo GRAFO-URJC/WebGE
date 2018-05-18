@@ -2,6 +2,7 @@ package com.gramevapp.web.controller;
 
 import com.engine.algorithm.SymbolicRegressionGE;
 import com.gramevapp.web.model.*;
+import com.gramevapp.web.service.DiagramDataService;
 import com.gramevapp.web.service.ExperimentService;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;
@@ -33,6 +34,9 @@ public class ExperimentController {
 
     @Autowired
     private RunService runService;
+
+    @Autowired
+    private DiagramDataService diagramDataService;
 
     @ModelAttribute
     public FileModelDto fileModel(){
@@ -232,6 +236,8 @@ public class ExperimentController {
             exp.setDefaultExpDataType(expDataType);
         }
 
+        // experimentService.saveExperiment(exp);
+
         user.addExperiment(exp);
         // END - Experiment section
 
@@ -239,7 +245,7 @@ public class ExperimentController {
         //experimentService.saveExperiment(exp);
 
         /** We need save first the expDataType rather than expRowType, because if we did otherwise we will have an detached error
-         *  this means that we are trying to access to an entity that dont exist already (Because in expRowType in add method
+         *  this means that we are trying to access to an entity that doesn't exist yet (Because in expRowType in add method
          *  we are adding the row to expDataType. And this isn't created yet.
          **/
         experimentService.saveDataType(expDataType);
@@ -346,7 +352,6 @@ public class ExperimentController {
         // END Reader - FILE DATA TYPE
 
         experimentService.saveGrammar(grammar);
-
         runService.saveRun(run);
         // END CONFIGURATION SECTION
 
@@ -406,13 +411,16 @@ public class ExperimentController {
 
     @RequestMapping(value="/user/experiment/expRepoSelected")
     public String expRepoSelected(Model model,
-                                  @RequestParam String id){ // Exp ID
+                                  @RequestParam(required=false) String id ){ // Exp ID
 
         User user = userService.getLoggedInUser();
         if(user == null){
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
+
+        if(id == null)
+            return "redirect:/user/experiment/experimentRepository";
 
         Long idExp = Long.parseLong(id);
 
@@ -444,8 +452,8 @@ public class ExperimentController {
             return "redirect:/login";
         }
 
-        Long idRun = Long.parseLong(id);
-        Run run = runService.findByUserIdAndId(user, idRun);
+        Long runId = Long.parseLong(id);
+        Run run = runService.findByRunId(runId);
         Experiment expConfig = run.getExperimentId();
         Grammar grammar = expConfig.getDefaultGrammar();
         ExperimentDataType expDataType = expConfig.getDefaultExpDataType();

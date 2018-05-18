@@ -5,18 +5,21 @@ import java.util.Calendar;
 import java.util.Date;
 
 @Entity
+@Table(name = "run")
 public class Run
 {
+    public enum Status { INITIALIZING, RUNNING, PAUSED, CANCELED, FINISHED, FAILED; };
+
     @Id
-    @Column(name = "RUN_ID", nullable = false, updatable= false)
+    @Column(name="RUN_ID", updatable= false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @OneToOne(cascade=CascadeType.ALL)
     private User userId;
 
-    public enum Status { INITIALIZING, RUNNING, PAUSED, CANCELED, FINISHED, FAILED; };
-
+    //@JoinColumn(name = "EXPERIMENT_ID", unique = true)
+    //@OneToOne(cascade=CascadeType.ALL)
     @ManyToOne(cascade=CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
             name = "runs_list",
@@ -27,6 +30,10 @@ public class Run
                     @JoinColumn(name = "EXPERIMENT_ID", referencedColumnName = "EXPERIMENT_ID")
             }
     )
+    /*@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="EXPERIENT_ID", nullable = false)*/
+    /*@ManyToOne(cascade=CascadeType.ALL)  // https://www.thoughts-on-java.org/hibernate-tips-map-bidirectional-many-one-association/
+    @JoinColumn(name = "EXPERIMENT_ID")*/
     private Experiment experimentId;
 
     @Column

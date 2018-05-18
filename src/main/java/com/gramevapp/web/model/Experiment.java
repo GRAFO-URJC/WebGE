@@ -13,10 +13,10 @@ public class Experiment {
 
     @Id
     @Column(name = "EXPERIMENT_ID", nullable = false, updatable= false)
-    @GeneratedValue(strategy = GenerationType.AUTO, generator="native") // Efficiency  -> https://vladmihalcea.com/why-should-not-use-the-auto-jpa-generationtype-with-mysql-and-hibernate/
+    @GeneratedValue(strategy = GenerationType.IDENTITY) /*, generator="native") // Efficiency  -> https://vladmihalcea.com/why-should-not-use-the-auto-jpa-generationtype-with-mysql-and-hibernate/
     @GenericGenerator(
             name = "native",
-            strategy = "native")
+            strategy = "native")*/
     private Long id;
 
     @ManyToOne(cascade=CascadeType.ALL)
@@ -58,7 +58,8 @@ public class Experiment {
     private ExperimentDataType defaultExpDataType;
 
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToMany(fetch=FetchType.LAZY,
+    @OneToMany(cascade = CascadeType.ALL,
+            fetch=FetchType.LAZY,
             mappedBy = "experimentId")
     private List<Run> idRunList = new ArrayList<>();
 

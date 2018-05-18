@@ -15,10 +15,10 @@ public class UploadFile {
 
     @Id
     @Column(name = "UPLOAD_FILE_ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator="native") // Efficiency  -> https://vladmihalcea.com/why-should-not-use-the-auto-jpa-generationtype-with-mysql-and-hibernate/
+    @GeneratedValue(strategy = GenerationType.AUTO) /*, generator="native") // Efficiency  -> https://vladmihalcea.com/why-should-not-use-the-auto-jpa-generationtype-with-mysql-and-hibernate/
     @GenericGenerator(
             name = "native",
-            strategy = "native")
+            strategy = "native")*/
     private long id;
 
     private String fileName;

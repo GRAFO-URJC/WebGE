@@ -1,10 +1,9 @@
 package com.gramevapp.web.model;
 
-        import javax.persistence.*;
-        import java.io.Serializable;
-        import java.util.ArrayList;
-        import java.util.Base64;
-        import java.util.List;
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "user")
@@ -83,7 +82,7 @@ public class User implements Serializable {
                     @JoinColumn(name = "experiment_name", referencedColumnName = "experiment_name")
             })*/
 
-    @JoinColumn(name = "FILE_UPLOAD_ID", unique = true)
+    @JoinColumn(name = "PROFILE_PICTURE_ID", unique = true)
     @OneToOne(cascade = CascadeType.ALL)
     private UploadFile profilePicture;
 
@@ -290,6 +289,10 @@ public class User implements Serializable {
         this.listExperiments.add(experiment);
         experiment.setUserId(this);
         return experiment;
+    }
+
+    public List<Experiment> getListExperiments() {
+        return listExperiments;
     }
 
     @Override
