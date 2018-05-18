@@ -1,9 +1,9 @@
 package com.gramevapp.web.controller;
 
 import com.gramevapp.web.model.*;
+import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UploadFileService;
 import com.gramevapp.web.service.UserService;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -37,19 +37,20 @@ public class UserController {
     @Autowired
     UploadFileService uploadFileService;
 
+    @Autowired
+    RunService runService;
+
     private final String PROFILE_PICTURE_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "profilePicture" + File.separator + "";
 
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @GetMapping("/user/profile")
     public String userProfile(Model model){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if ((authentication instanceof AnonymousAuthenticationToken)) {    // User not authenticated
+        User user = userService.getLoggedInUser();
+        if(user == null){
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
-
-        User user = userService.findByUsername(authentication.getName());
 
         UserUpdateBasicInfoDto upBasicInfoDto = new UserUpdateBasicInfoDto();
         UserUpdateAboutDto upAboutDto = new UserUpdateAboutDto();
@@ -69,12 +70,11 @@ public class UserController {
     public String updateUserPassword(Model model,
                                      @ModelAttribute("userPassword") @Valid UserUpdatePasswordDto userUpDto,
                                      BindingResult result){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if ((authentication instanceof AnonymousAuthenticationToken)) {    // User not authenticated
+        User user = userService.getLoggedInUser();
+        if(user == null){
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
-        User user = userService.findByUsername(authentication.getName());
         model.addAttribute("userLogged", user);     // If we don't set the model. In ${userLogged.getUsername()}" we will have fail
 
         if(result.hasErrors()){
@@ -94,12 +94,11 @@ public class UserController {
     public String updateUserStudy(Model model,
                                   @ModelAttribute("userStudy") @Valid UserUpdateStudyDto userUpDto,
                                   BindingResult result) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if ((authentication instanceof AnonymousAuthenticationToken)) {    // User not authenticated
+        User user = userService.getLoggedInUser();
+        if(user == null){
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
-        User user = userService.findByUsername(authentication.getName());
         model.addAttribute("userLogged", user);     // If we don't set the model. In ${userLogged.getUsername()}" we will have fail
 
         if(result.hasErrors())
@@ -196,9 +195,11 @@ public class UserController {
                                 @ModelAttribute("userAboutMe") @Valid UserUpdateAboutDto userUpDto,
                                 BindingResult result){
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        User user = userService.findByUsername(authentication.getName());
+        User user = userService.getLoggedInUser();
+        if(user == null){
+            System.out.println("User not authenticated");
+            return "redirect:/login";
+        }
         model.addAttribute("userLogged", user);     // If we don't set the model. In ${userLogged.getUsername()}" we will have fail
 
         if(result.hasErrors()){

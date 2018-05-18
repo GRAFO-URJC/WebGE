@@ -9,14 +9,15 @@ public class DiagramData {
 
     @Id
     @Column(name = "DIAGRAM_DATA_ID", nullable = false, updatable= false)
-    @GeneratedValue(strategy = GenerationType.AUTO, generator="native") // Efficiency  -> https://vladmihalcea.com/why-should-not-use-the-auto-jpa-generationtype-with-mysql-and-hibernate/
+    @GeneratedValue(strategy = GenerationType.AUTO) /*, generator="native") // Efficiency  -> https://vladmihalcea.com/why-should-not-use-the-auto-jpa-generationtype-with-mysql-and-hibernate/
     @GenericGenerator(
             name = "native",
-            strategy = "native")
+            strategy = "native")*/
     private Long id;
 
     private Double bestIndividual;
 
+    @JoinColumn(name = "RUN_ID", unique = true)
     @OneToOne(cascade=CascadeType.ALL)
     private Run runId;
 

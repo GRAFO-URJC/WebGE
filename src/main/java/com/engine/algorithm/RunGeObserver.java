@@ -3,14 +3,9 @@ package com.engine.algorithm;
 import com.gramevapp.web.model.DiagramData;
 import com.gramevapp.web.other.BeanUtil;
 import com.gramevapp.web.service.DiagramDataService;
-import com.gramevapp.web.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
-
-import javax.persistence.EntityManager;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
@@ -53,7 +48,6 @@ public class RunGeObserver implements Observer {
         // use this spring object to call its methods
 
         dataDataService.saveDiagram(this.diagramData);
-
 
         /*
         if (dataMap.get("BestObjective") != null) {

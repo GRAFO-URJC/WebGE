@@ -6,12 +6,11 @@ import com.gramevapp.web.model.User;
 import com.gramevapp.web.repository.ExperimentRepository;
 import com.gramevapp.web.repository.RunRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
+@Service("runService")
 public class  RunService {
     @Autowired
     RunRepository runRepository;
@@ -23,6 +22,14 @@ public class  RunService {
         return runRepository.save(run);
     }
 
+    public Run findByRunName(String runName){
+        return runRepository.findByRunName(runName);
+    }
+
+    public Run findByRunId(Long runId){
+        return runRepository.findById(runId);
+    }
+
     public List<Run> findAllByExperiment(Experiment exp){
         return runRepository.findAllByExperimentId(exp);
     }
@@ -31,7 +38,7 @@ public class  RunService {
         return runRepository.findByUserId(user);
     }
 
-    public Run findByUserIdAndId(User user, Long id){
+    public Run findByUserIdAndRunId(User user, Long id){
         return  runRepository.findByUserIdAndId(user, id);
     }
 }
