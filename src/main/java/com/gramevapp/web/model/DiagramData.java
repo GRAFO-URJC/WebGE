@@ -17,7 +17,61 @@ public class DiagramData {
 
     private Double bestIndividual;
 
-    @JoinColumn(name = "RUN_ID", unique = true)
+    private Long longRunId;
+
+    private Long longUserId;
+
+    public DiagramData() {
+    }
+
+    public DiagramData(Double bestIndividual) {
+        this.bestIndividual = bestIndividual;
+    }
+
+    public DiagramData(Long longRunId, Long longUserId) {
+        this.longRunId = longRunId;
+        this.longUserId = longUserId;
+    }
+
+    public DiagramData(Double bestIndividual, Long longRunId, Long longUserId) {
+        this.bestIndividual = bestIndividual;
+        this.longRunId = longRunId;
+        this.longUserId = longUserId;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Double getBestIndividual() {
+        return bestIndividual;
+    }
+
+    public void setBestIndividual(Double bestIndividual) {
+        this.bestIndividual = bestIndividual;
+    }
+
+    public Long getLongRunId() {
+        return longRunId;
+    }
+
+    public void setLongRunId(Long longRunId) {
+        this.longRunId = longRunId;
+    }
+
+    public Long getLongUserId() {
+        return longUserId;
+    }
+
+    public void setLongUserId(Long longUserId) {
+        this.longUserId = longUserId;
+    }
+
+    /*@JoinColumn(name = "RUN_ID", unique = true)
     @OneToOne(cascade=CascadeType.ALL)
     private Run runId;
 
@@ -72,5 +126,5 @@ public class DiagramData {
 
     public void setUserId(User userId) {
         this.userId = userId;
-    }
+    }*/
 }

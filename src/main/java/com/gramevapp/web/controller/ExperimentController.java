@@ -382,7 +382,7 @@ public class ExperimentController {
 
         properties.store(out, "example");*/
 
-        DiagramData diagramData = new DiagramData(user, run);
+        DiagramData diagramData = new DiagramData(run.getId(), user.getId());
 
         executeGramEv(properties, diagramData);        // PropertiesDto properties, int threadId, int numObjectives
 

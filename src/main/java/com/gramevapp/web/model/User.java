@@ -1,5 +1,7 @@
 package com.gramevapp.web.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -66,6 +68,7 @@ public class User implements Serializable {
             })
     private List<Role> roles;
 
+    @JsonBackReference
     @OneToMany(fetch=FetchType.LAZY,
             mappedBy = "userId",
             targetEntity=Experiment.class)
