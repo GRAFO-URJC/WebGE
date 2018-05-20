@@ -16,9 +16,6 @@ import org.springframework.web.bind.annotation.*;
 public class DiagramDataRestController {
 
     @Autowired
-    private ExperimentService experimentService;
-
-    @Autowired
     private UserService userService;
 
     @Autowired
@@ -36,14 +33,13 @@ public class DiagramDataRestController {
             System.out.println("User not authenticated");
         }
 
+        if(runId.equals("undefined")){
+            return new DiagramData(0.0);
+        }
+
         Long runIdLong = Long.parseLong(runId);
         Run run = runService.findByUserIdAndRunId(user, runIdLong);
         DiagramData diagramData = diagramDataService.getLastBestIndividual(run);
         return diagramData;
     }
-
-    /*@ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(CountryNotFoundException.class)
-    public void countryNotFound() {
-    }*/
 }

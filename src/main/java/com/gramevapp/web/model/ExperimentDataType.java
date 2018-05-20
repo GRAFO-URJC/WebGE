@@ -1,5 +1,6 @@
 package com.gramevapp.web.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -23,6 +24,7 @@ public class ExperimentDataType {
     @OneToOne(cascade=CascadeType.ALL)
     private User userId;
 
+    @JsonManagedReference
     @ManyToOne(cascade=CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
             name = "expdatatype_list",

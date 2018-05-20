@@ -1,5 +1,7 @@
 package com.gramevapp.web.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -19,6 +21,7 @@ public class Experiment {
             strategy = "native")*/
     private Long id;
 
+    @JsonManagedReference
     @ManyToOne(cascade=CascadeType.ALL)
     @JoinTable(
             name = "users_experiments",
@@ -37,6 +40,7 @@ public class Experiment {
     @Column(name="EXPERIMENT_DESCRIPTION") // Reference for user relation and ExpDataType and Grammar
     private String experimentDescription;
 
+    @JsonBackReference
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToMany(fetch=FetchType.LAZY,
             mappedBy = "experimentId")
@@ -47,6 +51,7 @@ public class Experiment {
     @JoinColumn(name = "default_grammar")
     private Grammar defaultGrammar;
 
+    @JsonBackReference
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToMany(fetch=FetchType.LAZY,
             mappedBy = "experimentId")
