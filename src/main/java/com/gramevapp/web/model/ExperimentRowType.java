@@ -185,4 +185,9 @@ public class ExperimentRowType {
     public void setX10(String x10) {
         this.x10 = x10;
     }
+
+    @Override
+    public String toString() {
+        return  y + ";" + x1 + ";" + x2 + ";" + x3 + ";" + x4 + ";" + x5 + ";" + x6 + ";" + x7 + ";" + x8 + ";" + x9 + ";" + x10 + "\n";
+    }
 }

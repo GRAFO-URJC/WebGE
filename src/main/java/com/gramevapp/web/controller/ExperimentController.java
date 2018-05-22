@@ -7,6 +7,7 @@ import com.gramevapp.web.service.ExperimentService;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;
 import com.engine.algorithm.RunGeObserver;
+import javafx.util.converter.TimeStringConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.*;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -153,7 +155,7 @@ public class ExperimentController {
                                 @RequestParam String radioDataType,
                                 @ModelAttribute("typeFile") FileModelDto fileModelDto,
                                 @ModelAttribute("configExp") @Valid ConfigExperimentDto configExperimentDto,
-                                BindingResult result)  throws IllegalStateException, IOException {
+                                BindingResult result) throws IllegalStateException, IOException {
 
         if (result.hasErrors()){
             return "/user/experiment/configExperiment";
@@ -181,18 +183,9 @@ public class ExperimentController {
         java.sql.Date currentTimestamp = new java.sql.Date(calendar.getTime().getTime());
         // END - DATE TIMESTAMP
 
-        // Experiment Data Type Section
-        ExperimentDataType expDataType = experimentService.findDataTypeByUserIdAndName(user, expDataTypeDto.getDataTypeName());
-
-        if(expDataType == null)     // We create it
-            expDataType = new ExperimentDataType(user, expDataTypeDto.getDataTypeName(), expDataTypeDto.getDataTypeDescription(), expDataTypeDto.getDataTypeType(), currentTimestamp, currentTimestamp);
-        else {  // The experiment data type configuration already exist
-            expDataType.setDataTypeName(expDataTypeDto.getDataTypeName());
-            expDataType.setDataTypeDescription(expDataTypeDto.getDataTypeDescription());
-            expDataType.setDataTypeType(expDataType.getDataTypeType());
-            // We could update the date time if we would like
-        }
-        // END - Experiment Data Type Section
+        // Experiment Data Type SECTION
+        ExperimentDataType expDataType = experimentDataTypeSection(user, expDataTypeDto, currentTimestamp);
+        // END - Experiment Data Type SECTION
 
         // RUN SECTION
         Run run = new Run(user, Run.Status.INITIALIZING, expDto.getExperimentName(), expDto.getExperimentDescription(), currentTimestamp, currentTimestamp);
@@ -250,24 +243,9 @@ public class ExperimentController {
          **/
         experimentService.saveDataType(expDataType);
 
-        // Grammar File
-        new File(GRAMMAR_DIR_PATH + user.getId()).mkdirs(); // Create the directory to save datatype files
-        String grammarFilePath = GRAMMAR_DIR_PATH + user.getId() + File.separator + expDto.getExperimentName() + "_" + grammar.getId() + ".bnf";
-
-        File grammarNewFile = new File(grammarFilePath);
-        if (!grammarNewFile.exists()) {
-            grammarNewFile.createNewFile();
-        }
-
-        PrintWriter grammarWriter = new PrintWriter(grammarNewFile);
-
-        String[] parts = grammar.getFileText().split("\\r\\n");
-        for (String part : parts) {
-            grammarWriter.println(part);
-        }
-
-        grammarWriter.close();
-        // END Grammar File
+        // Grammar File SECTION
+        String grammarFilePath = grammarFileSection(user, expDto, grammar);
+        // END Grammar File SECTION
 
         // Create PropertiesDto file
         PropertiesDto propertiesDto = new PropertiesDto(0.0, expDto.getTournament(), 0, expDto.getCrossoverProb(), grammarFilePath, 0, 1, expDto.getMutationProb(), false, 1, expDto.getNumCodons(), expDto.getPopulationSize(), expDto.getGenerations(), false, expDto.getMaxWraps(), 500, expDto.getExperimentName(), expDto.getExperimentDescription());
@@ -347,6 +325,24 @@ public class ExperimentController {
 
             ExperimentDataType expDataTypeSelected = experimentService.findExperimentDataTypeById(idDataType);
 
+            List<ExperimentRowType> lExpRowType = expDataTypeSelected.getListRowsFile();
+
+            // Create temporal training path file
+            File tmpFile = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") +
+                    "trainingPathFile.csv");
+
+            tmpFile.createNewFile();
+
+            FileWriter fWriter = new FileWriter(tmpFile, false);    // true = append; false = overwrite
+            BufferedWriter writer = new BufferedWriter(fWriter);
+
+            for(ExperimentRowType e : lExpRowType){
+                if(e.getYCustom()!=null)
+                    writer.append(e.toString());
+            }
+            writer.close();
+
+            dataFilePath = tmpFile.getAbsolutePath();
             // AQUÍ YA TENEMOS EL ARCHIVO LOCALIZADOS - HACE FALTA CARGARLO CUANDO SE EJECUTE EL PROGRAMA
         }
         // END Reader - FILE DATA TYPE
@@ -370,17 +366,7 @@ public class ExperimentController {
         properties.load(propertiesReader);
 
         // TODO: no distinguir el tipo de fichero entre training, validation o test.
-        properties.setProperty(TRAINING_PATH_PROP,dataFilePath);
-
-        /*String examplePath = ".\\resources\\example\\example.properties";
-        File exampleFile = new File(examplePath);
-        if (!exampleFile.exists()) {
-            exampleFile.createNewFile();
-        }
-
-        OutputStream out = new FileOutputStream(exampleFile);
-
-        properties.store(out, "example");*/
+        properties.setProperty(TRAINING_PATH_PROP, dataFilePath);
 
         DiagramData diagramData = new DiagramData(run.getId(), user.getId());
 
@@ -471,10 +457,7 @@ public class ExperimentController {
         return "/user/experiment/configExperiment";
     }
 
-    /** Run gramEv application
-     *
-     */
-
+    //  Run gramEv application
     public void executeGramEv(Properties properties, DiagramData diagramData) throws IOException {
 
         int numObjectives = 1;
@@ -537,6 +520,41 @@ public class ExperimentController {
         propertiesWriter.close();
     }
 
-    // for execute a jar file = java -jar Main.jar
+    public String grammarFileSection(User user, ExperimentDto expDto, Grammar grammar) throws IllegalStateException, IOException {
+
+        new File(GRAMMAR_DIR_PATH + user.getId()).mkdirs(); // Create the directory to save datatype files
+        String grammarFilePath = GRAMMAR_DIR_PATH + user.getId() + File.separator + expDto.getExperimentName() + "_" + grammar.getId() + ".bnf";
+
+        File grammarNewFile = new File(grammarFilePath);
+        if (!grammarNewFile.exists()) {
+            grammarNewFile.createNewFile();
+        }
+
+        PrintWriter grammarWriter = new PrintWriter(grammarNewFile);
+
+        String[] parts = grammar.getFileText().split("\\r\\n");
+        for (String part : parts) {
+            grammarWriter.println(part);
+        }
+
+        grammarWriter.close();
+
+        return grammarFilePath;
+    }
+
+    public ExperimentDataType experimentDataTypeSection(User user, ExperimentDataTypeDto expDataTypeDto, java.sql.Date currentTimestamp) throws IOException {
+        ExperimentDataType expDataType = experimentService.findDataTypeByUserIdAndName(user, expDataTypeDto.getDataTypeName());
+
+        if(expDataType == null)     // We create it
+            expDataType = new ExperimentDataType(user, expDataTypeDto.getDataTypeName(), expDataTypeDto.getDataTypeDescription(), expDataTypeDto.getDataTypeType(), currentTimestamp, currentTimestamp);
+        else {  // The experiment data type configuration already exist
+            expDataType.setDataTypeName(expDataTypeDto.getDataTypeName());
+            expDataType.setDataTypeDescription(expDataTypeDto.getDataTypeDescription());
+            expDataType.setDataTypeType(expDataType.getDataTypeType());
+            // We could update the date time if we would like
+        }
+
+        return expDataType;
+    }
 
 }

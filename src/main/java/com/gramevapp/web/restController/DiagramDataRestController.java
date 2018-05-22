@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController("diagramDataRestController")
 //@Controller
 public class DiagramDataRestController {
 
@@ -24,10 +24,10 @@ public class DiagramDataRestController {
     @Autowired
     private RunService runService;
 
-    @RequestMapping(value = "/user/rest/diagramFlow/{idRun}", method = RequestMethod.GET,
+    @RequestMapping(value = "/user/rest/diagramFlow/{runId}", method = RequestMethod.GET,
             produces = "application/json")
     public @ResponseBody
-    DiagramData getLastBestIndividual(@PathVariable("idRun") String runId) {
+    DiagramData getLastBestIndividual(@PathVariable("runId") String runId) {
         User user = userService.getLoggedInUser();
         if(user == null){
             System.out.println("User not authenticated");
@@ -36,6 +36,8 @@ public class DiagramDataRestController {
         if(runId.equals("undefined")){
             return new DiagramData(0.0);
         }
+
+        System.out.println(runId);
 
         Long runIdLong = Long.parseLong(runId);
         Run run = runService.findByUserIdAndRunId(user, runIdLong);
