@@ -389,7 +389,7 @@
                                     <button type="submit" id="cloneExperimentButton" name="cloneExperimentButton" class="btn-primary btn-lg">Clone experiment</button>
                                 </div>
                                 <div class="col-sm-4 col-md-4 col-lg-4">
-                                    <button type="submit" id="runExperimentButton" name="runExperimentButton" class="btn-primary btn-lg">Run experiment</button>
+                                    <button type="submit" id="runExperimentButton" name="runExperimentButton" class="btn-primary btn-lg" onclick="runExperiment()">Run experiment</button>
                                 </div>
                             </div>
                             <!-- END Save Clone and Run -->
@@ -524,6 +524,7 @@
 
         // Adds the svg canvas
         var svg = d3.select("#d3")
+
             .append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
@@ -533,7 +534,10 @@
 
         // Get the data
         function renderPlotD3(data) {
-            alert("renderizando");
+            result = data;
+            alert("Inside ajax: "+ data['bestIndividual']);
+            console.log("Inside ajax: "+result);
+
             // Scale the range of the data
             x.domain(d3.extent(data, function(d) { return d.date; }));
             y.domain([0, d3.max(data, function(d) { return d.close; })]);
@@ -557,13 +561,20 @@
             $("#chartError").show();
         }
 
-        function reloadPlotD3(idRun) {
+        function reloadPlotD3(runId) {
             $.ajax({
-                url: encodeURI("/user/rest/diagramFlow/" + idRun),
+                url: encodeURI("/user/rest/diagramFlow/" + runId),
                 type: "GET",
                 dataType: "json",
-                success: renderPlotD3,
-                error: renderErrorD3
+                success: function(data){
+                    renderPlotD3(data)
+                },
+                error: function(data){
+                    renderErrorD3()
+                },
+                complete:function(data){
+                    setTimeout(reloadPlotD3,1000);
+                }
             });
         }
 
@@ -571,9 +582,12 @@
             reloadPlotD3($("#runId").val());
         }
 
-        $(document).ready(function() {
-            initializeD3();
-        });
+        function runExperiment(){
+            setTimeout(initializeD3, 1000);
+        }
+
+        /*$(document).ready(function() {
+        });*/
 
     </script>
 

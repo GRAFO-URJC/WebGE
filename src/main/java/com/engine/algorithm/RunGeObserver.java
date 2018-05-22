@@ -2,6 +2,7 @@ package com.engine.algorithm;
 
 import com.gramevapp.web.model.DiagramData;
 import com.gramevapp.web.other.BeanUtil;
+import com.gramevapp.web.restController.DiagramDataRestController;
 import com.gramevapp.web.service.DiagramDataService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,12 @@ public class RunGeObserver implements Observer {
         // use this spring object to call its methods
 
         dataDataService.saveDiagram(this.diagramData);
+
+        /*Thread t = new Thread(() -> {
+            DiagramDataRestController restController = (DiagramDataRestController) context.getBean("diagramDataRestController");
+            restController.getLastBestIndividual(diagramData.getBestIndividual().toString());
+        });
+        t.start();*/
 
         /*
         if (dataMap.get("BestObjective") != null) {
