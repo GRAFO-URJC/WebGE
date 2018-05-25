@@ -100,6 +100,12 @@
 
                             <!-- Experiment NAME and DESCRIPTION -->
                             <div class="row form-group">
+                                <div class="col-sm-12 col-md-12 col-lg-12" >
+                                    <input type="text" class="form-control hiddenInput" id="id" name="id" th:value="${configuration.getId()}" placeholder="Id of the experiment" />
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
                                  <div class="col-sm-12 col-md-12 col-lg-12" >
                                      <!-- Error handling -->
                                      <p class="text-warning"
@@ -426,6 +432,7 @@
                                 <th:block th:each="run, iterStat : ${runList}">
                                     <tr>
                                         <form th:action="@{/user/experiment/runList}" th:object="${runObj}" method="GET" class="form-horizontal">
+                                            <input type="text" class="hiddenInput" th:name="defaultRunId" th:id="defaultRunId" th:value="${configExp.getDefaultRunId()}" />
                                             <input type="text" class="hiddenInput" th:name="runId" th:id="runId" th:value="${run.getId()}" />
                                             <td scope="row"><label th:text="${run.getId()}" /></td>
                                             <td scope="row"><label th:name="runName" th:id="runName" th:text="${run.getRunName()}" /></td>

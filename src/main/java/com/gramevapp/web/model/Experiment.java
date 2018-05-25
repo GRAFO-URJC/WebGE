@@ -69,6 +69,9 @@ public class Experiment {
     private List<Run> idRunList = new ArrayList<>();
 
     @Column
+    private Long defaultRunId;
+
+    @Column
     private Integer generations = 1000;
     @Column
     private Integer populationSize = 50;
@@ -353,6 +356,14 @@ public class Experiment {
 
     public void setModificationDate(Date modificationDate) {
         this.modificationDate = modificationDate;
+    }
+
+    public Long getDefaultRunId() {
+        return defaultRunId;
+    }
+
+    public void setDefaultRunId(Long defaultRunId) {
+        this.defaultRunId = defaultRunId;
     }
 
     public void updateExperiment(Grammar grammar, ExperimentDataType expDataType, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, Date modificationDate){

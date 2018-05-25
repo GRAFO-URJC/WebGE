@@ -74,6 +74,8 @@ public class ConfigExperimentDto {
     @NotEmpty(message = "Choose one data type option")
     private String dataTypeType = " ";        // Validation, test, training
 
+    private Long defaultRunId;
+
     /**
      * 0 -> Root Mean Squared Error (RMSE)
      1 -> Clarke Error Grid (CEG)
@@ -261,5 +263,13 @@ public class ConfigExperimentDto {
 
     public void setDataTypeType(String dataTypeType) {
         this.dataTypeType = dataTypeType;
+    }
+
+    public Long getDefaultRunId() {
+        return defaultRunId;
+    }
+
+    public void setDefaultRunId(Long defaultRunId) {
+        this.defaultRunId = defaultRunId;
     }
 }

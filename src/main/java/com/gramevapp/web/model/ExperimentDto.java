@@ -2,6 +2,7 @@ package com.gramevapp.web.model;
 
 
 public class ExperimentDto {
+
     private Long id;
 
     private String experimentName;
@@ -18,6 +19,7 @@ public class ExperimentDto {
     private Integer numberRuns = 1;
     private String defaultGrammar = "";
     private String defaultExpDataType = "";
+    private Long defaultRunId;
     /**
      * 0 -> Root Mean Squared Error (RMSE)
      1 -> Clarke Error Grid (CEG)
@@ -157,5 +159,13 @@ public class ExperimentDto {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getDefaultRunId() {
+        return defaultRunId;
+    }
+
+    public void setDefaultRunId(Long defaultRunId) {
+        this.defaultRunId = defaultRunId;
     }
 }
