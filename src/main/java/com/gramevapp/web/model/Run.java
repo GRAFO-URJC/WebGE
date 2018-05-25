@@ -20,6 +20,10 @@ public class Run
 
     //@JoinColumn(name = "EXPERIMENT_ID", unique = true)
     //@OneToOne(cascade=CascadeType.ALL)
+    /*@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="EXPERIENT_ID", nullable = false)*/
+    /*@ManyToOne(cascade=CascadeType.ALL)  // https://www.thoughts-on-java.org/hibernate-tips-map-bidirectional-many-one-association/
+    @JoinColumn(name = "EXPERIMENT_ID")*/
     @ManyToOne(cascade=CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
             name = "runs_list",
@@ -30,10 +34,6 @@ public class Run
                     @JoinColumn(name = "EXPERIMENT_ID", referencedColumnName = "EXPERIMENT_ID")
             }
     )
-    /*@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="EXPERIENT_ID", nullable = false)*/
-    /*@ManyToOne(cascade=CascadeType.ALL)  // https://www.thoughts-on-java.org/hibernate-tips-map-bidirectional-many-one-association/
-    @JoinColumn(name = "EXPERIMENT_ID")*/
     private Experiment experimentId;
 
     @Column

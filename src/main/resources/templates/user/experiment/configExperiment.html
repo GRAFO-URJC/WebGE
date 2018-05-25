@@ -429,10 +429,11 @@
                             </tr>
                             </thead>
                             <tbody>
+
+                                <input type="text" class="form-control" th:name="defaultRunId" th:id="defaultRunId" th:value="${configuration.getDefaultRunId()}" />
                                 <th:block th:each="run, iterStat : ${runList}">
                                     <tr>
                                         <form th:action="@{/user/experiment/runList}" th:object="${runObj}" method="GET" class="form-horizontal">
-                                            <input type="text" class="hiddenInput" th:name="defaultRunId" th:id="defaultRunId" th:value="${configExp.getDefaultRunId()}" />
                                             <input type="text" class="hiddenInput" th:name="runId" th:id="runId" th:value="${run.getId()}" />
                                             <td scope="row"><label th:text="${run.getId()}" /></td>
                                             <td scope="row"><label th:name="runName" th:id="runName" th:text="${run.getRunName()}" /></td>
