@@ -82,10 +82,6 @@ public class ExperimentService {
         return experimentRepository.findByUserId(user);
     }
 
-    public Experiment findExperimentByUserIdAndName(User user, String nameExp){
-        return experimentRepository.findByUserIdAndExperimentName(user, nameExp);
-    }
-
     public Experiment findExperimentByUserIdAndExpId(User user, Long expId){
         return experimentRepository.findByUserIdAndId(user, expId);
     }

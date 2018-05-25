@@ -17,9 +17,7 @@ public class DiagramDataService {
     }
 
     public DiagramData getLastBestIndividual(Run runId){
-
         Long longRunId = runId.getId();
-
         return diagramRepository.findByLongRunId(longRunId);
     }
 }

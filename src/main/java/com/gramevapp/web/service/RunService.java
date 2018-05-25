@@ -41,4 +41,5 @@ public class  RunService {
     public Run findByUserIdAndRunId(User user, Long id){
         return  runRepository.findByUserIdAndId(user, id);
     }
+
 }

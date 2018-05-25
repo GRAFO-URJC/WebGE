@@ -37,9 +37,6 @@ public class ExperimentController {
     @Autowired
     private RunService runService;
 
-    @Autowired
-    private DiagramDataService diagramDataService;
-
     @ModelAttribute
     public FileModelDto fileModel(){
         return new FileModelDto();
@@ -168,15 +165,10 @@ public class ExperimentController {
         }
 
         // CONFIGURATION SECTION
-        Grammar grammar = experimentService.findGrammarByUserIdAndName(user, grammarDto.getGrammarName());
 
-        if(grammar == null)     // We create it
-            grammar = new Grammar(user, grammarDto.getGrammarName(), grammarDto.getGrammarDescription(), grammarDto.getFileText());
-        else {  // The grammar already exist
-            grammar.setGrammarName(grammarDto.getGrammarName());
-            grammar.setGrammarDescription(grammarDto.getGrammarDescription());
-            grammar.setFileText(grammarDto.getFileText());
-        }
+        // GRAMMAR SECTION
+        Grammar grammar = grammarSection(user, grammarDto);
+        // END - GRAMMAR SECTION
 
         // DATE TIMESTAMP
         Calendar calendar = Calendar.getInstance();
@@ -189,49 +181,11 @@ public class ExperimentController {
 
         // RUN SECTION
         Run run = new Run(user, Run.Status.INITIALIZING, expDto.getExperimentName(), expDto.getExperimentDescription(), currentTimestamp, currentTimestamp);
-        // END RUN SECTION
+        Long longDefaultRunId = runService.saveRun(run).getId();
+        // END - RUN SECTION
 
         // Experiment section
-        Experiment exp = experimentService.findExperimentByUserIdAndName(user, expDto.getExperimentName());
-
-        if(exp == null) {     // We create it
-            exp = new Experiment(user, expDto.getExperimentName(), expDto.getExperimentDescription() ,expDto.getGenerations(),
-                    expDto.getPopulationSize(), expDto.getMaxWraps(), expDto.getTournament(), expDto.getCrossoverProb(), expDto.getMutationProb(),
-                    expDto.getInitialization(), expDto.getResults(), expDto.getNumCodons(), expDto.getNumberRuns(), expDto.getObjective() ,currentTimestamp, currentTimestamp);
-
-            exp.addGrammar(grammar);
-            exp.addExperimentDataType(expDataType);
-            exp.addRun(run);
-
-            exp.setDefaultGrammar(grammar);
-            exp.setDefaultExpDataType(expDataType);
-        }
-        else {  // The experiment data type configuration already exist
-            exp.setExperimentName(expDto.getExperimentName());
-            exp.setExperimentDescription(expDto.getExperimentDescription());
-            exp.setGenerations(expDto.getGenerations());
-            exp.setPopulationSize(expDto.getPopulationSize());
-            exp.setMaxWraps(expDto.getMaxWraps());
-            exp.setTournament(expDto.getTournament());
-            exp.setCrossoverProb(expDto.getCrossoverProb());
-            exp.setMutationProb(expDto.getMutationProb());
-            exp.setInitialization(expDto.getInitialization());
-            exp.setResults(expDto.getResults());
-            exp.setNumCodons(expDto.getNumCodons());
-            exp.setNumberRuns(expDto.getNumberRuns());
-            exp.setObjective(expDto.getObjective());
-
-            exp.addGrammar(grammar);
-            exp.addExperimentDataType(expDataType);
-            exp.addRun(run);
-
-            exp.setDefaultGrammar(grammar);
-            exp.setDefaultExpDataType(expDataType);
-        }
-
-        // experimentService.saveExperiment(exp);
-
-        user.addExperiment(exp);
+        Experiment exp = experimentSection(user, expDto, grammar, expDataType, run, currentTimestamp, longDefaultRunId);
         // END - Experiment section
 
         // SAVE Experiment
@@ -245,7 +199,7 @@ public class ExperimentController {
 
         // Grammar File SECTION
         String grammarFilePath = grammarFileSection(user, expDto, grammar);
-        // END Grammar File SECTION
+        // END - Grammar File SECTION
 
         // Create PropertiesDto file
         PropertiesDto propertiesDto = new PropertiesDto(0.0, expDto.getTournament(), 0, expDto.getCrossoverProb(), grammarFilePath, 0, 1, expDto.getMutationProb(), false, 1, expDto.getNumCodons(), expDto.getPopulationSize(), expDto.getGenerations(), false, expDto.getMaxWraps(), 500, expDto.getExperimentName(), expDto.getExperimentDescription());
@@ -276,6 +230,8 @@ public class ExperimentController {
         createPropertiesFile(propertiesFilePath, propertiesDto, expDto.getExperimentName(), currentTimestamp);  // Write in property file
 
         // END - Create PropertiesDto file
+
+        // MultipartFile section
         MultipartFile multipartFile = fileModelDto.getTypeFile();
 
         String dataFilePath = "";
@@ -292,28 +248,6 @@ public class ExperimentController {
             Reader reader = new FileReader(tmpFile);
             experimentService.loadExperimentRowTypeFile(reader, expDataType);   // Save row here
             reader.close();
-/*
-            new File(dataTypeDirectoryPath).mkdirs(); // Create the directory to save datatype files
-
-            InputStream dataTypeInputStream = null;
-            OutputStream dataTypeOutputStream = null;
-
-            dataTypeInputStream = multipartFile.getInputStream();
-
-            String dataTypeFilePath = dataTypeDirectoryPath + File.separator + expDto.getExperimentName() + "_" + expDataType.getId() + ".csv";;
-
-            File dataTypeNewFile = new File(dataTypeFilePath);
-            if (!dataTypeNewFile.exists()) {
-                dataTypeNewFile.createNewFile();
-            }
-            dataTypeOutputStream = new FileOutputStream(dataTypeNewFile);
-            int dataTypeRead = 0;
-            byte[] dataTypeBytes = new byte[1024];
-
-            while ((dataTypeRead = dataTypeInputStream.read(dataTypeBytes)) != -1) {
-                dataTypeOutputStream.write(dataTypeBytes, 0, dataTypeRead);
-            }
-*/
         }
         else if(radioDataType.equals("on") && multipartFile.isEmpty()) {        // Radio button neither file path selected
             result.rejectValue("typeFile", "error.typeFile", "Choose one file");
@@ -343,12 +277,13 @@ public class ExperimentController {
             writer.close();
 
             dataFilePath = tmpFile.getAbsolutePath();
-            // AQUÍ YA TENEMOS EL ARCHIVO LOCALIZADOS - HACE FALTA CARGARLO CUANDO SE EJECUTE EL PROGRAMA
         }
         // END Reader - FILE DATA TYPE
+        // END - Multipart File Section
 
         experimentService.saveGrammar(grammar);
-        runService.saveRun(run);
+
+
         // END CONFIGURATION SECTION
 
         model.addAttribute("configuration", expDto);
@@ -430,7 +365,7 @@ public class ExperimentController {
 
     @RequestMapping(value="/user/experiment/runList", method=RequestMethod.GET, params="loadExperimentButton")
     public String runList(Model model,
-                          @RequestParam String id) {
+                          @RequestParam(value = "runId") String id) {
 
         User user = userService.getLoggedInUser();
         if(user == null){
@@ -438,13 +373,15 @@ public class ExperimentController {
             return "redirect:/login";
         }
 
-        Long runId = Long.parseLong(id);
-        Run run = runService.findByRunId(runId);
+        Long longRunId = Long.parseLong(id);
+        Run run = runService.findByUserIdAndRunId(user, longRunId);
         Experiment expConfig = run.getExperimentId();
         Grammar grammar = expConfig.getDefaultGrammar();
         ExperimentDataType expDataType = expConfig.getDefaultExpDataType();
         List<Run> runList = expConfig.getIdRunList();
         ConfigExperimentDto confExpDto = new ConfigExperimentDto();
+
+        expConfig.setDefaultRunId(longRunId);   // We set up the default run id to the experiment, this way we know what run to load
 
         model.addAttribute("configuration", expConfig);
         model.addAttribute("grammar", grammar);
@@ -520,6 +457,20 @@ public class ExperimentController {
         propertiesWriter.close();
     }
 
+    public Grammar grammarSection(User user, GrammarDto grammarDto){
+        Grammar grammar = experimentService.findGrammarByUserIdAndName(user, grammarDto.getGrammarName());
+
+        if(grammar == null)     // We create it
+            grammar = new Grammar(user, grammarDto.getGrammarName(), grammarDto.getGrammarDescription(), grammarDto.getFileText());
+        else {  // The grammar already exist
+            grammar.setGrammarName(grammarDto.getGrammarName());
+            grammar.setGrammarDescription(grammarDto.getGrammarDescription());
+            grammar.setFileText(grammarDto.getFileText());
+        }
+
+        return grammar;
+    }
+
     public String grammarFileSection(User user, ExperimentDto expDto, Grammar grammar) throws IllegalStateException, IOException {
 
         new File(GRAMMAR_DIR_PATH + user.getId()).mkdirs(); // Create the directory to save datatype files
@@ -555,6 +506,51 @@ public class ExperimentController {
         }
 
         return expDataType;
+    }
+
+    public Experiment experimentSection(User user, ExperimentDto expDto, Grammar grammar, ExperimentDataType expDataType, Run run, java.sql.Date currentTimestamp, Long longDefaultRunId){
+        Experiment exp = experimentService.findExperimentByUserIdAndExpId(user, expDto.getId());
+
+        if(exp == null) {   // We create it
+            exp = new Experiment(user, expDto.getExperimentName(), expDto.getExperimentDescription() ,expDto.getGenerations(),
+                    expDto.getPopulationSize(), expDto.getMaxWraps(), expDto.getTournament(), expDto.getCrossoverProb(), expDto.getMutationProb(),
+                    expDto.getInitialization(), expDto.getResults(), expDto.getNumCodons(), expDto.getNumberRuns(), expDto.getObjective() ,currentTimestamp, currentTimestamp);
+
+            exp.addGrammar(grammar);
+            exp.addExperimentDataType(expDataType);
+            exp.addRun(run);
+
+            exp.setDefaultGrammar(grammar);
+            exp.setDefaultExpDataType(expDataType);
+            exp.setDefaultRunId(longDefaultRunId);          // Doesn't exists -> We set up the run id obtained before
+        }
+        else {  // The experiment data type configuration already exist
+            exp.setExperimentName(expDto.getExperimentName());
+            exp.setExperimentDescription(expDto.getExperimentDescription());
+            exp.setGenerations(expDto.getGenerations());
+            exp.setPopulationSize(expDto.getPopulationSize());
+            exp.setMaxWraps(expDto.getMaxWraps());
+            exp.setTournament(expDto.getTournament());
+            exp.setCrossoverProb(expDto.getCrossoverProb());
+            exp.setMutationProb(expDto.getMutationProb());
+            exp.setInitialization(expDto.getInitialization());
+            exp.setResults(expDto.getResults());
+            exp.setNumCodons(expDto.getNumCodons());
+            exp.setNumberRuns(expDto.getNumberRuns());
+            exp.setObjective(expDto.getObjective());
+
+            exp.addGrammar(grammar);
+            exp.addExperimentDataType(expDataType);
+            exp.addRun(run);
+
+            exp.setDefaultGrammar(grammar);
+            exp.setDefaultExpDataType(expDataType);
+            exp.setDefaultRunId(run.getId());           // Already exist, so we get it from the RUN model
+        }
+
+        user.addExperiment(exp);
+
+        return exp;
     }
 
 }
