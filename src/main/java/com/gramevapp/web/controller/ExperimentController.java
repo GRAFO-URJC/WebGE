@@ -286,6 +286,9 @@ public class ExperimentController {
 
         // END CONFIGURATION SECTION
 
+        expDto.setDefaultRunId(run.getId());
+        expDto.setId(exp.getId());
+
         model.addAttribute("configuration", expDto);
         model.addAttribute("grammar", grammar);
         model.addAttribute("type", expDataType);
