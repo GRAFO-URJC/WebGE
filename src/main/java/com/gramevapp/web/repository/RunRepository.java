@@ -18,5 +18,6 @@ public interface RunRepository extends JpaRepository<Run, Long> {
     List<Run> findAllByExperimentId(Experiment experimentId);
     List<Run> findByUserId(User user);
     Run findByUserIdAndId(User user, Long id);
+    Run findTop1ByOrderByIdDesc();
     //List<Person> findByEmployedAndLastNameAndDob(boolean employed, String lastName, LocalDate dob);
 }

@@ -2,11 +2,12 @@ package com.engine.algorithm;
 
 import com.gramevapp.web.model.DiagramData;
 import com.gramevapp.web.other.BeanUtil;
-import com.gramevapp.web.restController.DiagramDataRestController;
 import com.gramevapp.web.service.DiagramDataService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
@@ -20,6 +21,11 @@ import java.util.Observer;
 public class RunGeObserver implements Observer {
 
     private DiagramData diagramData;
+
+    // DATE TIMESTAMP
+    Calendar calendar = Calendar.getInstance();
+    java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
+    // END - DATE TIMESTAMP
 
     @Override
     public void update(Observable o, Object arg) {
@@ -40,12 +46,13 @@ public class RunGeObserver implements Observer {
         double objs[][] = (double [][]) dataMap.get("Objectives");
 
         this.diagramData.setBestIndividual(currBest);
+        this.diagramData.setTime(currentTimestamp);
 
         // http://codippa.com/how-to-autowire-objects-in-non-spring-classes/
         //get application context
         ApplicationContext context = BeanUtil.getAppContext();
         // get instance of MainSpringClass (Spring Managed class)
-        DiagramDataService dataDataService = (DiagramDataService)context.getBean("diagramDataService");
+        DiagramDataService dataDataService = (DiagramDataService) context.getBean("diagramDataService");
         // use this spring object to call its methods
 
         dataDataService.saveDiagram(this.diagramData);
