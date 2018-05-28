@@ -24,7 +24,7 @@ public class DiagramDataRestController {
     @Autowired
     private RunService runService;
 
-    @RequestMapping(value = "/user/rest/diagramFlow/{runId}", method = RequestMethod.GET,
+    /*@RequestMapping(value = "/user/rest/diagramFlow/{runId}", method = RequestMethod.GET,
             produces = "application/json")
     public @ResponseBody
     DiagramData getLastBestIndividual(@PathVariable("runId") String runId) {
@@ -33,14 +33,30 @@ public class DiagramDataRestController {
             System.out.println("User not authenticated");
         }
 
-        if(runId.equals("undefined")){
+        /*if(runId.equals("undefined")){
             return new DiagramData(0.0);
-        }
-
+        }*/
+        /*
         System.out.println(runId);
 
-        Long runIdLong = Long.parseLong(runId);
-        Run run = runService.findByUserIdAndRunId(user, runIdLong);
+        // Long runIdLong = Long.parseLong(runId);
+        Run run = runService.findLastRunId();
+        // Run run = runService.findByUserIdAndRunId(user, runIdLong);
+        DiagramData diagramData = diagramDataService.getLastBestIndividual(run);
+        return diagramData;
+    }*/
+
+    @RequestMapping(value = "/user/rest/diagramFlow", method = RequestMethod.GET,
+            produces = "application/json")
+    public @ResponseBody
+    DiagramData getLastBestIndividual() {
+        User user = userService.getLoggedInUser();
+        if(user == null){
+            System.out.println("User not authenticated");
+        }
+
+        Run run = runService.findLastRunId();
+
         DiagramData diagramData = diagramDataService.getLastBestIndividual(run);
         return diagramData;
     }

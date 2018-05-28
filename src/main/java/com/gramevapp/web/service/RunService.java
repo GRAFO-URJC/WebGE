@@ -42,4 +42,8 @@ public class  RunService {
         return  runRepository.findByUserIdAndId(user, id);
     }
 
+    public Run findLastRunId(){
+        return runRepository.findTop1ByOrderByIdDesc();
+    }
+
 }

@@ -1,18 +1,17 @@
 package com.gramevapp.web.model;
 
-import org.hibernate.annotations.GenericGenerator;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
+import java.util.Calendar;
 
 @Entity
 public class DiagramData {
 
     @Id
     @Column(name = "DIAGRAM_DATA_ID", nullable = false, updatable= false)
-    @GeneratedValue(strategy = GenerationType.AUTO) /*, generator="native") // Efficiency  -> https://vladmihalcea.com/why-should-not-use-the-auto-jpa-generationtype-with-mysql-and-hibernate/
-    @GenericGenerator(
-            name = "native",
-            strategy = "native")*/
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     private Double bestIndividual;
@@ -20,6 +19,13 @@ public class DiagramData {
     private Long longRunId;
 
     private Long longUserId;
+
+    Calendar calendar = Calendar.getInstance();
+
+    @Column(name="time")
+    // @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="HH:mm:ss")
+    java.sql.Timestamp time = new java.sql.Timestamp(calendar.getTime().getTime());
 
     public DiagramData() {
     }
@@ -71,60 +77,13 @@ public class DiagramData {
         this.longUserId = longUserId;
     }
 
-    /*@JoinColumn(name = "RUN_ID", unique = true)
-    @OneToOne(cascade=CascadeType.ALL)
-    private Run runId;
-
-    @OneToOne(cascade=CascadeType.ALL)
-    private User userId;
-
-    public DiagramData() {
+    //@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="HH:mm:ss")
+    public java.sql.Timestamp getTime() {
+        return time;
     }
 
-    public DiagramData(Double bestIndividual) {
-        this.bestIndividual = bestIndividual;
+    public void setTime(java.sql.Timestamp time) {
+        this.time = time;
     }
-
-    public DiagramData(User userId, Run runId) {
-        this.userId = userId;
-        this.runId = runId;
-    }
-
-    public DiagramData(Double bestIndividual, User userId, Run runId) {
-        this.bestIndividual = bestIndividual;
-        this.userId = userId;
-        this.runId = runId;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Double getBestIndividual() {
-        return bestIndividual;
-    }
-
-    public void setBestIndividual(Double bestIndividual) {
-        this.bestIndividual = bestIndividual;
-    }
-
-    public Run getRunId() {
-        return runId;
-    }
-
-    public void setRunId(Run runId) {
-        this.runId = runId;
-    }
-
-    public User getUserId() {
-        return userId;
-    }
-
-    public void setUserId(User userId) {
-        this.userId = userId;
-    }*/
 }

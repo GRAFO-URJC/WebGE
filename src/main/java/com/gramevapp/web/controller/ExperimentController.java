@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.*;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -172,7 +171,7 @@ public class ExperimentController {
 
         // DATE TIMESTAMP
         Calendar calendar = Calendar.getInstance();
-        java.sql.Date currentTimestamp = new java.sql.Date(calendar.getTime().getTime());
+        java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
         // END - DATE TIMESTAMP
 
         // Experiment Data Type SECTION
@@ -307,6 +306,7 @@ public class ExperimentController {
         properties.setProperty(TRAINING_PATH_PROP, dataFilePath);
 
         DiagramData diagramData = new DiagramData(run.getId(), user.getId());
+        diagramData.setTime(currentTimestamp);
 
         executeGramEv(properties, diagramData);        // PropertiesDto properties, int threadId, int numObjectives
 
@@ -415,7 +415,7 @@ public class ExperimentController {
     }
 
 
-    public void createPropertiesFile(String propertiesFilePath, PropertiesDto propertiesDto, String expName, java.sql.Date currentTimeStamp) throws IOException {
+    public void createPropertiesFile(String propertiesFilePath, PropertiesDto propertiesDto, String expName, java.sql.Timestamp currentTimeStamp) throws IOException {
         File propertiesNewFile = new File(propertiesFilePath);
         if (!propertiesNewFile.exists()) {
             propertiesNewFile.createNewFile();
@@ -496,7 +496,7 @@ public class ExperimentController {
         return grammarFilePath;
     }
 
-    public ExperimentDataType experimentDataTypeSection(User user, ExperimentDataTypeDto expDataTypeDto, java.sql.Date currentTimestamp) throws IOException {
+    public ExperimentDataType experimentDataTypeSection(User user, ExperimentDataTypeDto expDataTypeDto, java.sql.Timestamp currentTimestamp) throws IOException {
         ExperimentDataType expDataType = experimentService.findDataTypeByUserIdAndName(user, expDataTypeDto.getDataTypeName());
 
         if(expDataType == null)     // We create it
@@ -511,7 +511,7 @@ public class ExperimentController {
         return expDataType;
     }
 
-    public Experiment experimentSection(User user, ExperimentDto expDto, Grammar grammar, ExperimentDataType expDataType, Run run, java.sql.Date currentTimestamp, Long longDefaultRunId){
+    public Experiment experimentSection(User user, ExperimentDto expDto, Grammar grammar, ExperimentDataType expDataType, Run run, java.sql.Timestamp currentTimestamp, Long longDefaultRunId){
         Experiment exp = experimentService.findExperimentByUserIdAndExpId(user, expDto.getId());
 
         if(exp == null) {   // We create it
