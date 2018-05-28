@@ -506,33 +506,83 @@
 
 <script>
 
-    var chart;
     var dataPoints = [];
     var duration = 1000;
-    var n = 243;
     var now = new Date(Date.now() - duration);
 
+    var chart = new CanvasJS.Chart("chartContainer",{
+        backgroundColor: "transparent",
+        colorSet: "greenShades",
+        animationEnabled: true,
+        exportEnabled: true,
+        theme: "theme3",
+        zoomEnabled: true,
+        panEnabled: true,
+
+        title:{
+            text:"Real time diagram data flow showing best individual at the moment"
+        },
+        data: [{
+            markerSize: 1,
+            color: "blue",
+            type : "line",
+            lineDashType : "dash",
+            dataPoints: dataPoints
+        }],
+        axisX:{
+            valueFormatString: "HH:mm:ss" ,
+            labelAngle: -50,
+            lineThickness:0.5,
+            tickThickness:0.5,
+        },
+        axisY: {
+            title: "Best individual",
+            valueFormatString: "#,###",
+            maximum: 1,
+            minimum: -1,
+            lineThickness:1,
+            tickThickness: 1,
+            gridThickness: 1,
+        },
+        toolTip:{
+            shared: true,
+            enabled: true,
+            animationEnabled: true,
+        },
+    });
+
     function tick(data) {
-        $.each(data, function(key, value) {
+        alert(dataPoints.length);
+        alert(data['bestIndividual']);
 
-            now = new Date();
-            var xPoint = new Date();
-            var yPoint = data['bestIndividual'];
+        now = new Date();
+        var xPoint = new Date();
+        var yPoint = data['bestIndividual'];
 
-            dataPoints.push({
-                x: parseInt(xPoint),
-                y: parseFloat(yPoint)
-            });
+        dataPoints.push({
+            x: parseInt(xPoint),
+            y: parseFloat(parseFloat(yPoint))
         });
 
-        if (dataPoints.length >  10)
+        chart.options.data[0].dataPoints = dataPoints;
+
+        if (dataPoints.length >  12)
         {
             dataPoints.shift();
         }
 
-        // sortDataPoints(data, 'x'); // sort dataPoints based on x
+        // Sort data
+        chart.options.data[0].dataPoints.sort(compareDataPointX);
+
         chart.render();
         setTimeout(function(){reloadPlotD3()}, 1000);
+
+        // https://stackoverflow.com/questions/4338538/error-parsing-xhtml-the-content-of-elements-must-consist-of-well-formed-charact
+        /*for(var i = 0; i &lt; data.length; i++) {
+            chart.options.data[0].dataPoints.push(data[i]);
+        }*/
+
+        // chart.data[0].set("dataPoints", data['bestIndividual']);
     }
 
     function reloadPlotD3() {
@@ -542,54 +592,42 @@
             dataType: "json",
             success: function(data){
 
+                /*alert(dataPoints.length);
+                alert(data['bestIndividual']);*/
+
+                now = new Date();
                 var xPoint = new Date();
                 var yPoint = data['bestIndividual'];
 
                 $.each(data, function(key, value){
                     dataPoints.push({x: xPoint, y: parseFloat(yPoint)});
                 });
-                chart = new CanvasJS.Chart("chartContainer",{
-                    title:{
-                        text:"Live Chart with dataPoints from External JSON"
-                    },
-                    data: [{
-                        markerSize: 1,
-                        color:"blue",
-                        type: "line",
-                        dataPoints: dataPoints
-                    }],
-                    axisX:{
-                        valueFormatString: "HH:mm:ss" ,
-                        labelAngle: -50,
-                        lineThickness:0.5,
-                        tickThickness:0.5,
-                    },
-                    axisY: {
-                        valueFormatString: "#,###",
-                        maximum: 1,
-                        minimum: -1,
-                        lineThickness:1,
-                        tickThickness: 1,
-                        gridThickness: 1,
-                    },
-                    toolTip:{
-                        enabled: true,
-                        animationEnabled: false,
-                    },
-                    backgroundColor: "transparent",
-                    colorSet: "greenShades",
-                    animationEnabled: true,
-                    theme: "theme3",
-                    zoomEnabled: true,
-                    panEnabled: true,
-                });
+                /*dataPoints.push({
+                    x: parseInt(xPoint),
+                    y: parseFloat(parseFloat(yPoint))
+                });*/
+
+                chart.options.data[0].dataPoints = dataPoints;
+
+                if (dataPoints.length >  12)
+                {
+                    dataPoints.shift();
+                }
+
+                // Sort data
+                // chart.options.data[0].dataPoints.sort(compareDataPointX);
+
                 chart.render();
-                tick(data)
+                // tick(data)
+            },
+            complete:function(data){
+                setTimeout(reloadPlotD3, 1000);
             }
-            /*complete:function(data){
-                setTimeout(tick, 1000);
-            }*/
         });
+    }
+
+    function compareDataPointX(dataPoint1, dataPoint2) {
+        return dataPoint1.x - dataPoint2.x;
     }
 
     function initializeD3() {
