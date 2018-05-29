@@ -145,30 +145,6 @@
         <!-- END Modal -->
 
 
-        <!--<script>
-            /*$("#expRepository").children().children().each(function(){
-                $(this).children("td:even").addClass("collapse").end().children("td:odd").addClass("odd");
-            });
-
-            $("td").livequery("click", function(){
-                var $parent = $(this).parent();
-                $(this).remove();
-                $parent.children("td:even").removeClass().addClass("even").end().children("td:odd").removeClass().addClass("odd");
-            });*/
-
-            $(document).ready(function(){
-                //button.addEventListener('click', saveTextAsFile);
-
-                $("#moreDetailsButton").click(function(){
-                    var button = document.getElementById('moreDetailsButton');
-                    var idButton = button.getAttribute('data-target');
-                    //alert(idButton.toString());
-                    jQuery('#'+idButton).addClass('collapse');
-                    //$("detailsModal").removeClass("collapse");
-                });
-            });
-        </script>-->
-
         <script>
             $("#expTypeTable tr").attr({"id" : "selected"}).siblings().removeAttr('id');
             $("#moreDetails").attr("")
