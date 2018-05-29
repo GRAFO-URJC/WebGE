@@ -6,16 +6,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css" /> <!-- For the profile template -->
     <link th:href="@{/assets/dist/css/bootstrap.css}" rel="stylesheet" id="main-css" />
     <link th:href="@{/assets/dist/css/configExperiment.css}" rel="stylesheet" id="configExperiment-css" />
 
-    <!--<script type="text/javascript" src="/assets/dist/jqplot/jquery/jquery.min.js"></script>
-    <script type="text/javascript" src="/assets/dist/jqplot/jquery.jqplot.min.js"></script>-->
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
-    <script src="/assets/dist/jQuery/jquery-3.3.1.min.js"></script>
-    <!--<link th:href="@{/assets/dist/jqplot/jquery.jqplot.min.css}" rel="stylesheet" type="text/css" />
-    <link th:href="@{/assets/dist/jqplot/jquery/jquery.min.js}" />
-    <link th:href="@{/assets/dist/jqplot/jquery.jqplot.min.js}" />-->
+    <!--<script src="/assets/dist/jQuery/jquery-3.3.1.min.js"></script>-->
+
+    <!-- Without this, the bootsrap modals, collapses, etc won't work -->
+    <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
     <style>
         .line {
@@ -30,7 +29,6 @@
 
 <!--
     Attribute th:field will replace attributes value, id and name in your input tag.
-
     Instead, use plain th:id, th:value and th:name without using th:field. Then you will get what you wanted.
 -->
 <body>
@@ -93,7 +91,7 @@
                         <!-- Experiment NAME and DESCRIPTION -->
                         <div class="row form-group">
                             <div class="col-sm-12 col-md-12 col-lg-12" >
-                                <input type="text" class="form-control hiddenInput" id="id" name="id" th:value="${configuration.getId()}" placeholder="Id of the experiment" />
+                                <input type="text" class="hiddenInput" id="id" name="id" th:value="${configuration.getId()}" placeholder="Id of the experiment" />
                             </div>
                         </div>
 
@@ -387,21 +385,28 @@
                                 <button type="submit" id="cloneExperimentButton" name="cloneExperimentButton" class="btn-primary btn-lg">Clone experiment</button>
                             </div>
                             <div class="col-sm-4 col-md-4 col-lg-4">
+                                <!--<button type="submit" id="runExperimentButton" name="runExperimentButton" class="btn-primary btn-lg" data-toggle="modal" data-target="#chartModal" onclick="runExperiment()">Run experiment</button>-->
                                 <button type="submit" id="runExperimentButton" name="runExperimentButton" class="btn-primary btn-lg" onclick="runExperiment()">Run experiment</button>
                             </div>
                         </div>
+                        <div class="row text-center">
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                <button type="button" id="showDiagram" name="showDiagram" class="btn btn-lg" data-toggle="modal" data-target="#chartModal">Show diagram flow</button>
+                            </div>
+                        </div>
                         <!-- END Save Clone and Run -->
-
                     </div>
                 </form>
+
             </section>
         </div>
+
     </div>
     <!-- END Main -->
 
     <!-- RUN SECTION -->
     <div class="container" th:if="${not #lists.isEmpty(runList)}">
-        <div id="forms" class="panel panel-default">
+        <div id="runForms" class="panel panel-default">
             <header class="panel-heading">
                 <h2>Experiment runs area information</h2>
             </header>
@@ -422,7 +427,7 @@
                         </thead>
                         <tbody>
 
-                        <input type="text" class="form-control" th:name="defaultRunId" th:id="defaultRunId" th:value="${configuration.getDefaultRunId()}" />
+                        <input type="text" class="hiddenInput" th:name="defaultRunId" th:id="defaultRunId" th:value="${configuration.getDefaultRunId()}" />
                         <th:block th:each="run, iterStat : ${runList}">
                             <tr>
                                 <form th:action="@{/user/experiment/runList}" th:object="${runObj}" method="GET" class="form-horizontal">
@@ -476,33 +481,39 @@
             </header>
 
             <section class="panel-body">
-                <div>
-                    <h2>D3 Diagram</h2>
+                <div class="modal fade" id="chartModal" role="dialog" aria-labelledby="myModalLabel">
+                    <div class="modal-dialog" role="document">
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title" id="myModalLabel">Best individual diagram flow</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div id="chartContainer" style="height: 360px; width: 100%;"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div id="d3">
-
-                </div>
-
-                <svg width="960" height="500"></svg>
-
-                <div id="chartContainer" style="height: 300px; width: 100%;"></div>
-
-                <div class="graph"></div>
             </section>
         </div>
     </div>
     <!-- END D3 Section -->
+
+    <!-- Modal -->
+    <div class="container">
+
+    </div>
+    <!-- END - Modal -->
+
 </div>
 
 
-<!-- load the d3.js library -->
-<!--<script src="https://d3js.org/d3.v5.min.js"></script>-->
-<!--<script src="//d3js.org/d3.v4.min.js"></script>-->
-<!--<script type="text/javascript" src="/assets/dist/d3/d3-time-format/d3-time-format.js"></script>-->
-<!--<script src="https://d3js.org/d3-time.v1.min.js"></script>
-<script src="https://d3js.org/d3-time-format.v2.min.js"></script>-->
+<!-- Load CanvasJS libraries -->
+<!--<script src="/assets/dist/jQuery/jquery-3.3.1.min.js"></script>-->
 <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
 <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
 <script>
 
@@ -520,7 +531,7 @@
         panEnabled: true,
 
         title:{
-            text:"Real time diagram data flow showing best individual at the moment"
+            text:"Diagram data flow showing best individual at the moment"
         },
         data: [{
             markerSize: 1,
@@ -552,9 +563,6 @@
     });
 
     function tick(data) {
-        alert(dataPoints.length);
-        alert(data['bestIndividual']);
-
         now = new Date();
         var xPoint = new Date();
         var yPoint = data['bestIndividual'];
@@ -581,8 +589,6 @@
         /*for(var i = 0; i &lt; data.length; i++) {
             chart.options.data[0].dataPoints.push(data[i]);
         }*/
-
-        // chart.data[0].set("dataPoints", data['bestIndividual']);
     }
 
     function reloadPlotD3() {
@@ -591,10 +597,6 @@
             type: "GET",
             dataType: "json",
             success: function(data){
-
-                /*alert(dataPoints.length);
-                alert(data['bestIndividual']);*/
-
                 now = new Date();
                 var xPoint = new Date();
                 var yPoint = data['bestIndividual'];
@@ -602,10 +604,6 @@
                 $.each(data, function(key, value){
                     dataPoints.push({x: xPoint, y: parseFloat(yPoint)});
                 });
-                /*dataPoints.push({
-                    x: parseInt(xPoint),
-                    y: parseFloat(parseFloat(yPoint))
-                });*/
 
                 chart.options.data[0].dataPoints = dataPoints;
 
@@ -614,11 +612,7 @@
                     dataPoints.shift();
                 }
 
-                // Sort data
-                // chart.options.data[0].dataPoints.sort(compareDataPointX);
-
                 chart.render();
-                // tick(data)
             },
             complete:function(data){
                 setTimeout(reloadPlotD3, 1000);
@@ -631,13 +625,40 @@
     }
 
     function initializeD3() {
+        chartModal
         reloadPlotD3();
     }
 
     function runExperiment(){
+        $('#chartModal').modal('show');
         setTimeout(initializeD3, 1000);
     }
 </script>
+
+<!--<script>
+    var chart = new CanvasJS.Chart("chartContainer", {
+        data: [
+            {
+                type: "column",
+                dataPoints: [
+                    { x: 10, y: 71 },
+                    { x: 20, y: 55 },
+                    { x: 30, y: 50 },
+                    { x: 40, y: 65 },
+                    { x: 50, y: 95 },
+                    { x: 60, y: 68 },
+                    { x: 70, y: 28 },
+                    { x: 80, y: 34 },
+                    { x: 90, y: 14 }
+                ]
+            }
+        ]
+    });
+
+    $('#chartModal').on('shown.bs.modal', function () {
+        chart.render();
+    });
+</script>-->
 
 <!--
 <script>

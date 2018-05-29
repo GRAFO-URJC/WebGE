@@ -29,3 +29,8 @@ form input[type="radio"]:checked + label {
 input[class="hiddenInput"] {
     display: none;
 }
+
+
+#showDiagram{
+    margin: 10px;
+}
