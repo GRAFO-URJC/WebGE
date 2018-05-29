@@ -29,11 +29,8 @@ public class UserUpdateBasicInfoDto {
     private Integer phone;
 
     //  Direction
-    @Pattern(regexp = PATTERN_NUM_LETTERS, message = "Address direction cannot contain strange characters")
     private String addressDirection;
-    @Pattern(regexp = PATTERN, message = "City direction cannot contain strange characters")
     private String city;
-    @Pattern(regexp = PATTERN, message = "State direction cannot contain strange characters")
     private String state;
     @NumberFormat
     private Integer zipcode;

@@ -101,7 +101,7 @@ public class ExperimentController {
     public String saveExperiment(@ModelAttribute("grammar") GrammarDto grammarDto,
                                  @ModelAttribute("type") ExperimentDataTypeDto expDataTypeDto,
                                  @ModelAttribute("configuration") ExperimentDto expDto,
-                                 BindingResult result) throws IllegalStateException, IOException  {
+                                 BindingResult result) throws IllegalStateException {
 
         User user = userService.getLoggedInUser();
         if(user == null){
@@ -121,6 +121,7 @@ public class ExperimentController {
             // Grammar section
             Grammar grammar = new Grammar(user, grammarDto.getGrammarName(), grammarDto.getGrammarDescription(), grammarDto.getFileText());
             // END - Grammar section
+
             // DataType section
             ExperimentDataType expDataType =  new ExperimentDataType(user, expDataTypeDto.getDataTypeName(), expDataTypeDto.getDataTypeDescription(), expDataTypeDto.getDataTypeType(), updExp.getDefaultExpDataType().getCreationDate(),updExp.getDefaultExpDataType().getModificationDate());
             // END - DataType section
@@ -187,9 +188,6 @@ public class ExperimentController {
         Experiment exp = experimentSection(user, expDto, grammar, expDataType, run, currentTimestamp, longDefaultRunId);
         // END - Experiment section
 
-        // SAVE Experiment
-        //experimentService.saveExperiment(exp);
-
         /** We need save first the expDataType rather than expRowType, because if we did otherwise we will have an detached error
          *  this means that we are trying to access to an entity that doesn't exist yet (Because in expRowType in add method
          *  we are adding the row to expDataType. And this isn't created yet.
@@ -208,13 +206,11 @@ public class ExperimentController {
         if(expDataType.getDataTypeType().equals("validation")) {
             dataTypeDirectoryPath += "validation\\" + user.getId();
             propertiesDto.setValidationPath(dataTypeDirectoryPath);
-            propertiesDto.setTrainingPath(dataTypeDirectoryPath + File.separator + expDto.getExperimentName() + "_" + expDataType.getId() + ".csv");
             propertiesDto.setValidation(true);
         }
         else if(expDataType.getDataTypeType().equals("test")){
             dataTypeDirectoryPath += "test\\" + user.getId();
             propertiesDto.setTestPath(dataTypeDirectoryPath);
-            propertiesDto.setTrainingPath(dataTypeDirectoryPath + File.separator + expDto.getExperimentName() + "_" + expDataType.getId() + ".csv");   // TEMPORAL UNTIL KNOW IF WE NEED THIS OR NOT
             propertiesDto.setTest(true);
         }
         else {      // Training
@@ -223,11 +219,13 @@ public class ExperimentController {
             propertiesDto.setTraining(true);
         }
 
-        new File(PROPERTIES_DIR_PATH + user.getId()).mkdirs(); // Create the directory to save datatype files
+        File dir = new File(PROPERTIES_DIR_PATH + user.getId());
+        if (!dir.exists())
+            dir.mkdirs();
+
         String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + expDto.getExperimentName() + "_" + propertiesDto.getId() + ".properties";
 
         createPropertiesFile(propertiesFilePath, propertiesDto, expDto.getExperimentName(), currentTimestamp);  // Write in property file
-
         // END - Create PropertiesDto file
 
         // MultipartFile section
@@ -476,7 +474,10 @@ public class ExperimentController {
 
     public String grammarFileSection(User user, ExperimentDto expDto, Grammar grammar) throws IllegalStateException, IOException {
 
-        new File(GRAMMAR_DIR_PATH + user.getId()).mkdirs(); // Create the directory to save datatype files
+        File dir = new File(GRAMMAR_DIR_PATH + user.getId());
+        if (!dir.exists())
+            dir.mkdirs();
+
         String grammarFilePath = GRAMMAR_DIR_PATH + user.getId() + File.separator + expDto.getExperimentName() + "_" + grammar.getId() + ".bnf";
 
         File grammarNewFile = new File(grammarFilePath);
@@ -500,7 +501,7 @@ public class ExperimentController {
         ExperimentDataType expDataType = experimentService.findDataTypeByUserIdAndName(user, expDataTypeDto.getDataTypeName());
 
         if(expDataType == null)     // We create it
-            expDataType = new ExperimentDataType(user, expDataTypeDto.getDataTypeName(), expDataTypeDto.getDataTypeDescription(), expDataTypeDto.getDataTypeType(), currentTimestamp, currentTimestamp);
+            expDataType = new ExperimentDataType(user, expDataTypeDto.getDataTypeName(), expDataTypeDto.getDataTypeDescription(), "training", currentTimestamp, currentTimestamp);
         else {  // The experiment data type configuration already exist
             expDataType.setDataTypeName(expDataTypeDto.getDataTypeName());
             expDataType.setDataTypeDescription(expDataTypeDto.getDataTypeDescription());

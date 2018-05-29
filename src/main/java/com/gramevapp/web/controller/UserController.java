@@ -145,13 +145,9 @@ public class UserController {
             MultipartFile pictureFile = userUpDto.getProfilePicture();
             if (!pictureFile.isEmpty()) {
                 try {
-                    new File(PROFILE_PICTURE_PATH + user.getId()).mkdirs(); // Create the directory to save datatype files
-
-                    String saveDirectory = PROFILE_PICTURE_PATH + File.separator + user.getId() + File.separator;
-                    File test = new File(saveDirectory);
-                    if (!test.exists()) {
-                        test.mkdirs();
-                    }
+                    File dir = new File(PROFILE_PICTURE_PATH + user.getId());   // Create the directory to save datatype files
+                    if (!dir.exists())
+                        dir.mkdirs();
 
                     byte[] bytes = pictureFile.getBytes();
 
@@ -159,7 +155,7 @@ public class UserController {
                     BufferedImage image = ImageIO.read(imageInputStream);
                     BufferedImage thumbnail = Scalr.resize(image, 200);
 
-                    File thumbnailOut = new File(saveDirectory + fileName);
+                    File thumbnailOut = new File(dir.getAbsolutePath() + File.separator + fileName);
                     ImageIO.write(thumbnail, "png", thumbnailOut);
 
                     UploadFile uploadFile = new UploadFile();
@@ -274,19 +270,33 @@ public class UserController {
 
         userService.save(userDto);
         return "login";
-        //return "redirect:/userRegistration?success";
     }
 
-    @RequestMapping(value="/user/profile-picture", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
-    public @ResponseBody byte[] profilePicture() throws IOException {
-        User u = userService.getLoggedInUser();
-        String profilePicture = PROFILE_PICTURE_PATH + File.separator + u.getId() + File.separator + u.getProfilePicture().getFilePath();
+    @RequestMapping(value="/user/profile_picture", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
+    public @ResponseBody byte[] profilePicture(Model model) throws IOException {
+        User user = userService.getLoggedInUser();
+
+        File dir = new File(PROFILE_PICTURE_PATH + user.getId());
+        if (!dir.exists())
+            dir.mkdirs();
+
+        String profilePicture = PROFILE_PICTURE_PATH + user.getId() + File.separator + user.getProfilePicture().getFilePath();
+
         if(new File(profilePicture).exists()) {
             return IOUtils.toByteArray(new FileInputStream(profilePicture));
         } else {
             return null;
         }
     }
+
+    /*@RequestMapping(value="/user/profile-picture", method = RequestMethod.GET)
+    public String profilePicture(Model model) {
+        User user = userService.getLoggedInUser();
+
+        model.addAttribute("userLogged", user);
+
+        return "redirect:user/profile";
+    }*/
 
     /**
      *
