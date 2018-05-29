@@ -87,7 +87,10 @@ public class PropertiesDto {
         User user = userService.findByUsername(authentication.getName());
 
         this.loggerBasePath = LOGGER_BASE_PATH + File.separator + user.getId();
-        new File(loggerBasePath).mkdirs();
+
+        File dir = new File(loggerBasePath);
+        if (!dir.exists())
+            dir.mkdirs();
     }
 
     public PropertiesDto(String trainingPath, Double errorThreshold, Integer tournamentSize, Integer realDataCopied, Double crossoverProb, String bnfPathFile, Integer objectives, Integer executions, String loggerLevel, Double mutationProb, Boolean normalizedData, Integer logPopulation, Integer chromosomeLength, Integer numIndividuals, Integer numGenerations, Boolean viewResults, Integer maxWraps, Integer modelWidth, String experimentName, String experimentDescription, String initialization, Integer numberRuns) {
@@ -126,7 +129,9 @@ public class PropertiesDto {
 
         this.loggerBasePath = LOGGER_BASE_PATH + File.separator + user.getId();
 
-        new File(loggerBasePath).mkdirs();
+        File dir = new File(loggerBasePath);
+        if (!dir.exists())
+            dir.mkdirs();
     }
 
     public Long getIdExp() {
@@ -164,7 +169,10 @@ public class PropertiesDto {
         User user = userService.findByUsername(authentication.getName());
 
         this.loggerBasePath = LOGGER_BASE_PATH + File.separator + user.getId();
-        new File(loggerBasePath).mkdirs();
+
+        File dir = new File(loggerBasePath);
+        if (!dir.exists())
+            dir.mkdirs();
     }
 
     public String getTrainingPath() {

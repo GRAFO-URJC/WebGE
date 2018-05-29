@@ -269,7 +269,6 @@ public class User implements Serializable {
 
     public void removeRole(Role role){
         this.roles.remove(role);
-        //role.getUsers().remove(this);
     }
 
     public Integer getFailedLoginAttempts() {
@@ -309,9 +308,4 @@ public class User implements Serializable {
                 ", roles=" + roles +
                 '}';
     }
-
-    /*public String getImage(){
-        String bphoto = Base64.getEncoder().encodeToString(uploadFile.getData());
-        return bphoto;
-    }*/
 }
