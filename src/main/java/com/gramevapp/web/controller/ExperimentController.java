@@ -7,7 +7,6 @@ import com.gramevapp.web.service.ExperimentService;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;
 import com.engine.algorithm.RunGeObserver;
-import javafx.util.converter.TimeStringConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,6 +34,9 @@ public class ExperimentController {
 
     @Autowired
     private RunService runService;
+
+    @Autowired
+    private DiagramDataService diagramDataService;
 
     @ModelAttribute
     public FileModelDto fileModel(){
@@ -198,8 +200,8 @@ public class ExperimentController {
         String grammarFilePath = grammarFileSection(user, expDto, grammar);
         // END - Grammar File SECTION
 
-        // Create PropertiesDto file
-        PropertiesDto propertiesDto = new PropertiesDto(0.0, expDto.getTournament(), 0, expDto.getCrossoverProb(), grammarFilePath, 0, 1, expDto.getMutationProb(), false, 1, expDto.getNumCodons(), expDto.getPopulationSize(), expDto.getGenerations(), false, expDto.getMaxWraps(), 500, expDto.getExperimentName(), expDto.getExperimentDescription());
+        // Create ExpPropertiesDto file
+        ExpPropertiesDto propertiesDto = new ExpPropertiesDto(0.0, expDto.getTournament(), 0, expDto.getCrossoverProb(), grammarFilePath, 0, 1, expDto.getMutationProb(), false, 1, expDto.getNumCodons(), expDto.getPopulationSize(), expDto.getGenerations(), false, expDto.getMaxWraps(), 500, expDto.getExperimentName(), expDto.getExperimentDescription());
 
         // Reader - FILE DATA TYPE - Convert MultipartFile into Generic Java File - Then convert it to Reader
         String dataTypeDirectoryPath = DATATYPE_DIR_PATH;
@@ -226,7 +228,7 @@ public class ExperimentController {
         String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + expDto.getExperimentName() + "_" + propertiesDto.getId() + ".properties";
 
         createPropertiesFile(propertiesFilePath, propertiesDto, expDto.getExperimentName(), currentTimestamp);  // Write in property file
-        // END - Create PropertiesDto file
+        // END - Create ExpPropertiesDto file
 
         // MultipartFile section
         MultipartFile multipartFile = fileModelDto.getTypeFile();
@@ -280,18 +282,10 @@ public class ExperimentController {
 
         experimentService.saveGrammar(grammar);
 
-
         // END CONFIGURATION SECTION
 
         expDto.setDefaultRunId(run.getId());
         expDto.setId(exp.getId());
-
-        model.addAttribute("configuration", expDto);
-        model.addAttribute("grammar", grammar);
-        model.addAttribute("type", expDataType);
-        model.addAttribute("grammarList", exp.getIdGrammarList());
-        model.addAttribute("dataTypeList", exp.getIdExpDataTypeList());
-        model.addAttribute("runList", exp.getIdRunList());
 
         // Execute program with experiment info
         File propertiesFile = new File(propertiesFilePath);
@@ -303,13 +297,34 @@ public class ExperimentController {
         // TODO: no distinguir el tipo de fichero entre training, validation o test.
         properties.setProperty(TRAINING_PATH_PROP, dataFilePath);
 
+        ExpProperties expPropertiesEntity = createExpPropertiesEntity(properties, exp, run, propertiesDto, dataFilePath);
+
+        exp.setIdProperties(expPropertiesEntity.getId());
+
         DiagramData diagramData = new DiagramData(run.getId(), user.getId());
         diagramData.setTime(currentTimestamp);
 
-        executeGramEv(properties, diagramData);        // PropertiesDto properties, int threadId, int numObjectives
+        // Run experiment in new thread
+        new Thread() {
+            public void run() {
+                // ExpPropertiesDto properties, int threadId, int numObjectives
+                try {
+                    executeGramEv(properties, diagramData);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
 
         propertiesReader.close();
         // END - Execute program with experiment info
+
+        model.addAttribute("configuration", expDto);
+        model.addAttribute("grammar", grammar);
+        model.addAttribute("type", expDataType);
+        model.addAttribute("grammarList", exp.getIdGrammarList());
+        model.addAttribute("dataTypeList", exp.getIdExpDataTypeList());
+        model.addAttribute("runList", exp.getIdRunList());
 
         return "/user/experiment/configExperiment";
     }
@@ -365,7 +380,7 @@ public class ExperimentController {
     }
 
     @RequestMapping(value="/user/experiment/runList", method=RequestMethod.GET, params="loadExperimentButton")
-    public String runList(Model model,
+    public String loadExperiment(Model model,
                           @RequestParam(value = "runId") String id) {
 
         User user = userService.getLoggedInUser();
@@ -395,6 +410,99 @@ public class ExperimentController {
         return "/user/experiment/configExperiment";
     }
 
+    @GetMapping(value="/user/experiment/runList", params="runExperimentButton")
+    public String runExperiment(Model model,
+                          @RequestParam(value = "runId") String runId) throws IOException {
+
+        User user = userService.getLoggedInUser();
+        if(user == null){
+            System.out.println("User not authenticated");
+            return "redirect:/login";
+        }
+
+        Long longRunId = Long.parseLong(runId);
+        Run run = runService.findByUserIdAndRunId(user, longRunId);
+        DiagramData diagramData = diagramDataService.findByLondRunId(longRunId);
+
+        ExperimentDetailsDto experimentDetailsDto = new ExperimentDetailsDto();
+
+        experimentDetailsDto.setExperimentId(run.getExperimentId().getId());
+        experimentDetailsDto.setExperimentName(run.getExperimentId().getExperimentName());
+        experimentDetailsDto.setExperimentDescription(run.getExperimentId().getExperimentDescription());
+
+        experimentDetailsDto.setRunId(run.getId());
+        experimentDetailsDto.setStatus(run.getStatus());
+
+        experimentDetailsDto.setGenerations(run.getExperimentId().getGenerations());
+        experimentDetailsDto.setPopulationSize(run.getExperimentId().getPopulationSize());
+        experimentDetailsDto.setMaxWraps(run.getExperimentId().getMaxWraps());
+        experimentDetailsDto.setTournament(run.getExperimentId().getTournament());
+        experimentDetailsDto.setCrossoverProb(run.getExperimentId().getCrossoverProb());
+        experimentDetailsDto.setMutationProb(run.getExperimentId().getMutationProb());
+        experimentDetailsDto.setInitialization(run.getExperimentId().getInitialization());
+        experimentDetailsDto.setResults(run.getExperimentId().getResults());
+        experimentDetailsDto.setNumCodons(run.getExperimentId().getNumCodons());
+        experimentDetailsDto.setNumberRuns(run.getExperimentId().getNumberRuns());
+        experimentDetailsDto.setDefaultGrammar(run.getExperimentId().getDefaultGrammar().getFileText());
+        experimentDetailsDto.setDefaultExpDataType(run.getExperimentId().getDefaultExpDataType().getDataTypeName());
+        experimentDetailsDto.setIniDate(run.getIniDate().toString());
+        experimentDetailsDto.setLastDate(run.getLastDate().toString());
+
+        experimentDetailsDto.setBestIndividual(diagramData.getBestIndividual());
+        experimentDetailsDto.setCurrentGeneration(diagramData.getCurrentGeneration());
+
+        model.addAttribute("expDetails", experimentDetailsDto);
+
+        runExperimentDetails(runId);
+
+        return "/user/experiment/experimentDetails";
+    }
+
+    @PostMapping(value="/user/experiment/runList", params="runExperimentButton")
+    public void runExperimentDetails(@RequestParam(value = "runId") String runId) throws IOException {
+
+        User user = userService.getLoggedInUser();
+
+        Long longRunId = Long.parseLong(runId);
+        Run run = runService.findByRunId(longRunId);
+
+        Experiment exp = run.getExperimentId();
+
+        System.out.println(exp.getIdProperties());
+
+        ExpProperties prop = experimentService.findPropertiesById(exp.getIdProperties());
+
+        String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + exp.getExperimentName() + "_" + prop.getId() + ".properties";
+
+        // Execute program with experiment info
+        File propertiesFile = new File(propertiesFilePath);
+        Reader propertiesReader = new FileReader(propertiesFile);
+
+        Properties properties = new Properties();
+        properties.load(propertiesReader);
+
+        // TODO: no distinguir el tipo de fichero entre training, validation o test.
+        properties.setProperty(TRAINING_PATH_PROP, prop.getTrainingPath());
+
+        DiagramData diagramData = new DiagramData(run.getId(), user.getId());
+        // diagramData.setTime(currentTimestamp);
+
+        // Run experiment in new thread
+        new Thread() {
+            public void run() {
+                // ExpPropertiesDto properties, int threadId, int numObjectives
+                try {
+                    executeGramEv(properties, diagramData);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+
+        propertiesReader.close();
+        // END - Execute program with experiment info
+    }
+
     //  Run gramEv application
     public void executeGramEv(Properties properties, DiagramData diagramData) throws IOException {
 
@@ -413,7 +521,7 @@ public class ExperimentController {
     }
 
 
-    public void createPropertiesFile(String propertiesFilePath, PropertiesDto propertiesDto, String expName, java.sql.Timestamp currentTimeStamp) throws IOException {
+    public void createPropertiesFile(String propertiesFilePath, ExpPropertiesDto propertiesDto, String expName, java.sql.Timestamp currentTimeStamp) throws IOException {
         File propertiesNewFile = new File(propertiesFilePath);
         if (!propertiesNewFile.exists()) {
             propertiesNewFile.createNewFile();
@@ -421,7 +529,7 @@ public class ExperimentController {
 
         PrintWriter propertiesWriter = new PrintWriter(propertiesNewFile);
 
-        propertiesWriter.println("# PropertiesDto for " +  expName);
+        propertiesWriter.println("# ExpPropertiesDto for " +  expName);
         propertiesWriter.println("# " + currentTimeStamp.toString());
         propertiesWriter.println("LoggerBasePath=" +  propertiesDto.getLoggerBasePath().replace("\\", "/"));
         propertiesWriter.println("ErrorThreshold=" +  propertiesDto.getErrorThreshold());
@@ -456,6 +564,44 @@ public class ExperimentController {
                                                                                    // ("\\", "/")
         }
         propertiesWriter.close();
+    }
+
+    public ExpProperties createExpPropertiesEntity(Properties properties, Experiment experiment, Run run, ExpPropertiesDto propDto, String dataFilePath){
+        ExpProperties expProp = new ExpProperties(propDto.getId());
+
+        expProp.setIdExp(experiment.getId());
+        expProp.setIdRun(run.getId());
+
+        expProp.setLoggerBasePath(properties.getProperty("LoggerBasePath"));
+        expProp.setErrorThreshold(Double.parseDouble(properties.getProperty("ErrorThreshold")));
+        expProp.setTournamentSize(Integer.parseInt(properties.getProperty("TournamentSize")));
+        expProp.setWorkDir(properties.getProperty("WorkDir"));
+        expProp.setRealDataCopied(Integer.parseInt(properties.getProperty("RealDataCopied")));
+        expProp.setCrossoverProb(Double.parseDouble(properties.getProperty("CrossoverProb")));
+        expProp.setBnfPathFile(properties.getProperty("BnfPathFile"));
+        expProp.setObjectives(Integer.parseInt(properties.getProperty("Objectives")));
+        expProp.setClassPathSeparator(properties.getProperty("ClassPathSeparator"));
+        expProp.setExecutions(Integer.parseInt(properties.getProperty("Executions")));
+        expProp.setLoggerLevel(properties.getProperty("LoggerLevel"));
+        expProp.setMutationProb(Double.parseDouble(properties.getProperty("MutationProb")));
+        expProp.setNormalizedData(Boolean.parseBoolean(properties.getProperty("NormalizeData")));
+        expProp.setLogPopulation(Integer.parseInt(properties.getProperty("LogPopulation")));
+        expProp.setChromosomeLength(Integer.parseInt(properties.getProperty("ChromosomeLength")));
+        expProp.setNumIndividuals(Integer.parseInt(properties.getProperty("NumIndividuals")));
+        expProp.setNumGenerations(Integer.parseInt(properties.getProperty("NumGenerations")));
+        expProp.setViewResults(Boolean.parseBoolean(properties.getProperty("ViewResults")));
+        expProp.setMaxWraps(Integer.parseInt(properties.getProperty("MaxWraps")));
+        expProp.setModelWidth(Integer.parseInt(properties.getProperty("ModelWidth")));
+
+        expProp.setTrainingPath(dataFilePath);
+
+        expProp.setExperimentName(experiment.getExperimentName());
+        expProp.setExperimentDescription(experiment.getExperimentDescription());
+        expProp.setInitialization(experiment.getInitialization());
+        expProp.setResults(experiment.getResults());
+        expProp.setNumberRuns(experiment.getNumberRuns());
+
+        return expProp;
     }
 
     public Grammar grammarSection(User user, GrammarDto grammarDto){
@@ -557,4 +703,21 @@ public class ExperimentController {
         return exp;
     }
 
+    @GetMapping("/user/experiment/experimentDetails")
+    public String experimentDetails(@ModelAttribute("expDetails") ExperimentDetailsDto expDetailsDto){
+
+
+        // experimentService.findExperimentByUserIdAndExpId(user, )
+
+        // model.addAttribute();
+
+        return "/user/experiment/experimentDetails";
+    }
+
+    @RequestMapping(value="/user/experiment/stopRunExperiment", method=RequestMethod.GET, params="stopRunExperimentButton")
+    public String stopRunExperiment(Model model,
+                                    @RequestParam(value = "runId") String id){
+
+        return "/user/experiment/stopRun";
+    }
 }

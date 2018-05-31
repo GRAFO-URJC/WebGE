@@ -20,6 +20,8 @@ public class DiagramData {
 
     private Long longUserId;
 
+    private Integer currentGeneration;
+
     Calendar calendar = Calendar.getInstance();
 
     @Column(name="time")
@@ -39,10 +41,11 @@ public class DiagramData {
         this.longUserId = longUserId;
     }
 
-    public DiagramData(Double bestIndividual, Long longRunId, Long longUserId) {
+    public DiagramData(Integer currentGeneration, Double bestIndividual, Long longRunId, Long longUserId) {
         this.bestIndividual = bestIndividual;
         this.longRunId = longRunId;
         this.longUserId = longUserId;
+        this.currentGeneration = currentGeneration;
     }
 
     public Long getId() {
@@ -75,6 +78,14 @@ public class DiagramData {
 
     public void setLongUserId(Long longUserId) {
         this.longUserId = longUserId;
+    }
+
+    public Integer getCurrentGeneration() {
+        return currentGeneration;
+    }
+
+    public void setCurrentGeneration(Integer currentGeneration) {
+        this.currentGeneration = currentGeneration;
     }
 
     //@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
