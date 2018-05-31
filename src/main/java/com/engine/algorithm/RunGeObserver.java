@@ -46,6 +46,7 @@ public class RunGeObserver implements Observer {
         double objs[][] = (double [][]) dataMap.get("Objectives");
 
         this.diagramData.setBestIndividual(currBest);
+        this.diagramData.setCurrentGeneration(currGen);
         this.diagramData.setTime(currentTimestamp);
 
         // http://codippa.com/how-to-autowire-objects-in-non-spring-classes/

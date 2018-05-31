@@ -14,7 +14,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Observer;
-import java.util.Properties;
+import java.util.ExpProperties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTable;
@@ -45,7 +45,7 @@ public class GramEvalTemporalModel extends AbstractProblemGE {
     protected int threadId;
     protected MyCompiler compiler;
     protected NormalizedDataTable dataTable;
-    protected Properties properties;
+    protected ExpProperties properties;
     protected AbstractPopEvaluator evaluator;
 
     public static final String REPORT_HEADER = "Obj.;Model;Time";
@@ -63,7 +63,7 @@ public class GramEvalTemporalModel extends AbstractProblemGE {
     public static final int LOG_PHENOTYPE_MASK = 8;
     public static final int LOG_EVALUATION_MASK = 16;
     
-    public GramEvalTemporalModel(Properties properties, int threadId, int numObjectives) throws IOException {
+    public GramEvalTemporalModel(ExpProperties properties, int threadId, int numObjectives) throws IOException {
         super(properties.getProperty(com.engine.data.Common.BNF_PATH_FILE_PROP), numObjectives,
               Integer.valueOf(properties.getProperty(com.engine.data.Common.CHROMOSOME_LENGTH_PROP)),
               Integer.valueOf(properties.getProperty(com.engine.data.Common.MAX_WRAPS_PROP)),
@@ -273,8 +273,8 @@ public class GramEvalTemporalModel extends AbstractProblemGE {
         return clone;
     }
 
-    public static Properties loadProperties(String propertiesFilePath) {
-        Properties properties = new Properties();
+    public static ExpProperties loadProperties(String propertiesFilePath) {
+        ExpProperties properties = new ExpProperties();
         try {
             properties.load(new BufferedReader(new FileReader(new File(propertiesFilePath))));
             File clsDir = new File(properties.getProperty(com.engine.data.Common.WORK_DIR_PROP));
@@ -289,7 +289,7 @@ public class GramEvalTemporalModel extends AbstractProblemGE {
         return properties;
     }
     
-    public static void runGE(Properties properties, int threadId, Observer obs) {
+    public static void runGE(ExpProperties properties, int threadId, Observer obs) {
         logger.setLevel(Level.ALL);
 
         // Log population:
@@ -605,7 +605,7 @@ public class GramEvalTemporalModel extends AbstractProblemGE {
             propertiesFilePath = args[0];
             threadId = Integer.valueOf(args[1]);
         }
-        Properties properties = loadProperties(propertiesFilePath);
+        ExpProperties properties = loadProperties(propertiesFilePath);
         runGE(properties,threadId,null);
     }
 

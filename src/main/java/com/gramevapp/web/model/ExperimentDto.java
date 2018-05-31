@@ -20,6 +20,8 @@ public class ExperimentDto {
     private String defaultGrammar = "";
     private String defaultExpDataType = "";
     private Long defaultRunId;
+    private ExpProperties properties;
+
     /**
      * 0 -> Root Mean Squared Error (RMSE)
      1 -> Clarke Error Grid (CEG)
@@ -167,5 +169,13 @@ public class ExperimentDto {
 
     public void setDefaultRunId(Long defaultRunId) {
         this.defaultRunId = defaultRunId;
+    }
+
+    public ExpProperties getProperties() {
+        return properties;
+    }
+
+    public void setProperties(ExpProperties properties) {
+        this.properties = properties;
     }
 }

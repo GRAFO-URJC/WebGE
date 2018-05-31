@@ -20,4 +20,8 @@ public class DiagramDataService {
         Long longRunId = runId.getId();
         return diagramRepository.findByLongRunId(longRunId);
     }
+
+    public DiagramData findByLondRunId(Long longRunId){
+        return diagramRepository.findByLongRunId(longRunId);
+    }
 }

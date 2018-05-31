@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.w3.org/1999/xhtml"
+      lang="en">
+
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css" /> <!-- For the profile template -->
+        <link th:href="@{/assets/dist/css/bootstrap.css}" rel="stylesheet" id="main-css" />
+        <link th:href="@{/assets/dist/css/experimentDetails.css}" rel="stylesheet" id="experimentDetails-css" />
+
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+
+        <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+        <style>
+            .line {
+                fill: none;
+                stroke: #000;
+                stroke-width: 1.5px;
+            }
+        </style>
+
+        <title>Experiment testing area</title>
+    </head>
+
+    <!--
+        Attribute th:field will replace attributes value, id and name in your input tag.
+        Instead, use plain th:id, th:value and th:name without using th:field. Then you will get what you wanted.
+    -->
+    <body>
+    <div>
+
+        <!-- Header -->
+        <header class="navbar navbar-default navbar-static-top" id="header">
+            <div class="container">
+
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".header-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" th:href="@{/}">WebGE <i>by URJC</i></a>
+                </div>
+
+                <div class="collapse navbar-collapse header-collapse">
+                    <ul sec:authorize="isAuthenticated()" class="nav navbar-nav">
+                        <li><a th:href="@{/}">Home</a></li>
+                        <li><a th:href="@{/user/experiment/experimentRepository}">Experiments</a></li>
+                        <li><a th:href="@{/user/profile}">Profile</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Submenu<span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">Option One</a></li>
+                                <li><a href="#">Option Two</a></li>
+                                <li><a href="#">Option Three</a></li>
+                                <li><a href="#">Option Four</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <p sec:authorize="isAuthenticated()" class="navbar-text navbar-right btn btn-default"><a  th:href="@{/logout}">Logout</a></p>
+                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-default"><a th:href="@{/registration}">Registration</a></p>
+                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-default"><a th:href="@{/user}">Login</a></p>
+
+                </div>
+            </div>
+        </header>
+        <!-- END Header -->
+
+        <!-- Main -->
+        <div class="container">
+            <div id="forms" class="panel panel-default">
+                <header class="panel-heading">
+                    <h2>Run details of experiment name <i><span th:text="${expDetails.getExperimentName()}"></span></i></h2>
+                </header>
+
+                <section class="panel-body">
+                    <p class="text-warning"
+                       th:if="${#fields.hasGlobalErrors()}"
+                       th:each="error : ${#fields.errors('global')}"
+                       th:text="${error}">Validation error</p>
+
+                    <!-- Experiment-Run details -->
+                    <div class="row form-group text-center">
+                        <div class="col-sm-6 col-md-6 col-lg-6" >
+                            <h4>
+                                <label>Experiment name: </label>
+                                <label th:text="${expDetails.getExperimentName()}" />
+                            </h4>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-6" >
+                            <h4>
+                                <label>Experiment description: </label>
+                                <label th:text="${expDetails.getExperimentDescription()}" />
+                            </h4>
+                        </div>
+                    </div>
+                    <div class="row form-group text-center">
+                        <div class="col-sm-6 col-md-6 col-lg-6">
+                            <h4>
+                                <label>Run id: </label>
+                                <label th:text="${expDetails.getRunId()}" />
+                            </h4>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-6" >
+                            <h4>
+                                <label>Run status: </label>
+                                <label th:text="${expDetails.getStatus()}" />
+                            </h4>
+                        </div>
+                    </div>
+                    <!-- END - Experiment-Run details -->
+
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <hr/>
+                    </div>
+
+
+                    <div class="row form-group">
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                            <div id="chartContainer" style="height: 360px; width: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <form th:action="@{/user/experiment/stopRunExperiment}" th:object="${expDetails}" role="form">
+                        <div class="row center-block form-horizontal">
+
+                            <!-- Stop button -->
+                            <div class="row text-center">
+                                <div class="col-sm-12 col-md-12 col-lg-12" style="padding:15px">
+                                    <button type="submit" id="stopExperimentButton" name="stopExperimentButton" class="btn-danger btn-lg" onclick="runExperiment()">Stop experiment</button>
+                                </div>
+                            </div>
+                            <!-- END - Stop button -->
+                        </div>
+                    </form>
+
+                </section>
+            </div>
+
+        </div>
+        <!-- END Main -->
+
+    </div>
+
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <script>
+
+        var dataPoints = [];
+
+        var chart = new CanvasJS.Chart("chartContainer",{
+            animationEnabled: true,
+            backgroundColor: "transparent",
+            colorSet: "greenShades",
+            animationEnabled: true,
+            exportEnabled: true,
+            theme: "theme3",
+            zoomEnabled: true,
+            panEnabled: true,
+
+            title:{
+                text:"Diagram data flow showing best individual at the moment"
+            },
+            data: [{
+                markerSize: 4,
+                color: "blue",
+                type : "line",
+                // lineDashType : "dash",
+                dataPoints: dataPoints
+            }],
+            axisX:{
+                title: "Current generation",
+                labelAngle: -50,
+                lineThickness:0.5,
+                tickThickness:0.5,
+            },
+            axisY: {
+                title: "Best individual",
+                maximum: 1,
+                minimum: -1,
+                lineThickness:1,
+                tickThickness: 1,
+                gridThickness: 1,
+            },
+            toolTip:{
+                shared: true,
+                enabled: true,
+                animationEnabled: true,
+            },
+        });
+
+        function reloadPlotD3() {
+            $.ajax({
+                url: encodeURI("/user/rest/diagramFlow"),
+                type: "GET",
+                dataType: "json",
+                success: function(data){
+
+                    var xPoint = data['currentGeneration'];
+                    var yPoint = data['bestIndividual'];
+
+                    $.each(data, function(key, value){
+                        dataPoints.push({x: parseInt(xPoint), y: parseFloat(yPoint)});
+                    });
+
+                    chart.options.data[0].dataPoints = dataPoints;
+
+                    if (dataPoints.length > 12)
+                    {
+                        dataPoints.shift();
+                    }
+
+                    chart.render();
+                },
+                complete:function(data){
+                    setTimeout(reloadPlotD3, 1000);
+                }
+            });
+        }
+
+        function initializeD3() {
+            reloadPlotD3();
+        }
+
+        /*function runExperiment(){
+            // $('#chartModal').modal('show');
+            setTimeout(initializeD3, 1000);
+        }*/
+
+        $( document ).ready(function() {
+            setTimeout(initializeD3, 1000);
+        });
+    </script>
+
+    </body>
+</html>

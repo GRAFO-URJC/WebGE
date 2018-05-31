@@ -9,7 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.io.File;
 import java.util.UUID;
 
-public class PropertiesDto {
+public class ExpPropertiesDto {
 
     private static final String LOGGER_BASE_PATH = "resources/files/logs/population";
     private static final String WORK_DIR = "resources/files";
@@ -54,10 +54,10 @@ public class PropertiesDto {
     private String results;             // Text file with the results of the experiments
     private Integer numberRuns;         // Num executions. Execute the experiment N times and obtain N solutions.
 
-    public PropertiesDto() {
+    public ExpPropertiesDto() {
     }
 
-    public PropertiesDto(Double errorThreshold, Integer tournamentSize, Integer realDataCopied, Double crossoverProb, String bnfPathFile, Integer objectives, Integer executions, Double mutationProb, Boolean normalizedData, Integer logPopulation, Integer chromosomeLength, Integer numIndividuals, Integer numGenerations, Boolean viewResults, Integer maxWraps, Integer modelWidth, String experimentName, String experimentDescription) {
+    public ExpPropertiesDto(Double errorThreshold, Integer tournamentSize, Integer realDataCopied, Double crossoverProb, String bnfPathFile, Integer objectives, Integer executions, Double mutationProb, Boolean normalizedData, Integer logPopulation, Integer chromosomeLength, Integer numIndividuals, Integer numGenerations, Boolean viewResults, Integer maxWraps, Integer modelWidth, String experimentName, String experimentDescription) {
         this.errorThreshold = errorThreshold;
         this.tournamentSize = tournamentSize;
         this.realDataCopied = realDataCopied;
@@ -93,7 +93,7 @@ public class PropertiesDto {
             dir.mkdirs();
     }
 
-    public PropertiesDto(String trainingPath, Double errorThreshold, Integer tournamentSize, Integer realDataCopied, Double crossoverProb, String bnfPathFile, Integer objectives, Integer executions, String loggerLevel, Double mutationProb, Boolean normalizedData, Integer logPopulation, Integer chromosomeLength, Integer numIndividuals, Integer numGenerations, Boolean viewResults, Integer maxWraps, Integer modelWidth, String experimentName, String experimentDescription, String initialization, Integer numberRuns) {
+    public ExpPropertiesDto(String trainingPath, Double errorThreshold, Integer tournamentSize, Integer realDataCopied, Double crossoverProb, String bnfPathFile, Integer objectives, Integer executions, String loggerLevel, Double mutationProb, Boolean normalizedData, Integer logPopulation, Integer chromosomeLength, Integer numIndividuals, Integer numGenerations, Boolean viewResults, Integer maxWraps, Integer modelWidth, String experimentName, String experimentDescription, String initialization, Integer numberRuns) {
         this.trainingPath = trainingPath;
         this.errorThreshold = errorThreshold;
         this.tournamentSize = tournamentSize;

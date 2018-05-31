@@ -16,14 +16,6 @@
         <!-- Without this, the bootsrap modals, collapses, etc won't work -->
         <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
-        <style>
-            .line {
-                fill: none;
-                stroke: #000;
-                stroke-width: 1.5px;
-            }
-        </style>
-
         <title>Experiment testing area</title>
     </head>
 
@@ -126,7 +118,7 @@
                                 <hr/>
                             </div>
 
-                            <!-- PropertiesDto -->
+                            <!-- ExpPropertiesDto -->
                             <div class="col-sm-12 col-md-6 col-lg-6">
                                 <div class="row form-group">
                                     <div class="jumbotron row form-group">
@@ -207,7 +199,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- END PropertiesDto -->
+                            <!-- END ExpPropertiesDto -->
 
                             <!-- Grammar file -->
                             <div class="col-sm-12 col-md-6 col-lg-6 center-block">
@@ -388,11 +380,6 @@
                                     <button type="submit" id="runExperimentButton" name="runExperimentButton" class="btn-primary btn-lg" onclick="runExperiment()">Run experiment</button>
                                 </div>
                             </div>
-                            <div class="row text-center">
-                                <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <button type="button" id="showDiagram" name="showDiagram" class="btn btn-lg" data-toggle="modal" data-target="#chartModal">Show diagram flow</button>
-                                </div>
-                            </div>
                             <!-- END Save Clone and Run -->
                         </div>
                     </form>
@@ -442,6 +429,10 @@
                                             <button type="submit" id="loadExperimentButton" name="loadExperimentButton" class="btn-default loadButton">Load experiment</button>
                                         </td>
                                         <td scope="row">
+                                            <!-- https://stackoverflow.com/questions/14938344/thymeleaf-construct-url-with-variable -->
+                                            <a th:href="@{/user/experiment/runList(runId=${run.getId()}, runExperimentButton='runExperimentButton')}" target="_blank" class="btn-default loadButton">Run experiment</a>
+                                        </td>
+                                        <td scope="row">
                                             <a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse" class="accordion-toggle">More details <span class="glyphicon glyphicon-chevron-down"></span></a>
                                         </td>
                                     </form>
@@ -454,10 +445,10 @@
                                             <br/>
                                             <ul class="list-inline">
                                                 <li>
-                                                            <span class="glyphicon glyphicon-chevron-right">
-                                                                Experiment ID:
-                                                                <label th:text="${configuration.getId()}"></label>
-                                                            </span>
+                                                    <span class="glyphicon glyphicon-chevron-right">
+                                                        Experiment ID:
+                                                        <label th:text="${configuration.getId()}"></label>
+                                                    </span>
                                                 </li>
                                             </ul>
                                         </div>
@@ -472,126 +463,13 @@
         </div>
         <!-- END RUN SECTION -->
 
-        <!-- Modal -->
-        <div class="container">
-            <section class="panel-body">
-                <div class="modal fade" id="chartModal" role="dialog" aria-labelledby="myModalLabel">
-                    <div class="modal-dialog" role="document">
-                        <!-- Modal content-->
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                <h4 class="modal-title" id="myModalLabel">Best individual diagram flow</h4>
-                            </div>
-                            <div class="modal-body">
-                                <div id="chartContainer" style="height: 360px; width: 100%;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-        <!-- END - Modal -->
-
     </div>
 
 
     <!-- Load CanvasJS libraries -->
-    <!--<script src="/assets/dist/jQuery/jquery-3.3.1.min.js"></script>-->
     <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
     <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-
-    <script>
-
-        var dataPoints = [];
-
-        var duration = 1000;
-        var now = new Date(Date.now() - duration);
-
-        var chart = new CanvasJS.Chart("chartContainer",{
-            animationEnabled: true,
-            backgroundColor: "transparent",
-            colorSet: "greenShades",
-            animationEnabled: true,
-            exportEnabled: true,
-            theme: "theme3",
-            zoomEnabled: true,
-            panEnabled: true,
-
-            title:{
-                text:"Diagram data flow showing best individual at the moment"
-            },
-            data: [{
-                xValueFormatString: "HH:mm:ss",
-                markerSize: 4,
-                color: "blue",
-                type : "line",
-                // lineDashType : "dash",
-                dataPoints: dataPoints
-            }],
-            axisX:{
-                labelAngle: -50,
-                lineThickness:0.5,
-                tickThickness:0.5,
-            },
-            axisY: {
-                title: "Best individual",
-                maximum: 1,
-                minimum: -1,
-                lineThickness:1,
-                tickThickness: 1,
-                gridThickness: 1,
-            },
-            toolTip:{
-                shared: true,
-                enabled: true,
-                animationEnabled: true,
-            },
-        });
-
-        function reloadPlotD3() {
-            $.ajax({
-                url: encodeURI("/user/rest/diagramFlow"),
-                type: "GET",
-                dataType: "json",
-                success: function(data){
-
-                    var xPoint = new Date(Date.now() - duration);
-                    var yPoint = data['bestIndividual'];
-
-                    $.each(data, function(key, value){
-                        dataPoints.push({x: xPoint, y: parseFloat(yPoint)});
-                    });
-
-                    chart.options.data[0].dataPoints = dataPoints;
-
-                    if (dataPoints.length > 12)
-                    {
-                        dataPoints.shift();
-                    }
-
-                    chart.render();
-                },
-                complete:function(data){
-                    setTimeout(reloadPlotD3, 1000);
-                }
-            });
-        }
-
-        function compareDataPointX(dataPoint1, dataPoint2) {
-            return dataPoint1.x - dataPoint2.x;
-        }
-
-        function initializeD3() {
-            reloadPlotD3();
-        }
-
-        function runExperiment(){
-            $('#chartModal').modal('show');
-            setTimeout(initializeD3, 1000);
-        }
-    </script>
 
     <script>
         // Load the file in grammar text area
