@@ -103,7 +103,7 @@
                         <div class="col-sm-6 col-md-6 col-lg-6">
                             <h4>
                                 <label>Run id: </label>
-                                <label th:text="${expDetails.getRunId()}" />
+                                <label th:id="runId" th:text="${expDetails.getRunId()}" />
                             </h4>
                         </div>
                         <div class="col-sm-6 col-md-6 col-lg-6" >
@@ -196,9 +196,9 @@
             },
         });
 
-        function reloadPlotD3() {
+        function reloadPlotD3(runId) {
             $.ajax({
-                url: encodeURI("/user/rest/diagramFlow"),
+                url: encodeURI("/user/rest/diagramFlow/" + runId),
                 type: "GET",
                 dataType: "json",
                 success: function(data){
@@ -220,22 +220,17 @@
                     chart.render();
                 },
                 complete:function(data){
-                    setTimeout(reloadPlotD3, 1000);
+                    setTimeout(reloadPlotD3($("#runId").text()), 1000);
                 }
             });
         }
 
         function initializeD3() {
-            reloadPlotD3();
+            reloadPlotD3($("#runId").text());
         }
 
-        /*function runExperiment(){
-            // $('#chartModal').modal('show');
-            setTimeout(initializeD3, 1000);
-        }*/
-
-        $( document ).ready(function() {
-            setTimeout(initializeD3, 1000);
+        $(document).ready(function() {
+            initializeD3();
         });
     </script>
 

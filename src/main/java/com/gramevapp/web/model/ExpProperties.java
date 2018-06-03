@@ -1,25 +1,49 @@
 package com.gramevapp.web.model;
 
 import javax.persistence.*;
-import java.util.UUID;
 
 @Entity
+@Table(name = "expProperties")
 public class ExpProperties {
 
     private static final String LOGGER_BASE_PATH = "resources/files/logs/population";
     private static final String WORK_DIR = "resources/files";
     private static final String CLASS_PATH_SEPARATOR = "\\;";
 
+    // @org.hibernate.annotations.Type(type = "pg-uuid")
+    // @Column(columnDefinition="uuid")
+    /*@GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(columnDefinition = "BINARY(16)", name = "PROPERTIES_ID", nullable = false, updatable= false)*/
+    // private UUID id;
+
+    /*@Id
+    @Column(columnDefinition="uuid")
+    @org.hibernate.annotations.Type(type="pg-uuid")*/
+
+    /*@Id
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @Column(columnDefinition = "BINARY(16)", name = "PROPERTIES_ID")*/
+
     @Id
-    @GeneratedValue
-    @Column(columnDefinition = "uuid", name = "PROPERTIES_ID", nullable = false, updatable= false)
-    private UUID id = UUID.randomUUID();
+    @Column(name = "PROPERTIES_ID", nullable = false, updatable= false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    //private UUID id = UUID.randomUUID();
+
+    @OneToOne(cascade=CascadeType.ALL)
+    private User userId;
 
     @Column
     private Long idExp;
 
     @Column
     private Long idRun;
+
+    @Column
+    private String uuidPropDto;
 
     @Column
     private String loggerBasePath;
@@ -80,7 +104,10 @@ public class ExpProperties {
     @Column
     private Integer numberRuns;         // Num executions. Execute the experiment N times and obtain N solutions.
 
-    public ExpProperties(UUID id){
+    public ExpProperties(){
+    }
+
+    public ExpProperties(Long id){
         this.id = id;
     }
 
@@ -117,11 +144,11 @@ public class ExpProperties {
         this.numberRuns = numberRuns;
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -365,5 +392,19 @@ public class ExpProperties {
         this.idRun = idRun;
     }
 
+    public User getUserId() {
+        return userId;
+    }
 
+    public void setUserId(User userId) {
+        this.userId = userId;
+    }
+
+    public String getUuidPropDto() {
+        return uuidPropDto;
+    }
+
+    public void setUuidPropDto(String uuidPropDto) {
+        this.uuidPropDto = uuidPropDto;
+    }
 }

@@ -36,6 +36,13 @@ public class Run
     )
     private Experiment experimentId;
 
+    @OneToOne(cascade=CascadeType.ALL)
+    @JoinColumn(name = "default_grammar")
+    private DiagramData diagramData;
+
+    @Column
+    private Long idProperties;
+
     @Column
     private Status status;
     @Column
@@ -136,5 +143,13 @@ public class Run
 
     public void setRunDescription(String runDescription) {
         this.runDescription = runDescription;
+    }
+
+    public Long getIdProperties() {
+        return idProperties;
+    }
+
+    public void setIdProperties(Long idProperties) {
+        this.idProperties = idProperties;
     }
 }
