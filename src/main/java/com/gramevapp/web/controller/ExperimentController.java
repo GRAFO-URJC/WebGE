@@ -180,6 +180,7 @@ public class ExperimentController {
 
         // RUN SECTION
         Run run = new Run(user, Run.Status.INITIALIZING, expDto.getExperimentName(), expDto.getExperimentDescription(), currentTimestamp, currentTimestamp);
+
         Long longDefaultRunId = runService.saveRun(run).getId();
         // END - RUN SECTION
 
@@ -304,12 +305,14 @@ public class ExperimentController {
         DiagramData diagramData = new DiagramData(run.getId(), user.getId());
         diagramData.setTime(currentTimestamp);
 
+        run.setDiagramData(diagramData);
+
         // Run experiment in new thread
         new Thread() {
             public void run() {
                 // ExpPropertiesDto properties, int threadId, int numObjectives
                 try {
-                    executeGramEv(properties, diagramData);
+                    executeGramEv(properties, diagramData, run);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -490,7 +493,7 @@ public class ExperimentController {
             public void run() {
                 // ExpPropertiesDto properties, int threadId, int numObjectives
                 try {
-                    executeGramEv(properties, diagramData);
+                    executeGramEv(properties, diagramData, run);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -502,13 +505,15 @@ public class ExperimentController {
     }
 
     //  Run gramEv application
-    public void executeGramEv(Properties properties, DiagramData diagramData) throws IOException {
+    public void executeGramEv(Properties properties, DiagramData diagramData, Run run) throws IOException {
 
         int numObjectives = 1;
         if ((properties.getProperty(OBJECTIVES_PROP) != null)
                 && (Integer.valueOf(properties.getProperty(OBJECTIVES_PROP)) == 2)) {
             numObjectives = 2;
         }
+
+        run.setStatus(Run.Status.RUNNING);
 
         SymbolicRegressionGE ge = new SymbolicRegressionGE(properties,numObjectives);
 

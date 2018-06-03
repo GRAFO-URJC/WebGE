@@ -11,7 +11,6 @@
         <link th:href="@{/assets/dist/css/configExperiment.css}" rel="stylesheet" id="configExperiment-css" />
 
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
-        <!--<script src="/assets/dist/jQuery/jquery-3.3.1.min.js"></script>-->
 
         <!-- Without this, the bootsrap modals, collapses, etc won't work -->
         <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
@@ -417,11 +416,11 @@
                             <th:block th:each="run, iterStat : ${runList}">
                                 <tr>
                                     <form th:action="@{/user/experiment/runList}" th:object="${runObj}" method="GET" class="form-horizontal">
-                                        <input type="text" class="hiddenInput" th:name="runId" th:id="runId" th:value="${run.getId()}" />
-                                        <td scope="row"><label th:text="${run.getId()}" /></td>
+                                        <!--<input type="text" class="hiddenInput" th:name="runId" th:id="runId" th:value="${run.getId()}" />-->
+                                        <td scope="row"><label th:text="${run.getId()}" th:id="'runId'+${iterStat.index}" /></td>
                                         <td scope="row"><label th:name="runName" th:id="runName" th:text="${run.getRunName()}" /></td>
                                         <td scope="row"><label th:name="runDescription" th:id="runDescription" th:text="${run.getRunDescription()}" /></td>
-                                        <td scope="row"><label th:name="status" th:id="status" th:text="${run.getStatus()}" /></td>
+                                        <td scope="row"><label th:name="status" th:id="'status'+${iterStat.index}" th:text="${run.getStatus()}" /></td>
                                         <td scope="row"><label th:name="iniDate" th:id="iniDate" th:text="${run.getIniDate()}" /></td>
                                         <td scope="row"><label th:name="lastDate" th:id="lastDate" th:text="${run.getLastDate()}" /></td>
 
@@ -430,7 +429,7 @@
                                         </td>
                                         <td scope="row">
                                             <!-- https://stackoverflow.com/questions/14938344/thymeleaf-construct-url-with-variable -->
-                                            <a th:href="@{/user/experiment/runList(runId=${run.getId()}, runExperimentButton='runExperimentButton')}" target="_blank" class="btn-default loadButton">Run experiment</a>
+                                            <a th:href="@{/user/experiment/runList(runId=${run.getId()}, runExperimentButton='runExperimentButton')}" target="_blank" th:id="${iterStat.index}" onclick="showRunStatus(this.id)" class="btn-default loadButton">Run experiment</a>
                                         </td>
                                         <td scope="row">
                                             <a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse" class="accordion-toggle">More details <span class="glyphicon glyphicon-chevron-down"></span></a>
@@ -465,11 +464,6 @@
 
     </div>
 
-
-    <!-- Load CanvasJS libraries -->
-    <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
-    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
     <script>
         // Load the file in grammar text area
@@ -528,6 +522,35 @@
             if(document.getElementById('radioDataType').checked)
                 document.querySelector('#typeFile').required = false;
         }
+    </script>
+
+    <script>
+        function checkRunStatus(runId, status) {
+            $.ajax({
+                url: encodeURI("/user/rest/runStatus/" + runId.text()),
+                type: "GET",
+                dataType: "json",
+                success: function(data){
+                    var statusStr = data['status'];
+
+                    // alert("Status = " + status);
+                    // alert("StatusStr = " + statusStr);
+
+                    $(status).text(statusStr);
+                },
+                complete:function(data){
+                    checkRunStatus(runId, status);
+                }
+            });
+        }
+
+        function showRunStatus(iterStat) {
+            var runId = $("#runId"+iterStat);
+            var status ="#status"+iterStat;
+
+            setTimeout(checkRunStatus(runId ,status));
+        }
+
     </script>
 
     </body>

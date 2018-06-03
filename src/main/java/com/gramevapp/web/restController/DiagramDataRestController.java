@@ -1,11 +1,14 @@
 package com.gramevapp.web.restController;
 
 import com.gramevapp.web.model.DiagramData;
+import com.gramevapp.web.model.Run;
 import com.gramevapp.web.model.User;
+import com.gramevapp.web.other.BeanUtil;
 import com.gramevapp.web.service.DiagramDataService;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.*;
 
 @RestController("diagramDataRestController")
@@ -56,8 +59,9 @@ public class DiagramDataRestController {
 
         DiagramData diagramData = diagramDataService.getLastBestIndividual(longRunId);
 
-        if(diagramData.getFinished())
+        if(diagramData.getFinished()) {
             return null;
+        }
 
         return diagramData;
     }
