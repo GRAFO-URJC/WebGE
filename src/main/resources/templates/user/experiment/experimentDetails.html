@@ -170,7 +170,7 @@
             },
             data: [{
                 markerSize: 4,
-                color: "blue",
+                color: "OrangeRed",
                 type : "line",
                 // lineDashType : "dash",
                 dataPoints: dataPoints
@@ -220,7 +220,8 @@
                     chart.render();
                 },
                 complete:function(data){
-                    setTimeout(reloadPlotD3($("#runId").text()), 1000);
+                    if(data != null)
+                        setTimeout(reloadPlotD3($("#runId").text()), 1000);
                 }
             });
         }

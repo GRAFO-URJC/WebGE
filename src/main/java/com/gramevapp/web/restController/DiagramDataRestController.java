@@ -1,7 +1,6 @@
 package com.gramevapp.web.restController;
 
 import com.gramevapp.web.model.DiagramData;
-import com.gramevapp.web.model.Run;
 import com.gramevapp.web.model.User;
 import com.gramevapp.web.service.DiagramDataService;
 import com.gramevapp.web.service.RunService;
@@ -47,6 +46,7 @@ public class DiagramDataRestController {
             produces = "application/json")
     public @ResponseBody
     DiagramData getLastBestIndividual(@PathVariable("runId") String runId) {
+
         User user = userService.getLoggedInUser();
         if(user == null){
             System.out.println("User not authenticated");
@@ -55,6 +55,10 @@ public class DiagramDataRestController {
         Long longRunId = Long.parseLong(runId);
 
         DiagramData diagramData = diagramDataService.getLastBestIndividual(longRunId);
+
+        if(diagramData.getFinished())
+            return null;
+
         return diagramData;
     }
 }
