@@ -456,6 +456,10 @@ public class ExperimentController {
 
         model.addAttribute("expDetails", experimentDetailsDto);
 
+        if(run.getStatus().equals(Run.Status.RUNNING)){      // We don't execute it if it's RUNNING
+            return "/user/experiment/experimentDetails";
+        }
+
         runExperimentDetails(runId);
 
         return "/user/experiment/experimentDetails";
