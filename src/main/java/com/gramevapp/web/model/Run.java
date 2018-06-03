@@ -1,5 +1,7 @@
 package com.gramevapp.web.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Calendar;
 import java.util.Date;
@@ -8,7 +10,7 @@ import java.util.Date;
 @Table(name = "run")
 public class Run
 {
-    public enum Status { INITIALIZING, RUNNING, PAUSED, CANCELED, FINISHED, FAILED; };
+    public enum Status { INITIALIZING, RUNNING, PAUSED, CANCELED, TERMINATED, FAILED; };
 
     @Id
     @Column(name="RUN_ID", updatable= false)
@@ -24,6 +26,7 @@ public class Run
     @JoinColumn(name="EXPERIENT_ID", nullable = false)*/
     /*@ManyToOne(cascade=CascadeType.ALL)  // https://www.thoughts-on-java.org/hibernate-tips-map-bidirectional-many-one-association/
     @JoinColumn(name = "EXPERIMENT_ID")*/
+    @JsonIgnore
     @ManyToOne(cascade=CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
             name = "runs_list",
@@ -36,6 +39,7 @@ public class Run
     )
     private Experiment experimentId;
 
+    @JsonIgnore
     @OneToOne(cascade=CascadeType.ALL)
     @JoinColumn(name = "default_grammar")
     private DiagramData diagramData;
@@ -151,5 +155,13 @@ public class Run
 
     public void setIdProperties(Long idProperties) {
         this.idProperties = idProperties;
+    }
+
+    public DiagramData getDiagramData() {
+        return diagramData;
+    }
+
+    public void setDiagramData(DiagramData diagramData) {
+        this.diagramData = diagramData;
     }
 }
