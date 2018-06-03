@@ -14,13 +14,20 @@ public class DiagramData {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column
     private Double bestIndividual;
 
+    @Column
     private Long longRunId;
 
+    @Column
     private Long longUserId;
 
+    @Column
     private Integer currentGeneration;
+
+    @Column
+    private Boolean finished = false;
 
     Calendar calendar = Calendar.getInstance();
 
@@ -86,6 +93,14 @@ public class DiagramData {
 
     public void setCurrentGeneration(Integer currentGeneration) {
         this.currentGeneration = currentGeneration;
+    }
+
+    public Boolean getFinished() {
+        return finished;
+    }
+
+    public void setFinished(Boolean finished) {
+        this.finished = finished;
     }
 
     //@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")

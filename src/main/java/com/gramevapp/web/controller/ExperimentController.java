@@ -466,8 +466,7 @@ public class ExperimentController {
         Long longRunId = Long.parseLong(runId);
         Run run = runService.findByRunId(longRunId);
 
-        //ExpProperties prop = experimentService.findPropertiesByUserIdAndId(user, expUUID);
-         ExpProperties prop = experimentService.findPropertiesById(run.getIdProperties());
+        ExpProperties prop = experimentService.findPropertiesById(run.getIdProperties());
 
         String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + run.getExperimentId().getExperimentName().replaceAll("\\s+","") + "_" + prop.getUuidPropDto() + ".properties";
 
@@ -486,6 +485,7 @@ public class ExperimentController {
         // diagramData.setTime(currentTimestamp);
 
         // Run experiment in new thread
+
         new Thread() {
             public void run() {
                 // ExpPropertiesDto properties, int threadId, int numObjectives
@@ -513,6 +513,7 @@ public class ExperimentController {
         SymbolicRegressionGE ge = new SymbolicRegressionGE(properties,numObjectives);
 
         RunGeObserver observer = new RunGeObserver();
+        diagramData.setFinished(false);
         observer.setDiagramData(diagramData);
 
         ge.runGE(observer);
@@ -716,10 +717,9 @@ public class ExperimentController {
         return "/user/experiment/experimentDetails";
     }
 
-    @RequestMapping(value="/user/experiment/stopRunExperiment", method=RequestMethod.GET, params="stopRunExperimentButton")
-    public String stopRunExperiment(Model model,
-                                    @RequestParam(value = "runId") String id){
+    @PostMapping(value="/user/experiment/stopRunExperiment", params="stopRunExperimentButton")
+    public void stopRunExperiment(){
 
-        return "/user/experiment/stopRun";
+
     }
 }
