@@ -15,6 +15,7 @@ public class ExpPropertiesDto {
     private static final String WORK_DIR = "resources/files";
     private static final String CLASS_PATH_SEPARATOR = "\\;";
 
+    //private UUID id;
     private UUID id = UUID.randomUUID();
 
     private Long idExp;

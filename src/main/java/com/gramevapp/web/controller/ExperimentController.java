@@ -15,10 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import static com.engine.util.Common.OBJECTIVES_PROP;
 import static com.engine.util.Common.TRAINING_PATH_PROP;
@@ -225,7 +222,7 @@ public class ExperimentController {
         if (!dir.exists())
             dir.mkdirs();
 
-        String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + expDto.getExperimentName() + "_" + propertiesDto.getId() + ".properties";
+        String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + expDto.getExperimentName().replaceAll("\\s+","") + "_" + propertiesDto.getId() + ".properties";
 
         createPropertiesFile(propertiesFilePath, propertiesDto, expDto.getExperimentName(), currentTimestamp);  // Write in property file
         // END - Create ExpPropertiesDto file
@@ -270,7 +267,7 @@ public class ExperimentController {
             BufferedWriter writer = new BufferedWriter(fWriter);
 
             for(ExperimentRowType e : lExpRowType){
-                if(e.getYCustom()!=null)
+                if(e.getColumnList().get(0)!=null)
                     writer.append(e.toString());
             }
             writer.close();
@@ -297,9 +294,12 @@ public class ExperimentController {
         // TODO: no distinguir el tipo de fichero entre training, validation o test.
         properties.setProperty(TRAINING_PATH_PROP, dataFilePath);
 
-        ExpProperties expPropertiesEntity = createExpPropertiesEntity(properties, exp, run, propertiesDto, dataFilePath);
+        ExpProperties expPropertiesEntity = createExpPropertiesEntity(user, properties, exp, run, propertiesDto, dataFilePath);
+
+        experimentService.saveExpProperties(expPropertiesEntity);
 
         exp.setIdProperties(expPropertiesEntity.getId());
+        run.setIdProperties(expPropertiesEntity.getId());
 
         DiagramData diagramData = new DiagramData(run.getId(), user.getId());
         diagramData.setTime(currentTimestamp);
@@ -422,7 +422,7 @@ public class ExperimentController {
 
         Long longRunId = Long.parseLong(runId);
         Run run = runService.findByUserIdAndRunId(user, longRunId);
-        DiagramData diagramData = diagramDataService.findByLondRunId(longRunId);
+        DiagramData diagramData = diagramDataService.findByLongRunId(longRunId);
 
         ExperimentDetailsDto experimentDetailsDto = new ExperimentDetailsDto();
 
@@ -466,13 +466,10 @@ public class ExperimentController {
         Long longRunId = Long.parseLong(runId);
         Run run = runService.findByRunId(longRunId);
 
-        Experiment exp = run.getExperimentId();
+        //ExpProperties prop = experimentService.findPropertiesByUserIdAndId(user, expUUID);
+         ExpProperties prop = experimentService.findPropertiesById(run.getIdProperties());
 
-        System.out.println(exp.getIdProperties());
-
-        ExpProperties prop = experimentService.findPropertiesById(exp.getIdProperties());
-
-        String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + exp.getExperimentName() + "_" + prop.getId() + ".properties";
+        String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + run.getExperimentId().getExperimentName().replaceAll("\\s+","") + "_" + prop.getUuidPropDto() + ".properties";
 
         // Execute program with experiment info
         File propertiesFile = new File(propertiesFilePath);
@@ -484,7 +481,8 @@ public class ExperimentController {
         // TODO: no distinguir el tipo de fichero entre training, validation o test.
         properties.setProperty(TRAINING_PATH_PROP, prop.getTrainingPath());
 
-        DiagramData diagramData = new DiagramData(run.getId(), user.getId());
+        // DiagramData diagramData = new DiagramData(run.getId(), user.getId());
+        DiagramData diagramData = diagramDataService.findByLongRunId(longRunId);
         // diagramData.setTime(currentTimestamp);
 
         // Run experiment in new thread
@@ -566,8 +564,12 @@ public class ExperimentController {
         propertiesWriter.close();
     }
 
-    public ExpProperties createExpPropertiesEntity(Properties properties, Experiment experiment, Run run, ExpPropertiesDto propDto, String dataFilePath){
-        ExpProperties expProp = new ExpProperties(propDto.getId());
+    public ExpProperties createExpPropertiesEntity(User user, Properties properties, Experiment experiment, Run run, ExpPropertiesDto propDto, String dataFilePath){
+        ExpProperties expProp = new ExpProperties();
+
+        expProp.setUuidPropDto(propDto.getId().toString());
+
+        expProp.setUserId(user);
 
         expProp.setIdExp(experiment.getId());
         expProp.setIdRun(run.getId());
@@ -624,7 +626,7 @@ public class ExperimentController {
         if (!dir.exists())
             dir.mkdirs();
 
-        String grammarFilePath = GRAMMAR_DIR_PATH + user.getId() + File.separator + expDto.getExperimentName() + "_" + grammar.getId() + ".bnf";
+        String grammarFilePath = GRAMMAR_DIR_PATH + user.getId() + File.separator + expDto.getExperimentName().replaceAll("\\s+","") + "_" + grammar.getId() + ".bnf";
 
         File grammarNewFile = new File(grammarFilePath);
         if (!grammarNewFile.exists()) {

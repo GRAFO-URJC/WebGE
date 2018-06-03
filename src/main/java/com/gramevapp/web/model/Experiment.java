@@ -41,13 +41,13 @@ public class Experiment {
     private String experimentDescription;
 
     @Column
-    private UUID idProperties;
+    private Long idProperties;
 
     @JsonBackReference
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToMany(fetch=FetchType.LAZY,
             mappedBy = "experimentId")
-    private List<Grammar> idGrammarList = new ArrayList<>();
+    private List<Grammar> idGrammarList;
 
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToOne(cascade=CascadeType.ALL)
@@ -368,11 +368,11 @@ public class Experiment {
         this.defaultRunId = defaultRunId;
     }
 
-    public UUID getIdProperties() {
+    public Long getIdProperties() {
         return idProperties;
     }
 
-    public void setIdProperties(UUID idProperties) {
+    public void setIdProperties(Long idProperties) {
         this.idProperties = idProperties;
     }
 

@@ -123,8 +123,20 @@ public class ExperimentService {
         return experimentDataTypeRepository.findById(id);
     }
 
-    public ExpProperties findPropertiesById(UUID propertiesId){
+    public ExpProperties findPropertiesById(Long propertiesId){
         return propertiesRepository.findById(propertiesId);
+    }
+
+    public ExpProperties findPropertiesByUserIdAndId(User user, Long id){
+        return propertiesRepository.findByUserIdAndId(user, id);
+    }
+
+    public ExpProperties findPropertiesByExpIdAndRunId(Long expId, Long runId){
+        return propertiesRepository.findByIdExpAndIdRun(expId, runId);
+    }
+
+    public ExpProperties saveExpProperties(ExpProperties expProperties){
+        return propertiesRepository.save(expProperties);
     }
 
 }
