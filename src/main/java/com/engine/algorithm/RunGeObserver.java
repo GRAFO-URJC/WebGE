@@ -61,12 +61,6 @@ public class RunGeObserver implements Observer {
 
         dataDataService.saveDiagram(this.diagramData);
 
-        /*Thread t = new Thread(() -> {
-            DiagramDataRestController restController = (DiagramDataRestController) context.getBean("diagramDataRestController");
-            restController.getLastBestIndividual(diagramData.getBestIndividual().toString());
-        });
-        t.start();*/
-
         /*
         if (dataMap.get("BestObjective") != null) {
             currBest = Double.valueOf(dataMap.get("BestObjective").toString());

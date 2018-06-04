@@ -7,8 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
+import java.io.BufferedReader;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.UUID;
 
 // We use repositories ExperimentDataType, ExperimentRowType here too.
@@ -34,56 +37,38 @@ public class ExperimentService {
     // - This means read line by line the file, create a ExperimentRowType by line,
     // add the line in the list and upload the row in the DDBB
     public void loadExperimentRowTypeFile(Reader fileTypeReader, ExperimentDataType expDataType){
+        Scanner scanCsv = new Scanner(new BufferedReader(fileTypeReader));
 
-        /*try {
-            //csv file containing data
-            CSVReader reader = new CSVReader(fileTypeReader);
-            String [] nextLine;
-            int lineNumber = 0;
-            while ((nextLine = reader.readNext()) != null) {
-                lineNumber++;
-                System.out.println("Line # " + lineNumber);
+        ArrayList<String> columnList = new ArrayList<>();
 
-                // nextLine[] is an array of values from the line
-                System.out.println(nextLine[4] + "etc...");
-            }
-        } */
-
-        /* lo anterior hay q pensarlo
-                en la clase q vaya a tener el modelo de csv que tenga una lista con los atributos. De esta manera será dinamico
-                Mirar supercsv para ver si resolvemos el problema */
-
-
-        ColumnPositionMappingStrategy strategy = new ColumnPositionMappingStrategy();
-        strategy.setType(ExperimentRowType.class);
-        String[] fields = {"Y", "X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8", "X9", "X10"};
-        strategy.setColumnMapping(fields);
-
-        try {
-            CsvToBean csvToBean = new CsvToBeanBuilder(fileTypeReader)
-                    .withSeparator(';')
-                    .withMappingStrategy(strategy)
-                    .withType(ExperimentRowType.class)
-                    .withIgnoreLeadingWhiteSpace(true)
-                    .build();
-
-            List<ExperimentRowType> expRowsType = csvToBean.parse();
-
-            //expRowsType.forEach(System.out::println);
-
-            for (ExperimentRowType expRowType : expRowsType) {
-                ExperimentRowType expRow = expDataType.addExperimentRowType(expRowType);
-
-                experimentRowTypeRepository.save(expRow);
-
-                /*System.out.println("# Y Custom : " + expRowType.getYCustom());
-                System.out.println("X1 : " + expRowType.getX1());
-                System.out.println("---------------------------");*/
-            }
+        String line = scanCsv.nextLine();
+        String[] columns = line.split(";");
+        for(String column : columns) {
+            columnList.add(column);
         }
-        catch(Exception e){
-            e.printStackTrace();
+
+        expDataType.setHeader(columnList);
+
+        while(scanCsv.hasNext()){
+            String row = scanCsv.next();
+
+            ArrayList<String> rowColumnList = new ArrayList<>();
+
+            String[] rowColumns = row.split(";");
+            for(String rowColumn : rowColumns) {
+                rowColumnList.add(rowColumn);
+            }
+
+            ExperimentRowType expRowType = new ExperimentRowType();
+            expRowType.setExpDataTypeId(expDataType);
+            expRowType.setDataRow(rowColumnList);
+
+            expDataType.addExperimentRowType(expRowType);
+
+            experimentRowTypeRepository.save(expRowType);
         }
+        scanCsv.close();
+
     }
 
     public ExperimentDataType saveDataType(ExperimentDataType expDataType){

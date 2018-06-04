@@ -534,13 +534,11 @@
                     var statusStr = data['status'];
 
                     // alert("Status = " + status);
-                    // alert("StatusStr = " + statusStr);
+                    alert("StatusStr = " + statusStr);
 
                     $(status).text(statusStr);
                 },
-                complete:function(data){
-                    checkRunStatus(runId, status);
-                }
+                timeout: 3000
             });
         }
 
@@ -548,7 +546,7 @@
             var runId = $("#runId"+iterStat);
             var status ="#status"+iterStat;
 
-            setTimeout(checkRunStatus(runId ,status));
+            checkRunStatus(runId ,status);
         }
 
     </script>
