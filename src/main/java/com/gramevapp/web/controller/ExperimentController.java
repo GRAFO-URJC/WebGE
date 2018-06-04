@@ -267,9 +267,10 @@ public class ExperimentController {
             FileWriter fWriter = new FileWriter(tmpFile, false);    // true = append; false = overwrite
             BufferedWriter writer = new BufferedWriter(fWriter);
 
+            writer.append(expDataTypeSelected.headerToString());
+
             for(ExperimentRowType e : lExpRowType){
-                if(e.getColumnList().get(0)!=null)
-                    writer.append(e.toString());
+                writer.append(e.toString());
             }
             writer.close();
 

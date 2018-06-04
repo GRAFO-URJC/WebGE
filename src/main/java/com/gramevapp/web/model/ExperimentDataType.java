@@ -6,6 +6,7 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 // idData - userId - idExperimentRowType - name - description - updateDate - type (Validation, Test or Training)
@@ -55,6 +56,9 @@ public class ExperimentDataType {
     @Temporal(TemporalType.TIMESTAMP)
     private Date modificationDate = null;
 
+    @ElementCollection
+    private List<String> header;
+
     // https://www.thoughts-on-java.org/hibernate-tips-map-bidirectional-many-one-association/
     @OneToMany(mappedBy ="expDataTypeId", cascade= CascadeType.ALL)
     private List<ExperimentRowType> listRowsFile;
@@ -75,7 +79,7 @@ public class ExperimentDataType {
         experimentId = new Experiment();
     }
 
-    public ExperimentDataType(User userId, String dataTypeName, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, List<ExperimentRowType> listRowsFile) {
+    public ExperimentDataType(User userId, String dataTypeName, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, ArrayList<ExperimentRowType> listRowsFile) {
         this.userId = userId;
         this.dataTypeName = dataTypeName;
         this.dataTypeDescription = dataTypeDescription;
@@ -84,6 +88,14 @@ public class ExperimentDataType {
         this.modificationDate = modificationDate;
         this.listRowsFile = listRowsFile;
         experimentId = new Experiment();
+    }
+
+    public List<String> getHeader() {
+        return header;
+    }
+
+    public void setHeader(ArrayList<String> header) {
+        this.header = header;
     }
 
     public Experiment getExperimentId() {
@@ -102,7 +114,7 @@ public class ExperimentDataType {
         return listRowsFile;
     }
 
-    public void setListRowsFile(List<ExperimentRowType> listRowsFile) {
+    public void setListRowsFile(ArrayList<ExperimentRowType> listRowsFile) {
         this.listRowsFile = listRowsFile;
     }
 
@@ -162,5 +174,21 @@ public class ExperimentDataType {
         this.listRowsFile.add(exp);
         exp.setExpDataTypeId(this);
         return exp;
+    }
+
+    public String headerToString() {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        Iterator<String> it = this.header.iterator();
+
+        while(it.hasNext()){
+            String column = it.next();
+            if(!it.hasNext())
+                stringBuilder.append(column + "\n");
+            else
+                stringBuilder.append(column + ";");
+        }
+
+        return stringBuilder.toString();
     }
 }

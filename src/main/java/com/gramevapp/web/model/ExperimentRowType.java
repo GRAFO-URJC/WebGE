@@ -1,6 +1,8 @@
 package com.gramevapp.web.model;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 // idRow - idData - txtFile(one row of the ExperimentDataType file)
@@ -21,21 +23,31 @@ public class ExperimentRowType {
     @PrimaryKeyJoinColumn
     private ExperimentDataType expDataTypeId;
 
-    @ElementCollection
+    private ArrayList<String> dataRow;
+
+    /*@ElementCollection
     @CollectionTable(name="COLUMN_LIST", joinColumns=@JoinColumn(name="EXPERIMENTROWTYPE_ID"))
     @Column(name = "COLUMNS")
-    private List<String> columnList;
+    private List<String> columnList;*/
 
     public ExperimentRowType() {
     }
 
-    public List<String> getColumnList() {
+    public ArrayList<String> getDataRow() {
+        return dataRow;
+    }
+
+    public void setDataRow(ArrayList<String> dataRow) {
+        this.dataRow = dataRow;
+    }
+
+/*public List<String> getColumnList() {
         return columnList;
     }
 
     public void setColumnList(List<String> columnList) {
         this.columnList = columnList;
-    }
+    }*/
 
 /*public List<Attributes> getColumnList() {
         return columnList;
@@ -62,10 +74,22 @@ public class ExperimentRowType {
     }
 
 
-    /*@Override
+    @Override
     public String toString() {
-        return  y + ";" + x1 + ";" + x2 + ";" + x3 + ";" + x4 + ";" + x5 + ";" + x6 + ";" + x7 + ";" + x8 + ";" + x9 + ";" + x10 + "\n";
-    }*/
+        StringBuilder stringBuilder = new StringBuilder();
+
+        Iterator<String> it = this.dataRow.iterator();
+
+        while(it.hasNext()){
+            String column = it.next();
+            if(!it.hasNext())
+                stringBuilder.append(column + "\n");
+            else
+                stringBuilder.append(column + ";");
+        }
+
+        return stringBuilder.toString();
+    }
 
     public class Attributes{
         private String value;
