@@ -30,7 +30,7 @@ public class RunRestController {
         run.setCurrentGeneration(run.getDiagramData().getCurrentGeneration());
         run.setBestIndividual(run.getDiagramData().getBestIndividual());
 
-        if(run.getDiagramData().getFinished()){
+        if(run.getDiagramData().getFinished() ){
             run.setStatus(Run.Status.TERMINATED);
         }
 

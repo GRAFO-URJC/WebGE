@@ -550,7 +550,8 @@
                     var currentGeneration = "#currentGeneration"+iterStat;
                     var bestIndividual = "#bestIndividual"+iterStat;
 
-                    setTimeout(checkRunStatus(runId ,status, bestIndividual, currentGeneration, iterStat), 3000);
+                    if($(status).text() != "TERMINATED")
+                        setTimeout(checkRunStatus(runId ,status, bestIndividual, currentGeneration, iterStat), 3000);
                 }
             });
         }
