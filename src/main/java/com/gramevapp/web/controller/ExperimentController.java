@@ -303,8 +303,10 @@ public class ExperimentController {
         exp.setIdProperties(expPropertiesEntity.getId());
         run.setIdProperties(expPropertiesEntity.getId());
 
-        DiagramData diagramData = new DiagramData(run.getId(), user.getId());
+        DiagramData diagramData = new DiagramData(run, user.getId());
         diagramData.setTime(currentTimestamp);
+
+        diagramDataService.saveDiagram(diagramData);
 
         run.setDiagramData(diagramData);
 
@@ -426,7 +428,7 @@ public class ExperimentController {
 
         Long longRunId = Long.parseLong(runId);
         Run run = runService.findByUserIdAndRunId(user, longRunId);
-        DiagramData diagramData = diagramDataService.findByLongRunId(longRunId);
+        DiagramData diagramData = diagramDataService.findByRunId(run);
 
         ExperimentDetailsDto experimentDetailsDto = new ExperimentDetailsDto();
 
@@ -488,12 +490,9 @@ public class ExperimentController {
         // TODO: no distinguir el tipo de fichero entre training, validation o test.
         properties.setProperty(TRAINING_PATH_PROP, prop.getTrainingPath());
 
-        // DiagramData diagramData = new DiagramData(run.getId(), user.getId());
-        DiagramData diagramData = diagramDataService.findByLongRunId(longRunId);
-        // diagramData.setTime(currentTimestamp);
+        DiagramData diagramData = diagramDataService.findByRunId(run);
 
         // Run experiment in new thread
-
         new Thread() {
             public void run() {
                 // ExpPropertiesDto properties, int threadId, int numObjectives
@@ -519,6 +518,8 @@ public class ExperimentController {
         }
 
         run.setStatus(Run.Status.RUNNING);
+        run.setBestIndividual(diagramData.getBestIndividual());
+        run.setCurrentGeneration(diagramData.getCurrentGeneration());
 
         SymbolicRegressionGE ge = new SymbolicRegressionGE(properties,numObjectives);
 

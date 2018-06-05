@@ -15,16 +15,16 @@ public class DiagramData {
     private Long id;
 
     @Column
-    private Double bestIndividual;
+    private Double bestIndividual = 0.0;  // Best solution
 
-    @Column
-    private Long longRunId;
+    @OneToOne
+    private Run runId;
 
     @Column
     private Long longUserId;
 
     @Column
-    private Integer currentGeneration;
+    private Integer currentGeneration = 0;
 
     @Column
     private Boolean finished = false;
@@ -43,14 +43,14 @@ public class DiagramData {
         this.bestIndividual = bestIndividual;
     }
 
-    public DiagramData(Long longRunId, Long longUserId) {
-        this.longRunId = longRunId;
+    public DiagramData(Run runId, Long longUserId) {
+        this.runId = runId;
         this.longUserId = longUserId;
     }
 
-    public DiagramData(Integer currentGeneration, Double bestIndividual, Long longRunId, Long longUserId) {
+    public DiagramData(Integer currentGeneration, Double bestIndividual, Run runId, Long longUserId) {
         this.bestIndividual = bestIndividual;
-        this.longRunId = longRunId;
+        this.runId = runId;
         this.longUserId = longUserId;
         this.currentGeneration = currentGeneration;
     }
@@ -71,12 +71,12 @@ public class DiagramData {
         this.bestIndividual = bestIndividual;
     }
 
-    public Long getLongRunId() {
-        return longRunId;
+    public Run getRunId() {
+        return runId;
     }
 
-    public void setLongRunId(Long longRunId) {
-        this.longRunId = longRunId;
+    public void setRunId(Run runId) {
+        this.runId = runId;
     }
 
     public Long getLongUserId() {

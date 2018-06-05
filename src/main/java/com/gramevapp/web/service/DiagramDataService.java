@@ -16,12 +16,12 @@ public class DiagramDataService {
         diagramRepository.save(diagramData);
     }
 
-    public DiagramData getLastBestIndividual(Long longRunId){
+    public DiagramData getLastBestIndividual(Run runId){
         // Long longRunId = runId.getId();
-        return diagramRepository.findByLongRunId(longRunId);
+        return diagramRepository.findByRunId(runId);
     }
 
-    public DiagramData findByLongRunId(Long longRunId){
-        return diagramRepository.findByLongRunId(longRunId);
+    public DiagramData findByRunId(Run runId){
+        return diagramRepository.findByRunId(runId);
     }
 }

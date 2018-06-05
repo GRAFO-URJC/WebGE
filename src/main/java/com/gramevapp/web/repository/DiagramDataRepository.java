@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DiagramDataRepository extends JpaRepository<DiagramData, Long> {
     DiagramData findById(Long id);
-    DiagramData findByLongRunId(Long longRunId);
+    DiagramData findByRunId(Run runId);
 }
