@@ -27,6 +27,8 @@ public class RunRestController {
             System.out.println("User not authenticated");
 
         Run run = runService.findByRunId(Long.parseLong(runId));
+        run.setCurrentGeneration(run.getDiagramData().getCurrentGeneration());
+        run.setBestIndividual(run.getDiagramData().getBestIndividual());
 
         if(run.getDiagramData().getFinished()){
             run.setStatus(Run.Status.TERMINATED);

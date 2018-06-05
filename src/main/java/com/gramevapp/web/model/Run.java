@@ -20,12 +20,6 @@ public class Run
     @OneToOne(cascade=CascadeType.ALL)
     private User userId;
 
-    //@JoinColumn(name = "EXPERIMENT_ID", unique = true)
-    //@OneToOne(cascade=CascadeType.ALL)
-    /*@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="EXPERIENT_ID", nullable = false)*/
-    /*@ManyToOne(cascade=CascadeType.ALL)  // https://www.thoughts-on-java.org/hibernate-tips-map-bidirectional-many-one-association/
-    @JoinColumn(name = "EXPERIMENT_ID")*/
     @JsonIgnore
     @ManyToOne(cascade=CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
@@ -39,10 +33,16 @@ public class Run
     )
     private Experiment experimentId;
 
+    @OneToOne
     @JsonIgnore
-    @OneToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name = "default_grammar")
+    @JoinColumn(name = "DIAGRAM_DATA", referencedColumnName = "DIAGRAM_DATA_ID")
     private DiagramData diagramData;
+
+    @Column
+    private Double bestIndividual = 0.0;  // Best solution
+
+    @Column
+    private Integer currentGeneration = 0;
 
     @Column
     private Long idProperties;
@@ -163,5 +163,21 @@ public class Run
 
     public void setDiagramData(DiagramData diagramData) {
         this.diagramData = diagramData;
+    }
+
+    public Double getBestIndividual() {
+        return bestIndividual;
+    }
+
+    public void setBestIndividual(Double bestIndividual) {
+        this.bestIndividual = bestIndividual;
+    }
+
+    public Integer getCurrentGeneration() {
+        return currentGeneration;
+    }
+
+    public void setCurrentGeneration(Integer currentGeneration) {
+        this.currentGeneration = currentGeneration;
     }
 }

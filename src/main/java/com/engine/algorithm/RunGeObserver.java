@@ -1,6 +1,7 @@
 package com.engine.algorithm;
 
 import com.gramevapp.web.model.DiagramData;
+import com.gramevapp.web.model.Run;
 import com.gramevapp.web.other.BeanUtil;
 import com.gramevapp.web.service.DiagramDataService;
 import org.springframework.context.ApplicationContext;

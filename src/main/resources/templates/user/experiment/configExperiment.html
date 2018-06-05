@@ -376,7 +376,7 @@
                                     <button type="submit" id="cloneExperimentButton" name="cloneExperimentButton" class="btn-primary btn-lg">Clone experiment</button>
                                 </div>
                                 <div class="col-sm-4 col-md-4 col-lg-4">
-                                    <button type="submit" id="runExperimentButton" name="runExperimentButton" class="btn-primary btn-lg" onclick="runExperiment()">Run experiment</button>
+                                    <button type="submit" id="runExperimentButton" name="runExperimentButton" class="btn-primary btn-lg">Run experiment</button>
                                 </div>
                             </div>
                             <!-- END Save Clone and Run -->
@@ -404,7 +404,8 @@
                             <tr>
                                 <th scope="col"># Run</th>
                                 <th scope="col">Experiment name</th>
-                                <th scope="col">Experiment description</th>
+                                <th scope="col">Best solution</th>
+                                <th scope="col">Current generation</th>
                                 <th scope="col">Status</th>
                                 <th scope="col">Creation date</th>
                                 <th scope="col">Last modification date</th>
@@ -419,7 +420,8 @@
                                         <!--<input type="text" class="hiddenInput" th:name="runId" th:id="runId" th:value="${run.getId()}" />-->
                                         <td scope="row"><label th:text="${run.getId()}" th:id="'runId'+${iterStat.index}" /></td>
                                         <td scope="row"><label th:name="runName" th:id="runName" th:text="${run.getRunName()}" /></td>
-                                        <td scope="row"><label th:name="runDescription" th:id="runDescription" th:text="${run.getRunDescription()}" /></td>
+                                        <td scope="row"><label th:name="bestIndividual" th:id="'bestIndividual'+${iterStat.index}" th:text="${run.getDiagramData().bestIndividual}" /></td>
+                                        <td scope="row"><label th:name="currentGeneration" th:id="'currentGeneration'+${iterStat.index}" th:text="${run.getDiagramData().currentGeneration}" /></td>
                                         <td scope="row"><label th:name="status" th:id="'status'+${iterStat.index}" th:text="${run.getStatus()}" /></td>
                                         <td scope="row"><label th:name="iniDate" th:id="iniDate" th:text="${run.getIniDate()}" /></td>
                                         <td scope="row"><label th:name="lastDate" th:id="lastDate" th:text="${run.getLastDate()}" /></td>
@@ -429,7 +431,7 @@
                                         </td>
                                         <td scope="row">
                                             <!-- https://stackoverflow.com/questions/14938344/thymeleaf-construct-url-with-variable -->
-                                            <a th:href="@{/user/experiment/runList(runId=${run.getId()}, runExperimentButton='runExperimentButton')}" target="_blank" th:id="${iterStat.index}" onclick="showRunStatus(this.id)" class="btn-default loadButton">Run experiment</a>
+                                            <a th:href="@{/user/experiment/runList(runId=${run.getId()}, runExperimentButton='runExperimentButton')}" target="_blank" th:id="${iterStat.index}" onclick="showRunStatus(this.id)" class="btn-default loadButton">Plot execution</a>
                                         </td>
                                         <td scope="row">
                                             <a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse" class="accordion-toggle">More details <span class="glyphicon glyphicon-chevron-down"></span></a>
@@ -525,28 +527,41 @@
     </script>
 
     <script>
-        function checkRunStatus(runId, status) {
+        function checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat) {
             $.ajax({
                 url: encodeURI("/user/rest/runStatus/" + runId.text()),
+                timeout: 3000,
+                cache: false,
+                async:true,
                 type: "GET",
                 dataType: "json",
                 success: function(data){
                     var statusStr = data['status'];
-
-                    // alert("Status = " + status);
-                    alert("StatusStr = " + statusStr);
+                    var bestIndividualStr = data['bestIndividual'];
+                    var currentGenerationStr = data['currentGeneration'];
 
                     $(status).text(statusStr);
+                    $(bestIndividual).text(bestIndividualStr);
+                    $(currentGeneration).text(currentGenerationStr);
                 },
-                timeout: 3000
+                complete:function(data){
+                    var runId = $("#runId"+iterStat);
+                    var status = "#status"+iterStat;
+                    var currentGeneration = "#currentGeneration"+iterStat;
+                    var bestIndividual = "#bestIndividual"+iterStat;
+
+                    setTimeout(checkRunStatus(runId ,status, bestIndividual, currentGeneration, iterStat), 3000);
+                }
             });
         }
 
         function showRunStatus(iterStat) {
             var runId = $("#runId"+iterStat);
-            var status ="#status"+iterStat;
+            var status = "#status"+iterStat;
+            var currentGeneration = "#currentGeneration"+iterStat;
+            var bestIndividual = "#bestIndividual"+iterStat;
 
-            checkRunStatus(runId ,status);
+            checkRunStatus(runId ,status, bestIndividual, currentGeneration, iterStat);
         }
 
     </script>

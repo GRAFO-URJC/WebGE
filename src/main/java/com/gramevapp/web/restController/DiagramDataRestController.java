@@ -56,8 +56,9 @@ public class DiagramDataRestController {
         }
 
         Long longRunId = Long.parseLong(runId);
+        Run run = runService.findByRunId(longRunId);
 
-        DiagramData diagramData = diagramDataService.getLastBestIndividual(longRunId);
+        DiagramData diagramData = diagramDataService.getLastBestIndividual(run);
 
         if(diagramData.getFinished()) {
             return null;
