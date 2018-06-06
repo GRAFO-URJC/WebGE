@@ -39,25 +39,15 @@
 
                 <div class="collapse navbar-collapse header-collapse">
                     <ul sec:authorize="isAuthenticated()" class="nav navbar-nav">
-                        <li><a th:href="@{/}">Home</a></li>
-                        <li><a th:href="@{/user/experiment/experimentRepository}">Experiments</a></li>
-                        <li><a th:href="@{/user/profile}">Profile</a></li>
-
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Submenu<span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="#">Option One</a></li>
-                                <li><a href="#">Option Two</a></li>
-                                <li><a href="#">Option Three</a></li>
-                                <li><a href="#">Option Four</a></li>
-                            </ul>
-                        </li>
+                        <li><a th:href="@{/}"><span class="glyphicon glyphicon-home" rel="tooltip" title="Home page"></span></a></li>
+                        <li><a th:href="@{/user/experiment/configExperiment}" rel="tooltip" title="New experiment"><span class="glyphicon glyphicon glyphicon-plus-sign"></span></a></li>
+                        <li><a th:href="@{/user/experiment/experimentRepository}" rel="tooltip" title="List of experiments"><span class="glyphicon glyphicon-th-list"></span></a></li>
+                        <li><a th:href="@{/user/profile}" rel="tooltip" title="User profile"><span class="glyphicon glyphicon-user"></span></a></li>
                     </ul>
 
-                    <p sec:authorize="isAuthenticated()" class="navbar-text navbar-right btn btn-default"><a  th:href="@{/logout}">Logout</a></p>
-                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-default"><a th:href="@{/registration}">Registration</a></p>
-                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-default"><a th:href="@{/user}">Login</a></p>
-
+                    <p sec:authorize="isAuthenticated()" class="navbar-text navbar-right btn-sm btn btn-default"><a  th:href="@{/logout}" rel="tooltip" title="Log out"><span class="glyphicon glyphicon-off"></span></a></p>
+                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn-sm btn btn-default"><a th:href="@{/registration}" rel="tooltip" title="Register"><span class="glyphicon glyphicon-list-alt"></span></a></p>
+                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn-sm btn btn-default"><a th:href="@{/user}"><span class="glyphicon glyphicon-log-in" rel="tooltip" title="Log in"></span></a></p>
                 </div>
             </div>
         </header>
@@ -257,7 +247,7 @@
 
                                 <div class="row form-group text-center">
                                     <div class="col-sm-12 col-md-12 col-lg-12">
-                                        <a name="downloadGrammarButton" id="downloadGrammarButton" class="btn-default btn-sm">Download grammar</a>
+                                        <a name="downloadGrammarButton" id="downloadGrammarButton" class="btn-default btn-sm btn">Download grammar</a>
                                     </div>
                                 </div>
                             </div>
@@ -329,6 +319,7 @@
                                 <input class="hiddenRadio" type="radio" th:name="radioDataType" th:id="radioDataTypeHidden" checked="checked" />
                                 <div th:if="${not #lists.isEmpty(dataTypeList)}">
                                     <h2>Data type files</h2>
+
                                     <table class="table table-hover" id="expTypeTable">
                                         <thead>
                                         <tr>
@@ -341,7 +332,7 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <tr id="" th:each="dataType, iterStat : ${dataTypeList}">     <!-- We are using model Experiment and not ExperimentDto -->
+                                        <tr th:each="dataType, iterStat : ${dataTypeList}">     <!-- We are using model Experiment and not ExperimentDto -->
                                             <td scope="row"><input type="radio" th:id="radioDataType" th:name="radioDataType" th:value="${dataType.getId()}" onclick="check()"/></td>
                                             <td scope="row"><label th:text="${dataType.getId()}" th:id="'expDataTypeIdList'+${iterStat.count}" th:name="expDataTypeIdList" /></td>
                                             <td scope="row"><label th:text="${dataType.getDataTypeName()}" th:name="expDataTypeNameList" th:id="expDataTypeNameList" /></td>
@@ -357,7 +348,7 @@
 
                                 <div class="row form-group text-center">
                                     <div class="col-sm-12 col-md-12 col-lg-12">
-                                        <a name="downloadTypeButton" id="downloadTypeButton" class="btn-default btn-sm">Download data type file</a>
+                                        <a name="downloadTypeButton" id="downloadTypeButton" class="btn-default btn-sm btn">Download data type file</a>
                                     </div>
                                 </div>
                             </div>
@@ -370,13 +361,13 @@
                             <!--  Save Clone and Run -->
                             <div class="row text-center">
                                 <div class="col-sm-4 col-md-4 col-lg-4">
-                                    <button type="submit" id="saveExperimentButton" name="saveExperimentButton" class="btn-primary btn-lg">Save experiment</button>
+                                    <button type="submit" id="saveExperimentButton" name="saveExperimentButton" class="btn-primary btn-lg btn">Save experiment</button>
                                 </div>
                                 <div class="col-sm-4 col-md-4 col-lg-4">
-                                    <button type="submit" id="cloneExperimentButton" name="cloneExperimentButton" class="btn-primary btn-lg">Clone experiment</button>
+                                    <button type="submit" id="cloneExperimentButton" name="cloneExperimentButton" class="btn-primary btn-lg btn">Clone experiment</button>
                                 </div>
                                 <div class="col-sm-4 col-md-4 col-lg-4">
-                                    <button type="submit" id="runExperimentButton" name="runExperimentButton" class="btn-primary btn-lg">Run experiment</button>
+                                    <button type="submit" id="runExperimentButton" name="runExperimentButton" class="btn-primary btn-lg btn">Run experiment</button>
                                 </div>
                             </div>
                             <!-- END Save Clone and Run -->
@@ -400,6 +391,10 @@
                     <div>
                         <h2>List of runs</h2>
                         <table class="table table-hover" id="expTypeTable">
+
+                            <input class="form-control" id="searchExperiment" type="text" placeholder="Search experiment ..." />
+                            <br/>
+
                             <thead>
                             <tr>
                                 <th scope="col"># Run</th>
@@ -411,7 +406,7 @@
                                 <th scope="col">Last modification date</th>
                             </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="runTable">
 
                             <input type="text" class="hiddenInput" th:name="defaultRunId" th:id="defaultRunId" th:value="${configuration.getDefaultRunId()}" />
                             <th:block th:each="run, iterStat : ${runList}">
@@ -427,11 +422,11 @@
                                         <td scope="row"><label th:name="lastDate" th:id="lastDate" th:text="${run.getLastDate()}" /></td>
 
                                         <td scope="row">
-                                            <button type="submit" id="loadExperimentButton" name="loadExperimentButton" class="btn-default loadButton">Load experiment</button>
+                                            <button type="submit" id="loadExperimentButton" name="loadExperimentButton" class="btn-default btn-sm btn loadButton">Load experiment</button>
                                         </td>
                                         <td scope="row">
                                             <!-- https://stackoverflow.com/questions/14938344/thymeleaf-construct-url-with-variable -->
-                                            <a th:href="@{/user/experiment/runList(runId=${run.getId()}, runExperimentButton='runExperimentButton')}" target="_blank" th:id="${iterStat.index}" onclick="showRunStatus(this.id)" class="btn-default loadButton">Plot execution</a>
+                                            <a th:href="@{/user/experiment/runList(runId=${run.getId()}, runExperimentButton='runExperimentButton')}" target="_blank" th:id="${iterStat.index}" onclick="showRunStatus(this.id)" class="btn-default btn-sm btn loadButton">Plot execution</a>
                                         </td>
                                         <td scope="row">
                                             <a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse" class="accordion-toggle">More details <span class="glyphicon glyphicon-chevron-down"></span></a>
@@ -564,6 +559,20 @@
 
             checkRunStatus(runId ,status, bestIndividual, currentGeneration, iterStat);
         }
+
+    </script>
+
+    <script>
+        $(document).ready(function(){
+            $("[rel=tooltip]").tooltip({ placement: 'right'});
+
+            $("#searchExperiment").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $("#runTable tr").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
 
     </script>
 

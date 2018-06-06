@@ -31,25 +31,15 @@
 
                 <div class="collapse navbar-collapse header-collapse">
                     <ul sec:authorize="isAuthenticated()" class="nav navbar-nav">
-                        <li><a th:href="@{/}">Home</a></li>
-                        <li><a th:href="@{/user/experiment/experimentRepository}">Experiments</a></li>
-                        <li><a th:href="@{/user/profile}">Profile</a></li>
-
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Submenu<span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="#">Option One</a></li>
-                                <li><a href="#">Option Two</a></li>
-                                <li><a href="#">Option Three</a></li>
-                                <li><a href="#">Option Four</a></li>
-                            </ul>
-                        </li>
+                        <li><a th:href="@{/}"><span class="glyphicon glyphicon-home" rel="tooltip" title="Home page"></span></a></li>
+                        <li><a th:href="@{/user/experiment/configExperiment}" rel="tooltip" title="New experiment"><span class="glyphicon glyphicon glyphicon-plus-sign"></span></a></li>
+                        <li><a th:href="@{/user/experiment/experimentRepository}" rel="tooltip" title="List of experiments"><span class="glyphicon glyphicon-th-list"></span></a></li>
+                        <li><a th:href="@{/user/profile}" rel="tooltip" title="User profile"><span class="glyphicon glyphicon-user"></span></a></li>
                     </ul>
 
-                    <p sec:authorize="isAuthenticated()" class="navbar-text navbar-right btn btn-default"><a  th:href="@{/logout}">Logout</a></p>
-                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-default"><a th:href="@{/registration}">Registration</a></p>
-                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-default"><a th:href="@{/user}">Login</a></p>
-
+                    <p sec:authorize="isAuthenticated()" class="navbar-text navbar-right btn-sm btn btn-default"><a  th:href="@{/logout}" rel="tooltip" title="Log out"><span class="glyphicon glyphicon-off"></span></a></p>
+                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-sm btn-default"><a th:href="@{/registration}" rel="tooltip" title="Register"><span class="glyphicon glyphicon-list-alt"></span></a></p>
+                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-sm btn-default"><a th:href="@{/user}"><span class="glyphicon glyphicon-log-in" rel="tooltip" title="Log in"></span></a></p>
                 </div>
             </div>
         </header>
@@ -65,6 +55,8 @@
 
                     <section class="panel-body center-block">
                         <div th:if="${not #lists.isEmpty(experimentList)}">
+                            <input class="form-control" id="searchExperiment" type="text" placeholder="Search experiment ..." />
+                            <br/>
                             <table class="table table-hover" id="expRepository">
                                 <thead>
                                     <tr>
@@ -74,7 +66,7 @@
                                         <th scope="col">Creation date</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="expTable">
                                     <th:block th:each="exp, iterStat : ${experimentList}">
                                         <tr>
                                             <form th:action="@{/user/experiment/expRepoSelected}" th:object="${expRepository}" method="POST">
@@ -84,7 +76,7 @@
                                                 <td scope="row"><label th:name="description" th:id="description" th:text="${exp.experimentDescription}" id="description" /></td>
                                                 <td scope="row"><label th:name="creationDate" th:id="creationDate" th:text="${exp.getCreationDate()}" id="creationDate" /></td>
                                                 <td scope="row">
-                                                    <button type="submit" id="loadExperiment" name="loadExperiment" class="btn-default">Load experiment</button>
+                                                    <button type="submit" id="loadExperiment" name="loadExperiment" class="btn-default btn btn-sm">Load experiment</button>
                                                 </td>
                                                 <td scope="row"><a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse" class="accordion-toggle">More details <span class="glyphicon glyphicon-chevron-down"></span> </a></td>
                                             </form>
@@ -148,6 +140,23 @@
         <script>
             $("#expTypeTable tr").attr({"id" : "selected"}).siblings().removeAttr('id');
             $("#moreDetails").attr("")
+        </script>
+
+        <script>
+            $(document).ready(function(){
+                $("[rel=tooltip]").tooltip({ placement: 'right'});
+            });
+        </script>
+
+        <script>
+            $(document).ready(function(){
+                $("#searchExperiment").on("keyup", function() {
+                    var value = $(this).val().toLowerCase();
+                    $("#expTable tr").filter(function() {
+                        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                    });
+                });
+            });
         </script>
 
     </body>
