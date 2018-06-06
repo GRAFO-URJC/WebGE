@@ -89,13 +89,13 @@
                         <div class="col-sm-6 col-md-6 col-lg-6" >
                             <h4>
                                 <label>Experiment name: </label>
-                                <label th:text="${expDetails.getExperimentName()}" />
+                                <label th:id="experimentName" th:text="${expDetails.getExperimentName()}" />
                             </h4>
                         </div>
                         <div class="col-sm-6 col-md-6 col-lg-6" >
                             <h4>
                                 <label>Experiment description: </label>
-                                <label th:text="${expDetails.getExperimentDescription()}" />
+                                <label th:id="experimentDescription" th:text="${expDetails.getExperimentDescription()}" />
                             </h4>
                         </div>
                     </div>
@@ -109,10 +109,25 @@
                         <div class="col-sm-6 col-md-6 col-lg-6" >
                             <h4>
                                 <label>Run status: </label>
-                                <label th:text="${expDetails.getStatus()}" />
+                                <label th:id="status" th:text="${expDetails.getStatus()}" />
                             </h4>
                         </div>
                     </div>
+                    <div class="row form-group text-center">
+                        <div class="col-sm-6 col-md-6 col-lg-6">
+                            <h4>
+                                <label>Best individual: </label>
+                                <label th:id="bestIndividual" th:text="${expDetails.getBestIndividual()}" />
+                            </h4>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-6" >
+                            <h4>
+                                <label>Current generation: </label>
+                                <label th:id="currentGeneration" th:text="${expDetails.getCurrentGeneration()}" />
+                            </h4>
+                        </div>
+                    </div>
+
                     <!-- END - Experiment-Run details -->
 
                     <div class="col-sm-12 col-md-12 col-lg-12">
@@ -220,8 +235,10 @@
                     chart.render();
                 },
                 complete:function(data){
-                    if(data != null)
+                    if(data != null) {
                         setTimeout(reloadPlotD3($("#runId").text()), 1000);
+                        setTimeout(checkRunStatus($("#runId").text()), 1000);
+                    }
                 }
             });
         }
@@ -233,6 +250,26 @@
         $(document).ready(function() {
             initializeD3();
         });
+    </script>
+
+    <script>
+        function checkRunStatus(runId) {
+            $.ajax({
+                url: encodeURI("/user/rest/runStatus/" + runId),
+                cache: false,
+                async:true,
+                type: "GET",
+                dataType: "json",
+                success: function(data){
+                    var bestIndividualStr = data['bestIndividual'];
+                    var currentGenerationStr = data['currentGeneration'];
+
+                    $("#bestIndividual").text(bestIndividualStr);
+                    $("#currentGeneration").text(currentGenerationStr);
+                }
+            });
+        };
+
     </script>
 
     </body>

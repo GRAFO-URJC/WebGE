@@ -10,7 +10,7 @@ import java.util.Date;
 @Table(name = "run")
 public class Run
 {
-    public enum Status { INITIALIZING, RUNNING, PAUSED, CANCELED, TERMINATED, FAILED; };
+    public enum Status { INITIALIZING, RUNNING, PAUSED, STOPPED, FINISHED, FAILED; };
 
     @Id
     @Column(name="RUN_ID", updatable= false)

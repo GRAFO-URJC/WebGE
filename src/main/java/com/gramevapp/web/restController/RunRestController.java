@@ -1,6 +1,5 @@
 package com.gramevapp.web.restController;
 
-import com.gramevapp.web.model.DiagramData;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.model.User;
 import com.gramevapp.web.service.RunService;
@@ -31,7 +30,7 @@ public class RunRestController {
         run.setBestIndividual(run.getDiagramData().getBestIndividual());
 
         if(run.getDiagramData().getFinished() ){
-            run.setStatus(Run.Status.TERMINATED);
+            run.setStatus(Run.Status.FINISHED);
         }
 
         return run;
