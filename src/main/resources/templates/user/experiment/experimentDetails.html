@@ -189,7 +189,7 @@
             axisY: {
                 title: "Best individual",
                 maximum: 1,
-                minimum: -1,
+                minimum: 0,
                 lineThickness:1,
                 tickThickness: 1,
                 gridThickness: 1,
@@ -245,7 +245,11 @@
     <script>
         function checkRunStatus(runId) {
             $.ajax({
-                url: encodeURI("/user/rest/runStatus/" + runId),
+                url: encodeURI("/user/rest/runStatus/"),
+                data: {
+                    'runId': runId,
+                    'status': $("#status").text()
+                },
                 cache: false,
                 async:true,
                 type: "GET",

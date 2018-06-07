@@ -46,7 +46,7 @@ public class RunGeObserver implements Observer {
         // Multi-objetive shows all objectives (Not necessary but do not erase)
         double objs[][] = (double [][]) dataMap.get("Objectives");
 
-        if(currPercent == 100)
+        if(currPercent == 100 || currBest <= 0.0)
             this.diagramData.setFinished(true);
 
         this.diagramData.setBestIndividual(currBest);

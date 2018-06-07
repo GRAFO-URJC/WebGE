@@ -437,7 +437,6 @@ public class ExperimentController {
         experimentDetailsDto.setExperimentDescription(run.getExperimentId().getExperimentDescription());
 
         experimentDetailsDto.setRunId(run.getId());
-        experimentDetailsDto.setStatus(run.getStatus());
 
         experimentDetailsDto.setGenerations(run.getExperimentId().getGenerations());
         experimentDetailsDto.setPopulationSize(run.getExperimentId().getPopulationSize());
@@ -457,19 +456,26 @@ public class ExperimentController {
         experimentDetailsDto.setBestIndividual(diagramData.getBestIndividual());
         experimentDetailsDto.setCurrentGeneration(diagramData.getCurrentGeneration());
 
-        model.addAttribute("expDetails", experimentDetailsDto);
-
         if(run.getStatus().equals(Run.Status.RUNNING)){      // We don't execute it if it's RUNNING
+            model.addAttribute("expDetails", experimentDetailsDto);
+
             return "/user/experiment/experimentDetails";
         }
+
+        System.out.println("EXPERIMENTCONTROLLER PRIMERO");
+
+        run.setStatus(Run.Status.RUNNING);
+
+        experimentDetailsDto.setStatus(run.getStatus());
+
+        model.addAttribute("expDetails", experimentDetailsDto);
 
         runExperimentDetails(runId);
 
         return "/user/experiment/experimentDetails";
     }
 
-    @PostMapping(value="/user/experiment/runList", params="runExperimentButton")
-    public void runExperimentDetails(@RequestParam(value = "runId") String runId) throws IOException {
+    public void runExperimentDetails(String runId) throws IOException {
 
         User user = userService.getLoggedInUser();
 
