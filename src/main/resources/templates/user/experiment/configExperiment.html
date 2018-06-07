@@ -435,7 +435,7 @@
 
                             <input type="text" class="hiddenInput" th:name="defaultRunId" th:id="defaultRunId" th:value="${configuration.getDefaultRunId()}" />
                             <th:block th:each="run, iterStat : ${runList}">
-                                <tr>
+                                <tr id="runListLabel">
                                     <form th:action="@{/user/experiment/runList}" th:object="${runObj}" method="GET" class="form-horizontal">
                                         <!--<input type="text" class="hiddenInput" th:name="runId" th:id="runId" th:value="${run.getId()}" />-->
                                         <td scope="row"><label th:text="${run.getId()}" th:id="'runId'+${iterStat.index}" /></td>
@@ -614,7 +614,21 @@
             }, 100);
             // runController(runId);
         }
+    </script>
 
+    <script>
+        $(document).ready(function(){
+
+            $('[name="status"]').each(function (index) {
+
+                if($(this).text() == "RUNNING"){
+                    showRunStatus(index-1);
+                }
+            });
+        });
+    </script>
+
+    <script>
         $(document).ready(function () {
             $("[rel=tooltip]").tooltip({placement: 'right'});
 
@@ -625,7 +639,6 @@
                 });
             });
         });
-
     </script>
 
     </body>
