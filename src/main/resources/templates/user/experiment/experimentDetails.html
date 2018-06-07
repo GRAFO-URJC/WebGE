@@ -225,10 +225,12 @@
                     chart.render();
                 },
                 complete:function(data){
-                    if(data != null) {
-                        setTimeout(reloadPlotD3($("#runId").text()), 1000);
-                        setTimeout(checkRunStatus($("#runId").text()), 1000);
-                    }
+                    setTimeout(function() {
+                        if (data != null) {
+                            reloadPlotD3($("#runId").text());
+                            checkRunStatus($("#runId").text());
+                        }
+                    }, 1000);
                 }
             });
         }
@@ -240,9 +242,7 @@
         $(document).ready(function() {
             initializeD3();
         });
-    </script>
 
-    <script>
         function checkRunStatus(runId) {
             $.ajax({
                 url: encodeURI("/user/rest/runStatus/"),
