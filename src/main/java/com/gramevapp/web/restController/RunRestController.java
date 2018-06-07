@@ -16,10 +16,10 @@ public class RunRestController {
     @Autowired
     RunService runService;
 
-    @RequestMapping(value = "/user/rest/runStatus/{runId}", method = RequestMethod.GET,
+    @RequestMapping(value = "/user/rest/runStatus/", method = RequestMethod.GET,
             produces = "application/json")
     public @ResponseBody
-    Run getRunStatus(@PathVariable("runId") String runId) {
+    Run getRunStatus(String runId, String status) {
 
         User user = userService.getLoggedInUser();
         if(user == null)
@@ -29,9 +29,21 @@ public class RunRestController {
         run.setCurrentGeneration(run.getDiagramData().getCurrentGeneration());
         run.setBestIndividual(run.getDiagramData().getBestIndividual());
 
-        if(run.getDiagramData().getFinished() ){
-            run.setStatus(Run.Status.FINISHED);
+        if(status.equals("INITIALIZING")) {
+            run.setStatus(Run.Status.RUNNING);
+
+            System.out.println("RUN REST CONTROLLER PRIMERO");
+
+            run.setBestIndividual(1.0);
+            run.setCurrentGeneration(0);
+
+            run.getDiagramData().setFinished(false);
+            run.getDiagramData().setBestIndividual(1.0);
+            run.getDiagramData().setCurrentGeneration(0);
         }
+
+        if(run.getDiagramData().getFinished() || run.getDiagramData().getBestIndividual() <= 0.0)
+            run.setStatus(Run.Status.FINISHED);
 
         return run;
     }

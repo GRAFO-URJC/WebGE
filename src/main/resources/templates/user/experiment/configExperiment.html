@@ -15,6 +15,28 @@
         <!-- Without this, the bootsrap modals, collapses, etc won't work -->
         <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
+        <style>
+            /* enable absolute positioning */
+            .inner-addon {
+                position: relative;
+            }
+
+            /* style icon */
+            .inner-addon .glyphicon {
+                position: absolute;
+                padding: 5px;
+                pointer-events: none;
+            }
+
+            /* align icon */
+            .left-addon .glyphicon  { left:  0px;}
+            .right-addon .glyphicon { right: 0px;}
+
+            /* add padding  */
+            .left-addon input  { padding-left:  30px; }
+            .right-addon input { padding-right: 30px; }
+        </style>
+
         <title>Experiment testing area</title>
     </head>
 
@@ -392,7 +414,10 @@
                         <h2>List of runs</h2>
                         <table class="table table-hover" id="expTypeTable">
 
-                            <input class="form-control" id="searchExperiment" type="text" placeholder="Search experiment ..." />
+                            <div class="inner-addon left-addon">
+                                <i class="glyphicon glyphicon-search "></i>
+                                <input class="form-control" id="searchExperiment" type="text" placeholder="Search experiment ..." />
+                            </div>
                             <br/>
 
                             <thead>
@@ -406,7 +431,7 @@
                                 <th scope="col">Last modification date</th>
                             </tr>
                             </thead>
-                            <tbody id="runTable">
+                            <tbody>
 
                             <input type="text" class="hiddenInput" th:name="defaultRunId" th:id="defaultRunId" th:value="${configuration.getDefaultRunId()}" />
                             <th:block th:each="run, iterStat : ${runList}">
@@ -522,15 +547,20 @@
     </script>
 
     <script>
-        function checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat) {
+        function checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat){
+
             $.ajax({
-                url: encodeURI("/user/rest/runStatus/" + runId.text()),
+                url: encodeURI("/user/rest/runStatus/"),
+                data: {
+                    'runId': runId.text(),
+                    'status': $(status).text()
+                },
                 timeout: 3000,
                 cache: false,
-                async:true,
+                async: true,
                 type: "GET",
                 dataType: "json",
-                success: function(data){
+                success: function (data) {
                     var statusStr = data['status'];
                     var bestIndividualStr = data['bestIndividual'];
                     var currentGenerationStr = data['currentGeneration'];
@@ -539,36 +569,56 @@
                     $(bestIndividual).text(bestIndividualStr);
                     $(currentGeneration).text(currentGenerationStr);
                 },
-                complete:function(data){
-                    var runId = $("#runId"+iterStat);
-                    var status = "#status"+iterStat;
-                    var currentGeneration = "#currentGeneration"+iterStat;
-                    var bestIndividual = "#bestIndividual"+iterStat;
+                complete: function (data) {
+                    var runId = $("#runId" + iterStat);
+                    var status = "#status" + iterStat;
+                    var currentGeneration = "#currentGeneration" + iterStat;
+                    var bestIndividual = "#bestIndividual" + iterStat;
 
-                    if($(status).text() != "FINISHED")
-                        checkRunStatus(runId ,status, bestIndividual, currentGeneration, iterStat);
+                    if ($(status).text() != "FINISHED")
+                        checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat);
                 }
             });
         };
 
-        function showRunStatus(iterStat) {
-            var runId = $("#runId"+iterStat);
-            var status = "#status"+iterStat;
-            var currentGeneration = "#currentGeneration"+iterStat;
-            var bestIndividual = "#bestIndividual"+iterStat;
+        function runController(runId){
+            $.ajax({
+                url: encodeURI("/user/experiment/runList/"),
+                data: {
+                    'runId': runId.text(),
+                    'runExperimentButton': 'runExperimentButton'
+                },
+                cache: false,
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
 
-            checkRunStatus(runId ,status, bestIndividual, currentGeneration, iterStat);
+                }
+            });
         }
 
-    </script>
+        function showRunStatus(iterStat) {
 
-    <script>
-        $(document).ready(function(){
-            $("[rel=tooltip]").tooltip({ placement: 'right'});
+            var runId = $("#runId" + iterStat);
+            var status = "#status" + iterStat;
+            var currentGeneration = "#currentGeneration" + iterStat;
+            var bestIndividual = "#bestIndividual" + iterStat;
 
-            $("#searchExperiment").on("keyup", function() {
+            if(($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED"))
+                $(status).text("INITIALIZING");
+
+            setTimeout(function(){
+                checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat)
+            }, 100);
+            // runController(runId);
+        }
+
+        $(document).ready(function () {
+            $("[rel=tooltip]").tooltip({placement: 'right'});
+
+            $("#searchExperiment").on("keyup", function () {
                 var value = $(this).val().toLowerCase();
-                $("#runTable tr").filter(function() {
+                $("#runTable tr").filter(function () {
                     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
                 });
             });
