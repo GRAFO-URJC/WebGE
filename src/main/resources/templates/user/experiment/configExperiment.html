@@ -575,8 +575,10 @@
                     var currentGeneration = "#currentGeneration" + iterStat;
                     var bestIndividual = "#bestIndividual" + iterStat;
 
-                    if ($(status).text() != "FINISHED")
-                        checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat);
+                    setTimeout(function() {
+                        if ($(status).text() != "FINISHED")
+                            checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat);
+                    }, 1000);
                 }
             });
         };
