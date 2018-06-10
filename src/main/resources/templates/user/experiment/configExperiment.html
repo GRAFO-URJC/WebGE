@@ -451,7 +451,11 @@
                                         </td>
                                         <td scope="row">
                                             <!-- https://stackoverflow.com/questions/14938344/thymeleaf-construct-url-with-variable -->
-                                            <a th:href="@{/user/experiment/runList(runId=${run.getId()}, runExperimentButton='runExperimentButton')}" target="_blank" th:id="${iterStat.index}" onclick="showRunStatus(this.id)" class="btn-default btn-sm btn loadButton">Plot execution</a>
+                                            <a th:href="@{/user/experiment/runList(runId=${run.getId()}, runExperimentButton='runExperimentButton')}" target="_blank" th:id="${iterStat.index}" onclick="showRunStatus(this.id)" class="btn-default btn-sm btn loadButton">Re-run experiment</a>
+                                        </td>
+                                        <!--<td scope="row" th:if="${#strings.toString(run.status)} == 'FINISHED'">-->
+                                        <td scope="row" th:id="'showPlot'+${iterStat.index}" class="" >
+                                            <a th:href="@{/user/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}" target="_blank" class="btn-default btn-sm btn loadButton">Show plot execution</a>
                                         </td>
                                         <td scope="row">
                                             <a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse" class="accordion-toggle">More details <span class="glyphicon glyphicon-chevron-down"></span></a>
@@ -460,7 +464,7 @@
                                 </tr>
 
                                 <tr>
-                                    <td colspan="9">
+                                    <td colspan="12">
                                         <div class="panel-collapse collapse" th:id="'collapse'+${iterStat.index}">
                                             <h4><b>Run details </b></h4>
                                             <br/>
@@ -555,7 +559,6 @@
                     'runId': runId.text(),
                     'status': $(status).text()
                 },
-                timeout: 3000,
                 cache: false,
                 async: true,
                 type: "GET",
@@ -575,9 +578,11 @@
                     var currentGeneration = "#currentGeneration" + iterStat;
                     var bestIndividual = "#bestIndividual" + iterStat;
 
-                    setTimeout(function() {
+                    setTimeout(function(){
                         if ($(status).text() != "FINISHED")
                             checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat);
+                        if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED"))
+                            $("#showPlot" + iterStat).removeClass("hidden");
                     }, 1000);
                 }
             });
@@ -594,7 +599,6 @@
                 type: "GET",
                 dataType: "json",
                 success: function (data) {
-
                 }
             });
         }
@@ -606,7 +610,7 @@
             var currentGeneration = "#currentGeneration" + iterStat;
             var bestIndividual = "#bestIndividual" + iterStat;
 
-            if(($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED"))
+            if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED"))
                 $(status).text("INITIALIZING");
 
             setTimeout(function(){
@@ -617,13 +621,29 @@
     </script>
 
     <script>
+        var indexesShow = [];
+        var indexesHide = [];
+
         $(document).ready(function(){
 
             $('[name="status"]').each(function (index) {
-
-                if($(this).text() == "RUNNING"){
+                if(($(this).text() == "FINISHED") || ($(this).text() == "STOPPED") || ($(this).text() == "FAILED")) {
+                    indexesShow[index-1] = index-1;
+                }
+                if(($(this).text() == "RUNNING") || ($(this).text() == "INITIALIZING")){
+                    indexesHide[index-1] = index-1;
                     showRunStatus(index-1);
                 }
+            });
+
+            indexesShow.forEach(function(element, index) {
+                console.log(indexesShow[index]);
+                $("#showPlot" + indexesShow[index]).removeClass("hidden");
+            });
+
+            indexesHide.forEach(function(element, index) {
+                console.log(indexesHide[index]);
+                $("#showPlot" + indexesHide[index]).addClass("hidden");
             });
         });
     </script>
@@ -639,6 +659,7 @@
                 });
             });
         });
+
     </script>
 
     </body>

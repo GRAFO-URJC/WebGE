@@ -7,10 +7,9 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
-@Table(name="experiment")
+@Table(name="EXPERIMENT")
 public class Experiment {
 
     @Id
@@ -58,7 +57,7 @@ public class Experiment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToMany(fetch=FetchType.LAZY,
             mappedBy = "experimentId")
-    private List<ExperimentDataType> idExpDataTypeList = new ArrayList<>();
+    private List<ExperimentDataType> idExpDataTypeList;
 
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToOne(cascade=CascadeType.ALL)
@@ -68,7 +67,7 @@ public class Experiment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToMany(cascade = CascadeType.ALL,
             mappedBy = "experimentId")
-    private List<Run> idRunList = new ArrayList<>();
+    private List<Run> idRunList;
 
     @Column
     private Long defaultRunId;

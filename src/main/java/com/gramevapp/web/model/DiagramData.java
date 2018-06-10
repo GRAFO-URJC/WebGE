@@ -1,18 +1,30 @@
 package com.gramevapp.web.model;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 @Entity
+@Table(name="DIAGRAM_DATA")
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class DiagramData {
 
     @Id
     @Column(name = "DIAGRAM_DATA_ID", nullable = false, updatable= false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    // @JsonManagedReference
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @OneToMany(fetch=FetchType.EAGER,
+            mappedBy = "diagramDataId")
+    private List<DiagramPair> listPair;   // To display diagram with one click.
 
     @Column
     private Double bestIndividual = 0.0;  // Best solution
@@ -39,20 +51,27 @@ public class DiagramData {
     public DiagramData() {
     }
 
-    public DiagramData(Double bestIndividual) {
+    public DiagramData(double bestIndividual) {
         this.bestIndividual = bestIndividual;
     }
 
     public DiagramData(Run runId, Long longUserId) {
         this.runId = runId;
         this.longUserId = longUserId;
+
+        this.listPair = new ArrayList<>();
     }
 
-    public DiagramData(Integer currentGeneration, Double bestIndividual, Run runId, Long longUserId) {
+    public DiagramData(Integer currentGeneration, double bestIndividual, Run runId, Long longUserId) {
         this.bestIndividual = bestIndividual;
         this.runId = runId;
         this.longUserId = longUserId;
         this.currentGeneration = currentGeneration;
+
+        this.listPair = new ArrayList<>();
+        DiagramPair diagramPair = new DiagramPair();
+        diagramPair.setBestIndividual(bestIndividual);
+        diagramPair.setCurrentGeneration(currentGeneration);
     }
 
     public Long getId() {
@@ -63,11 +82,11 @@ public class DiagramData {
         this.id = id;
     }
 
-    public Double getBestIndividual() {
+    public double getBestIndividual() {
         return bestIndividual;
     }
 
-    public void setBestIndividual(Double bestIndividual) {
+    public void setBestIndividual(double bestIndividual) {
         this.bestIndividual = bestIndividual;
     }
 
@@ -101,6 +120,25 @@ public class DiagramData {
 
     public void setFinished(Boolean finished) {
         this.finished = finished;
+    }
+
+    public List<DiagramPair> getListPair() {
+        return listPair;
+    }
+
+    public void setListPair(ArrayList<DiagramPair> listBestIndividual) {
+        this.listPair = listBestIndividual;
+    }
+
+    public void addListPair(double bestIndividual, int currentGeneration){
+        DiagramPair diagramPair = new DiagramPair(bestIndividual, currentGeneration);
+
+        this.listPair.add(diagramPair);
+    }
+
+    public void addListPair(DiagramPair diagramPair){
+        this.listPair.add(diagramPair);
+        diagramPair.setDiagramData(this);
     }
 
     //@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
