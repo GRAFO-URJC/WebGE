@@ -462,25 +462,64 @@ public class ExperimentController {
             return "/user/experiment/experimentDetails";
         }
 
-        System.out.println("EXPERIMENTCONTROLLER PRIMERO");
-
-        run.setStatus(Run.Status.RUNNING);
-
         experimentDetailsDto.setStatus(run.getStatus());
 
         model.addAttribute("expDetails", experimentDetailsDto);
 
-        runExperimentDetails(runId);
+        runExperimentDetails(run);
 
         return "/user/experiment/experimentDetails";
     }
 
-    public void runExperimentDetails(String runId) throws IOException {
+    @GetMapping(value="/user/experiment/runList", params="showPlotExecutionButton")
+    public String showPlotExecutionExperiment(Model model,
+                                @RequestParam(value = "runId") String runId) {
 
         User user = userService.getLoggedInUser();
+        if(user == null){
+            System.out.println("User not authenticated");
+            return "redirect:/login";
+        }
 
         Long longRunId = Long.parseLong(runId);
-        Run run = runService.findByRunId(longRunId);
+        Run run = runService.findByUserIdAndRunId(user, longRunId);
+        DiagramData diagramData = diagramDataService.findByRunId(run);
+
+        ExperimentDetailsDto experimentDetailsDto = new ExperimentDetailsDto();
+
+        experimentDetailsDto.setExperimentId(run.getExperimentId().getId());
+        experimentDetailsDto.setExperimentName(run.getExperimentId().getExperimentName());
+        experimentDetailsDto.setExperimentDescription(run.getExperimentId().getExperimentDescription());
+
+        experimentDetailsDto.setRunId(run.getId());
+        experimentDetailsDto.setStatus(run.getStatus());
+
+        experimentDetailsDto.setGenerations(run.getExperimentId().getGenerations());
+        experimentDetailsDto.setPopulationSize(run.getExperimentId().getPopulationSize());
+        experimentDetailsDto.setMaxWraps(run.getExperimentId().getMaxWraps());
+        experimentDetailsDto.setTournament(run.getExperimentId().getTournament());
+        experimentDetailsDto.setCrossoverProb(run.getExperimentId().getCrossoverProb());
+        experimentDetailsDto.setMutationProb(run.getExperimentId().getMutationProb());
+        experimentDetailsDto.setInitialization(run.getExperimentId().getInitialization());
+        experimentDetailsDto.setResults(run.getExperimentId().getResults());
+        experimentDetailsDto.setNumCodons(run.getExperimentId().getNumCodons());
+        experimentDetailsDto.setNumberRuns(run.getExperimentId().getNumberRuns());
+        experimentDetailsDto.setDefaultGrammar(run.getExperimentId().getDefaultGrammar().getFileText());
+        experimentDetailsDto.setDefaultExpDataType(run.getExperimentId().getDefaultExpDataType().getDataTypeName());
+        experimentDetailsDto.setIniDate(run.getIniDate().toString());
+        experimentDetailsDto.setLastDate(run.getLastDate().toString());
+
+        experimentDetailsDto.setBestIndividual(diagramData.getBestIndividual());
+        experimentDetailsDto.setCurrentGeneration(diagramData.getCurrentGeneration());
+
+        model.addAttribute("expDetails", experimentDetailsDto);
+
+        return "/user/experiment/showDiagramPlot";
+    }
+
+    public void runExperimentDetails(Run run) throws IOException {
+
+        User user = userService.getLoggedInUser();
 
         ExpProperties prop = experimentService.findPropertiesById(run.getIdProperties());
 
@@ -523,7 +562,7 @@ public class ExperimentController {
             numObjectives = 2;
         }
 
-        run.setStatus(Run.Status.RUNNING);
+        run.setStatus(Run.Status.INITIALIZING);
         run.setBestIndividual(diagramData.getBestIndividual());
         run.setCurrentGeneration(diagramData.getCurrentGeneration());
 

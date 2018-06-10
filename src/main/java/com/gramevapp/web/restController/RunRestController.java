@@ -7,6 +7,8 @@ import com.gramevapp.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+
 @RestController("runRestController")
 public class RunRestController {
 
@@ -32,14 +34,14 @@ public class RunRestController {
         if(status.equals("INITIALIZING")) {
             run.setStatus(Run.Status.RUNNING);
 
-            System.out.println("RUN REST CONTROLLER PRIMERO");
-
             run.setBestIndividual(1.0);
             run.setCurrentGeneration(0);
 
             run.getDiagramData().setFinished(false);
             run.getDiagramData().setBestIndividual(1.0);
             run.getDiagramData().setCurrentGeneration(0);
+
+            run.getDiagramData().setListPair(new ArrayList<>());
         }
 
         if(run.getDiagramData().getFinished() || run.getDiagramData().getBestIndividual() <= 0.0)

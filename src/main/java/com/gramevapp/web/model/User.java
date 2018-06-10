@@ -54,7 +54,7 @@ public class User implements Serializable {
     @Column
     private Integer failedLoginAttempts = 0;
 
-    @ManyToMany(cascade=CascadeType.PERSIST, fetch=FetchType.EAGER, targetEntity=Role.class)
+    @ManyToMany(cascade=CascadeType.PERSIST, fetch=FetchType.LAZY, targetEntity=Role.class)
     @JoinTable(
             name = "users_roles",
             joinColumns ={
