@@ -48,7 +48,6 @@ public class ExperimentController {
     public String configExperiment(Model model,
                                    @ModelAttribute("configuration") ExperimentDto expDto){
 
-
         User user = userService.getLoggedInUser();
         if(user == null){
             System.out.println("User not authenticated");
@@ -283,9 +282,6 @@ public class ExperimentController {
 
         // END CONFIGURATION SECTION
 
-        expDto.setDefaultRunId(run.getId());
-        expDto.setId(exp.getId());
-
         // Execute program with experiment info
         File propertiesFile = new File(propertiesFilePath);
         Reader propertiesReader = new FileReader(propertiesFile);
@@ -309,6 +305,12 @@ public class ExperimentController {
         diagramDataService.saveDiagram(diagramData);
 
         run.setDiagramData(diagramData);
+
+        expDto.setId(exp.getId());
+        expDto.setDefaultRunId(run.getId());
+        expDto.setDefaultExpDataTypeId(exp.getDefaultExpDataType().getId());
+        expDto.setDefaultGrammarId(exp.getDefaultGrammar().getId());
+        expDto.setDiagramDataId(diagramData.getId());
 
         // Run experiment in new thread
         new Thread() {
@@ -387,7 +389,7 @@ public class ExperimentController {
 
     @RequestMapping(value="/user/experiment/runList", method=RequestMethod.GET, params="loadExperimentButton")
     public String loadExperiment(Model model,
-                          @RequestParam(value = "runId") String id) {
+                                 @ModelAttribute("expDetailsDto") ExperimentDetailsDto experimentDetailsDto) {
 
         User user = userService.getLoggedInUser();
         if(user == null){
@@ -395,9 +397,18 @@ public class ExperimentController {
             return "redirect:/login";
         }
 
-        Long longRunId = Long.parseLong(id);
+        // Long longRunId = Long.parseLong(runDto.getId());
+        Long longRunId = experimentDetailsDto.getRunId();
         Run run = runService.findByUserIdAndRunId(user, longRunId);
         Experiment expConfig = run.getExperimentId();
+
+        System.out.println("Run id Long " + longRunId);
+        System.out.println("Run id Object " + run.getId());
+        System.out.println("Run id Object ExpConfig " + run.getExperimentId().getId());
+        System.out.println("Experiment id " + expConfig.getId());
+        System.out.println("Experiment name " + expConfig.getExperimentName());
+        System.out.println("Num generation " + expConfig.getGenerations());
+
         Grammar grammar = expConfig.getDefaultGrammar();
         ExperimentDataType expDataType = expConfig.getDefaultExpDataType();
         List<Run> runList = expConfig.getIdRunList();
@@ -448,8 +459,8 @@ public class ExperimentController {
         experimentDetailsDto.setResults(run.getExperimentId().getResults());
         experimentDetailsDto.setNumCodons(run.getExperimentId().getNumCodons());
         experimentDetailsDto.setNumberRuns(run.getExperimentId().getNumberRuns());
-        experimentDetailsDto.setDefaultGrammar(run.getExperimentId().getDefaultGrammar().getFileText());
-        experimentDetailsDto.setDefaultExpDataType(run.getExperimentId().getDefaultExpDataType().getDataTypeName());
+        experimentDetailsDto.setDefaultGrammarId(run.getExperimentId().getDefaultGrammar().getId());
+        experimentDetailsDto.setDefaultExpDataTypeId(run.getExperimentId().getDefaultExpDataType().getId());
         experimentDetailsDto.setIniDate(run.getIniDate().toString());
         experimentDetailsDto.setLastDate(run.getLastDate().toString());
 
@@ -504,8 +515,8 @@ public class ExperimentController {
         experimentDetailsDto.setResults(run.getExperimentId().getResults());
         experimentDetailsDto.setNumCodons(run.getExperimentId().getNumCodons());
         experimentDetailsDto.setNumberRuns(run.getExperimentId().getNumberRuns());
-        experimentDetailsDto.setDefaultGrammar(run.getExperimentId().getDefaultGrammar().getFileText());
-        experimentDetailsDto.setDefaultExpDataType(run.getExperimentId().getDefaultExpDataType().getDataTypeName());
+        experimentDetailsDto.setDefaultGrammarId(run.getExperimentId().getDefaultGrammar().getId());
+        experimentDetailsDto.setDefaultExpDataTypeId(run.getExperimentId().getDefaultExpDataType().getId());
         experimentDetailsDto.setIniDate(run.getIniDate().toString());
         experimentDetailsDto.setLastDate(run.getLastDate().toString());
 
