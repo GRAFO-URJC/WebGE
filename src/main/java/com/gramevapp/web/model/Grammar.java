@@ -1,5 +1,6 @@
 package com.gramevapp.web.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -11,10 +12,7 @@ public class Grammar {
 
     @Id
     @Column(name = "GRAMMAR_ID", nullable = false, updatable= false)
-    @GeneratedValue(strategy = GenerationType.AUTO) /* , generator="native") // Efficiency  -> https://vladmihalcea.com/why-should-not-use-the-auto-jpa-generationtype-with-mysql-and-hibernate/
-    @GenericGenerator(
-            name = "native",
-            strategy = "native")*/
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @OneToOne(cascade=CascadeType.ALL)
@@ -33,6 +31,19 @@ public class Grammar {
     )
     private Experiment experimentId;
 
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "runs_grammar_list",
+            joinColumns = {
+                    @JoinColumn(name = "GRAMMAR_ID", nullable = false)
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "RUN_ID", referencedColumnName = "RUN_ID")
+            }
+    )
+    private Run runId;
+
     @Column
     private String grammarName;
 
@@ -46,6 +57,24 @@ public class Grammar {
 
     public Grammar(){
         experimentId = new Experiment();
+    }
+
+    /**
+     * Copy constructor.
+     */
+    public Grammar(Grammar grammar) {
+        this(grammar.getUserId(), grammar.getExperimentId(), grammar.getRunId(), grammar.getGrammarName(), grammar.getGrammarDescription(), grammar.getFileText());
+        //no defensive copies are created here, since
+        //there are no mutable object fields (String is immutable)
+    }
+
+    public Grammar(User userId, Experiment experimentId, Run runId, String grammarName, String grammarDescription, String fileText) {
+        this.userId = userId;
+        this.experimentId = experimentId;
+        this.runId = runId;
+        this.grammarName = grammarName;
+        this.grammarDescription = grammarDescription;
+        this.fileText = fileText;
     }
 
     public Grammar(User userId, String grammarName, String grammarDescription, String fileText) {
@@ -103,5 +132,13 @@ public class Grammar {
 
     public void setFileText(String fileText) {
         this.fileText = fileText;
+    }
+
+    public Run getRunId() {
+        return runId;
+    }
+
+    public void setRunId(Run runId) {
+        this.runId = runId;
     }
 }

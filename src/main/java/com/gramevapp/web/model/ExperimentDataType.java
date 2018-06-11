@@ -1,5 +1,6 @@
 package com.gramevapp.web.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -15,7 +16,7 @@ import java.util.List;
 public class ExperimentDataType {
 
     @Id
-    @Column(name = "EXPERIMENTDATATYPE_ID", nullable = false, updatable= false)
+    @Column(name = "EXPERIMENT_DATA_TYPE_ID", nullable = false, updatable= false)
     @GeneratedValue(strategy = GenerationType.AUTO) /* , generator="native") // Efficiency  -> https://vladmihalcea.com/why-should-not-use-the-auto-jpa-generationtype-with-mysql-and-hibernate/
     @GenericGenerator(
             name = "native",
@@ -28,15 +29,28 @@ public class ExperimentDataType {
     @JsonManagedReference
     @ManyToOne(cascade=CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
-            name = "expdatatype_list",
+            name = "exp_data_type_list",
             joinColumns = {
-                    @JoinColumn(name = "EXPERIMENTDATATYPE_ID", nullable = false)
+                    @JoinColumn(name = "EXPERIMENT_DATA_TYPE_ID", nullable = false)
                 },
             inverseJoinColumns = {
                     @JoinColumn(name = "EXPERIMENT_ID", referencedColumnName = "EXPERIMENT_ID")
             }
     )
     private Experiment experimentId;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "runs_data_type_list",
+            joinColumns = {
+                    @JoinColumn(name = "EXPERIMENT_DATA_TYPE_ID", nullable = false)
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "RUN_ID", referencedColumnName = "RUN_ID")
+            }
+    )
+    private Run runId;
 
     @Column
     private String dataTypeName;
@@ -68,6 +82,28 @@ public class ExperimentDataType {
         experimentId = new Experiment();
     }
 
+    /**
+     * Copy constructor.
+     */
+    public ExperimentDataType(ExperimentDataType eDType) {
+        this(eDType.getUserId(), eDType.getExperimentId(), eDType.getRunId(), eDType.getDataTypeName(), eDType.getDataTypeDescription(), eDType.getDataTypeType(), eDType.getCreationDate(), eDType.getModificationDate(), eDType.getHeader(), eDType.getListRowsFile());
+        //no defensive copies are created here, since
+        //there are no mutable object fields (String is immutable)
+    }
+
+    public ExperimentDataType(User userId, Experiment experimentId, Run runId, String dataTypeName, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, List<String> header, List<ExperimentRowType> listRowsFile) {
+        this.userId = userId;
+        this.experimentId = experimentId;
+        this.runId = runId;
+        this.dataTypeName = dataTypeName;
+        this.dataTypeDescription = dataTypeDescription;
+        this.dataTypeType = dataTypeType;
+        this.creationDate = creationDate;
+        this.modificationDate = modificationDate;
+        this.header = header;
+        this.listRowsFile = listRowsFile;
+    }
+
     public ExperimentDataType(User userId, String dataTypeName, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate) {
         this.userId = userId;
         this.dataTypeName = dataTypeName;
@@ -88,6 +124,14 @@ public class ExperimentDataType {
         this.modificationDate = modificationDate;
         this.listRowsFile = listRowsFile;
         experimentId = new Experiment();
+    }
+
+    public Run getRunId() {
+        return runId;
+    }
+
+    public void setRunId(Run runId) {
+        this.runId = runId;
     }
 
     public List<String> getHeader() {

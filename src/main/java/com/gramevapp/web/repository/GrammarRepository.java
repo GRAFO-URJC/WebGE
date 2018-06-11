@@ -1,9 +1,12 @@
 package com.gramevapp.web.repository;
 
+import com.gramevapp.web.model.Experiment;
 import com.gramevapp.web.model.Grammar;
 import com.gramevapp.web.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface GrammarRepository extends JpaRepository<Grammar, Long> {
@@ -11,4 +14,5 @@ public interface GrammarRepository extends JpaRepository<Grammar, Long> {
     // We cannot user findByUser(User user) -> Better idea is to add the email of the user in the Grammar ** Not implemented yet
     Grammar findByUserIdAndGrammarName(User userId, String name);
     Grammar findByGrammarName(String name);
+    List<Grammar> findAllByExperimentId(Experiment experimentId);
 }
