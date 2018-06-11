@@ -475,8 +475,8 @@
                                         <td scope="row"><label th:name="lastDate" th:id="lastDate" th:text="${run.getLastDate()}" /></td>
 
                                         <td scope="row">
-                                            <button type="submit" id="loadExperimentButton" name="loadExperimentButton" class="btn-default btn-sm btn loadButton">Load experiment</button>
-                                            <!--<a th:href="@{/user/experiment/runList(runId=${run.getId()}, configuration=${configuration}, loadExperimentButton='loadExperimentButton')}" th:object="${configuration}" th:id="${iterStat.index}" class="btn-default btn-sm btn loadButton">Load experiment</a>-->
+                                            <!--<button type="submit" id="loadExperimentButton" name="loadExperimentButton" class="btn-default btn-sm btn loadButton">Load experiment</button>-->
+                                            <a th:href="@{/user/experiment/runList(runId=${run.getId()}, loadExperimentButton='loadExperimentButton')}" th:id="${iterStat.index}" class="btn-default btn-sm btn loadButton">Load experiment</a>
                                         </td>
                                         <td scope="row">
                                             <!-- https://stackoverflow.com/questions/14938344/thymeleaf-construct-url-with-variable -->

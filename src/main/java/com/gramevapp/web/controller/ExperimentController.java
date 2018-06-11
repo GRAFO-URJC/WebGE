@@ -2,12 +2,15 @@ package com.gramevapp.web.controller;
 
 import com.engine.algorithm.SymbolicRegressionGE;
 import com.gramevapp.web.model.*;
+import com.gramevapp.web.other.BeanUtil;
 import com.gramevapp.web.service.DiagramDataService;
 import com.gramevapp.web.service.ExperimentService;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;
 import com.engine.algorithm.RunGeObserver;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -181,6 +184,27 @@ public class ExperimentController {
         Run run = new Run(user, Run.Status.INITIALIZING, expDto.getExperimentName(), expDto.getExperimentDescription(), currentTimestamp, currentTimestamp);
 
         Long longDefaultRunId = runService.saveRun(run).getId();
+
+        run.setDefaultRunId(longDefaultRunId);
+
+        run.setExperimentName(expDto.getExperimentName());
+        run.setExperimentDescription(expDto.getExperimentDescription());
+
+        run.setDefaultGrammar(grammar);
+        run.setDefaultExpDataType(expDataType);
+
+        run.setGenerations(expDto.getGenerations());
+        run.setPopulationSize(expDto.getPopulationSize());
+        run.setMaxWraps(expDto.getMaxWraps());
+        run.setTournament(expDto.getTournament());
+        run.setCrossoverProb(expDto.getCrossoverProb());
+        run.setMutationProb(expDto.getMutationProb());
+        run.setInitialization(expDto.getInitialization());
+        run.setObjective(expDto.getObjective());
+        run.setResults(expDto.getResults());
+        run.setNumCodons(expDto.getNumCodons());
+        run.setNumberRuns(expDto.getNumberRuns());
+
         // END - RUN SECTION
 
         // Experiment section
@@ -306,6 +330,26 @@ public class ExperimentController {
 
         run.setDiagramData(diagramData);
 
+        /*Iterator<Grammar> itGrammar = exp.getIdGrammarList().iterator();
+        while(itGrammar.hasNext()){
+            run.getIdGrammarList().add(new Grammar(itGrammar.next()));
+        }
+        Iterator<ExperimentDataType> itDataType = exp.getIdExpDataTypeList().iterator();
+        while(itDataType.hasNext()){
+            run.getIdExpDataTypeList().add(new ExperimentDataType(itDataType.next()));
+        }
+        Iterator<Run> itRun = exp.getIdRunList().iterator();
+        while(itRun.hasNext()){
+            run.getIdRunList().add(new Run(itRun.next()));
+        }*/
+
+        List<Run> lRun = runService.findAllByExperiment(exp);
+        List<Grammar> lGrammar = experimentService.findAllGrammarByExperimentId(exp);
+        List<ExperimentDataType> lExpDataType = experimentService.findAllExperimentDataTypeByExperimentId(exp);
+
+        run.setIdGrammarList(lGrammar);
+        run.setIdExpDataTypeList(lExpDataType);
+
         expDto.setId(exp.getId());
         expDto.setDefaultRunId(run.getId());
         expDto.setDefaultExpDataTypeId(exp.getDefaultExpDataType().getId());
@@ -389,7 +433,7 @@ public class ExperimentController {
 
     @RequestMapping(value="/user/experiment/runList", method=RequestMethod.GET, params="loadExperimentButton")
     public String loadExperiment(Model model,
-                                 @ModelAttribute("expDetailsDto") ExperimentDetailsDto experimentDetailsDto) {
+                                 @RequestParam("runId") String runId) {
 
         User user = userService.getLoggedInUser();
         if(user == null){
@@ -397,31 +441,24 @@ public class ExperimentController {
             return "redirect:/login";
         }
 
-        // Long longRunId = Long.parseLong(runDto.getId());
-        Long longRunId = experimentDetailsDto.getRunId();
+        Long longRunId = Long.parseLong(runId);
         Run run = runService.findByUserIdAndRunId(user, longRunId);
         Experiment expConfig = run.getExperimentId();
 
-        System.out.println("Run id Long " + longRunId);
-        System.out.println("Run id Object " + run.getId());
-        System.out.println("Run id Object ExpConfig " + run.getExperimentId().getId());
-        System.out.println("Experiment id " + expConfig.getId());
-        System.out.println("Experiment name " + expConfig.getExperimentName());
-        System.out.println("Num generation " + expConfig.getGenerations());
-
-        Grammar grammar = expConfig.getDefaultGrammar();
-        ExperimentDataType expDataType = expConfig.getDefaultExpDataType();
+        Grammar grammar = run.getDefaultGrammar();
+        ExperimentDataType expDataType = run.getDefaultExpDataType();
         List<Run> runList = expConfig.getIdRunList();
         ConfigExperimentDto confExpDto = new ConfigExperimentDto();
 
         expConfig.setDefaultRunId(longRunId);   // We set up the default run id to the experiment, this way we know what run to load
+        run.setDefaultRunId(longRunId);
 
-        model.addAttribute("configuration", expConfig);
+        model.addAttribute("configuration", run);
         model.addAttribute("grammar", grammar);
         model.addAttribute("type", expDataType);
         model.addAttribute("runList", runList);
-        model.addAttribute("grammarList", expConfig.getIdGrammarList());
-        model.addAttribute("dataTypeList", expConfig.getIdExpDataTypeList());
+        model.addAttribute("grammarList", run.getIdGrammarList());
+        model.addAttribute("dataTypeList", run.getIdExpDataTypeList());
         model.addAttribute("configExp", confExpDto);
 
         return "/user/experiment/configExperiment";

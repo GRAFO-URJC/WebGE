@@ -15,7 +15,7 @@ import java.util.Scanner;
 import java.util.UUID;
 
 // We use repositories ExperimentDataType, ExperimentRowType here too.
-@Service
+@Service("experimentService")
 public class ExperimentService {
 
     @Autowired
@@ -122,6 +122,14 @@ public class ExperimentService {
 
     public ExpProperties saveExpProperties(ExpProperties expProperties){
         return propertiesRepository.save(expProperties);
+    }
+
+    public List<Grammar> findAllGrammarByExperimentId(Experiment experimentId){
+        return grammarRepository.findAllByExperimentId(experimentId);
+    }
+
+    public List<ExperimentDataType> findAllExperimentDataTypeByExperimentId(Experiment experimentId){
+        return experimentDataTypeRepository.findAllByExperimentId(experimentId);
     }
 
 }
