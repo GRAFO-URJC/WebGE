@@ -18,8 +18,17 @@ public class ExperimentDetailsDto {
     private String results = "";             // Text file with the results of the experiments
     private Integer numCodons = 100;
     private Integer numberRuns = 1;
-    private String defaultGrammar = "";     // Text area with the grammar
-    private String defaultExpDataType = ""; // Name of experiment data type file
+
+    private Long defaultGrammarId;     // Id defaultGrammar
+    private Long defaultExpDataTypeId; // Id defaultExpDataType
+
+    private String grammarName = " ";
+    private String grammarDescription = " ";
+    private String fileText = " "; // This is the text on the file - That's written in an areaText - So we can take it as a String
+
+    private String dataTypeName = " ";
+    private String dataTypeDescription = " "; // status
+    private String dataTypeType = " ";        // Validation, test, training
 
     private Run.Status status;
     private String iniDate;
@@ -33,7 +42,7 @@ public class ExperimentDetailsDto {
     public ExperimentDetailsDto() {
     }
 
-    public ExperimentDetailsDto(Long experimentId, Long runId, Long diagramDataId, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String defaultGrammar, String defaultExpDataType, Run.Status status, String iniDate, String lastDate, String runName, String runDescription, Double bestIndividual, Integer currentGeneration) {
+    public ExperimentDetailsDto(Long experimentId, Long runId, Long diagramDataId, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, Long defaultGrammar, Long defaultExpDataType, Run.Status status, String iniDate, String lastDate, String runName, String runDescription, Double bestIndividual, Integer currentGeneration) {
         this.experimentId = experimentId;
         this.runId = runId;
         this.diagramDataId = diagramDataId;
@@ -49,8 +58,8 @@ public class ExperimentDetailsDto {
         this.results = results;
         this.numCodons = numCodons;
         this.numberRuns = numberRuns;
-        this.defaultGrammar = defaultGrammar;
-        this.defaultExpDataType = defaultExpDataType;
+        this.defaultGrammarId = defaultGrammar;
+        this.defaultExpDataTypeId = defaultExpDataType;
         this.status = status;
         this.iniDate = iniDate;
         this.lastDate = lastDate;
@@ -180,20 +189,20 @@ public class ExperimentDetailsDto {
         this.numberRuns = numberRuns;
     }
 
-    public String getDefaultGrammar() {
-        return defaultGrammar;
+    public Long getDefaultGrammarId() {
+        return defaultGrammarId;
     }
 
-    public void setDefaultGrammar(String defaultGrammar) {
-        this.defaultGrammar = defaultGrammar;
+    public void setDefaultGrammarId(Long defaultGrammarId) {
+        this.defaultGrammarId = defaultGrammarId;
     }
 
-    public String getDefaultExpDataType() {
-        return defaultExpDataType;
+    public Long getDefaultExpDataTypeId() {
+        return defaultExpDataTypeId;
     }
 
-    public void setDefaultExpDataType(String defaultExpDataType) {
-        this.defaultExpDataType = defaultExpDataType;
+    public void setDefaultExpDataTypeId(Long defaultExpDataTypeId) {
+        this.defaultExpDataTypeId = defaultExpDataTypeId;
     }
 
     public Run.Status getStatus() {
@@ -250,5 +259,53 @@ public class ExperimentDetailsDto {
 
     public void setCurrentGeneration(Integer currentGeneration) {
         this.currentGeneration = currentGeneration;
+    }
+
+    public String getGrammarName() {
+        return grammarName;
+    }
+
+    public void setGrammarName(String grammarName) {
+        this.grammarName = grammarName;
+    }
+
+    public String getGrammarDescription() {
+        return grammarDescription;
+    }
+
+    public void setGrammarDescription(String grammarDescription) {
+        this.grammarDescription = grammarDescription;
+    }
+
+    public String getFileText() {
+        return fileText;
+    }
+
+    public void setFileText(String fileText) {
+        this.fileText = fileText;
+    }
+
+    public String getDataTypeName() {
+        return dataTypeName;
+    }
+
+    public void setDataTypeName(String dataTypeName) {
+        this.dataTypeName = dataTypeName;
+    }
+
+    public String getDataTypeDescription() {
+        return dataTypeDescription;
+    }
+
+    public void setDataTypeDescription(String dataTypeDescription) {
+        this.dataTypeDescription = dataTypeDescription;
+    }
+
+    public String getDataTypeType() {
+        return dataTypeType;
+    }
+
+    public void setDataTypeType(String dataTypeType) {
+        this.dataTypeType = dataTypeType;
     }
 }

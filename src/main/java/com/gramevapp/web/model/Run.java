@@ -21,7 +21,7 @@ public class Run
     private User userId;
 
     @JsonIgnore
-    @ManyToOne(cascade=CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinTable(
             name = "runs_list",
             joinColumns = {

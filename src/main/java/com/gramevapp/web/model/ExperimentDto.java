@@ -17,10 +17,11 @@ public class ExperimentDto {
     private String results = "";             // Text file with the results of the experiments
     private Integer numCodons = 100;
     private Integer numberRuns = 1;
-    private String defaultGrammar = "";
-    private String defaultExpDataType = "";
+    private Long defaultGrammarId;
+    private Long defaultExpDataTypeId;
     private Long defaultRunId;
     private ExpProperties properties;
+    private Long diagramDataId;
 
     /**
      * 0 -> Root Mean Squared Error (RMSE)
@@ -51,20 +52,20 @@ public class ExperimentDto {
         this.experimentName = experimentName;
     }
 
-    public String getDefaultGrammar() {
-        return defaultGrammar;
+    public Long getDefaultGrammarId() {
+        return defaultGrammarId;
     }
 
-    public void setDefaultGrammar(String defaultGrammar) {
-        this.defaultGrammar = defaultGrammar;
+    public void setDefaultGrammarId(Long defaultGrammarId) {
+        this.defaultGrammarId = defaultGrammarId;
     }
 
-    public String getDefaultExpDataType() {
-        return defaultExpDataType;
+    public Long getDefaultExpDataTypeId() {
+        return defaultExpDataTypeId;
     }
 
-    public void setDefaultExpDataType(String defaultExpDataType) {
-        this.defaultExpDataType = defaultExpDataType;
+    public void setDefaultExpDataTypeId(Long defaultExpDataTypeId) {
+        this.defaultExpDataTypeId = defaultExpDataTypeId;
     }
 
     public Integer getNumberRuns() {
@@ -177,5 +178,13 @@ public class ExperimentDto {
 
     public void setProperties(ExpProperties properties) {
         this.properties = properties;
+    }
+
+    public Long getDiagramDataId() {
+        return diagramDataId;
+    }
+
+    public void setDiagramDataId(Long diagramDataId) {
+        this.diagramDataId = diagramDataId;
     }
 }

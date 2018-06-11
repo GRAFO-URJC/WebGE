@@ -436,7 +436,35 @@
                             <input type="text" class="hiddenInput" th:name="defaultRunId" th:id="defaultRunId" th:value="${configuration.getDefaultRunId()}" />
                             <th:block th:each="run, iterStat : ${runList}">
                                 <tr id="runListLabel">
-                                    <form th:action="@{/user/experiment/runList}" th:object="${runObj}" method="GET" class="form-horizontal">
+                                    <form th:action="@{/user/experiment/runList}" th:object="${expDetailsDto}" method="GET" class="form-horizontal">
+                                        <input type="hidden" th:name="experimentId" th:value="${configuration.getId()}" />
+                                        <input type="hidden" th:name="experimentName" th:value="${configuration.getExperimentName()}" />
+                                        <input type="hidden" th:name="experimentDescription" th:value="${configuration.getExperimentDescription()}" />
+
+                                        <input type="hidden" th:name="generations" th:value="${configuration.getGenerations()}" />
+                                        <input type="hidden" th:name="populationSize" th:value="${configuration.getPopulationSize()}" />
+                                        <input type="hidden" th:name="maxWraps" th:value="${configuration.getMaxWraps()}" />
+                                        <input type="hidden" th:name="tournament" th:value="${configuration.getTournament()}" />
+                                        <input type="hidden" th:name="crossoverProb" th:value="${configuration.getCrossoverProb()}" />
+                                        <input type="hidden" th:name="mutationProb" th:value="${configuration.getMutationProb()}" />
+                                        <input type="hidden" th:name="initialization" th:value="${configuration.getInitialization()}" />
+                                        <input type="hidden" th:name="results" th:value="${configuration.getResults()}" />
+                                        <input type="hidden" th:name="numCodons" th:value="${configuration.getNumCodons()}" />
+                                        <input type="hidden" th:name="numberRuns" th:value="${configuration.getNumberRuns()}" />
+
+                                        <input type="hidden" th:name="defaultGrammarId" th:value="${grammar.getId()}" />
+                                        <input type="hidden" th:name="defaultExpDataTypeId" th:value="${type.getId()}" />
+
+                                        <input type="hidden" th:name="grammarName" th:value="${grammar.getGrammarName()}" />
+                                        <input type="hidden" th:name="grammarDescription" th:value="${grammar.getGrammarDescription()}" />
+                                        <input type="hidden" th:name="fileText" th:value="${grammar.getFileText()}" />
+
+                                        <input type="hidden" th:name="dataTypeName" th:value="${type.getDataTypeName()}" />
+                                        <input type="hidden" th:name="dataTypeDescription" th:value="${type.getDataTypeDescription()}" />
+                                        <input type="hidden" th:name="dataTypeType" th:value="${type.getDataTypeType()}" />
+
+                                        <input type="hidden" th:name="runId" th:value="${configuration.getDefaultRunId()}" />
+
                                         <!--<input type="text" class="hiddenInput" th:name="runId" th:id="runId" th:value="${run.getId()}" />-->
                                         <td scope="row"><label th:text="${run.getId()}" th:id="'runId'+${iterStat.index}" /></td>
                                         <td scope="row"><label th:name="runName" th:id="runName" th:text="${run.getRunName()}" /></td>
@@ -448,6 +476,7 @@
 
                                         <td scope="row">
                                             <button type="submit" id="loadExperimentButton" name="loadExperimentButton" class="btn-default btn-sm btn loadButton">Load experiment</button>
+                                            <!--<a th:href="@{/user/experiment/runList(runId=${run.getId()}, configuration=${configuration}, loadExperimentButton='loadExperimentButton')}" th:object="${configuration}" th:id="${iterStat.index}" class="btn-default btn-sm btn loadButton">Load experiment</a>-->
                                         </td>
                                         <td scope="row">
                                             <!-- https://stackoverflow.com/questions/14938344/thymeleaf-construct-url-with-variable -->
