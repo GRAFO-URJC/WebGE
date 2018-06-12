@@ -1,16 +1,13 @@
 package com.gramevapp.web.controller;
 
-import com.engine.algorithm.SymbolicRegressionGE;
+import com.engine.algorithm.RunnableExpGramEv;
 import com.gramevapp.web.model.*;
-import com.gramevapp.web.other.BeanUtil;
 import com.gramevapp.web.service.DiagramDataService;
 import com.gramevapp.web.service.ExperimentService;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;
-import com.engine.algorithm.RunGeObserver;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,11 +17,12 @@ import javax.validation.Valid;
 import java.io.*;
 import java.util.*;
 
-import static com.engine.util.Common.OBJECTIVES_PROP;
 import static com.engine.util.Common.TRAINING_PATH_PROP;
 
 @Controller
 public class ExperimentController {
+
+    private HashMap<Long, Thread> threadMap = new HashMap();
 
     @Autowired
     private ExperimentService experimentService;
@@ -103,6 +101,7 @@ public class ExperimentController {
                                     @ModelAttribute("grammar") GrammarDto grammarDto,
                                     @ModelAttribute("type") ExperimentDataTypeDto expDataTypeDto,
                                     @ModelAttribute("configuration") ExperimentDto expDto,
+                                    @ModelAttribute("configExp") @Valid ConfigExperimentDto configExperimentDto,
                                     BindingResult result) throws IllegalStateException {
 
         if (result.hasErrors()) {
@@ -187,10 +186,6 @@ public class ExperimentController {
         java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
         // END - DATE TIMESTAMP
 
-        // Experiment Data Type SECTION
-        ExperimentDataType expDataType = experimentDataTypeSection(user, expDataTypeDto, currentTimestamp);
-        // END - Experiment Data Type SECTION
-
         // RUN SECTION
         Run run = new Run(user, Run.Status.INITIALIZING, expDto.getExperimentName(), expDto.getExperimentDescription(), currentTimestamp, currentTimestamp);
 
@@ -202,7 +197,6 @@ public class ExperimentController {
         run.setExperimentDescription(expDto.getExperimentDescription());
 
         run.setDefaultGrammar(grammar);
-        run.setDefaultExpDataType(expDataType);
 
         run.setGenerations(expDto.getGenerations());
         run.setPopulationSize(expDto.getPopulationSize());
@@ -217,6 +211,26 @@ public class ExperimentController {
         run.setNumberRuns(expDto.getNumberRuns());
 
         // END - RUN SECTION
+
+        // Experiment Data Type SECTION
+        Boolean dTFSelectedFromList = false;
+
+        ExperimentDataType expDataType = experimentService.findDataTypeById(expDataTypeDto.getId());
+        if(expDataType != null)
+            dTFSelectedFromList = true;
+
+        if(!dTFSelectedFromList)    // If didn't exist, we create the new data Type file
+            expDataType = experimentDataTypeSection(user, expDataTypeDto, currentTimestamp);
+        else{
+            expDataType.setDataTypeName(expDataTypeDto.getDataTypeName());
+            expDataType.setDataTypeDescription(expDataTypeDto.getDataTypeDescription());
+            expDataType.setDataTypeType(expDataTypeDto.getDataTypeType());
+            expDataType.setRunId(run);
+        }
+
+        run.setDefaultExpDataType(expDataType);
+        // END - Experiment Data Type SECTION
+
 
         // Experiment section
         Experiment exp = experimentSection(user, expDto, grammar, expDataType, run, currentTimestamp, longDefaultRunId);
@@ -249,7 +263,7 @@ public class ExperimentController {
         }
         else {      // Training
             dataTypeDirectoryPath += "training\\" + user.getId();
-            propertiesDto.setTrainingPath(dataTypeDirectoryPath + File.separator + expDto.getExperimentName() + "_" + expDataType.getId() + ".csv");   // TEMPORAL UNTIL KNOW IF WE NEED THIS OR NOT
+            propertiesDto.setTrainingPath(dataTypeDirectoryPath + File.separator + expDto.getExperimentName() + "_" + expDataType.getId() + ".csv");
             propertiesDto.setTraining(true);
         }
 
@@ -264,8 +278,7 @@ public class ExperimentController {
 
         // MultipartFile section
         MultipartFile multipartFile = fileModelDto.getTypeFile();
-
-        String dataFilePath = "";
+        String dataFilePath;
 
         // If Radio button and file path selected -> File path is selected
         // NULL -> didn't select the dataType file from the list - ON if th:value in input is empty
@@ -354,7 +367,6 @@ public class ExperimentController {
             run.getIdRunList().add(new Run(itRun.next()));
         }*/
 
-        List<Run> lRun = runService.findAllByExperiment(exp);
         List<Grammar> lGrammar = experimentService.findAllGrammarByExperimentId(exp);
         List<ExperimentDataType> lExpDataType = experimentService.findAllExperimentDataTypeByExperimentId(exp);
 
@@ -368,7 +380,17 @@ public class ExperimentController {
         expDto.setDiagramDataId(diagramData.getId());
 
         // Run experiment in new thread
-        new Thread() {
+
+        runExperimentDetails(run);
+
+        /*RunnableExpGramEv obj = new RunnableExpGramEv(properties, diagramData, run);
+
+        Thread th = new Thread(obj);
+        th.start();
+        threadMap.put(th.getId(), th);
+        run.setThreaId(th.getId());*/
+
+        /*Thread th = new Thread() {
             public void run() {
                 // ExpPropertiesDto properties, int threadId, int numObjectives
                 try {
@@ -377,7 +399,9 @@ public class ExperimentController {
                     e.printStackTrace();
                 }
             }
-        }.start();
+        };
+        hilos.add(th);
+        th.start();*/
 
         propertiesReader.close();
         // END - Execute program with experiment info
@@ -598,6 +622,7 @@ public class ExperimentController {
         DiagramData diagramData = diagramDataService.findByRunId(run);
 
         // Run experiment in new thread
+/*
         new Thread() {
             public void run() {
                 // ExpPropertiesDto properties, int threadId, int numObjectives
@@ -608,12 +633,20 @@ public class ExperimentController {
                 }
             }
         }.start();
+*/
+        RunnableExpGramEv obj = new RunnableExpGramEv(properties,diagramData,run);
+        Thread th = new Thread(obj);
+        th.start();
+        threadMap.put(th.getId(), th);
+        run.setThreaId(th.getId());
+
+        https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
 
         propertiesReader.close();
         // END - Execute program with experiment info
     }
 
-    //  Run gramEv application
+   /* //  Run gramEv application
     public void executeGramEv(Properties properties, DiagramData diagramData, Run run) throws IOException {
 
         int numObjectives = 1;
@@ -634,7 +667,7 @@ public class ExperimentController {
 
         ge.runGE(observer);
     }
-
+*/
 
     public void createPropertiesFile(String propertiesFilePath, ExpPropertiesDto propertiesDto, String expName, java.sql.Timestamp currentTimeStamp) throws IOException {
         File propertiesNewFile = new File(propertiesFilePath);
@@ -830,9 +863,64 @@ public class ExperimentController {
         return "/user/experiment/experimentDetails";
     }
 
-    @PostMapping(value="/user/experiment/stopRunExperiment", params="stopRunExperimentButton")
-    public void stopRunExperiment(){
+    @PostMapping(value="/user/experiment/stopRun", params="stopRunExperimentButton")
+    public String stopRunExperiment(Model model,
+                                    @RequestParam("runIdStop") String runIdStop){
+        Run run = runService.findByRunId(Long.parseLong(runIdStop));
+        Long threadId = run.getThreaId();
 
+        // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
+        //Give you set of Threads
+        /*Set<Long> setOfThread = threadMap.keySet();
+        Iterator it = setOfThread.iterator();*/
+        //Iterate over set to find yours
+        threadMap.forEach((k, v) -> {
+            Thread th = v;
+            if(th.getId() == threadId){
+                th.interrupt();
+            }
+        });
+        /*for (Iterator i = keys.iterator(); i.hasNext();) {
+            Integer key = (Integer) i.next();
+            String value = (String) map.get(key);
+            System.out.println(key + " = " + value);
+        }
+        while(it.hasNext()){
+            Thread th = (Thread) it.next();
+            if(th.getId() == threadId){
+                th.interrupt();
+            }
+        }*/
 
+        ExperimentDetailsDto experimentDetailsDto = new ExperimentDetailsDto();
+
+        experimentDetailsDto.setExperimentId(run.getExperimentId().getId());
+        experimentDetailsDto.setExperimentName(run.getExperimentId().getExperimentName());
+        experimentDetailsDto.setExperimentDescription(run.getExperimentId().getExperimentDescription());
+
+        experimentDetailsDto.setRunId(run.getId());
+
+        experimentDetailsDto.setGenerations(run.getExperimentId().getGenerations());
+        experimentDetailsDto.setPopulationSize(run.getExperimentId().getPopulationSize());
+        experimentDetailsDto.setMaxWraps(run.getExperimentId().getMaxWraps());
+        experimentDetailsDto.setTournament(run.getExperimentId().getTournament());
+        experimentDetailsDto.setCrossoverProb(run.getExperimentId().getCrossoverProb());
+        experimentDetailsDto.setMutationProb(run.getExperimentId().getMutationProb());
+        experimentDetailsDto.setInitialization(run.getExperimentId().getInitialization());
+        experimentDetailsDto.setResults(run.getExperimentId().getResults());
+        experimentDetailsDto.setNumCodons(run.getExperimentId().getNumCodons());
+        experimentDetailsDto.setNumberRuns(run.getExperimentId().getNumberRuns());
+        experimentDetailsDto.setDefaultGrammarId(run.getExperimentId().getDefaultGrammar().getId());
+        experimentDetailsDto.setDefaultExpDataTypeId(run.getExperimentId().getDefaultExpDataType().getId());
+        experimentDetailsDto.setIniDate(run.getIniDate().toString());
+        experimentDetailsDto.setLastDate(run.getLastDate().toString());
+
+        experimentDetailsDto.setBestIndividual(run.getDiagramData().getBestIndividual());
+        experimentDetailsDto.setCurrentGeneration(run.getDiagramData().getCurrentGeneration());
+
+        experimentDetailsDto.setStatus(run.getStatus());
+
+        model.addAttribute("expDetails", experimentDetailsDto);
+        return "/user/experiment/experimentDetails";
     }
 }

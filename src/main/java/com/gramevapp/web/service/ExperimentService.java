@@ -99,6 +99,10 @@ public class ExperimentService {
         return experimentDataTypeRepository.findByUserIdAndDataTypeName(user, nameExp);
     }
 
+    public ExperimentDataType findDataTypeById(Long dataTypeId){
+        return experimentDataTypeRepository.findById(dataTypeId);
+    }
+
     public Experiment findExperimentById(Long id)
     {
         return experimentRepository.findById(id);

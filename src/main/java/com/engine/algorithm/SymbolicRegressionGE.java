@@ -75,6 +75,11 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         this.evaluator = new Evaluator();
     }
 
+    public static void stopExecution() {
+        stop = true;
+        algorithm.stopExection();
+    }
+
     @Override
     public void evaluate(Solution<Variable<Integer>> solution, Phenotype phenotype) {
         String originalFunction = phenotype.toString();
