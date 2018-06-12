@@ -434,4 +434,23 @@ public class Run implements Cloneable
         expData.setExperimentId(experimentId);
         return expData;
     }
+
+    public void updateRun(Grammar grammar, ExperimentDataType expDataType, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date modificationDate){
+        this.defaultExpDataType = expDataType;
+        this.defaultGrammar = grammar;
+        this.experimentName = experimentName;
+        this.experimentDescription = experimentDescription;
+        this.generations = generations;
+        this.populationSize = populationSize;
+        this.maxWraps = maxWraps;
+        this.tournament = tournament;
+        this.crossoverProb = crossoverProb;
+        this.mutationProb = mutationProb;
+        this.initialization = initialization;
+        this.results = results;
+        this.numCodons = numCodons;
+        this.numberRuns = numberRuns;
+        this.lastDate = modificationDate;
+        this.objective = objective;
+    }
 }

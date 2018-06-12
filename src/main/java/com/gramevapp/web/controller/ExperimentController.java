@@ -99,10 +99,15 @@ public class ExperimentController {
 
     // Update the parameters of the experiment, do not create a new one
     @RequestMapping(value="/user/experiment/start", method=RequestMethod.POST, params="saveExperimentButton")
-    public String saveExperiment(@ModelAttribute("grammar") GrammarDto grammarDto,
-                                 @ModelAttribute("type") ExperimentDataTypeDto expDataTypeDto,
-                                 @ModelAttribute("configuration") ExperimentDto expDto,
-                                 BindingResult result) throws IllegalStateException {
+    public String saveExperiment(   Model model,
+                                    @ModelAttribute("grammar") GrammarDto grammarDto,
+                                    @ModelAttribute("type") ExperimentDataTypeDto expDataTypeDto,
+                                    @ModelAttribute("configuration") ExperimentDto expDto,
+                                    BindingResult result) throws IllegalStateException {
+
+        if (result.hasErrors()) {
+            return "/user/experiment/configExperiment";
+        }
 
         User user = userService.getLoggedInUser();
         if(user == null){
@@ -110,15 +115,11 @@ public class ExperimentController {
             return "redirect:/login";
         }
 
-        if (result.hasErrors()) {
-            return "/user/experiment/configExperiment";
-        }
-
+        Run updRun = runService.findByRunId(expDto.getDefaultRunId());
         Experiment updExp = experimentService.findExperimentById(expDto.getId());
-        if(updExp == null) // Do not update nothing
+        if((updExp == null) || (updRun == null)) // Do not update nothing
             return "redirect:/user/experiment/configExperiment";
         else{
-
             // Grammar section
             Grammar grammar = new Grammar(user, grammarDto.getGrammarName(), grammarDto.getGrammarDescription(), grammarDto.getFileText());
             // END - Grammar section
@@ -134,9 +135,19 @@ public class ExperimentController {
 
             updExp.updateExperiment(grammar, expDataType, expDto.getExperimentName(), expDto.getExperimentDescription() ,expDto.getGenerations(),
                     expDto.getPopulationSize(), expDto.getMaxWraps(), expDto.getTournament(), expDto.getCrossoverProb(), expDto.getMutationProb(),
-                    expDto.getInitialization(), expDto.getResults(), expDto.getNumCodons(), expDto.getNumberRuns(), currentTimestamp);
+                    expDto.getInitialization(), expDto.getResults(), expDto.getNumCodons(), expDto.getNumberRuns(), expDto.getObjective(), currentTimestamp);
+            updRun.updateRun(grammar, expDataType, expDto.getExperimentName(), expDto.getExperimentDescription() ,expDto.getGenerations(),
+                    expDto.getPopulationSize(), expDto.getMaxWraps(), expDto.getTournament(), expDto.getCrossoverProb(), expDto.getMutationProb(),
+                    expDto.getInitialization(), expDto.getResults(), expDto.getNumCodons(), expDto.getNumberRuns(), expDto.getObjective(), currentTimestamp);
 
-            return "redirect:/user/experiment/configExperiment";
+            model.addAttribute("configuration", updRun);
+            model.addAttribute("grammar", grammar);
+            model.addAttribute("type", expDataType);
+            model.addAttribute("grammarList", updRun.getIdGrammarList());
+            model.addAttribute("dataTypeList", updRun.getIdExpDataTypeList());
+            model.addAttribute("runList", updExp.getIdRunList());
+
+            return "/user/experiment/configExperiment";
         }
 
     }
@@ -452,6 +463,7 @@ public class ExperimentController {
 
         expConfig.setDefaultRunId(longRunId);   // We set up the default run id to the experiment, this way we know what run to load
         run.setDefaultRunId(longRunId);
+        run.getExperimentId().setDefaultRunId(longRunId);
 
         model.addAttribute("configuration", run);
         model.addAttribute("grammar", grammar);
@@ -773,13 +785,9 @@ public class ExperimentController {
                     expDto.getPopulationSize(), expDto.getMaxWraps(), expDto.getTournament(), expDto.getCrossoverProb(), expDto.getMutationProb(),
                     expDto.getInitialization(), expDto.getResults(), expDto.getNumCodons(), expDto.getNumberRuns(), expDto.getObjective() ,currentTimestamp, currentTimestamp);
 
-            exp.addGrammar(grammar);
-            exp.addExperimentDataType(expDataType);
-            exp.addRun(run);
-
-            exp.setDefaultGrammar(grammar);
-            exp.setDefaultExpDataType(expDataType);
             exp.setDefaultRunId(longDefaultRunId);          // Doesn't exists -> We set up the run id obtained before
+
+            user.addExperiment(exp);                        // We add it only if doesn't exist
         }
         else {  // The experiment data type configuration already exist
             exp.setExperimentName(expDto.getExperimentName());
@@ -796,16 +804,17 @@ public class ExperimentController {
             exp.setNumberRuns(expDto.getNumberRuns());
             exp.setObjective(expDto.getObjective());
 
-            exp.addGrammar(grammar);
-            exp.addExperimentDataType(expDataType);
-            exp.addRun(run);
 
-            exp.setDefaultGrammar(grammar);
-            exp.setDefaultExpDataType(expDataType);
             exp.setDefaultRunId(run.getId());           // Already exist, so we get it from the RUN model
         }
 
-        user.addExperiment(exp);
+
+        exp.addRun(run);
+        exp.addGrammar(grammar);
+        exp.addExperimentDataType(expDataType);
+
+        exp.setDefaultGrammar(grammar);
+        exp.setDefaultExpDataType(expDataType);
 
         return exp;
     }
