@@ -56,7 +56,7 @@ public class ExperimentDataType {
     private String dataTypeName;
 
     @Column
-    private String dataTypeDescription; // status
+    private String dataTypeDescription;
 
     @Column
     private String dataTypeType;        // Validation, training, test

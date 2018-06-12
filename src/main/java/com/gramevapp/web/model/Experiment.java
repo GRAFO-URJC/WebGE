@@ -375,7 +375,7 @@ public class Experiment {
         this.idProperties = idProperties;
     }
 
-    public void updateExperiment(Grammar grammar, ExperimentDataType expDataType, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, Date modificationDate){
+    public void updateExperiment(Grammar grammar, ExperimentDataType expDataType, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date modificationDate){
         this.defaultExpDataType = expDataType;
         this.defaultGrammar = grammar;
         this.experimentName = experimentName;
@@ -391,5 +391,6 @@ public class Experiment {
         this.numCodons = numCodons;
         this.numberRuns = numberRuns;
         this.modificationDate = modificationDate;
+        this.objective = objective;
     }
 }
