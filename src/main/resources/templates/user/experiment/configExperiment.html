@@ -84,7 +84,7 @@
 
                 <section class="panel-body">
                     <form th:action="@{/user/experiment/start}" enctype="multipart/form-data" th:object="${configExp}" role="form" method="POST">
-                        
+
                         <input type="text" th:name="defaultRunId" th:id="defaultRunId" th:value="${configuration.getDefaultRunId()}" />
 
                         <div class="row center-block form-horizontal">

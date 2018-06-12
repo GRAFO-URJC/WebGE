@@ -75,18 +75,21 @@
                         </div>
                     </div>
 
-                    <form th:action="@{/user/experiment/stopRunExperiment}" th:object="${expDetails}" role="form">
-                        <div class="row center-block form-horizontal">
+                    <div class="row center-block form-horizontal">
+                        <form th:action="@{/user/experiment/stopRun}" method="POST" role="form">
+                            <div class="row center-block form-horizontal">
+                                <input type="hidden" th:id="runIdStop" th:name="runIdStop" th:value="${expDetails.getRunId()}" />
 
-                            <!-- Stop button -->
-                            <div class="row text-center">
-                                <div class="col-sm-12 col-md-12 col-lg-12" style="padding:15px">
-                                    <button type="submit" id="stopExperimentButton" name="stopExperimentButton" class="btn-danger btn-lg" onclick="runExperiment()">Stop execution</button>
+                                <!-- Stop button -->
+                                <div class="row text-center">
+                                    <div class="col-sm-12 col-md-12 col-lg-12" style="padding:15px">
+                                        <button type="submit" th:id="stopRunExperimentButton" th:name="stopRunExperimentButton" class="btn-danger btn-lg btn">Stop execution</button>
+                                    </div>
                                 </div>
+                                <!-- END - Stop button -->
                             </div>
-                            <!-- END - Stop button -->
-                        </div>
-                    </form>
+                        </form>
+                    </div>
 
                     <div class="col-sm-12 col-md-12 col-lg-12">
                         <hr/>

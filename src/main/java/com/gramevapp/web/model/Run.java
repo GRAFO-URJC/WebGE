@@ -41,6 +41,9 @@ public class Run implements Cloneable
     private DiagramData diagramData;
 
     @Column
+    private Long threaId;
+
+    @Column
     private Double bestIndividual = 0.0;  // Best solution
 
     @Column
@@ -421,6 +424,14 @@ public class Run implements Cloneable
 
     public void setNumberRuns(Integer numberRuns) {
         this.numberRuns = numberRuns;
+    }
+
+    public Long getThreaId() {
+        return threaId;
+    }
+
+    public void setThreaId(Long threaId) {
+        this.threaId = threaId;
     }
 
     public Grammar addGrammar(Grammar grammar) {
