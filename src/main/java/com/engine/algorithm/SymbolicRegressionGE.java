@@ -75,7 +75,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         this.evaluator = new Evaluator();
     }
 
-    public static void stopExecution() {
+    public void stopExecution() {
         stop = true;
         algorithm.stopExection();
     }
