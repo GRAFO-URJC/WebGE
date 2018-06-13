@@ -23,6 +23,7 @@ import static com.engine.util.Common.TRAINING_PATH_PROP;
 public class ExperimentController {
 
     private HashMap<Long, Thread> threadMap = new HashMap();
+    private HashMap<Long, RunnableExpGramEv> runnables = new HashMap();
 
     @Autowired
     private ExperimentService experimentService;
@@ -639,6 +640,7 @@ public class ExperimentController {
         th.start();
         threadMap.put(th.getId(), th);
         run.setThreaId(th.getId());
+        runnables.put(th.getId(),obj);
 
         https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
 
@@ -880,6 +882,7 @@ public class ExperimentController {
                 th.interrupt();
             }
         });
+        runnables.get(threadId).stopExecution();
         /*for (Iterator i = keys.iterator(); i.hasNext();) {
             Integer key = (Integer) i.next();
             String value = (String) map.get(key);

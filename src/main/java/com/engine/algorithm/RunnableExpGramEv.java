@@ -12,6 +12,7 @@ public class RunnableExpGramEv implements Runnable {
     private final Properties properties;
     private final DiagramData diagramData;
     private final Run runElement;
+    private SymbolicRegressionGE ge;
 
     public RunnableExpGramEv(Properties properties, DiagramData diagramData, Run runElement) {
         this.properties = properties;
@@ -32,12 +33,16 @@ public class RunnableExpGramEv implements Runnable {
         runElement.setBestIndividual(diagramData.getBestIndividual());
         runElement.setCurrentGeneration(diagramData.getCurrentGeneration());
 
-        SymbolicRegressionGE ge = new SymbolicRegressionGE(properties,numObjectives);
+        ge = new SymbolicRegressionGE(properties,numObjectives);
 
         RunGeObserver observer = new RunGeObserver();
         diagramData.setFinished(false);
         observer.setDiagramData(diagramData);
 
         ge.runGE(observer);
+    }
+
+    public void stopExecution() {
+        ge.stopExecution();
     }
 }
