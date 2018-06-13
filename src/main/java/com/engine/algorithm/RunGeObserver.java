@@ -62,9 +62,12 @@ public class RunGeObserver implements Observer {
             this.diagramData.getRunId().setStatus(Run.Status.RUNNING);
         }
 
+        /*if(this.diagramData.getRunId().getStatus().equals((Run.Status.STOPPED))){
+            this.diagramData.getRunId().setStatus(Run.Status.RUNNING);
+        }*/
+
         if(currPercent == 100 || currBest <= 0.0) {
             this.diagramData.setFinished(true);
-
             /*if(this.diagramData.getListPair().get(0).getId() != null)
                 dataDataService.deleteAllByDiagramId(this.diagramData);*/
         }
