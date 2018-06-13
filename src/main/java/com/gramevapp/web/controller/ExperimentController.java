@@ -7,7 +7,6 @@ import com.gramevapp.web.service.ExperimentService;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -872,9 +871,6 @@ public class ExperimentController {
         Long threadId = run.getThreaId();
 
         // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
-        //Give you set of Threads
-        /*Set<Long> setOfThread = threadMap.keySet();
-        Iterator it = setOfThread.iterator();*/
         //Iterate over set to find yours
         threadMap.forEach((k, v) -> {
             Thread th = v;
@@ -883,17 +879,8 @@ public class ExperimentController {
             }
         });
         runnables.get(threadId).stopExecution();
-        /*for (Iterator i = keys.iterator(); i.hasNext();) {
-            Integer key = (Integer) i.next();
-            String value = (String) map.get(key);
-            System.out.println(key + " = " + value);
-        }
-        while(it.hasNext()){
-            Thread th = (Thread) it.next();
-            if(th.getId() == threadId){
-                th.interrupt();
-            }
-        }*/
+
+        run.setStatus(Run.Status.STOPPED);
 
         ExperimentDetailsDto experimentDetailsDto = new ExperimentDetailsDto();
 
@@ -924,6 +911,6 @@ public class ExperimentController {
         experimentDetailsDto.setStatus(run.getStatus());
 
         model.addAttribute("expDetails", experimentDetailsDto);
-        return "/user/experiment/experimentDetails";
+        return "/user/experiment/showDiagramPlot";
     }
 }
