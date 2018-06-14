@@ -452,11 +452,11 @@
 
                                         <td scope="row">
                                             <!--<button type="submit" id="loadExperimentButton" name="loadExperimentButton" class="btn-default btn-sm btn loadButton">Load experiment</button>-->
-                                            <a th:href="@{/user/experiment/runList(runId=${run.getId()}, loadExperimentButton='loadExperimentButton')}" th:id="${iterStat.index}" class="btn-default btn-sm btn loadButton">Load experiment</a>
+                                            <a th:href="@{/user/experiment/runList(runId=${run.getId()}, loadExperimentButton='loadExperimentButton')}" th:id="${'loadExperimentButton' + iterStat.index}" class="btn-default btn-sm btn loadButton">Load experiment</a>
                                         </td>
                                         <td scope="row">
                                             <!-- https://stackoverflow.com/questions/14938344/thymeleaf-construct-url-with-variable -->
-                                            <a th:href="@{/user/experiment/runList(runId=${run.getId()}, runExperimentButton='runExperimentButton')}" target="_blank" th:id="${iterStat.index}" onclick="showRunStatus(this.id)" class="btn-default btn-sm btn loadButton">Re-run experiment</a>
+                                            <a th:href="@{/user/experiment/runList(runId=${run.getId()}, runExperimentButton='runExperimentButton')}" target="_blank" th:id="${'runExperimentButton' + iterStat.index}"  onclick="showRunStatus(this.id)" class="btn-default btn-sm btn loadButton">Re-run experiment</a>
                                         </td>
                                         <!--<td scope="row" th:if="${#strings.toString(run.status)} == 'FINISHED'">-->
                                         <td scope="row" th:id="'showPlot'+${iterStat.index}" class="" >
@@ -586,10 +586,17 @@
                     var bestIndividual = "#bestIndividual" + iterStat;
 
                     setTimeout(function(){
-                        if ($(status).text() != "FINISHED")
+                        if ($(status).text() != "FINISHED") {
+                            if  ($(status).text() == "RUNNING")
+                                $("#runExperimentButton" + iterStat).text("Show plot execution");
+                            $("#showPlot" + iterStat).addClass("hidden");
                             checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat);
-                        if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED"))
+                        }
+
+                        if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED")) {
                             $("#showPlot" + iterStat).removeClass("hidden");
+                            $("#runExperimentButton" + iterStat).text("Re-run experiment");
+                        }
                     }, 1000);
                 }
             });
