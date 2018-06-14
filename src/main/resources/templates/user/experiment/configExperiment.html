@@ -555,9 +555,9 @@
         }
     </script>
 
-    <script>
+    <script type="text/javascript">
+        // <![CDATA[
         function checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat){
-
             $.ajax({
                 url: encodeURI("/user/rest/runStatus/"),
                 data: {
@@ -586,7 +586,8 @@
                     var bestIndividual = "#bestIndividual" + iterStat;
 
                     setTimeout(function(){
-                        if ($(status).text() != "FINISHED") {
+                        if (($(status).text() != "FINISHED") && ($(status).text() != "STOPPED") && ($(status).text() != "FAILED")) {
+                            console.log($(status).text());
                             if  ($(status).text() == "RUNNING")
                                 $("#runExperimentButton" + iterStat).text("Show plot execution");
                             $("#showPlot" + iterStat).addClass("hidden");
@@ -594,6 +595,7 @@
                         }
 
                         if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED")) {
+                            console.log($(status).text());
                             $("#showPlot" + iterStat).removeClass("hidden");
                             $("#runExperimentButton" + iterStat).text("Re-run experiment");
                         }
@@ -601,6 +603,7 @@
                 }
             });
         };
+        // ]]>
 
         function runController(runId){
             $.ajax({
@@ -618,17 +621,20 @@
         }
 
         function showRunStatus(iterStat) {
+            var cleanIterStat = iterStat.substring(iterStat.length - 1, iterStat.length);
 
-            var runId = $("#runId" + iterStat);
-            var status = "#status" + iterStat;
-            var currentGeneration = "#currentGeneration" + iterStat;
-            var bestIndividual = "#bestIndividual" + iterStat;
+            console.log(cleanIterStat);
+
+            var runId = $("#runId" + cleanIterStat);
+            var status = "#status" + cleanIterStat;
+            var currentGeneration = "#currentGeneration" + cleanIterStat;
+            var bestIndividual = "#bestIndividual" + cleanIterStat;
 
             if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED"))
                 $(status).text("INITIALIZING");
 
             setTimeout(function(){
-                checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat)
+                checkRunStatus(runId, status, bestIndividual, currentGeneration, cleanIterStat)
             }, 200);
             // runController(runId);
         }
@@ -639,10 +645,9 @@
         var indexesHide = [];
 
         $(document).ready(function(){
-
             $('[name="status"]').each(function (index) {
                 if(($(this).text() == "FINISHED") || ($(this).text() == "STOPPED") || ($(this).text() == "FAILED")) {
-                    console.log("Finished = ");
+                    console.log("Finished/Stopped/Failed = ");
                     console.log(index);
                     indexesShow[index] = index;
                 }
@@ -650,7 +655,7 @@
                     console.log("Running / initializing = ");
                     console.log(index);
                     indexesHide[index] = index;
-                    showRunStatus(index);
+                    showRunStatus("runExperiment" + index);
                 }
             });
 
