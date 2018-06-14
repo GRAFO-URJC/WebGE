@@ -27,6 +27,9 @@ public class RunRestController {
         if(user == null)
             System.out.println("User not authenticated");
 
+        if(runId == "")
+            return null;
+
         Run run = runService.findByRunId(Long.parseLong(runId));
         run.setCurrentGeneration(run.getDiagramData().getCurrentGeneration());
         run.setBestIndividual(run.getDiagramData().getBestIndividual());
