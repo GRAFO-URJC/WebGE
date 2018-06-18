@@ -33,9 +33,6 @@ public class ExpProperties {
 
     //private UUID id = UUID.randomUUID();
 
-    @OneToOne(cascade=CascadeType.ALL)
-    private User userId;
-
     @Column
     private Long idExp;
 
@@ -390,14 +387,6 @@ public class ExpProperties {
 
     public void setIdRun(Long idRun) {
         this.idRun = idRun;
-    }
-
-    public User getUserId() {
-        return userId;
-    }
-
-    public void setUserId(User userId) {
-        this.userId = userId;
     }
 
     public String getUuidPropDto() {

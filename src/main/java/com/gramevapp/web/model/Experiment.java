@@ -21,7 +21,7 @@ public class Experiment {
     private Long id;
 
     @JsonManagedReference
-    @ManyToOne(cascade=CascadeType.ALL)
+    @ManyToOne(targetEntity=User.class,fetch=FetchType.EAGER)
     @JoinTable(
             name = "users_experiments",
             joinColumns = {
@@ -65,8 +65,8 @@ public class Experiment {
     private ExperimentDataType defaultExpDataType;
 
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToMany(cascade = CascadeType.ALL,
-            mappedBy = "experimentId")
+    @OneToMany(mappedBy = "experimentId",
+            cascade = CascadeType.REMOVE)
     private List<Run> idRunList;
 
     @Column

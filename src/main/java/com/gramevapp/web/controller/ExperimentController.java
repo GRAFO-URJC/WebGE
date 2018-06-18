@@ -7,6 +7,8 @@ import com.gramevapp.web.service.ExperimentService;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -433,9 +435,9 @@ public class ExperimentController {
         return "/user/experiment/experimentRepository";
     }
 
-    @RequestMapping(value="/user/experiment/expRepoSelected")
+    @RequestMapping(value="/user/experiment/expRepoSelected", method=RequestMethod.GET, params="loadExperimentButton")
     public String expRepoSelected(Model model,
-                                  @RequestParam(required=false) String id ){ // Exp ID
+                                  @RequestParam(required=false) String id){ // Exp ID
 
         User user = userService.getLoggedInUser();
         if(user == null){
@@ -465,6 +467,22 @@ public class ExperimentController {
 
         return "/user/experiment/configExperiment";
     }
+
+    @RequestMapping(value="/user/experiment/expRepoSelected", method=RequestMethod.POST, params="deleteExperiment")
+    public
+    @ResponseBody Long expRepoSelectedDelete(@RequestParam("experimentId") String experimentId){
+        User user = userService.getLoggedInUser();
+
+        Long idExp = Long.parseLong(experimentId);
+
+        Experiment expConfig = experimentService.findExperimentById(idExp);
+
+        experimentService.deleteExpProperties(experimentService.findPropertiesById(expConfig.getIdProperties()));
+        experimentService.deleteExperiment(expConfig);
+
+        return idExp;
+    }
+
 
     @RequestMapping(value="/user/experiment/runList", method=RequestMethod.GET, params="loadExperimentButton")
     public String loadExperiment(Model model,
@@ -719,8 +737,6 @@ public class ExperimentController {
         ExpProperties expProp = new ExpProperties();
 
         expProp.setUuidPropDto(propDto.getId().toString());
-
-        expProp.setUserId(user);
 
         expProp.setIdExp(experiment.getId());
         expProp.setIdRun(run.getId());

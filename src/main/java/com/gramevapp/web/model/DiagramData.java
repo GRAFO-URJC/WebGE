@@ -22,14 +22,16 @@ public class DiagramData {
 
     // @JsonManagedReference
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToMany(fetch=FetchType.EAGER,
+    @OneToMany(cascade=CascadeType.ALL,
+            fetch=FetchType.EAGER,
             mappedBy = "diagramDataId")
     private List<DiagramPair> listPair;   // To display diagram with one click.
 
     @Column
     private Double bestIndividual = 0.0;  // Best solution
 
-    @OneToOne
+
+    @OneToOne(targetEntity=Run.class,fetch=FetchType.EAGER , cascade=CascadeType.ALL)
     private Run runId;
 
     @Column
@@ -40,6 +42,12 @@ public class DiagramData {
 
     @Column
     private Boolean finished = false;
+
+    @Column
+    private Boolean stopped = false;
+
+    @Column
+    private Boolean failed = false;
 
     Calendar calendar = Calendar.getInstance();
 
@@ -128,6 +136,26 @@ public class DiagramData {
 
     public void setListPair(ArrayList<DiagramPair> listBestIndividual) {
         this.listPair = listBestIndividual;
+    }
+
+    public void setBestIndividual(Double bestIndividual) {
+        this.bestIndividual = bestIndividual;
+    }
+
+    public Boolean getStopped() {
+        return stopped;
+    }
+
+    public void setStopped(Boolean stopped) {
+        this.stopped = stopped;
+    }
+
+    public Boolean getFailed() {
+        return failed;
+    }
+
+    public void setFailed(Boolean failed) {
+        this.failed = failed;
     }
 
     public void addListPair(double bestIndividual, int currentGeneration){

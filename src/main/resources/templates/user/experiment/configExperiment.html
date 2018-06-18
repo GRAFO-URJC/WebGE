@@ -621,7 +621,7 @@
         }
 
         function showRunStatus(iterStat) {
-            var cleanIterStat = iterStat.substring(iterStat.length - 1, iterStat.length);
+            var cleanIterStat = iterStat.substring(iterStat.length - 1, iterStat.length);   // Dará error, si hay listado con mas de 9 obj, no pillará el id de 10, pq sólo mira hasta el último
 
             console.log(cleanIterStat);
 

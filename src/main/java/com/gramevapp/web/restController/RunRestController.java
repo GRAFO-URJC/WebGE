@@ -44,11 +44,17 @@ public class RunRestController {
             run.getDiagramData().setBestIndividual(1.0);
             run.getDiagramData().setCurrentGeneration(0);
 
+
             run.getDiagramData().setListPair(new ArrayList<>());
         }
 
         if(run.getDiagramData().getFinished() || run.getDiagramData().getBestIndividual() <= 0.0)
             run.setStatus(Run.Status.FINISHED);
+
+        if(run.getDiagramData().getStopped())
+            run.setStatus(Run.Status.STOPPED);
+        if(run.getDiagramData().getFailed())
+            run.setStatus(Run.Status.FAILED);
 
         return run;
     }

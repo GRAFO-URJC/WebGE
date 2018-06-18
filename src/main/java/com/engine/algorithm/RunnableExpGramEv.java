@@ -37,6 +37,8 @@ public class RunnableExpGramEv implements Runnable {
 
         RunGeObserver observer = new RunGeObserver();
         diagramData.setFinished(false);
+        diagramData.setStopped(false);
+        diagramData.setFailed(false);
         observer.setDiagramData(diagramData);
 
         ge.runGE(observer);

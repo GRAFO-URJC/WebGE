@@ -71,7 +71,8 @@ public class User implements Serializable {
     @JsonBackReference
     @OneToMany(fetch=FetchType.LAZY,
             mappedBy = "userId",
-            targetEntity=Experiment.class)
+            targetEntity=Experiment.class,
+            orphanRemoval = true)
     private List<Experiment> listExperiments;
     /*@JoinTable(
             name = "users_experiments",
