@@ -250,8 +250,9 @@ public class UserController {
     }
 
     @PostMapping("/registration")
-    public String registerUserAccount(@ModelAttribute("user") @Valid UserRegistrationDto userDto,
-                                      BindingResult result){
+    public String registerUserAccount(  Model model,
+                                        @ModelAttribute("user") @Valid UserRegistrationDto userDto,
+                                        BindingResult result){
 
         User existingEmail = userService.findByEmail(userDto.getEmail());
         User existingUsername = userService.findByUsername(userDto.getUsername());
@@ -269,6 +270,9 @@ public class UserController {
         }
 
         userService.save(userDto);
+
+        model.addAttribute("message", "User registered successfully");
+
         return "login";
     }
 

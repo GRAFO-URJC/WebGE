@@ -23,7 +23,7 @@ public class ExperimentDataType {
             strategy = "native")*/
     private Long id;
 
-    @OneToOne(cascade=CascadeType.ALL)
+    @OneToOne
     private User userId;
 
     @JsonManagedReference

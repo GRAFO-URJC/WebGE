@@ -13,4 +13,6 @@ public interface ExperimentRepository extends JpaRepository<Experiment, Long> {
     Experiment findById(Long id);
     Experiment findByUserIdAndId(User user, Long id);
     List<Experiment> findByUserId(User user);
+    void deleteByUserIdAndId(User user, Long id);
+    void deleteById(Long id);
 }

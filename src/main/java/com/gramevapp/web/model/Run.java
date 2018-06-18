@@ -10,16 +10,15 @@ import java.util.List;
 
 @Entity
 @Table(name = "run")
-public class Run implements Cloneable
-{
-    public enum Status { INITIALIZING, RUNNING, PAUSED, STOPPED, FINISHED, FAILED; };
+public class Run {
+    public enum Status { INITIALIZING, RUNNING, STOPPED, FINISHED, FAILED; };
 
     @Id
     @Column(name="RUN_ID", updatable= false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne(cascade=CascadeType.ALL)
+    @OneToOne
     private User userId;
 
     @JsonIgnore
@@ -35,9 +34,9 @@ public class Run implements Cloneable
     )
     private Experiment experimentId;
 
-    @OneToOne
+    @OneToOne(cascade =  CascadeType.ALL,
+            mappedBy = "runId")
     @JsonIgnore
-    @JoinColumn(name = "DIAGRAM_DATA", referencedColumnName = "DIAGRAM_DATA_ID")
     private DiagramData diagramData;
 
     @Column

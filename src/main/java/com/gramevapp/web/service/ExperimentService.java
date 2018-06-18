@@ -116,12 +116,12 @@ public class ExperimentService {
         return propertiesRepository.findById(propertiesId);
     }
 
-    public ExpProperties findPropertiesByUserIdAndId(User user, Long id){
-        return propertiesRepository.findByUserIdAndId(user, id);
-    }
-
     public ExpProperties findPropertiesByExpIdAndRunId(Long expId, Long runId){
         return propertiesRepository.findByIdExpAndIdRun(expId, runId);
+    }
+
+    public void deleteExpProperties(ExpProperties expProperties){
+        propertiesRepository.delete(expProperties);
     }
 
     public ExpProperties saveExpProperties(ExpProperties expProperties){
@@ -134,6 +134,10 @@ public class ExperimentService {
 
     public List<ExperimentDataType> findAllExperimentDataTypeByExperimentId(Experiment experimentId){
         return experimentDataTypeRepository.findAllByExperimentId(experimentId);
+    }
+
+    public void deleteExperiment(Experiment experiment){
+        experimentRepository.delete(experiment);
     }
 
 }

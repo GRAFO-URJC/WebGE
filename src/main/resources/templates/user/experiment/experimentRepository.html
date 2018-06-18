@@ -93,17 +93,22 @@
                                 </thead>
                                 <tbody id="expTable">
                                     <th:block th:each="exp, iterStat : ${experimentList}">
-                                        <tr>
-                                            <form th:action="@{/user/experiment/expRepoSelected}" th:object="${expRepository}" method="POST">
+                                        <tr th:id="'tr' + ${iterStat.index}">
+                                            <form th:action="@{/user/experiment/expRepoSelected}" th:object="${expRepository}" method="GET">
                                                 <input type="text" class="hiddenInput" th:name="id" th:id="id" th:value="${exp.getId()}" />
                                                 <td scope="row"><label th:name="id" th:id="id" th:text="${exp.id}" id="id" /></td>
                                                 <td scope="row"><label th:name="name" th:id="name" th:text="${exp.experimentName}" id="name" /></td>
                                                 <td scope="row"><label th:name="description" th:id="description" th:text="${exp.experimentDescription}" id="description" /></td>
                                                 <td scope="row"><label th:name="creationDate" th:id="creationDate" th:text="${exp.getCreationDate()}" id="creationDate" /></td>
                                                 <td scope="row">
-                                                    <button type="submit" id="loadExperiment" name="loadExperiment" class="btn-default btn btn-sm">Load experiment</button>
+                                                    <button type="submit" th:id="loadExperimentButton" th:name="loadExperimentButton" class="btn-default btn btn-sm">Load experiment</button>
                                                 </td>
-                                                <td scope="row"><a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse" class="accordion-toggle">More details <span class="glyphicon glyphicon-chevron-down"></span> </a></td>
+                                                <td scope="row">
+                                                    <a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse" class="accordion-toggle">More details <span class="glyphicon glyphicon-chevron-down"></span> </a>
+                                                </td>
+                                                <td scope="row">
+                                                    <button type="button" th:name="${exp.id}" th:id="${'deleteExperiment' + iterStat.index}" onclick="confirmDelete(this.id, this.name)" class="btn-default btn btn-sm"><span class="glyphicon glyphicon-trash small" rel="tooltip" title="Delete experiment"></span></button>
+                                                </td>
                                             </form>
                                         </tr>
                                         <tr>
@@ -162,27 +167,54 @@
         <!-- END Modal -->
 
 
-        <script>
-            $("#expTypeTable tr").attr({"id" : "selected"}).siblings().removeAttr('id');
-            $("#moreDetails").attr("")
-        </script>
+    <script>
+        $("#expTypeTable tr").attr({"id" : "selected"}).siblings().removeAttr('id');
+        $("#moreDetails").attr("")
+    </script>
 
-        <script>
-            $(document).ready(function(){
-                $("[rel=tooltip]").tooltip({ placement: 'right'});
-            });
-        </script>
+    <script>
+        $(document).ready(function(){
+            $("[rel=tooltip]").tooltip({ placement: 'right'});
+        });
+    </script>
 
-        <script>
-            $(document).ready(function(){
-                $("#searchExperiment").on("keyup", function() {
-                    var value = $(this).val().toLowerCase();
-                    $("#expTable tr").filter(function() {
-                        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-                    });
+    <script>
+        $(document).ready(function(){
+            $("#searchExperiment").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $("#expTable tr").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
                 });
             });
-        </script>
+        });
+    </script>
+    <script>
+        function confirmDelete(iterStat, expId) {
+            var result = confirm("Are you sure to delete this experiment ?");
+            if(result)
+                deleteRow(iterStat, expId);
+        }
 
+
+        function deleteRow(iterStat, expId) {
+            var cleanIterStat = iterStat.substring(iterStat.length - 1, iterStat.length);   // Dará error, si hay listado con mas de 9 obj, no pillará el id de 10, pq sólo mira hasta el último
+
+            $.ajax({
+                url: encodeURI("/user/experiment/expRepoSelected"),
+                data: {
+                    'experimentId' : expId,
+                    'deleteExperiment' : 'deleteExperiment'
+                },
+                cache: false,
+                async:true,
+                type: "POST",
+                dataType: "json",
+                success: function(data){
+                    $("#tr" + cleanIterStat).remove();
+                }
+            });
+        };
+
+    </script>
     </body>
 </html>
