@@ -19,7 +19,7 @@ public class ExperimentRowType {
 
     //@CsvBindByName(column = "expDataTypeId"/*, required = true*/)
     //@CsvBindByPosition(position = 1)
-    @ManyToOne(cascade=CascadeType.ALL) // https://www.thoughts-on-java.org/hibernate-tips-map-bidirectional-many-one-association/
+    @ManyToOne // https://www.thoughts-on-java.org/hibernate-tips-map-bidirectional-many-one-association/
     @PrimaryKeyJoinColumn
     private ExperimentDataType expDataTypeId;
 

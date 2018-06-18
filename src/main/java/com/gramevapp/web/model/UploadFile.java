@@ -12,7 +12,6 @@ import java.io.InputStream;
 @Entity
 @Table(name = "UPLOAD_FILE")
 public class UploadFile {
-    private final String DEFAULT_PROFILE_PIC_PATH = "."+File.separator+"main"+File.separator+"resources"+File.separator+"static"+File.separator+"images"+File.separator+"index"+File.separator+"profile_default.png";
 
     @Id
     @Column(name = "UPLOAD_FILE_ID")
@@ -24,8 +23,6 @@ public class UploadFile {
     private String filePath;
 
     public UploadFile() {
-        this.fileName = "Default profile picture";
-        this.filePath = DEFAULT_PROFILE_PIC_PATH;
     }
 
     public long getId() {

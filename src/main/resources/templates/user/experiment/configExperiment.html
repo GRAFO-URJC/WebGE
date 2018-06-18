@@ -359,11 +359,13 @@
                                         <tbody>
                                         <tr th:each="dataType, iterStat : ${dataTypeList}">     <!-- We are using model Experiment and not ExperimentDto -->
                                             <td scope="row"><input type="radio" th:id="radioDataType" th:name="radioDataType" th:value="${dataType.getId()}" onclick="check()"/></td>
-                                            <td scope="row"><label th:text="${dataType.getId()}" th:id="'expDataTypeIdList'+${iterStat.count}" th:name="expDataTypeIdList" /></td>
+                                            <td scope="row"><label th:text="${dataType.getId()}" th:id="dataTypeId" th:name="dataTypeId" /></td>
                                             <td scope="row"><label th:text="${dataType.getDataTypeName()}" th:name="expDataTypeNameList" th:id="expDataTypeNameList" /></td>
                                             <td scope="row"><label th:text="${dataType.getDataTypeDescription()}" th:name="expDataTypeDescriptionList" th:id="expDataTypeDescriptionList" /></td>
                                             <td scope="row"><label th:text="${dataType.getDataTypeType()}" th:name="expDataTypeTypeList" th:id="expDataTypeTypeList" /></td>
                                             <td scope="row"><label th:text="${dataType.getCreationDate()}" th:name="creationDate" th:id="creationDate" /></td>
+                                            <input type="hidden"  th:id="dataTypeId" th:name="dataTypeId" th:value="${dataType.getId()}"/>
+                                            <input type="hidden"  th:id="dataTypeType" th:name="dataTypeType" th:value="${dataType.getDataTypeType()}"/>
                                             <!--<td scope="row"><a class="btn-default btn-sm" onclick="fillInput($(user.getId()) ,$(dataType.getId()),  $(dataType.getDataTypeName()))" id="loadDataTypeButton" name="loadDataTypeButton">select</a></td>-->
                                         </tr>
                                         </tbody>
@@ -438,7 +440,7 @@
 
                             <input type="text" class="hiddenInput" th:name="defaultRunId" th:id="defaultRunId" th:value="${configuration.getDefaultRunId()}" />
                             <th:block th:each="run, iterStat : ${runList}">
-                                <tr id="runListLabel">
+                                <tr th:id="'tr' + ${iterStat.index}">
                                     <form th:action="@{/user/experiment/runList}" th:object="${expDetailsDto}" method="GET" class="form-horizontal">
                                         <!--<input type="hidden" th:name="runId" th:value="${configuration.getDefaultRunId()}" />-->
 
@@ -464,6 +466,9 @@
                                         </td>
                                         <td scope="row">
                                             <a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse" class="accordion-toggle">More details <span class="glyphicon glyphicon-chevron-down"></span></a>
+                                        </td>
+                                        <td scope="row" th:id="'showDelete'+${iterStat.index}">
+                                            <button type="button" th:name="${run.id}" th:id="${'deleteRun' + iterStat.index}" onclick="confirmDelete(this.id, this.name)" class="btn-default btn btn-sm"><span class="glyphicon glyphicon-trash small" rel="tooltip" title="Delete run"></span></button>
                                         </td>
                                     </form>
                                 </tr>
@@ -494,7 +499,6 @@
         <!-- END RUN SECTION -->
 
     </div>
-
 
     <script>
         // Load the file in grammar text area
@@ -591,12 +595,14 @@
                             if  ($(status).text() == "RUNNING")
                                 $("#runExperimentButton" + iterStat).text("Show plot execution");
                             $("#showPlot" + iterStat).addClass("hidden");
+                            $("#showDelete" + iterStat).addClass("hidden");
                             checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat);
                         }
 
                         if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED")) {
                             console.log($(status).text());
                             $("#showPlot" + iterStat).removeClass("hidden");
+                            $("#showDelete" + iterStat).removeClass("hidden");
                             $("#runExperimentButton" + iterStat).text("Re-run experiment");
                         }
                     }, 1000);
@@ -661,10 +667,12 @@
 
             indexesShow.forEach(function(element, index) {
                 $("#showPlot" + indexesShow[index]).removeClass("hidden");
+                $("#showDelete" + indexesShow[index]).removeClass("hidden");
             });
 
             indexesHide.forEach(function(element, index) {
                 $("#showPlot" + indexesHide[index]).addClass("hidden");
+                $("#showDelete" + indexesHide[index]).addClass("hidden");
             });
         });
     </script>
@@ -681,6 +689,32 @@
             });
         });
 
+    </script>
+    <script>
+        function confirmDelete(iterStat, runId) {
+            var result = confirm("Are you sure to delete this experiment ?");
+            if(result)
+                deleteRow(iterStat, runId);
+        }
+
+        function deleteRow(iterStat, runId) {
+            var cleanIterStat = iterStat.substring(iterStat.length - 1, iterStat.length);   // Dará error, si hay listado con mas de 9 obj, no pillará el id de 10, pq sólo mira hasta el último
+
+            $.ajax({
+                url: encodeURI("/user/experiment/expRepoSelected"),
+                data: {
+                    'runId' : runId,
+                    'deleteRun' : 'deleteRun'
+                },
+                cache: false,
+                async:true,
+                type: "POST",
+                dataType: "json",
+                success: function(data){
+                    $("#tr" + cleanIterStat).remove();
+                }
+            });
+        };
     </script>
 
     </body>
