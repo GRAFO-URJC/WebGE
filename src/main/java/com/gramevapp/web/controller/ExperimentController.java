@@ -625,7 +625,7 @@ public class ExperimentController {
 
         ExpProperties prop = experimentService.findPropertiesById(run.getIdProperties());
 
-        String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + run.getExperimentId().getExperimentName().replaceAll("\\s+","") + "_" + prop.getUuidPropDto() + ".properties";
+        String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + run.getExperimentName().replaceAll("\\s+","") + "_" + prop.getUuidPropDto() + ".properties";
 
         // Execute program with experiment info
         File propertiesFile = new File(propertiesFilePath);
@@ -639,19 +639,6 @@ public class ExperimentController {
 
         DiagramData diagramData = diagramDataService.findByRunId(run);
 
-        // Run experiment in new thread
-/*
-        new Thread() {
-            public void run() {
-                // ExpPropertiesDto properties, int threadId, int numObjectives
-                try {
-                    executeGramEv(properties, diagramData, run);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }.start();
-*/
         RunnableExpGramEv obj = new RunnableExpGramEv(properties,diagramData,run);
         Thread th = new Thread(obj);
         th.start();

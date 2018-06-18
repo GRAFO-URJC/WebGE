@@ -74,17 +74,6 @@ public class User implements Serializable {
             targetEntity=Experiment.class,
             orphanRemoval = true)
     private List<Experiment> listExperiments;
-    /*@JoinTable(
-            name = "users_experiments",
-            joinColumns ={
-                    @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
-                    @JoinColumn(name = "username", referencedColumnName = "username"),
-                    @JoinColumn(name = "email", referencedColumnName = "email")
-            },
-            inverseJoinColumns ={
-                    @JoinColumn(name = "experiment_id", referencedColumnName = "experiment_id"),
-                    @JoinColumn(name = "experiment_name", referencedColumnName = "experiment_name")
-            })*/
 
     @JoinColumn(name = "PROFILE_PICTURE_ID", unique = true)
     @OneToOne(cascade = CascadeType.ALL)
@@ -262,10 +251,6 @@ public class User implements Serializable {
         if(!this.roles.contains(role)){
             this.roles.add(role);
         }
-
-        /*if(!role.getUsers().contains(this)){
-            role.getUsers().add(this);
-        }*/
     }
 
     public void removeRole(Role role){

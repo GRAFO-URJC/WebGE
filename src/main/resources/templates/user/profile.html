@@ -60,11 +60,17 @@
 
                 <section class="panel-body center-block">
                     <div class="card hovercard">
-                        <div class="card-background">
+                        <div th:if="${userLogged.getProfilePicture() != null}" class="card-background">
                             <img class="card-bkimg" th:src="@{/user/profile_picture}" />
                         </div>
-                        <div class="useravatar">
+                        <div th:if="${userLogged.getProfilePicture() != null}" class="useravatar">
                             <img th:src="@{/user/profile_picture}" />
+                        </div>
+                        <div th:if="${userLogged.getProfilePicture() == null}" class="card-background">
+                            <img class="card-bkimg" th:src="@{/images/index/profile_default.png}" />
+                        </div>
+                        <div th:if="${userLogged.getProfilePicture() == null}" class="useravatar">
+                            <img th:src="@{/images/index/profile_default.png}" />
                         </div>
                         <div class="card-info">
                             <b><span class="card-title" th:text="${userLogged.getUsername()}"></span></b>
