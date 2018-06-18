@@ -14,10 +14,7 @@ public class Experiment {
 
     @Id
     @Column(name = "EXPERIMENT_ID", nullable = false, updatable= false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY) /*, generator="native") // Efficiency  -> https://vladmihalcea.com/why-should-not-use-the-auto-jpa-generationtype-with-mysql-and-hibernate/
-    @GenericGenerator(
-            name = "native",
-            strategy = "native")*/
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @JsonManagedReference
@@ -45,7 +42,9 @@ public class Experiment {
     @JsonBackReference
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToMany(fetch=FetchType.LAZY,
-            mappedBy = "experimentId")
+            cascade=CascadeType.ALL,
+            mappedBy = "experimentId",
+            orphanRemoval = true)
     private List<Grammar> idGrammarList;
 
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -56,6 +55,8 @@ public class Experiment {
     @JsonBackReference
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToMany(fetch=FetchType.LAZY,
+            cascade=CascadeType.ALL,
+            orphanRemoval = true,
             mappedBy = "experimentId")
     private List<ExperimentDataType> idExpDataTypeList;
 
@@ -65,8 +66,7 @@ public class Experiment {
     private ExperimentDataType defaultExpDataType;
 
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToMany(mappedBy = "experimentId",
-            cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "experimentId")
     private List<Run> idRunList;
 
     @Column

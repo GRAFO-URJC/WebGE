@@ -91,8 +91,12 @@ public class ExperimentService {
         return experimentRepository.findByUserIdAndId(user, expId);
     }
 
-    public Grammar findGrammarByUserIdAndName(User user, String nameExp){
+    /*public Grammar findGrammarByUserIdAndName(User user, String nameExp){
         return grammarRepository.findByUserIdAndGrammarName(user, nameExp);
+    }*/
+
+    public Grammar findGrammarById(Grammar grammar){
+        return grammarRepository.findGrammarById(grammar.getId());
     }
 
     public ExperimentDataType findDataTypeByUserIdAndName(User user, String nameExp){
@@ -140,4 +144,11 @@ public class ExperimentService {
         experimentRepository.delete(experiment);
     }
 
+    public void deleteDataTypeFile(ExperimentDataType experimentDataType){
+        experimentDataTypeRepository.delete(experimentDataType);
+    }
+
+    public void deleteGrammar(Grammar grammar){
+        grammarRepository.delete(grammar);
+    }
 }

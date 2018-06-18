@@ -167,12 +167,12 @@ public class ExperimentController {
                                 @ModelAttribute("configExp") @Valid ConfigExperimentDto configExperimentDto,
                                 BindingResult result) throws IllegalStateException, IOException {
 
-        if (result.hasErrors()){
+        if (result.hasErrors()) {
             return "/user/experiment/configExperiment";
         }
 
         User user = userService.getLoggedInUser();
-        if(user == null){
+        if (user == null) {
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
@@ -217,18 +217,18 @@ public class ExperimentController {
         // Experiment Data Type SECTION
         Boolean dTFSelectedFromList = false;
 
-        ExperimentDataType expDataType = experimentService.findDataTypeById(expDataTypeDto.getId());
-        if(expDataType != null)
+        ExperimentDataType expDataType = experimentService.findDataTypeById(expDataTypeDto.getDataTypeId());
+        if (expDataType != null)
             dTFSelectedFromList = true;
 
-        if(!dTFSelectedFromList)    // If didn't exist, we create the new data Type file
-            expDataType = experimentDataTypeSection(user, expDataTypeDto, currentTimestamp);
-        else{
+        if (dTFSelectedFromList){
             expDataType.setDataTypeName(expDataTypeDto.getDataTypeName());
             expDataType.setDataTypeDescription(expDataTypeDto.getDataTypeDescription());
             expDataType.setDataTypeType(expDataTypeDto.getDataTypeType());
-            expDataType.setRunId(run);
         }
+        else
+            expDataType = experimentDataTypeSection(user, expDataTypeDto, currentTimestamp);
+
 
         run.setDefaultExpDataType(expDataType);
         // END - Experiment Data Type SECTION
@@ -238,15 +238,17 @@ public class ExperimentController {
         Experiment exp = experimentSection(user, expDto, grammar, expDataType, run, currentTimestamp, longDefaultRunId);
         // END - Experiment section
 
-        /** We need save first the expDataType rather than expRowType, because if we did otherwise we will have an detached error
-         *  this means that we are trying to access to an entity that doesn't exist yet (Because in expRowType in add method
-         *  we are adding the row to expDataType. And this isn't created yet.
-         **/
-        experimentService.saveDataType(expDataType);
 
         // Grammar File SECTION
         String grammarFilePath = grammarFileSection(user, expDto, grammar);
         // END - Grammar File SECTION
+
+        /** We need save first the expDataType rather than expRowType, because if we did otherwise we will have an detached error
+         *  this means that we are trying to access to an entity that doesn't exist yet (Because in expRowType in add method
+         *  we are adding the row to expDataType. And this isn't created yet.
+         **/
+        //  experimentService.saveDataType(expDataType);
+        experimentService.saveExperiment(exp);
 
         // Create ExpPropertiesDto file
         ExpPropertiesDto propertiesDto = new ExpPropertiesDto(0.0, expDto.getTournament(), 0, expDto.getCrossoverProb(), grammarFilePath, 0, 1, expDto.getMutationProb(), false, 1, expDto.getNumCodons(), expDto.getPopulationSize(), expDto.getGenerations(), false, expDto.getMaxWraps(), 500, expDto.getExperimentName(), expDto.getExperimentDescription());
@@ -356,19 +358,6 @@ public class ExperimentController {
 
         run.setDiagramData(diagramData);
 
-        /*Iterator<Grammar> itGrammar = exp.getIdGrammarList().iterator();
-        while(itGrammar.hasNext()){
-            run.getIdGrammarList().add(new Grammar(itGrammar.next()));
-        }
-        Iterator<ExperimentDataType> itDataType = exp.getIdExpDataTypeList().iterator();
-        while(itDataType.hasNext()){
-            run.getIdExpDataTypeList().add(new ExperimentDataType(itDataType.next()));
-        }
-        Iterator<Run> itRun = exp.getIdRunList().iterator();
-        while(itRun.hasNext()){
-            run.getIdRunList().add(new Run(itRun.next()));
-        }*/
-
         List<Grammar> lGrammar = experimentService.findAllGrammarByExperimentId(exp);
         List<ExperimentDataType> lExpDataType = experimentService.findAllExperimentDataTypeByExperimentId(exp);
 
@@ -382,28 +371,7 @@ public class ExperimentController {
         expDto.setDiagramDataId(diagramData.getId());
 
         // Run experiment in new thread
-
         runExperimentDetails(run);
-
-        /*RunnableExpGramEv obj = new RunnableExpGramEv(properties, diagramData, run);
-
-        Thread th = new Thread(obj);
-        th.start();
-        threadMap.put(th.getId(), th);
-        run.setThreaId(th.getId());*/
-
-        /*Thread th = new Thread() {
-            public void run() {
-                // ExpPropertiesDto properties, int threadId, int numObjectives
-                try {
-                    executeGramEv(properties, diagramData, run);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        hilos.add(th);
-        th.start();*/
 
         propertiesReader.close();
         // END - Execute program with experiment info
@@ -471,13 +439,29 @@ public class ExperimentController {
     @RequestMapping(value="/user/experiment/expRepoSelected", method=RequestMethod.POST, params="deleteExperiment")
     public
     @ResponseBody Long expRepoSelectedDelete(@RequestParam("experimentId") String experimentId){
-        User user = userService.getLoggedInUser();
-
         Long idExp = Long.parseLong(experimentId);
 
         Experiment expConfig = experimentService.findExperimentById(idExp);
 
-        experimentService.deleteExpProperties(experimentService.findPropertiesById(expConfig.getIdProperties()));
+        /*Iterator<ExperimentDataType> listExpDataTypeIt = expConfig.getIdExpDataTypeList().iterator();
+        while(listExpDataTypeIt.hasNext()) {
+            ExperimentDataType expDTIt = listExpDataTypeIt.next();
+            experimentService.deleteDataTypeFile(experimentService.findDataTypeById(expDTIt.getId()));
+        }
+
+        Iterator<Grammar> listGrammarIt = expConfig.getIdGrammarList().iterator();
+        while(listGrammarIt.hasNext()) {
+            Grammar grammarIt = listGrammarIt.next();
+            experimentService.deleteGrammar(experimentService.findGrammarById(grammarIt));
+        }*/
+        Iterator<Run> listRunIt = expConfig.getIdRunList().iterator();
+        while(listRunIt.hasNext()) {
+            Run runIt = listRunIt.next();
+
+            experimentService.deleteExpProperties(experimentService.findPropertiesById(runIt.getIdProperties()));
+            runService.deleteRun(runIt);
+        }
+
         experimentService.deleteExperiment(expConfig);
 
         return idExp;
@@ -652,29 +636,6 @@ public class ExperimentController {
         // END - Execute program with experiment info
     }
 
-   /* //  Run gramEv application
-    public void executeGramEv(Properties properties, DiagramData diagramData, Run run) throws IOException {
-
-        int numObjectives = 1;
-        if ((properties.getProperty(OBJECTIVES_PROP) != null)
-                && (Integer.valueOf(properties.getProperty(OBJECTIVES_PROP)) == 2)) {
-            numObjectives = 2;
-        }
-
-        run.setStatus(Run.Status.INITIALIZING);
-        run.setBestIndividual(diagramData.getBestIndividual());
-        run.setCurrentGeneration(diagramData.getCurrentGeneration());
-
-        SymbolicRegressionGE ge = new SymbolicRegressionGE(properties,numObjectives);
-
-        RunGeObserver observer = new RunGeObserver();
-        diagramData.setFinished(false);
-        observer.setDiagramData(diagramData);
-
-        ge.runGE(observer);
-    }
-*/
-
     public void createPropertiesFile(String propertiesFilePath, ExpPropertiesDto propertiesDto, String expName, java.sql.Timestamp currentTimeStamp) throws IOException {
         File propertiesNewFile = new File(propertiesFilePath);
         if (!propertiesNewFile.exists()) {
@@ -761,15 +722,15 @@ public class ExperimentController {
     }
 
     public Grammar grammarSection(User user, GrammarDto grammarDto){
-        Grammar grammar = experimentService.findGrammarByUserIdAndName(user, grammarDto.getGrammarName());
+        // Grammar grammar = experimentService.findGrammarById(user, grammarDto.getGrammarName());
 
-        if(grammar == null)     // We create it
-            grammar = new Grammar(user, grammarDto.getGrammarName(), grammarDto.getGrammarDescription(), grammarDto.getFileText());
-        else {  // The grammar already exist
+        // if(grammar == null)     // We create it
+        Grammar grammar = new Grammar(user, grammarDto.getGrammarName(), grammarDto.getGrammarDescription(), grammarDto.getFileText());
+        /*else {  // The grammar already exist
             grammar.setGrammarName(grammarDto.getGrammarName());
             grammar.setGrammarDescription(grammarDto.getGrammarDescription());
             grammar.setFileText(grammarDto.getFileText());
-        }
+        }*/
 
         return grammar;
     }
@@ -916,4 +877,27 @@ public class ExperimentController {
         model.addAttribute("expDetails", experimentDetailsDto);
         return "/user/experiment/showDiagramPlot";
     }
+
+
+    @RequestMapping(value="/user/experiment/expRepoSelected", method=RequestMethod.POST, params="deleteRun")
+    public
+    @ResponseBody Long deleteRun(@RequestParam("runId") String runId){
+        Long longRunId = Long.parseLong(runId);
+
+        Run run = runService.findByRunId(longRunId);
+
+        runService.deleteExpProperties(experimentService.findPropertiesById(run.getIdProperties()));
+
+        List<Run> lRun = run.getExperimentId().getIdRunList();
+        Iterator<Run> it = lRun.iterator();
+
+        while(it.hasNext()){
+            Run runIt = it.next();
+            if(runIt.getId() == run.getId())
+                runService.deleteRun(run);
+        }
+
+        return longRunId;
+    }
+
 }

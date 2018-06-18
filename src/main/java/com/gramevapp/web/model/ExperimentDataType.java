@@ -17,10 +17,7 @@ public class ExperimentDataType {
 
     @Id
     @Column(name = "EXPERIMENT_DATA_TYPE_ID", nullable = false, updatable= false)
-    @GeneratedValue(strategy = GenerationType.AUTO) /* , generator="native") // Efficiency  -> https://vladmihalcea.com/why-should-not-use-the-auto-jpa-generationtype-with-mysql-and-hibernate/
-    @GenericGenerator(
-            name = "native",
-            strategy = "native")*/
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @OneToOne

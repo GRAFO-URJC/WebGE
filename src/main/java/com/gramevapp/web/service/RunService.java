@@ -1,9 +1,11 @@
 package com.gramevapp.web.service;
 
+import com.gramevapp.web.model.ExpProperties;
 import com.gramevapp.web.model.Experiment;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.model.User;
 import com.gramevapp.web.repository.ExperimentRepository;
+import com.gramevapp.web.repository.PropertiesRepository;
 import com.gramevapp.web.repository.RunRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,9 @@ public class  RunService {
 
     @Autowired
     ExperimentRepository experimentRepository;
+
+    @Autowired
+    PropertiesRepository expPropertiesRepository;
 
     public Run saveRun(Run run){
         return runRepository.save(run);
@@ -46,4 +51,11 @@ public class  RunService {
         return runRepository.findTop1ByOrderByIdDesc();
     }
 
+    public void deleteRun(Run run){
+        runRepository.delete(run);
+    }
+
+    public void deleteExpProperties(ExpProperties expProperties){
+        expPropertiesRepository.delete(expProperties);
+    }
 }

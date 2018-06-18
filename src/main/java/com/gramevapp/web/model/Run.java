@@ -74,26 +74,24 @@ public class Run {
 
     @JsonIgnore
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToMany(fetch=FetchType.LAZY,
-            mappedBy = "runId")
+    @OneToMany
     private List<Grammar> idGrammarList;
 
     @JsonIgnore
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name = "default_grammar")
+    @JoinColumn(name = "DEFAULT_GRAMMAR")
     private Grammar defaultGrammar;
 
     @JsonIgnore
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToMany(fetch=FetchType.LAZY,
-            mappedBy = "runId")
+    @OneToMany
     private List<ExperimentDataType> idExpDataTypeList;
 
     @JsonIgnore
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name = "default_dataType")
+    @JoinColumn(name = "DEFAULT_DATA_TYPE")
     private ExperimentDataType defaultExpDataType;
 
     @Column
@@ -327,6 +325,7 @@ public class Run {
 
     public void setDefaultExpDataType(ExperimentDataType defaultExpDataType) {
         this.defaultExpDataType = defaultExpDataType;
+        defaultExpDataType.setRunId(this);
     }
 
     public Long getDefaultRunId() {

@@ -7,7 +7,7 @@ import javax.persistence.TemporalType;
 import java.util.Date;
 
 public class ExperimentDataTypeDto {
-    private Long id;
+    private Long dataTypeId;
     @NotEmpty
     private String dataTypeName;
     @NotEmpty
@@ -54,11 +54,11 @@ public class ExperimentDataTypeDto {
         this.modificationDate = modificationDate;
     }
 
-    public Long getId() {
-        return id;
+    public Long getDataTypeId() {
+        return dataTypeId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setDataTypeId(Long dataTypeId) {
+        this.dataTypeId = dataTypeId;
     }
 }
