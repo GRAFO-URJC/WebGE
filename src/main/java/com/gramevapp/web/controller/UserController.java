@@ -293,14 +293,6 @@ public class UserController {
         }
     }
 
-    /*@RequestMapping(value="/user/profile-picture", method = RequestMethod.GET)
-    public String profilePicture(Model model) {
-        User user = userService.getLoggedInUser();
-
-        model.addAttribute("userLogged", user);
-
-        return "redirect:user/profile";
-    }*/
 
     /**
      *

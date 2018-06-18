@@ -12,21 +12,21 @@ import java.io.InputStream;
 @Entity
 @Table(name = "UPLOAD_FILE")
 public class UploadFile {
+    private final String DEFAULT_PROFILE_PIC_PATH = "."+File.separator+"main"+File.separator+"resources"+File.separator+"static"+File.separator+"images"+File.separator+"index"+File.separator+"profile_default.png";
 
     @Id
     @Column(name = "UPLOAD_FILE_ID")
-    @GeneratedValue(strategy = GenerationType.AUTO) /*, generator="native") // Efficiency  -> https://vladmihalcea.com/why-should-not-use-the-auto-jpa-generationtype-with-mysql-and-hibernate/
-    @GenericGenerator(
-            name = "native",
-            strategy = "native")*/
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     private String fileName;
 
-    /*@Lob
-    private byte[] data;*/
-
     private String filePath;
+
+    public UploadFile() {
+        this.fileName = "Default profile picture";
+        this.filePath = DEFAULT_PROFILE_PIC_PATH;
+    }
 
     public long getId() {
         return id;
@@ -44,15 +44,6 @@ public class UploadFile {
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
-
-    /*@Column(name = "FILE_DATA")
-    public byte[] getData() {
-        return data;
-    }
-
-    public void setData(byte[] data) {
-        this.data = data;
-    }*/
 
     public String getFilePath() {
         return filePath;
