@@ -28,10 +28,8 @@ public class Grammar {
     )
     private Experiment experimentId;
 
-    @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "RUN_ID", nullable = false)
-    private Run runId;
+    @Column
+    private Long runId;
 
     @Column
     private String grammarName;
@@ -55,7 +53,7 @@ public class Grammar {
         //there are no mutable object fields (String is immutable)
     }
 
-    public Grammar(Experiment experimentId, Run runId, String grammarName, String grammarDescription, String fileText) {
+    public Grammar(Experiment experimentId, Long runId, String grammarName, String grammarDescription, String fileText) {
         this.experimentId = experimentId;
         this.runId = runId;
         this.grammarName = grammarName;
@@ -111,11 +109,11 @@ public class Grammar {
         this.fileText = fileText;
     }
 
-    public Run getRunId() {
+    public Long getRunId() {
         return runId;
     }
 
-    public void setRunId(Run runId) {
+    public void setRunId(Long runId) {
         this.runId = runId;
     }
 }

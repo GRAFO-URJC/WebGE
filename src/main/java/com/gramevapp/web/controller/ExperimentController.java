@@ -135,7 +135,7 @@ public class ExperimentController {
             updExp.updateExperiment(grammar, expDataType, expDto.getExperimentName(), expDto.getExperimentDescription() ,expDto.getGenerations(),
                     expDto.getPopulationSize(), expDto.getMaxWraps(), expDto.getTournament(), expDto.getCrossoverProb(), expDto.getMutationProb(),
                     expDto.getInitialization(), expDto.getResults(), expDto.getNumCodons(), expDto.getNumberRuns(), expDto.getObjective(), currentTimestamp);
-            updRun.updateRun(grammar, expDataType, expDto.getExperimentName(), expDto.getExperimentDescription() ,expDto.getGenerations(),
+            updRun.updateRun(grammar.getId(), expDataType.getId(), expDto.getExperimentName(), expDto.getExperimentDescription() ,expDto.getGenerations(),
                     expDto.getPopulationSize(), expDto.getMaxWraps(), expDto.getTournament(), expDto.getCrossoverProb(), expDto.getMutationProb(),
                     expDto.getInitialization(), expDto.getResults(), expDto.getNumCodons(), expDto.getNumberRuns(), expDto.getObjective(), currentTimestamp);
 
@@ -196,7 +196,7 @@ public class ExperimentController {
         run.setExperimentName(expDto.getExperimentName());
         run.setExperimentDescription(expDto.getExperimentDescription());
 
-        run.setDefaultGrammar(grammar);
+        run.setDefaultGrammar(grammar.getId());
 
         run.setGenerations(expDto.getGenerations());
         run.setPopulationSize(expDto.getPopulationSize());
@@ -214,8 +214,9 @@ public class ExperimentController {
         // Experiment Data Type SECTION
         ExperimentDataType expDataType = experimentService.findDataTypeById(expDataTypeDto.getDataTypeId());
         expDataType = experimentDataTypeSection(expDataType, expDataTypeDto, currentTimestamp);
+        expDataType.setRunId(run.getId());
 
-        run.setDefaultExpDataType(expDataType);
+        run.setDefaultExpDataType(expDataType.getId());
         // END - Experiment Data Type SECTION
 
         // Experiment section
@@ -224,6 +225,7 @@ public class ExperimentController {
 
         // Grammar File SECTION
         String grammarFilePath = grammarFileSection(user, expDto, grammar);
+        grammar.setRunId(run.getId());
         // END - Grammar File SECTION
 
         /** We need save first the expDataType rather than expRowType, because if we did otherwise we will have an detached error
@@ -459,8 +461,8 @@ public class ExperimentController {
         Run run = runService.findByRunId(longRunId);
         Experiment expConfig = run.getExperimentId();
 
-        Grammar grammar = run.getDefaultGrammar();
-        ExperimentDataType expDataType = run.getDefaultExpDataType();
+        Grammar grammar = experimentService.findGrammarById(run.getDefaultGrammar());
+        ExperimentDataType expDataType = experimentService.findExperimentDataTypeById(run.getDefaultExpDataType());
         List<Run> runList = expConfig.getIdRunList();
         ConfigExperimentDto confExpDto = new ConfigExperimentDto();
 
@@ -867,7 +869,7 @@ public class ExperimentController {
         Iterator<Grammar> grammarIt = lGrammar.iterator();
         while(grammarIt.hasNext() && !found) {
             Grammar grammarAux = grammarIt.next();
-            if (grammarAux.getId() == run.getDefaultGrammar().getId()) {
+            if (grammarAux.getId() == run.getDefaultGrammar()) {
                 experimentService.deleteGrammar(grammarAux);
                 //grammarAux.setExperimentId(null);
                 //grammarIt.remove();
@@ -886,7 +888,7 @@ public class ExperimentController {
         Iterator<ExperimentDataType> expDataIt = lExpDataType.iterator();
         while(expDataIt.hasNext() && !found) {
             ExperimentDataType expDataAux = expDataIt.next();
-            if (expDataAux.getId() == run.getDefaultExpDataType().getId()) {
+            if (expDataAux.getId() == run.getDefaultExpDataType()) {
                 // lExpDataType.remove(expDataAux);
                 experimentService.deleteDataTypeFile(expDataAux);
                 //expDataAux.setExperimentId(null);

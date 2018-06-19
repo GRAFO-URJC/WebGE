@@ -95,8 +95,8 @@ public class ExperimentService {
         return grammarRepository.findByUserIdAndGrammarName(user, nameExp);
     }*/
 
-    public Grammar findGrammarById(Grammar grammar){
-        return grammarRepository.findGrammarById(grammar.getId());
+    public Grammar findGrammarById(Long grammarId){
+        return grammarRepository.findGrammarById(grammarId);
     }
 
     /*public ExperimentDataType findDataTypeByUserIdAndName(User user, String nameExp){
