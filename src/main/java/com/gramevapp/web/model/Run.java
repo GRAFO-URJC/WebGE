@@ -72,17 +72,13 @@ public class Run {
     @JsonIgnore
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToOne(fetch = FetchType.LAZY,
-            cascade =  CascadeType.ALL,
-            mappedBy = "runId",
-            orphanRemoval = true)
+            mappedBy = "runId")
     private Grammar defaultGrammar;
 
     @JsonIgnore
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToOne(fetch = FetchType.LAZY,
-            cascade =  CascadeType.ALL,
-            mappedBy = "runId",
-            orphanRemoval = true)
+            mappedBy = "runId")
     private ExperimentDataType defaultExpDataType;
 
     @Column

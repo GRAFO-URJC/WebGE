@@ -857,6 +857,7 @@ public class ExperimentController {
     @RequestMapping(value="/user/experiment/expRepoSelected", method=RequestMethod.POST, params="deleteRun")
     public
     @ResponseBody Long deleteRun(@RequestParam("runId") String runId){
+        Boolean found = false;
 
         Long longRunId = Long.parseLong(runId);
         Run run = runService.findByRunId(longRunId);
@@ -864,43 +865,78 @@ public class ExperimentController {
 
         List<Grammar> lGrammar = experiment.getIdGrammarList();
         Iterator<Grammar> grammarIt = lGrammar.iterator();
-        while(grammarIt.hasNext()) {
+        while(grammarIt.hasNext() && !found) {
             Grammar grammarAux = grammarIt.next();
             if (grammarAux.getId() == run.getDefaultGrammar().getId()) {
-                runService.deleteRunByDefaultGrammar(grammarAux);
-                // grammarIt.remove();
+                experimentService.deleteGrammar(grammarAux);
+                //grammarAux.setExperimentId(null);
+                //grammarIt.remove();
                 // lGrammar.remove(grammarAux);
+
+                if(grammarAux.getId() == experiment.getDefaultGrammar().getId())
+                    experiment.setDefaultRunId(null);
+
+                found = true;
             }
         }
+
+        found = false;
 
         List<ExperimentDataType> lExpDataType = experiment.getIdExpDataTypeList();
         Iterator<ExperimentDataType> expDataIt = lExpDataType.iterator();
-        while(expDataIt.hasNext()) {
-            System.out.println(lExpDataType.size());
+        while(expDataIt.hasNext() && !found) {
             ExperimentDataType expDataAux = expDataIt.next();
             if (expDataAux.getId() == run.getDefaultExpDataType().getId()) {
                 // lExpDataType.remove(expDataAux);
-                runService.deleteRunByDefaultDataType(expDataAux);
-                // expDataIt.remove();
+                experimentService.deleteDataTypeFile(expDataAux);
+                //expDataAux.setExperimentId(null);
+                //expDataIt.remove();
+
+                if(expDataAux.getId() == experiment.getDefaultExpDataType().getId())
+                    experiment.setIdExpDataTypeList(null);
+
+                found = true;
             }
         }
 
+        found = false;
+
         List<Run> lRun = run.getExperimentId().getIdRunList();
         Iterator<Run> runIt = lRun.iterator();
-        while(runIt.hasNext()){
+        while(runIt.hasNext() && !found){
             Run runAux = runIt.next();
             if(runAux.getId() == run.getId()) {
                 // System.out.println("ExpId " + run.getExperimentId().getId());
                 // run.getExperimentId().getIdRunList().remove(run);
-                runService.deleteRun(runAux);
+                // runService.deleteRun(runAux);
                 // lRun.remove(runAux);
-                // runIt.remove();
+                runAux.setExperimentId(null);
+                runIt.remove();
+
+                if(runAux.getId() == experiment.getDefaultRunId())
+                    experiment.setDefaultRunId(Long.parseLong("0"));
+
+                found = true;
             }
         }
-        // experimentService.saveExperiment(run.getExperimentId());
+
+        System.out.println("Grammar default id experiment = " + experiment.getDefaultGrammar().getId());
+        System.out.println("Exp data type default id experiment = " + experiment.getDefaultExpDataType().getId());
+        System.out.println("Run default id experiment = " + experiment.getDefaultRunId());
+
+        /*List<ExperimentDataType> lEDType = experiment.getIdExpDataTypeList();
+        for(ExperimentDataType dataType : lEDType)
+            System.out.println("Exp data type = " + dataType.getId());
+        List<Grammar> lGrammarL = experiment.getIdGrammarList();
+        for(Grammar gr : lGrammarL)
+            System.out.println("Grammar = " + gr.getId());
+        List<Run> lRunL = experiment.getIdRunList();
+        for(Run r : lRunL)
+            System.out.println("Run = " + r.getId());*/
+
+        experimentService.saveExperiment(experiment);
         runService.deleteExpProperties(experimentService.findPropertiesById(run.getIdProperties()));
 
         return longRunId;
     }
-
 }
