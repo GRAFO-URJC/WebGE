@@ -69,17 +69,11 @@ public class Run {
     @Column(name="EXPERIMENT_DESCRIPTION") // Reference for user relation and ExpDataType and Grammar
     private String experimentDescription;
 
-    @JsonIgnore
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToOne(fetch = FetchType.LAZY,
-            mappedBy = "runId")
-    private Grammar defaultGrammar;
+    @Column
+    private Long defaultGrammar;
 
-    @JsonIgnore
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToOne(fetch = FetchType.LAZY,
-            mappedBy = "runId")
-    private ExperimentDataType defaultExpDataType;
+    @Column
+    private Long defaultExpDataType;
 
     @Column
     private Long defaultRunId;
@@ -263,22 +257,20 @@ public class Run {
         this.experimentDescription = experimentDescription;
     }
 
-    public Grammar getDefaultGrammar() {
+    public Long getDefaultGrammar() {
         return defaultGrammar;
     }
 
-    public void setDefaultGrammar(Grammar defaultGrammar) {
+    public void setDefaultGrammar(Long defaultGrammar) {
         this.defaultGrammar = defaultGrammar;
-        defaultGrammar.setRunId(this);
     }
 
-    public ExperimentDataType getDefaultExpDataType() {
+    public Long getDefaultExpDataType() {
         return defaultExpDataType;
     }
 
-    public void setDefaultExpDataType(ExperimentDataType defaultExpDataType) {
+    public void setDefaultExpDataType(Long defaultExpDataType) {
         this.defaultExpDataType = defaultExpDataType;
-        defaultExpDataType.setRunId(this);
     }
 
     public Long getDefaultRunId() {
@@ -385,7 +377,7 @@ public class Run {
         this.threaId = threaId;
     }
 
-    public void updateRun(Grammar grammar, ExperimentDataType expDataType, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date modificationDate){
+    public void updateRun(Long grammar, Long expDataType, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date modificationDate){
         this.defaultExpDataType = expDataType;
         this.defaultGrammar = grammar;
         this.experimentName = experimentName;

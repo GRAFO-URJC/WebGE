@@ -33,10 +33,8 @@ public class ExperimentDataType {
     )
     private Experiment experimentId;
 
-    @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "RUN_ID", nullable = false)
-    private Run runId;
+    @Column
+    private Long runId;
 
     @Column
     private String dataTypeName;
@@ -78,7 +76,7 @@ public class ExperimentDataType {
         //there are no mutable object fields (String is immutable)
     }
 
-    public ExperimentDataType(Experiment experimentId, Run runId, String dataTypeName, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, List<String> header, List<ExperimentRowType> listRowsFile) {
+    public ExperimentDataType(Experiment experimentId, Long runId, String dataTypeName, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, List<String> header, List<ExperimentRowType> listRowsFile) {
         this.experimentId = experimentId;
         this.runId = runId;
         this.dataTypeName = dataTypeName;
@@ -110,11 +108,11 @@ public class ExperimentDataType {
         experimentId = new Experiment();
     }
 
-    public Run getRunId() {
+    public Long getRunId() {
         return runId;
     }
 
-    public void setRunId(Run runId) {
+    public void setRunId(Long runId) {
         this.runId = runId;
     }
 
