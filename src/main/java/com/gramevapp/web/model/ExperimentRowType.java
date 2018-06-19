@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-// idRow - idData - txtFile(one row of the ExperimentDataType file)
-
 @Entity
 @Table(name="experimentRowType")
 public class ExperimentRowType {
@@ -41,22 +39,6 @@ public class ExperimentRowType {
         this.dataRow = dataRow;
     }
 
-/*public List<String> getColumnList() {
-        return columnList;
-    }
-
-    public void setColumnList(List<String> columnList) {
-        this.columnList = columnList;
-    }*/
-
-/*public List<Attributes> getColumnList() {
-        return columnList;
-    }
-
-    public void setColumnList(List<Attributes> columnList) {
-        this.columnList = columnList;
-    }*/
-
     public Long getId() {
         return id;
     }
@@ -90,17 +72,4 @@ public class ExperimentRowType {
 
         return stringBuilder.toString();
     }
-
-    public class Attributes{
-        private String value;
-
-        public String getValue() {
-            return value;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-    }
 }
-

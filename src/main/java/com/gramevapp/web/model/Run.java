@@ -18,15 +18,12 @@ public class Run {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne
-    private User userId;
-
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "runs_list",
+            name = "RUNS_LIST",
             joinColumns = {
-                    @JoinColumn(name = "RUN_ID", nullable = false)
+                    @JoinColumn(name = "RUN_ID")
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "EXPERIMENT_ID", referencedColumnName = "EXPERIMENT_ID")
@@ -34,9 +31,9 @@ public class Run {
     )
     private Experiment experimentId;
 
+    @JsonIgnore
     @OneToOne(cascade =  CascadeType.ALL,
             mappedBy = "runId")
-    @JsonIgnore
     private DiagramData diagramData;
 
     @Column
@@ -74,24 +71,18 @@ public class Run {
 
     @JsonIgnore
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToMany
-    private List<Grammar> idGrammarList;
-
-    @JsonIgnore
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name = "DEFAULT_GRAMMAR")
+    @OneToOne(fetch = FetchType.LAZY,
+            cascade =  CascadeType.ALL,
+            mappedBy = "runId",
+            orphanRemoval = true)
     private Grammar defaultGrammar;
 
     @JsonIgnore
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToMany
-    private List<ExperimentDataType> idExpDataTypeList;
-
-    @JsonIgnore
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name = "DEFAULT_DATA_TYPE")
+    @OneToOne(fetch = FetchType.LAZY,
+            cascade =  CascadeType.ALL,
+            mappedBy = "runId",
+            orphanRemoval = true)
     private ExperimentDataType defaultExpDataType;
 
     @Column
@@ -121,11 +112,10 @@ public class Run {
     private Integer numberRuns = 1;
 
     public Run(Run run){
-        this(run.getUserId(), run.getExperimentId(), run.getDiagramData(), run.getBestIndividual(), run.getCurrentGeneration(), run.getIdProperties(), run.getStatus(), run.getRunName(), run.getRunDescription(), run.getIniDate(), run.getLastDate(), run.getExperimentName(), run.getExperimentDescription(), run.getDefaultRunId(), run.getGenerations(), run.getPopulationSize(), run.getMaxWraps(), run.getTournament(), run.getCrossoverProb(), run.getMutationProb(), run.getInitialization(), run.getObjective(), run.getResults(), run.getNumCodons(), run.getNumberRuns());
+        this(run.getExperimentId(), run.getDiagramData(), run.getBestIndividual(), run.getCurrentGeneration(), run.getIdProperties(), run.getStatus(), run.getRunName(), run.getRunDescription(), run.getIniDate(), run.getLastDate(), run.getExperimentName(), run.getExperimentDescription(), run.getDefaultRunId(), run.getGenerations(), run.getPopulationSize(), run.getMaxWraps(), run.getTournament(), run.getCrossoverProb(), run.getMutationProb(), run.getInitialization(), run.getObjective(), run.getResults(), run.getNumCodons(), run.getNumberRuns());
     }
 
-    public Run(User userId, Experiment experimentId, DiagramData diagramData, Double bestIndividual, Integer currentGeneration, Long idProperties, Status status, String runName, String runDescription, Date iniDate, Date lastDate, String experimentName, String experimentDescription, Long defaultRunId, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String objective, String results, Integer numCodons, Integer numberRuns) {
-        this.userId = userId;
+    public Run(Experiment experimentId, DiagramData diagramData, Double bestIndividual, Integer currentGeneration, Long idProperties, Status status, String runName, String runDescription, Date iniDate, Date lastDate, String experimentName, String experimentDescription, Long defaultRunId, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String objective, String results, Integer numCodons, Integer numberRuns) {
         this.experimentId = experimentId;
         this.diagramData = diagramData;
         this.bestIndividual = bestIndividual;
@@ -153,34 +143,24 @@ public class Run {
     }
 
     public Run() {
-        this.idExpDataTypeList = new ArrayList<>();
-        this.idGrammarList = new ArrayList<>();
     }
 
-    public Run(User userId, Status status) {
+    public Run(Status status) {
         // DATE TIMESTAMP
         Calendar calendar = Calendar.getInstance();
         java.sql.Date currentTimestamp = new java.sql.Date(calendar.getTime().getTime());
 
         this.iniDate = currentTimestamp;
         this.lastDate = currentTimestamp;
-        this.userId = userId;
         this.status = status;
-
-        this.idExpDataTypeList = new ArrayList<>();
-        this.idGrammarList = new ArrayList<>();
     }
 
-    public Run(User userId, Status status, String runName, String runDescription, Date iniDate, Date lastDate) {
-        this.userId = userId;
+    public Run(Status status, String runName, String runDescription, Date iniDate, Date lastDate) {
         this.runName = runName;
         this.runDescription = runDescription;
         this.status = status;
         this.iniDate = iniDate;
         this.lastDate = lastDate;
-
-        this.idExpDataTypeList = new ArrayList<>();
-        this.idGrammarList = new ArrayList<>();
     }
 
     public Long getId() {
@@ -221,14 +201,6 @@ public class Run {
 
     public void setLastDate(Date lastDate) {
         this.lastDate = lastDate;
-    }
-
-    public User getUserId() {
-        return userId;
-    }
-
-    public void setUserId(User userId) {
-        this.userId = userId;
     }
 
     public String getRunName() {
@@ -295,28 +267,13 @@ public class Run {
         this.experimentDescription = experimentDescription;
     }
 
-    public List<Grammar> getIdGrammarList() {
-        return idGrammarList;
-    }
-
-    public void setIdGrammarList(List<Grammar> idGrammarList) {
-        this.idGrammarList = idGrammarList;
-    }
-
     public Grammar getDefaultGrammar() {
         return defaultGrammar;
     }
 
     public void setDefaultGrammar(Grammar defaultGrammar) {
         this.defaultGrammar = defaultGrammar;
-    }
-
-    public List<ExperimentDataType> getIdExpDataTypeList() {
-        return idExpDataTypeList;
-    }
-
-    public void setIdExpDataTypeList(List<ExperimentDataType> idExpDataTypeList) {
-        this.idExpDataTypeList = idExpDataTypeList;
+        defaultGrammar.setRunId(this);
     }
 
     public ExperimentDataType getDefaultExpDataType() {
@@ -430,18 +387,6 @@ public class Run {
 
     public void setThreaId(Long threaId) {
         this.threaId = threaId;
-    }
-
-    public Grammar addGrammar(Grammar grammar) {
-        this.idGrammarList.add(grammar);
-        grammar.setExperimentId(experimentId);
-        return grammar;
-    }
-
-    public ExperimentDataType addExperimentDataType(ExperimentDataType expData) {
-        this.idExpDataTypeList.add(expData);
-        expData.setExperimentId(experimentId);
-        return expData;
     }
 
     public void updateRun(Grammar grammar, ExperimentDataType expDataType, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date modificationDate){

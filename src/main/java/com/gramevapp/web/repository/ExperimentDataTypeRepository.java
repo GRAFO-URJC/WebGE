@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface ExperimentDataTypeRepository extends JpaRepository<ExperimentDataType, Long> {
     ExperimentDataType findById(Long id);
-    ExperimentDataType findByUserIdAndDataTypeName(User user, String name);
+    // ExperimentDataType findByUserIdAndDataTypeName(User user, String name);
     ExperimentDataType findExperimentDataTypeByExperimentId(Long experimentId);
     List<ExperimentDataType> findAllByExperimentId(Experiment experimentId);
 }
