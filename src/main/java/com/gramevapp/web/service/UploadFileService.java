@@ -12,9 +12,9 @@ public class UploadFileService {
     @Autowired
     private UploadFileRepository uploadFileRepository;
 
-    public UploadFile findUploadFileByUser(User user){
+    /*public UploadFile findUploadFileByUser(User user){
         return uploadFileRepository.findByUserId(user);
-    }
+    }*/
 
     public void saveUploadFile(UploadFile uploadFile){
         uploadFileRepository.save(uploadFile);

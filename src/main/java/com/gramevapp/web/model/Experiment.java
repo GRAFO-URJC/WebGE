@@ -48,8 +48,7 @@ public class Experiment {
     private List<Grammar> idGrammarList;
 
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name = "default_grammar")
+    @OneToOne
     private Grammar defaultGrammar;
 
     @JsonBackReference
@@ -61,12 +60,13 @@ public class Experiment {
     private List<ExperimentDataType> idExpDataTypeList;
 
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name = "default_dataType")
+    @OneToOne
     private ExperimentDataType defaultExpDataType;
 
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToMany(mappedBy = "experimentId")
+    @OneToMany(cascade=CascadeType.ALL,
+            mappedBy = "experimentId",
+            orphanRemoval = true)
     private List<Run> idRunList;
 
     @Column

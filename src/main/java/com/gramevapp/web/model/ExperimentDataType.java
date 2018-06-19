@@ -20,11 +20,8 @@ public class ExperimentDataType {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne
-    private User userId;
-
     @JsonManagedReference
-    @ManyToOne(cascade=CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinTable(
             name = "exp_data_type_list",
             joinColumns = {
@@ -37,16 +34,8 @@ public class ExperimentDataType {
     private Experiment experimentId;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "runs_data_type_list",
-            joinColumns = {
-                    @JoinColumn(name = "EXPERIMENT_DATA_TYPE_ID", nullable = false)
-            },
-            inverseJoinColumns = {
-                    @JoinColumn(name = "RUN_ID", referencedColumnName = "RUN_ID")
-            }
-    )
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "RUN_ID", nullable = false)
     private Run runId;
 
     @Column
@@ -71,7 +60,9 @@ public class ExperimentDataType {
     private List<String> header;
 
     // https://www.thoughts-on-java.org/hibernate-tips-map-bidirectional-many-one-association/
-    @OneToMany(mappedBy ="expDataTypeId", cascade= CascadeType.ALL)
+    @OneToMany(mappedBy ="expDataTypeId",
+            cascade= CascadeType.ALL,
+            orphanRemoval = true)
     private List<ExperimentRowType> listRowsFile;
 
     public ExperimentDataType(){
@@ -83,13 +74,12 @@ public class ExperimentDataType {
      * Copy constructor.
      */
     public ExperimentDataType(ExperimentDataType eDType) {
-        this(eDType.getUserId(), eDType.getExperimentId(), eDType.getRunId(), eDType.getDataTypeName(), eDType.getDataTypeDescription(), eDType.getDataTypeType(), eDType.getCreationDate(), eDType.getModificationDate(), eDType.getHeader(), eDType.getListRowsFile());
+        this(eDType.getExperimentId(), eDType.getRunId(), eDType.getDataTypeName(), eDType.getDataTypeDescription(), eDType.getDataTypeType(), eDType.getCreationDate(), eDType.getModificationDate(), eDType.getHeader(), eDType.getListRowsFile());
         //no defensive copies are created here, since
         //there are no mutable object fields (String is immutable)
     }
 
-    public ExperimentDataType(User userId, Experiment experimentId, Run runId, String dataTypeName, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, List<String> header, List<ExperimentRowType> listRowsFile) {
-        this.userId = userId;
+    public ExperimentDataType(Experiment experimentId, Run runId, String dataTypeName, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, List<String> header, List<ExperimentRowType> listRowsFile) {
         this.experimentId = experimentId;
         this.runId = runId;
         this.dataTypeName = dataTypeName;
@@ -101,8 +91,7 @@ public class ExperimentDataType {
         this.listRowsFile = listRowsFile;
     }
 
-    public ExperimentDataType(User userId, String dataTypeName, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate) {
-        this.userId = userId;
+    public ExperimentDataType(String dataTypeName, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate) {
         this.dataTypeName = dataTypeName;
         this.dataTypeDescription = dataTypeDescription;
         this.dataTypeType = dataTypeType;
@@ -112,8 +101,7 @@ public class ExperimentDataType {
         experimentId = new Experiment();
     }
 
-    public ExperimentDataType(User userId, String dataTypeName, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, ArrayList<ExperimentRowType> listRowsFile) {
-        this.userId = userId;
+    public ExperimentDataType(String dataTypeName, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, ArrayList<ExperimentRowType> listRowsFile) {
         this.dataTypeName = dataTypeName;
         this.dataTypeDescription = dataTypeDescription;
         this.dataTypeType = dataTypeType;
@@ -169,14 +157,6 @@ public class ExperimentDataType {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public User getUserId() {
-        return userId;
-    }
-
-    public void setUserId(User userId) {
-        this.userId = userId;
     }
 
     public String getDataTypeName() {

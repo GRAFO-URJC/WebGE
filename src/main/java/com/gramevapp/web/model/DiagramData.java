@@ -31,7 +31,7 @@ public class DiagramData {
     private Double bestIndividual = 0.0;  // Best solution
 
 
-    @OneToOne(targetEntity=Run.class,fetch=FetchType.EAGER , cascade=CascadeType.ALL)
+    @OneToOne(targetEntity=Run.class, fetch=FetchType.LAZY)
     private Run runId;
 
     @Column

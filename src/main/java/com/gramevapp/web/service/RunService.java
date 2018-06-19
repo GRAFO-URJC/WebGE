@@ -1,9 +1,6 @@
 package com.gramevapp.web.service;
 
-import com.gramevapp.web.model.ExpProperties;
-import com.gramevapp.web.model.Experiment;
-import com.gramevapp.web.model.Run;
-import com.gramevapp.web.model.User;
+import com.gramevapp.web.model.*;
 import com.gramevapp.web.repository.ExperimentRepository;
 import com.gramevapp.web.repository.PropertiesRepository;
 import com.gramevapp.web.repository.RunRepository;
@@ -39,13 +36,15 @@ public class  RunService {
         return runRepository.findAllByExperimentId(exp);
     }
 
+    /*
     public List<Run> findAllByUserEmail(User user){
         return runRepository.findByUserId(user);
     }
+    */
 
-    public Run findByUserIdAndRunId(User user, Long id){
+    /*public Run findByUserIdAndRunId(User user, Long id){
         return  runRepository.findByUserIdAndId(user, id);
-    }
+    }*/
 
     public Run findLastRunId(){
         return runRepository.findTop1ByOrderByIdDesc();
@@ -57,5 +56,13 @@ public class  RunService {
 
     public void deleteExpProperties(ExpProperties expProperties){
         expPropertiesRepository.delete(expProperties);
+    }
+
+    public void deleteRunByDefaultGrammar(Grammar grammar){
+        runRepository.deleteByDefaultGrammar(grammar);
+    }
+
+    public void deleteRunByDefaultDataType(ExperimentDataType experimentDataType){
+        runRepository.deleteByDefaultExpDataType(experimentDataType);
     }
 }

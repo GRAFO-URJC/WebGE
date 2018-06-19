@@ -99,9 +99,9 @@ public class ExperimentService {
         return grammarRepository.findGrammarById(grammar.getId());
     }
 
-    public ExperimentDataType findDataTypeByUserIdAndName(User user, String nameExp){
+    /*public ExperimentDataType findDataTypeByUserIdAndName(User user, String nameExp){
         return experimentDataTypeRepository.findByUserIdAndDataTypeName(user, nameExp);
-    }
+    }*/
 
     public ExperimentDataType findDataTypeById(Long dataTypeId){
         return experimentDataTypeRepository.findById(dataTypeId);
