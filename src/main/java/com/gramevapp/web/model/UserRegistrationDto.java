@@ -21,7 +21,7 @@ public class UserRegistrationDto {
     private static final String USERNAME_PATTERN = "^[a-z0-9_-]{3,15}$";
 
 
-    @Pattern(regexp = USERNAME_PATTERN, message = "Username cannot have spaces neither strange characters or uppercase")
+    @Pattern(regexp = USERNAME_PATTERN, message = "Username cannot have spaces neither strange characters or uppercase and must have between 3-15 letters")
     @NotEmpty(message = "User name cannot be empty")
     private String username;
 

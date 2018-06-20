@@ -10,28 +10,10 @@ public class ExpProperties {
     private static final String WORK_DIR = "resources/files";
     private static final String CLASS_PATH_SEPARATOR = "\\;";
 
-    // @org.hibernate.annotations.Type(type = "pg-uuid")
-    // @Column(columnDefinition="uuid")
-    /*@GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(columnDefinition = "BINARY(16)", name = "PROPERTIES_ID", nullable = false, updatable= false)*/
-    // private UUID id;
-
-    /*@Id
-    @Column(columnDefinition="uuid")
-    @org.hibernate.annotations.Type(type="pg-uuid")*/
-
-    /*@Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(columnDefinition = "BINARY(16)", name = "PROPERTIES_ID")*/
-
     @Id
     @Column(name = "PROPERTIES_ID", nullable = false, updatable= false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
-    //private UUID id = UUID.randomUUID();
 
     @Column
     private Long idExp;

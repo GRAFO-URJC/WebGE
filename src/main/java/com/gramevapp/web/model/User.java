@@ -1,10 +1,9 @@
 package com.gramevapp.web.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -20,39 +19,18 @@ public class User implements Serializable {
     private String username;
     @Column(nullable = false)
     private String password;
-    @Column
-    private String firstName;
-    @Column
-    private String lastName;
     @Column(nullable = false)
     private String email;
-    @Column
-    private Integer phone;
-
-    //  Direction
-    @Column
-    private String addressDirection;
-    @Column
-    private String city;
-    @Column
-    private String state;
-    @Column
-    private Integer zipcode;
-
-    // Work / Study
-    @Column
-    private String studyInformation;
-    @Column
-    private String workInformation;
-
-    // Extra info
-    @Column
-    private String aboutMe =" ";
 
     @Column
     private Boolean enabled = true;
     @Column
     private Integer failedLoginAttempts = 0;
+
+    @JsonIgnore
+    @OneToOne(cascade =  CascadeType.ALL,
+            mappedBy = "user")
+    private UserDetails userDetails;
 
     @ManyToMany(cascade=CascadeType.PERSIST, fetch=FetchType.LAZY, targetEntity=Role.class)
     @JoinTable(
@@ -68,34 +46,13 @@ public class User implements Serializable {
             })
     private List<Role> roles;
 
-    @JsonBackReference
-    @OneToMany(fetch=FetchType.LAZY,
-            mappedBy = "userId",
-            targetEntity=Experiment.class,
-            orphanRemoval = true)
-    private List<Experiment> listExperiments;
-
-    @JoinColumn(name = "PROFILE_PICTURE_ID", unique = true)
-    @OneToOne(cascade = CascadeType.ALL)
-    private UploadFile profilePicture;
-
     public User(){
-        this.listExperiments = new ArrayList<>();
     }
 
-    public User(Long id) {
-        this.id = id;
-        this.listExperiments = new ArrayList<>();
-        this.profilePicture = new UploadFile();
-    }
-
-    public User(Long id, String username, String password, String email) {
-        this.id = id;
+    public User(String username, String password, List<Role> roles) {
         this.username = username;
         this.password = password;
-        this.email = email;
-
-        this.profilePicture = new UploadFile();
+        this.roles = roles;
     }
 
     public User(String username, String password, String email, List<Role> roles) {
@@ -103,70 +60,6 @@ public class User implements Serializable {
         this.password = password;
         this.email = email;
         this.roles = roles;
-
-        this.listExperiments = new ArrayList<>();
-        this.profilePicture = new UploadFile();
-    }
-
-    public User(String username, String password, String firstName, String lastname, String email, String addressDirection, Integer phone) {
-        this.username = username;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastname;
-        this.email = email;
-        this.addressDirection = addressDirection;
-        this.phone = phone;
-
-        this.listExperiments = new ArrayList<>();
-        this.profilePicture = new UploadFile();
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public Integer getZipcode() {
-        return zipcode;
-    }
-
-    public void setZipcode(Integer zipcode) {
-        this.zipcode = zipcode;
-    }
-
-    public String getStudyInformation() {
-        return studyInformation;
-    }
-
-    public void setStudyInformation(String studyInformation) {
-        this.studyInformation = studyInformation;
-    }
-
-    public String getWorkInformation() {
-        return workInformation;
-    }
-
-    public void setWorkInformation(String workInformation) {
-        this.workInformation = workInformation;
-    }
-
-    public String getAboutMe() {
-        return aboutMe;
-    }
-
-    public void setAboutMe(String aboutMe) {
-        this.aboutMe = aboutMe;
     }
 
     public Boolean getEnabled() {
@@ -199,46 +92,6 @@ public class User implements Serializable {
         this.password = password;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastname) {
-        this.lastName = lastname;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getAddressDirection() {
-        return addressDirection;
-    }
-
-    public void setAddressDirection(String addressDirection) {
-        this.addressDirection = addressDirection;
-    }
-
-    public Integer getPhone() {
-        return phone;
-    }
-
-    public void setPhone(Integer phone) {
-        this.phone = phone;
-    }
-
     public List<Role> getRoles() {
         return roles;
     }
@@ -265,33 +118,19 @@ public class User implements Serializable {
         this.failedLoginAttempts = failedLoginAttempts;
     }
 
-    public UploadFile getProfilePicture() {
-        return profilePicture;
+    public UserDetails getUserDetails() {
+        return userDetails;
     }
 
-    public void setProfilePicture(UploadFile profilePicture) {
-        this.profilePicture = profilePicture;
+    public void setUserDetails(UserDetails userDetails) {
+        this.userDetails = userDetails;
     }
 
-    public Experiment addExperiment(Experiment experiment) {
-        this.listExperiments.add(experiment);
-        experiment.setUserId(this);
-        return experiment;
+    public String getEmail() {
+        return email;
     }
 
-    public List<Experiment> getListExperiments() {
-        return listExperiments;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "user_id=" + id +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + "*********" + '\'' +
-                ", roles=" + roles +
-                '}';
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

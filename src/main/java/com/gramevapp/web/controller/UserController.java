@@ -104,8 +104,8 @@ public class UserController {
         if(result.hasErrors())
             return "/user/profile";
 
-        user.setStudyInformation(userUpDto.getStudyInformation());
-        user.setWorkInformation(userUpDto.getWorkInformation());
+        user.getUserDetails().setStudyInformation(userUpDto.getStudyInformation());
+        user.getUserDetails().setWorkInformation(userUpDto.getWorkInformation());
 
         userService.save(user);
 
@@ -129,13 +129,13 @@ public class UserController {
             return "redirect:/login";
         }
 
-        user.setFirstName(userUpDto.getFirstName());
-        user.setLastName(userUpDto.getLastName());
-        user.setPhone(userUpDto.getPhone());
-        user.setAddressDirection(userUpDto.getAddressDirection());
-        user.setState(userUpDto.getState());
-        user.setCity(userUpDto.getCity());
-        user.setZipcode(userUpDto.getZipcode());
+        user.getUserDetails().setFirstName(userUpDto.getFirstName());
+        user.getUserDetails().setLastName(userUpDto.getLastName());
+        user.getUserDetails().setPhone(userUpDto.getPhone());
+        user.getUserDetails().setAddressDirection(userUpDto.getAddressDirection());
+        user.getUserDetails().setState(userUpDto.getState());
+        user.getUserDetails().setCity(userUpDto.getCity());
+        user.getUserDetails().setZipcode(userUpDto.getZipcode());
 
         if(userUpDto != null) {
             // Profile photo update
@@ -161,7 +161,7 @@ public class UserController {
                     UploadFile uploadFile = new UploadFile();
                     uploadFile.setFilePath(fileName);
 
-                    user.setProfilePicture(uploadFile);
+                    user.getUserDetails().setProfilePicture(uploadFile);
                     // userService.updateProfilePicture(user, fileName);
 
                     /*File dirToClean = new File(PROFILE_PICTURE_PATH + user.getId());
@@ -201,7 +201,7 @@ public class UserController {
         if(result.hasErrors()){
             return "/user/profile";
         }
-        user.setAboutMe(userUpDto.getAboutMe());
+        user.getUserDetails().setAboutMe(userUpDto.getAboutMe());
 
         userService.save(user);
 
@@ -269,7 +269,7 @@ public class UserController {
             return "userRegistration";
         }
 
-        userService.save(userDto);
+        userService.saveUser(userDto);
 
         model.addAttribute("message", "User registered successfully");
 
@@ -277,14 +277,14 @@ public class UserController {
     }
 
     @RequestMapping(value="/user/profile_picture", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
-    public @ResponseBody byte[] profilePicture(Model model) throws IOException {
+    public @ResponseBody byte[] profilePicture() throws IOException {
         User user = userService.getLoggedInUser();
 
         File dir = new File(PROFILE_PICTURE_PATH + user.getId());
         if (!dir.exists())
             dir.mkdirs();
 
-        String profilePicture = PROFILE_PICTURE_PATH + user.getId() + File.separator + user.getProfilePicture().getFilePath();
+        String profilePicture = PROFILE_PICTURE_PATH + user.getId() + File.separator + user.getUserDetails().getProfilePicture().getFilePath();
 
         if(new File(profilePicture).exists()) {
             return IOUtils.toByteArray(new FileInputStream(profilePicture));
@@ -292,21 +292,4 @@ public class UserController {
             return null;
         }
     }
-
-
-    /**
-     *
-     return "redirect:/books";
-
-     It returns to the client (browser) which interprets the http response and automatically calls the redirect URL
-
-     return "jsp/books/booksList";
-
-     It process the JSP and send the HTML to the client
-
-     return "forward:/books";
-
-     It transfer the request and calls the URL direct in the server side.
-     *
-     */
 }
