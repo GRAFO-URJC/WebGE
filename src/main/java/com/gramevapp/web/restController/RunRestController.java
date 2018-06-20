@@ -48,8 +48,11 @@ public class RunRestController {
             run.getDiagramData().setListPair(new ArrayList<>());
         }
 
-        if(run.getDiagramData().getFinished() || run.getDiagramData().getBestIndividual() <= 0.0)
+        if(run.getDiagramData().getFinished() || run.getDiagramData().getBestIndividual() <= 0.0) {
+            if(run.getDiagramData().getBestIndividual() <= 0.0)
+                run.setBestIndividual(0.0);
             run.setStatus(Run.Status.FINISHED);
+        }
 
         if(run.getDiagramData().getStopped())
             run.setStatus(Run.Status.STOPPED);

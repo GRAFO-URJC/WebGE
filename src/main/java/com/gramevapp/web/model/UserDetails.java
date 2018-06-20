@@ -56,7 +56,6 @@ public class UserDetails{
     private UploadFile profilePicture;
 
     public UserDetails(){
-        this.profilePicture = new UploadFile();
         this.listExperiments = new ArrayList<>();
     }
 

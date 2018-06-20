@@ -66,7 +66,7 @@
             <div class="container">
                 <div id="forms" class="panel panel-default">
                     <header class="panel-heading">
-                        <h2>Run details of experiment name <i><span th:text="${expDetails.getExperimentName()}"></span></i></h2>
+                        <h2>Run details of <i><span th:text="${expDetails.getExperimentName()}"></span></i></h2>
                     </header>
 
                     <section class="panel-body">
@@ -80,13 +80,13 @@
                         <div class="row form-group text-center" style="margin-bottom: 0px;">
                             <div class="col-sm-6 col-md-6 col-lg-6" >
                                 <h4>
-                                    <label>Experiment name: </label>
+                                    <label>Run name: </label>
                                     <label th:id="experimentName" th:text="${expDetails.getExperimentName()}" />
                                 </h4>
                             </div>
                             <div class="col-sm-6 col-md-6 col-lg-6" >
                                 <h4>
-                                    <label>Experiment description: </label>
+                                    <label>Run description: </label>
                                     <label th:id="experimentDescription" th:text="${expDetails.getExperimentDescription()}" />
                                 </h4>
                             </div>
@@ -155,8 +155,7 @@
                     markerSize: 4,
                     color: "OrangeRed",
                     type : "line",
-                    // lineDashType : "dash",
-                    dataPoints: dataPoints
+                    dataPoints: dataPoints, toolTipContent: "Best individual : <b>{y}</b> <br/> Current generation : <b>{x}</b>"
                 }],
                 axisX:{
                     title: "Current generation",
@@ -189,18 +188,12 @@
                     dataType: "json",
                     success: function(data){
                         var diagramPairList = data['listPair'];
-
-                        // console.log(diagramPairList);
-
                         $.each(diagramPairList, function(index){
                             xPoint = diagramPairList[index]['currentGeneration'];
                             yPoint = diagramPairList[index]['bestIndividual'];
 
                             dataPoints.push({x: parseInt(xPoint), y: parseFloat(yPoint)});
                         });
-
-                        // console.log(dataPoints);
-
                         chart.options.data[0].dataPoints = dataPoints;
 
                         chart.render();

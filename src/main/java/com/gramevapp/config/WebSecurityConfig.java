@@ -53,9 +53,7 @@ public class WebSecurityConfig
                 .antMatchers(
                         "/registration",
                         "/",
-                        "/js/**",
-                        "/css/**",
-                        "/img/**",
+                        "/images/**",
                         "/assets/**",
                         "/webjars/**").permitAll()
                 .antMatchers("/user/**").hasRole("USER")    // Only users can access to /user/whatever

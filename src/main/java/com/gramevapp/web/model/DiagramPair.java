@@ -18,7 +18,7 @@ public class DiagramPair
 
     // @JsonIgnore
     // @JsonBackReference
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinTable(
             name = "diagram_pair_list",
             joinColumns = {
