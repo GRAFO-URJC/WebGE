@@ -438,8 +438,17 @@ public class ExperimentController {
         while(listRunIt.hasNext()) {
             Run runIt = listRunIt.next();
 
+            Run run = runService.findByRunId(runIt.getId());
+            Long threadId = run.getThreaId();
+
+            // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
+            Thread th = threadMap.get(threadId);
+            th.interrupt();
+
+            runnables.get(threadId).stopExecution();
+
+            run.setStatus(Run.Status.STOPPED);
             experimentService.deleteExpProperties(experimentService.findPropertiesById(runIt.getIdProperties()));
-            runService.deleteRun(runIt);
         }
 
         experimentService.deleteExperiment(expConfig);
@@ -813,13 +822,9 @@ public class ExperimentController {
         Long threadId = run.getThreaId();
 
         // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
-        //Iterate over set to find yours
-        threadMap.forEach((k, v) -> {
-            Thread th = v;
-            if(th.getId() == threadId){
-                th.interrupt();
-            }
-        });
+        Thread th = threadMap.get(threadId);
+        th.interrupt();
+
         runnables.get(threadId).stopExecution();
 
         run.setStatus(Run.Status.STOPPED);
