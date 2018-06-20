@@ -23,7 +23,7 @@ public class DiagramData {
     // @JsonManagedReference
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToMany(cascade=CascadeType.ALL,
-            fetch=FetchType.LAZY,
+            fetch=FetchType.EAGER,
             mappedBy = "diagramDataId")
     private List<DiagramPair> listPair;   // To display diagram with one click.
 

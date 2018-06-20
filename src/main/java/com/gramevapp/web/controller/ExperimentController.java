@@ -592,9 +592,7 @@ public class ExperimentController {
     }
 
     public void runExperimentDetails(Run run) throws IOException {
-
         User user = userService.getLoggedInUser();
-
         ExpProperties prop = experimentService.findPropertiesById(run.getIdProperties());
 
         String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + run.getExperimentName().replaceAll("\\s+","") + "_" + prop.getUuidPropDto() + ".properties";
@@ -605,8 +603,6 @@ public class ExperimentController {
 
         Properties properties = new Properties();
         properties.load(propertiesReader);
-
-        // TODO: no distinguir el tipo de fichero entre training, validation o test.
         properties.setProperty(TRAINING_PATH_PROP, prop.getTrainingPath());
 
         DiagramData diagramData = diagramDataService.findByRunId(run);
@@ -618,7 +614,7 @@ public class ExperimentController {
         run.setThreaId(th.getId());
         runnables.put(th.getId(),obj);
 
-        https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
+        // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
 
         propertiesReader.close();
         // END - Execute program with experiment info
@@ -876,9 +872,6 @@ public class ExperimentController {
             Grammar grammarAux = grammarIt.next();
             if (grammarAux.getId() == run.getDefaultGrammar()) {
                 experimentService.deleteGrammar(grammarAux);
-                //grammarAux.setExperimentId(null);
-                //grammarIt.remove();
-                // lGrammar.remove(grammarAux);
 
                 if(grammarAux.getId() == experiment.getDefaultGrammar().getId())
                     experiment.setDefaultRunId(null);
@@ -894,10 +887,7 @@ public class ExperimentController {
         while(expDataIt.hasNext() && !found) {
             ExperimentDataType expDataAux = expDataIt.next();
             if (expDataAux.getId() == run.getDefaultExpDataType()) {
-                // lExpDataType.remove(expDataAux);
                 experimentService.deleteDataTypeFile(expDataAux);
-                //expDataAux.setExperimentId(null);
-                //expDataIt.remove();
 
                 if(expDataAux.getId() == experiment.getDefaultExpDataType().getId())
                     experiment.setIdExpDataTypeList(null);
@@ -913,33 +903,14 @@ public class ExperimentController {
         while(runIt.hasNext() && !found){
             Run runAux = runIt.next();
             if(runAux.getId() == run.getId()) {
-                // System.out.println("ExpId " + run.getExperimentId().getId());
-                // run.getExperimentId().getIdRunList().remove(run);
-                // runService.deleteRun(runAux);
-                // lRun.remove(runAux);
                 runAux.setExperimentId(null);
                 runIt.remove();
 
                 if(runAux.getId() == experiment.getDefaultRunId())
                     experiment.setDefaultRunId(Long.parseLong("0"));
-
                 found = true;
             }
         }
-
-        /*System.out.println("Grammar default id experiment = " + experiment.getDefaultGrammar().getId());
-        System.out.println("Exp data type default id experiment = " + experiment.getDefaultExpDataType().getId());
-        System.out.println("Run default id experiment = " + experiment.getDefaultRunId());*/
-
-        /*List<ExperimentDataType> lEDType = experiment.getIdExpDataTypeList();
-        for(ExperimentDataType dataType : lEDType)
-            System.out.println("Exp data type = " + dataType.getId());
-        List<Grammar> lGrammarL = experiment.getIdGrammarList();
-        for(Grammar gr : lGrammarL)
-            System.out.println("Grammar = " + gr.getId());
-        List<Run> lRunL = experiment.getIdRunList();
-        for(Run r : lRunL)
-            System.out.println("Run = " + r.getId());*/
 
         experimentService.saveExperiment(experiment);
         runService.deleteExpProperties(experimentService.findPropertiesById(run.getIdProperties()));
