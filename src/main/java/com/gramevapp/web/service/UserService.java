@@ -1,10 +1,8 @@
 package com.gramevapp.web.service;
 
-import com.gramevapp.web.model.Experiment;
-import com.gramevapp.web.model.Role;
-import com.gramevapp.web.model.User;
-import com.gramevapp.web.model.UserRegistrationDto;
+import com.gramevapp.web.model.*;
 import com.gramevapp.web.other.UserToUserDetails;
+import com.gramevapp.web.repository.UserDetailsRepository;
 import com.gramevapp.web.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -35,6 +33,9 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private UserDetailsRepository userDetailsRepository;
+
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -57,23 +58,27 @@ public class UserService {
                 mapRolesToAuthorities(user.getRoles()));
     }
 
-    public User save(UserRegistrationDto registration){
+    public User saveUser(UserRegistrationDto registration){
         User user = new User();
-        user.setFirstName(registration.getFirstName());
-        user.setLastName(registration.getLastName());
+        com.gramevapp.web.model.UserDetails userDetails = new com.gramevapp.web.model.UserDetails();
+
+        user.setUserDetails(userDetails);
+
+        user.getUserDetails().setFirstName(registration.getFirstName());
+        user.getUserDetails().setLastName(registration.getLastName());
+
         user.setEmail(registration.getEmail());
         user.setPassword(passwordEncoder.encode(registration.getPassword()));
         user.setUsername(registration.getUsername().toLowerCase());
-        /*user.setAddress(registration.getAddress());
-        user.setCity(registration.getCity());
-        user.setState(registration.getState());
-        user.setZipcode(registration.getZipcode());
-        user.setWorkInformation(registration.getWorkInformation());
-        user.setStudyInformation(registration.getStudyInformation());
-        user.setAboutMe(registration.getAboutMe());*/
+
         user.setRoles(Arrays.asList(new Role("ROLE_USER")));    // Later we can change the role of the user
 
-        return userRepository.save(user);
+        userDetailsRepository.save(userDetails);
+        user = userRepository.save(user);
+
+        userDetails.setUser(user);
+
+        return user;
     }
 
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles){

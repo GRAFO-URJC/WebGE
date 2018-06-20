@@ -13,7 +13,7 @@ import java.util.List;
 
 @Repository
 public interface UserRepository  extends JpaRepository<User,Long> {
-    User findById(int id);
+    User findById(Long id);
     User findByUsername(String username);
     User findByUsernameAndPassword(String username, String password);
     User findByEmailAndPassword(String email, String password);
@@ -24,6 +24,6 @@ public interface UserRepository  extends JpaRepository<User,Long> {
 
     @Modifying
     @Transactional
-    @Query("update User u set u.profilePicture.filePath = ?2 where u.username = ?1")
+    @Query("update User u set u.userDetails.profilePicture.filePath = ?2 where u.username = ?1")
     int updateFilePath(String username, String filePath);
 }

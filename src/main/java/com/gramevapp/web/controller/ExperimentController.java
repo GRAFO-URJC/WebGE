@@ -765,7 +765,7 @@ public class ExperimentController {
 
             exp.setDefaultRunId(longDefaultRunId);          // Doesn't exists -> We set up the run id obtained before
 
-            user.addExperiment(exp);                        // We add it only if doesn't exist
+            user.getUserDetails().addExperiment(exp);       // We add it only if doesn't exist
         }
         else {  // The experiment data type configuration already exist
             exp.setExperimentName(expDto.getExperimentName());
@@ -782,7 +782,7 @@ public class ExperimentController {
             exp.setNumberRuns(expDto.getNumberRuns());
             exp.setObjective(expDto.getObjective());
 
-            exp.setDefaultRunId(run.getId());           // Already exist, so we get it from the RUN model
+            exp.setDefaultRunId(run.getId());   // Already exist, so we get it from the RUN model
         }
 
         exp.addRun(run);
@@ -922,9 +922,9 @@ public class ExperimentController {
             }
         }
 
-        System.out.println("Grammar default id experiment = " + experiment.getDefaultGrammar().getId());
+        /*System.out.println("Grammar default id experiment = " + experiment.getDefaultGrammar().getId());
         System.out.println("Exp data type default id experiment = " + experiment.getDefaultExpDataType().getId());
-        System.out.println("Run default id experiment = " + experiment.getDefaultRunId());
+        System.out.println("Run default id experiment = " + experiment.getDefaultRunId());*/
 
         /*List<ExperimentDataType> lEDType = experiment.getIdExpDataTypeList();
         for(ExperimentDataType dataType : lEDType)
