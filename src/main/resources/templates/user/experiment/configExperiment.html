@@ -321,7 +321,7 @@
                                 </div>
 
                                 <!-- Data Type table to load -->
-                                <input class="hiddenRadio" type="radio" th:name="radioDataType" th:id="radioDataTypeHidden" checked="checked" />
+                                <input class="hiddenRadio" type="radio" th:name="radioDataTypeHidden" th:id="radioDataTypeHidden" checked="checked" />
                                 <div th:if="${not #lists.isEmpty(dataTypeList)}">
                                     <h2>Data type files</h2>
 
@@ -338,7 +338,7 @@
                                         </thead>
                                         <tbody>
                                         <tr th:each="dataType, iterStat : ${dataTypeList}">     <!-- We are using model Experiment and not ExperimentDto -->
-                                            <td scope="row"><input type="radio" th:id="radioDataType" th:name="radioDataType" th:value="${dataType.getId()}" onclick="check()"/></td>
+                                            <td scope="row"><input type="radio" th:id="'radioDataType'+${iterStat.index}" th:name="radioDataType" th:value="${dataType.getId()}" onclick="check(this.id)"/></td>
                                             <td scope="row"><label th:text="${dataType.getId()}" th:id="dataTypeId" th:name="dataTypeId" /></td>
                                             <td scope="row"><label th:text="${dataType.getDataTypeName()}" th:name="expDataTypeNameList" th:id="expDataTypeNameList" /></td>
                                             <td scope="row"><label th:text="${dataType.getDataTypeDescription()}" th:name="expDataTypeDescriptionList" th:id="expDataTypeDescriptionList" /></td>
@@ -451,7 +451,7 @@
                                     </form>
                                 </tr>
 
-                                <tr>
+                                <tr th:id="'trAux' + ${iterStat.index}">
                                     <td colspan="12">
                                         <div class="panel-collapse collapse" th:id="'collapse'+${iterStat.index}">
                                             <h4><b>Run details </b></h4>
@@ -547,7 +547,6 @@
             reader.readAsText(control.files[0]);
         }, false);
     </script>
-
     <script>
         // Download grammar text area file
         function saveTextAsFile() {
@@ -581,14 +580,19 @@
             document.body.removeChild(event.target);
         }
     </script>
-
     <script>
-        function check(event) {
-            if(document.getElementById('radioDataType').checked)
-                document.querySelector('#typeFile').required = false;
-        }
-    </script>
+        function check(iterStat) {
+            var cleanIterStat = iterStat.substring("radioDataType".length, iterStat.length);
+            console.log(cleanIterStat);
 
+            if(document.getElementById('radioDataType'+cleanIterStat).checked) {
+                radioDataTypeHidden
+                $("radioDataTypeHidden").remove();
+                document.querySelector('#typeFile').required = false;
+            }
+        }
+        var cleanIterStat = iterStat.substring(iterStat.length - 1, iterStat.length);   // Dará error, si hay listado con mas de 9 obj, no pillará el id de 10, pq sólo mira hasta el último
+    </script>
     <script type="text/javascript">
         // <![CDATA[
         function checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat){
@@ -641,25 +645,8 @@
         };
         // ]]>
 
-        function runController(runId){
-            $.ajax({
-                url: encodeURI("/user/experiment/runList/"),
-                data: {
-                    'runId': runId.text(),
-                    'runExperimentButton': 'runExperimentButton'
-                },
-                cache: false,
-                type: "GET",
-                dataType: "json",
-                success: function (data) {
-                }
-            });
-        }
-
         function showRunStatus(iterStat) {
             var cleanIterStat = iterStat.substring(iterStat.length - 1, iterStat.length);   // Dará error, si hay listado con mas de 9 obj, no pillará el id de 10, pq sólo mira hasta el último
-
-            console.log(cleanIterStat);
 
             var runId = $("#runId" + cleanIterStat);
             var status = "#status" + cleanIterStat;
@@ -675,7 +662,6 @@
             // runController(runId);
         }
     </script>
-
     <script>
         var indexesShow = [];
         var indexesHide = [];
@@ -706,7 +692,6 @@
             });
         });
     </script>
-
     <script>
         $(document).ready(function () {
             $("[rel=tooltip]").tooltip({placement: 'right'});
@@ -742,6 +727,7 @@
                 dataType: "json",
                 success: function(data){
                     $("#tr" + cleanIterStat).remove();
+                    $("#trAux" + cleanIterStat).remove();
                 }
             });
         };

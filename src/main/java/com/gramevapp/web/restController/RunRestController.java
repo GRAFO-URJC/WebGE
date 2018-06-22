@@ -41,9 +41,10 @@ public class RunRestController {
             run.setCurrentGeneration(0);
 
             run.getDiagramData().setFinished(false);
+            run.getDiagramData().setStopped(false);
+            run.getDiagramData().setFailed(false);
             run.getDiagramData().setBestIndividual(1.0);
             run.getDiagramData().setCurrentGeneration(0);
-
 
             run.getDiagramData().setListPair(new ArrayList<>());
         }

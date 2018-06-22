@@ -9,7 +9,6 @@ import com.gramevapp.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 
 @RestController("diagramDataRestController")
 public class DiagramDataRestController {
@@ -27,19 +26,13 @@ public class DiagramDataRestController {
             produces = "application/json")
     public @ResponseBody
     DiagramData getLastBestIndividual(String runId) {
-
         User user = userService.getLoggedInUser();
-        if(user == null){
+        if(user == null)
             System.out.println("User not authenticated");
-        }
-
         Long longRunId = Long.parseLong(runId);
         Run run = runService.findByRunId(longRunId);
 
         DiagramData diagramData = diagramDataService.getLastBestIndividual(run);
-
-        // diagramData.getFinished())
-//            diagramData.setListPair(new ArrayList<>());
 
         return diagramData;
     }
