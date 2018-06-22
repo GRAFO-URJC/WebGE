@@ -75,12 +75,16 @@ public class ExperimentService {
         return experimentDataTypeRepository.save(expDataType);
     }
 
-    public void saveGrammar(Grammar grammar){
-        grammarRepository.save(grammar);
+    public Grammar saveGrammar(Grammar grammar){
+        return grammarRepository.save(grammar);
     }
 
-    public void saveExperiment(Experiment experiment){
-        experimentRepository.save(experiment);
+    public Experiment saveExperiment(Experiment experiment){
+        return experimentRepository.save(experiment);
+    }
+
+    public void updateExperiment(){
+        experimentRepository.flush();
     }
 
     public List<Experiment> findByUserId(User user) {
@@ -91,17 +95,9 @@ public class ExperimentService {
         return experimentRepository.findByUserIdAndId(user, expId);
     }
 
-    /*public Grammar findGrammarByUserIdAndName(User user, String nameExp){
-        return grammarRepository.findByUserIdAndGrammarName(user, nameExp);
-    }*/
-
     public Grammar findGrammarById(Long grammarId){
         return grammarRepository.findGrammarById(grammarId);
     }
-
-    /*public ExperimentDataType findDataTypeByUserIdAndName(User user, String nameExp){
-        return experimentDataTypeRepository.findByUserIdAndDataTypeName(user, nameExp);
-    }*/
 
     public ExperimentDataType findDataTypeById(Long dataTypeId){
         return experimentDataTypeRepository.findById(dataTypeId);

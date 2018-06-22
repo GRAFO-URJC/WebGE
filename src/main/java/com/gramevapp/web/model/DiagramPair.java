@@ -16,8 +16,6 @@ public class DiagramPair
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    // @JsonIgnore
-    // @JsonBackReference
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinTable(
             name = "diagram_pair_list",
@@ -71,7 +69,23 @@ public class DiagramPair
         return diagramDataId;
     }
 
+    // https://github.com/SomMeri/org.meri.jpa.tutorial/blob/master/src/main/java/org/meri/jpa/relationships/entities/bestpractice/SafeTwitterAccount.java
     public void setDiagramData(DiagramData diagramDataId) {
+        //prevent endless loop
+        if(sameAs(diagramDataId))
+            return ;
+        // set new diagramData
+        DiagramData oldDiagramData = this.diagramDataId;
         this.diagramDataId = diagramDataId;
+        // remove from the old diagram data
+        if(oldDiagramData!=null)
+            oldDiagramData.removeListPair(this);
+        // set myself into new diagram data owner
+        if(diagramDataId!=null)
+            diagramDataId.addListPair(this);
+    }
+
+    private boolean sameAs(DiagramData newDiagramData) {
+        return this.diagramDataId==null? newDiagramData == null : diagramDataId.equals(newDiagramData);
     }
 }

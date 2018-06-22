@@ -9,24 +9,15 @@ import java.util.List;
 @Table(name="experimentRowType")
 public class ExperimentRowType {
     @Id
-    //@CsvBindByName(column = "id")
-    //@CsvBindByPosition(position = 0)
     @Column(name = "EXPERIMENTROWTYPE_ID", nullable = false, updatable= false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    //@CsvBindByName(column = "expDataTypeId"/*, required = true*/)
-    //@CsvBindByPosition(position = 1)
-    @ManyToOne // https://www.thoughts-on-java.org/hibernate-tips-map-bidirectional-many-one-association/
+    @ManyToOne(fetch = FetchType.EAGER) // https://www.thoughts-on-java.org/hibernate-tips-map-bidirectional-many-one-association/
     @PrimaryKeyJoinColumn
     private ExperimentDataType expDataTypeId;
 
     private ArrayList<String> dataRow;
-
-    /*@ElementCollection
-    @CollectionTable(name="COLUMN_LIST", joinColumns=@JoinColumn(name="EXPERIMENTROWTYPE_ID"))
-    @Column(name = "COLUMNS")
-    private List<String> columnList;*/
 
     public ExperimentRowType() {
     }
@@ -51,10 +42,23 @@ public class ExperimentRowType {
         return expDataTypeId;
     }
 
-    public void setExpDataTypeId(ExperimentDataType expDataTypeId) {
-        this.expDataTypeId = expDataTypeId;
+    public void setExpDataTypeId(ExperimentDataType expDataType) {
+        if(sameAs(expDataType))
+            return ;
+        ExperimentDataType oldExperimentDataType = this.expDataTypeId;
+        this.expDataTypeId = expDataType;
+
+        if(oldExperimentDataType!=null)
+            oldExperimentDataType.removeExperimentRowType(this);
+        if(expDataTypeId!=null)
+            expDataTypeId.addExperimentRowType(this);
+
+        this.expDataTypeId = expDataType;
     }
 
+    private boolean sameAs(ExperimentDataType newExpDataType) {
+        return this.expDataTypeId==null? newExpDataType == null : expDataTypeId.equals(newExpDataType);
+    }
 
     @Override
     public String toString() {

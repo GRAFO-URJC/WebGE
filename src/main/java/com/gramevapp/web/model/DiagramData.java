@@ -20,7 +20,6 @@ public class DiagramData {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    // @JsonManagedReference
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToMany(cascade=CascadeType.ALL,
             fetch=FetchType.EAGER,
@@ -102,8 +101,10 @@ public class DiagramData {
         return runId;
     }
 
-    public void setRunId(Run runId) {
-        this.runId = runId;
+    public void setRunId(Run run) {
+        this.runId = run;
+        run.setDiagramData(this);
+
     }
 
     public Long getLongUserId() {
@@ -164,9 +165,23 @@ public class DiagramData {
         this.listPair.add(diagramPair);
     }
 
+    //https://github.com/SomMeri/org.meri.jpa.tutorial/blob/master/src/main/java/org/meri/jpa/relationships/entities/bestpractice/SafePerson.java
     public void addListPair(DiagramPair diagramPair){
+        //prevent endless loop
+        if(this.listPair.contains(diagramPair))
+            return ;
         this.listPair.add(diagramPair);
         diagramPair.setDiagramData(this);
+    }
+
+    public void removeListPair(DiagramPair diagramPair) {
+        //prevent endless loop
+        if (!listPair.contains(diagramPair))
+            return ;
+        //remove the account
+        listPair.remove(diagramPair);
+        //remove myself from the twitter account
+        diagramPair.setDiagramData(null);
     }
 
     //@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")

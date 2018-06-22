@@ -47,9 +47,7 @@ public class RunGeObserver implements Observer {
         // http://codippa.com/how-to-autowire-objects-in-non-spring-classes/
         //get application context
         ApplicationContext context = BeanUtil.getAppContext();
-        // get instance of MainSpringClass (Spring Managed class)
         DiagramDataService dataDataService = (DiagramDataService) context.getBean("diagramDataService");
-        // use this spring object to call its methods
 
         DiagramPair diagramPair = new DiagramPair(currBest, currGen);
 

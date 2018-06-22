@@ -17,7 +17,7 @@ public class ConfigExperimentDto {
     @Pattern(regexp = PATTERN, message = "Experiment name cannot contain strange characters")
     @NotEmpty(message = "Enter experiment name")
     private String experimentName="";
-    @NotEmpty(message = "Enter experiment description")
+
     private String experimentDescription;
     @Min(value=0)
     @Max(value=100000)
@@ -55,21 +55,20 @@ public class ConfigExperimentDto {
     @Max(value=100)
     @NotNull
     private Integer numberRuns = 1;
-    @NotEmpty(message = "Defaulta grammar file cannot be empty")
+    @NotEmpty(message = "Default grammar file cannot be empty")
     private String defaultGrammar = " ";
     @NotEmpty(message = "Default experiment data type file cannot be empty")
     private String defaultExpDataType = " ";
     @Pattern(regexp = PATTERN, message = "Grammar file name cannot contain strange characters")
-    @NotEmpty(message = "Grammar file description cannot be empty")
-    private String grammarName = " ";
     @NotEmpty(message = "Grammar file name cannot be empty")
+    private String grammarName = " ";
+
     private String grammarDescription = " ";
-    @NotEmpty(message = "Grammar file cannot be empty")
+    @NotEmpty(message = "Grammar area text cannot be empty")
     private String fileText = " "; // This is the text on the file - That's written in an areaText - So we can take it as a String
     @NotEmpty(message = "Data type file name cannot be empty")
     @Pattern(regexp = PATTERN, message = "Data type file name cannot contain strange characters")
     private String dataTypeName = " ";
-    @NotEmpty(message = "Data type file description cannot be empty")
     private String dataTypeDescription = " "; // status
     @NotEmpty(message = "Choose one data type option")
     private String dataTypeType = " ";        // Validation, test, training

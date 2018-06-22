@@ -24,10 +24,6 @@ public class  RunService {
         return runRepository.save(run);
     }
 
-    public Run findByRunName(String runName){
-        return runRepository.findByRunName(runName);
-    }
-
     public Run findByRunId(Long runId){
         return runRepository.findById(runId);
     }
@@ -35,16 +31,6 @@ public class  RunService {
     public List<Run> findAllByExperiment(Experiment exp){
         return runRepository.findAllByExperimentId(exp);
     }
-
-    /*
-    public List<Run> findAllByUserEmail(User user){
-        return runRepository.findByUserId(user);
-    }
-    */
-
-    /*public Run findByUserIdAndRunId(User user, Long id){
-        return  runRepository.findByUserIdAndId(user, id);
-    }*/
 
     public Run findLastRunId(){
         return runRepository.findTop1ByOrderByIdDesc();
@@ -54,15 +40,11 @@ public class  RunService {
         runRepository.delete(run);
     }
 
+    public void updateRun(){
+        runRepository.flush();
+    }
+
     public void deleteExpProperties(ExpProperties expProperties){
         expPropertiesRepository.delete(expProperties);
-    }
-
-    public void deleteRunByDefaultGrammar(Grammar grammar){
-        runRepository.deleteByDefaultGrammar(grammar);
-    }
-
-    public void deleteRunByDefaultDataType(ExperimentDataType experimentDataType){
-        runRepository.deleteByDefaultExpDataType(experimentDataType);
     }
 }
