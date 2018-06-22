@@ -58,7 +58,7 @@ public class ExpPropertiesDto {
     public ExpPropertiesDto() {
     }
 
-    public ExpPropertiesDto(Double errorThreshold, Integer tournamentSize, Integer realDataCopied, Double crossoverProb, String bnfPathFile, Integer objectives, Integer executions, Double mutationProb, Boolean normalizedData, Integer logPopulation, Integer chromosomeLength, Integer numIndividuals, Integer numGenerations, Boolean viewResults, Integer maxWraps, Integer modelWidth, String experimentName, String experimentDescription) {
+    public ExpPropertiesDto(User user, Double errorThreshold, Integer tournamentSize, Integer realDataCopied, Double crossoverProb, String bnfPathFile, Integer objectives, Integer executions, Double mutationProb, Boolean normalizedData, Integer logPopulation, Integer chromosomeLength, Integer numIndividuals, Integer numGenerations, Boolean viewResults, Integer maxWraps, Integer modelWidth, String experimentName, String experimentDescription) {
         this.errorThreshold = errorThreshold;
         this.tournamentSize = tournamentSize;
         this.realDataCopied = realDataCopied;
@@ -77,15 +77,6 @@ public class ExpPropertiesDto {
         this.modelWidth = modelWidth;
         this.experimentName = experimentName;
         this.experimentDescription = experimentDescription;
-
-        // http://codippa.com/how-to-autowire-objects-in-non-spring-classes/
-        //get application context
-        ApplicationContext context = BeanUtil.getAppContext();
-        // get instance of MainSpringClass (Spring Managed class)
-        UserService userService = (UserService) context.getBean("userService");
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userService.findByUsername(authentication.getName());
 
         this.loggerBasePath = LOGGER_BASE_PATH + File.separator + user.getId();
 

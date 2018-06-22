@@ -84,7 +84,6 @@
 
                 <section class="panel-body">
                     <form th:action="@{/user/experiment/start}" enctype="multipart/form-data" th:object="${configExp}" role="form" method="POST">
-
                         <input type="hidden" th:name="defaultRunId" th:id="defaultRunId" th:value="${configuration.getDefaultRunId()}" />
 
                         <div class="row center-block form-horizontal">
@@ -307,19 +306,6 @@
                                     </div>
                                 </div>
 
-                                <!-- <div class="row form-group text-center">
-                                    <div class="col-sm-12 col-md-12 col-lg-12">
-
-                                        <p class="text-warning"
-                                           th:each="error : ${#fields.errors('dataTypeType')}"
-                                           th:text="${error}">Validation error</p>
-
-                                        <input type="radio" th:name="dataTypeType" th:id="dataTypeType" th:value="traininng" checked="checked"/> Training
-                                        <input type="radio" th:name="dataTypeType" th:id="dataTypeType" th:value="validation" /> Validation
-                                        <input type="radio" th:name="dataTypeType" th:id="dataTypeType" th:value="test" /> Test
-                                    </div>
-                                </div>-->
-
                                 <div class="row form-group">
                                     <div class="col-sm-12 col-md-12 col-lg-12">
                                         <!-- Error handling -->
@@ -358,8 +344,8 @@
                                             <td scope="row"><label th:text="${dataType.getDataTypeDescription()}" th:name="expDataTypeDescriptionList" th:id="expDataTypeDescriptionList" /></td>
                                             <td scope="row"><label th:text="${dataType.getDataTypeType()}" th:name="expDataTypeTypeList" th:id="expDataTypeTypeList" /></td>
                                             <td scope="row"><label th:text="${dataType.getCreationDate()}" th:name="creationDate" th:id="creationDate" /></td>
-                                            <input type="hidden"  th:id="dataTypeId" th:name="dataTypeId" th:value="${dataType.getId()}"/>
-                                            <input type="hidden"  th:id="dataTypeType" th:name="dataTypeType" th:value="${dataType.getDataTypeType()}"/>
+                                            <input type="hidden" th:value="${dataType.getId()}" th:name="dataTypeId" th:id="dataTypeId" />
+                                            <input type="hidden" th:value="${dataType.getDataTypeType()}" th:name="dataTypeType" th:id="dataTypeType" />
                                             <!--<td scope="row"><a class="btn-default btn-sm" onclick="fillInput($(user.getId()) ,$(dataType.getId()),  $(dataType.getDataTypeName()))" id="loadDataTypeButton" name="loadDataTypeButton">select</a></td>-->
                                         </tr>
                                         </tbody>
@@ -436,10 +422,8 @@
                             <th:block th:each="run, iterStat : ${runList}">
                                 <tr th:id="'tr' + ${iterStat.index}">
                                     <form th:action="@{/user/experiment/runList}" th:object="${expDetailsDto}" method="GET" class="form-horizontal">
-                                        <!--<input type="hidden" th:name="runId" th:value="${configuration.getDefaultRunId()}" />-->
-
                                         <td scope="row"><label th:text="${run.getId()}" th:id="'runId'+${iterStat.index}" /></td>
-                                        <td scope="row"><label th:name="runName" th:id="runName" th:text="${run.getRunName()}" /></td>
+                                        <td scope="row"><label th:name="runName" th:id="runName" th:text="${run.getExperimentName()}" /></td>
                                         <td scope="row"><label th:name="bestIndividual" th:id="'bestIndividual'+${iterStat.index}" th:text="${run.getDiagramData().bestIndividual}" /></td>
                                         <td scope="row"><label th:name="currentGeneration" th:id="'currentGeneration'+${iterStat.index}" th:text="${run.getDiagramData().currentGeneration}" /></td>
                                         <td scope="row"><label th:name="status" th:id="'status'+${iterStat.index}" th:text="${run.getStatus()}" /></td>
@@ -738,7 +722,7 @@
     </script>
     <script>
         function confirmDelete(iterStat, runId) {
-            var result = confirm("Are you sure to delete this experiment ?");
+            var result = confirm("Are you sure to delete this run ?");
             if(result)
                 deleteRow(iterStat, runId);
         }

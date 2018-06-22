@@ -1,8 +1,6 @@
 package com.gramevapp.web.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -10,7 +8,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-// idData - userId - idExperimentRowType - name - description - updateDate - type (Validation, Test or Training)
 @Entity
 @Table(name="experimentDataType")
 public class ExperimentDataType {
@@ -25,7 +22,7 @@ public class ExperimentDataType {
     @JoinTable(
             name = "exp_data_type_list",
             joinColumns = {
-                    @JoinColumn(name = "EXPERIMENT_DATA_TYPE_ID", nullable = false)
+                    @JoinColumn(name = "EXPERIMENT_DATA_TYPE_ID")
                 },
             inverseJoinColumns = {
                     @JoinColumn(name = "EXPERIMENT_ID", referencedColumnName = "EXPERIMENT_ID")
@@ -58,13 +55,15 @@ public class ExperimentDataType {
     private List<String> header;
 
     // https://www.thoughts-on-java.org/hibernate-tips-map-bidirectional-many-one-association/
-    @OneToMany(mappedBy ="expDataTypeId",
-            cascade= CascadeType.ALL)
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @OneToMany(cascade= CascadeType.ALL,
+            fetch=FetchType.LAZY,
+            mappedBy ="expDataTypeId")
     private List<ExperimentRowType> listRowsFile;
 
-    public ExperimentDataType(){
+    public ExperimentDataType(Experiment exp){
         listRowsFile = new ArrayList<>();
-        experimentId = new Experiment();
+        this.experimentId = exp;
     }
 
     /**
@@ -72,8 +71,10 @@ public class ExperimentDataType {
      */
     public ExperimentDataType(ExperimentDataType eDType) {
         this(eDType.getExperimentId(), eDType.getRunId(), eDType.getDataTypeName(), eDType.getDataTypeDescription(), eDType.getDataTypeType(), eDType.getCreationDate(), eDType.getModificationDate(), eDType.getHeader(), eDType.getListRowsFile());
-        //no defensive copies are created here, since
-        //there are no mutable object fields (String is immutable)
+    }
+
+    public ExperimentDataType(){
+        this.listRowsFile = new ArrayList<>();
     }
 
     public ExperimentDataType(Experiment experimentId, Long runId, String dataTypeName, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, List<String> header, List<ExperimentRowType> listRowsFile) {
@@ -88,14 +89,14 @@ public class ExperimentDataType {
         this.listRowsFile = listRowsFile;
     }
 
-    public ExperimentDataType(String dataTypeName, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate) {
+    public ExperimentDataType(Experiment exp, String dataTypeName, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate) {
         this.dataTypeName = dataTypeName;
         this.dataTypeDescription = dataTypeDescription;
         this.dataTypeType = dataTypeType;
         this.creationDate = creationDate;
         this.modificationDate = modificationDate;
         this.listRowsFile = new ArrayList<>();
-        experimentId = new Experiment();
+        this.experimentId = exp;
     }
 
     public ExperimentDataType(String dataTypeName, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, ArrayList<ExperimentRowType> listRowsFile) {
@@ -105,7 +106,6 @@ public class ExperimentDataType {
         this.creationDate = creationDate;
         this.modificationDate = modificationDate;
         this.listRowsFile = listRowsFile;
-        experimentId = new Experiment();
     }
 
     public Long getRunId() {
@@ -129,7 +129,21 @@ public class ExperimentDataType {
     }
 
     public void setExperimentId(Experiment experimentId) {
+        if(sameAs(experimentId))
+            return ;
+        Experiment oldExperimentId = this.experimentId;
         this.experimentId = experimentId;
+
+        if(oldExperimentId!=null)
+            oldExperimentId.removeExperimentDataType(this);
+        if(experimentId!=null)
+            experimentId.addExperimentDataType(this);
+
+        this.experimentId = experimentId;
+    }
+
+    private boolean sameAs(Experiment newExperiment) {
+        return this.experimentId==null? newExperiment == null : experimentId.equals(newExperiment);
     }
 
     public String getDataTypeType() {
@@ -188,10 +202,19 @@ public class ExperimentDataType {
         this.creationDate = creationDate;
     }
 
-    public ExperimentRowType addExperimentRowType(ExperimentRowType exp) {
-        this.listRowsFile.add(exp);
-        exp.setExpDataTypeId(this);
-        return exp;
+    // https://github.com/SomMeri/org.meri.jpa.tutorial/blob/master/src/main/java/org/meri/jpa/relationships/entities/bestpractice/SafePerson.java
+    public void addExperimentRowType(ExperimentRowType expRowType) {
+        if(this.listRowsFile.contains(expRowType))
+            return ;
+        this.listRowsFile.add(expRowType);
+        expRowType.setExpDataTypeId(this);
+    }
+
+    public void removeExperimentRowType(ExperimentRowType expRowType){
+        if(!listRowsFile.contains(expRowType))
+            return ;
+        listRowsFile.remove(expRowType);
+        expRowType.setExpDataTypeId(null);
     }
 
     public String headerToString() {

@@ -7,13 +7,15 @@ import javax.persistence.TemporalType;
 import java.util.Date;
 
 public class ExperimentDataTypeDto {
+    public enum Type { validation, test, training};
+
     private Long dataTypeId;
     @NotEmpty
     private String dataTypeName;
     @NotEmpty
     private String dataTypeDescription; // status
     @NotEmpty
-    private String dataTypeType;        // Validation, test, training
+    private Type dataTypeType;        // Validation, test, training
 
     // https://softwareyotrasdesvirtudes.com/2012/09/20/anotaciones-en-jpa-para-sobrevivir-a-una-primera-persistenica/
     @Temporal(TemporalType.TIMESTAMP)
@@ -22,11 +24,11 @@ public class ExperimentDataTypeDto {
     public ExperimentDataTypeDto() {
     }
 
-    public String getDataTypeType() {
+    public Type getDataTypeType() {
         return dataTypeType;
     }
 
-    public void setDataTypeType(String dataTypeType) {
+    public void setDataTypeType(Type dataTypeType) {
         this.dataTypeType = dataTypeType;
     }
 

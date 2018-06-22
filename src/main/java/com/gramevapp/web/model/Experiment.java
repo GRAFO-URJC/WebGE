@@ -2,6 +2,9 @@ package com.gramevapp.web.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.gramevapp.web.other.BeanUtil;
+import com.gramevapp.web.service.ExperimentService;
+import org.springframework.context.ApplicationContext;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -46,9 +49,8 @@ public class Experiment {
             mappedBy = "experimentId")
     private List<Grammar> idGrammarList;
 
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToOne
-    private Grammar defaultGrammar;
+    @Column
+    private Long defaultGrammar;
 
     @JsonBackReference
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -57,12 +59,12 @@ public class Experiment {
             mappedBy = "experimentId")
     private List<ExperimentDataType> idExpDataTypeList;
 
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToOne
-    private ExperimentDataType defaultExpDataType;
+    @Column
+    private Long defaultExpDataType;
 
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToMany(cascade=CascadeType.ALL,
+    @OneToMany(fetch=FetchType.LAZY,
+            cascade=CascadeType.ALL,
             mappedBy = "experimentId",
             orphanRemoval = true)
     private List<Run> idRunList;
@@ -169,22 +171,30 @@ public class Experiment {
         this.objective = objective;
     }
 
-    public Grammar getDefaultGrammar() {
+    public Long getDefaultGrammar() {
         return defaultGrammar;
     }
 
-    public void setDefaultGrammar(Grammar defaultGrammar) {
-        this.defaultGrammar = defaultGrammar;
+    public void setDefaultGrammar(Long defaultGrammarId) {
+        this.defaultGrammar = defaultGrammarId;
+        ApplicationContext context = BeanUtil.getAppContext();
+        ExperimentService experimentService = (ExperimentService) context.getBean("experimentService");
+
+        Grammar defaultGrammar= experimentService.findGrammarById(defaultGrammarId);
         defaultGrammar.setExperimentId(this);
     }
 
-    public ExperimentDataType getDefaultExpDataType() {
+    public Long getDefaultExpDataType() {
         return defaultExpDataType;
     }
 
-    public void setDefaultExpDataType(ExperimentDataType defaultExpDataType) {
-        this.defaultExpDataType = defaultExpDataType;
-        defaultExpDataType.setExperimentId(this);
+    public void setDefaultExpDataType(Long defaultExpDataTypeId) {
+        this.defaultExpDataType = defaultExpDataTypeId;
+        ApplicationContext context = BeanUtil.getAppContext();
+        ExperimentService experimentService = (ExperimentService) context.getBean("experimentService");
+
+        ExperimentDataType defaultExpDType= experimentService.findExperimentDataTypeById(defaultExpDataType);
+        defaultExpDType.setExperimentId(this);
     }
 
     public List<Run> getIdRunList() {
@@ -243,22 +253,47 @@ public class Experiment {
         this.idGrammarList = idGrammarList;
     }
 
-    public Run addRun(Run run) {
+    //https://github.com/SomMeri/org.meri.jpa.tutorial/blob/master/src/main/java/org/meri/jpa/relationships/entities/bestpractice/SafePerson.java
+    public void addRun(Run run) {
+        if(this.idRunList.contains(run))
+            return ;
         this.idRunList.add(run);
         run.setExperimentId(this);
-        return run;
     }
 
-    public Grammar addGrammar(Grammar grammar) {
+    public void removeRun(Run run){
+        if(!idRunList.contains(run))
+            return ;
+        idRunList.remove(run);
+        run.setExperimentId(null);
+    }
+
+    public void addGrammar(Grammar grammar) {
+        if(this.idGrammarList.contains(grammar))
+            return ;
         this.idGrammarList.add(grammar);
         grammar.setExperimentId(this);
-        return grammar;
     }
 
-    public ExperimentDataType addExperimentDataType(ExperimentDataType expData) {
+    public void removeGrammar(Grammar grammar){
+        if(!idGrammarList.contains(grammar))
+            return ;
+        idGrammarList.remove(grammar);
+        grammar.setExperimentId(null);
+    }
+
+    public void addExperimentDataType(ExperimentDataType expData) {
+        if(this.idExpDataTypeList.contains(expData))
+            return ;
         this.idExpDataTypeList.add(expData);
         expData.setExperimentId(this);
-        return expData;
+    }
+
+    public void removeExperimentDataType(ExperimentDataType expData){
+        if(!idExpDataTypeList.contains(expData))
+            return ;
+        idExpDataTypeList.remove(expData);
+        expData.setExperimentId(null);
     }
 
     public List<ExperimentDataType> getIdExpDataTypeList() {
@@ -373,7 +408,7 @@ public class Experiment {
         this.idProperties = idProperties;
     }
 
-    public void updateExperiment(Grammar grammar, ExperimentDataType expDataType, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date modificationDate){
+    public void updateExperiment(Long grammar, Long expDataType, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date modificationDate){
         this.defaultExpDataType = expDataType;
         this.defaultGrammar = grammar;
         this.experimentName = experimentName;

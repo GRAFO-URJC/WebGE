@@ -50,10 +50,10 @@ public class Run {
 
     @Column
     private Status status;
-    @Column
-    private String runName;
-    @Column
-    private String runDescription;
+    @Column(name="EXPERIMENT_NAME")
+    private String experimentName;
+    @Column(name="EXPERIMENT_DESCRIPTION")
+    private String experimentDescription;
 
     @Column(name="iniDate")
     @Temporal(TemporalType.TIMESTAMP)
@@ -62,12 +62,6 @@ public class Run {
     @Column(name="endDate")
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastDate;
-
-    @Column(name="EXPERIMENT_NAME") // Reference for user relation and ExpDataType and Grammar
-    private String experimentName;
-
-    @Column(name="EXPERIMENT_DESCRIPTION") // Reference for user relation and ExpDataType and Grammar
-    private String experimentDescription;
 
     @Column
     private Long defaultGrammar;
@@ -102,18 +96,16 @@ public class Run {
     private Integer numberRuns = 1;
 
     public Run(Run run){
-        this(run.getExperimentId(), run.getDiagramData(), run.getBestIndividual(), run.getCurrentGeneration(), run.getIdProperties(), run.getStatus(), run.getRunName(), run.getRunDescription(), run.getIniDate(), run.getLastDate(), run.getExperimentName(), run.getExperimentDescription(), run.getDefaultRunId(), run.getGenerations(), run.getPopulationSize(), run.getMaxWraps(), run.getTournament(), run.getCrossoverProb(), run.getMutationProb(), run.getInitialization(), run.getObjective(), run.getResults(), run.getNumCodons(), run.getNumberRuns());
+        this(run.getExperimentId(), run.getDiagramData(), run.getBestIndividual(), run.getCurrentGeneration(), run.getIdProperties(), run.getStatus(), run.getIniDate(), run.getLastDate(), run.getExperimentName(), run.getExperimentDescription(), run.getDefaultRunId(), run.getGenerations(), run.getPopulationSize(), run.getMaxWraps(), run.getTournament(), run.getCrossoverProb(), run.getMutationProb(), run.getInitialization(), run.getObjective(), run.getResults(), run.getNumCodons(), run.getNumberRuns());
     }
 
-    public Run(Experiment experimentId, DiagramData diagramData, Double bestIndividual, Integer currentGeneration, Long idProperties, Status status, String runName, String runDescription, Date iniDate, Date lastDate, String experimentName, String experimentDescription, Long defaultRunId, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String objective, String results, Integer numCodons, Integer numberRuns) {
+    public Run(Experiment experimentId, DiagramData diagramData, Double bestIndividual, Integer currentGeneration, Long idProperties, Status status, Date iniDate, Date lastDate, String experimentName, String experimentDescription, Long defaultRunId, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String objective, String results, Integer numCodons, Integer numberRuns) {
         this.experimentId = experimentId;
         this.diagramData = diagramData;
         this.bestIndividual = bestIndividual;
         this.currentGeneration = currentGeneration;
         this.idProperties = idProperties;
         this.status = status;
-        this.runName = runName;
-        this.runDescription = runDescription;
         this.iniDate = iniDate;
         this.lastDate = lastDate;
         this.experimentName = experimentName;
@@ -145,9 +137,9 @@ public class Run {
         this.status = status;
     }
 
-    public Run(Status status, String runName, String runDescription, Date iniDate, Date lastDate) {
-        this.runName = runName;
-        this.runDescription = runDescription;
+    public Run(Status status, String experimentName, String experimentDescription, Date iniDate, Date lastDate) {
+        this.experimentName = experimentName;
+        this.experimentDescription = experimentDescription;
         this.status = status;
         this.iniDate = iniDate;
         this.lastDate = lastDate;
@@ -165,8 +157,23 @@ public class Run {
         return experimentId;
     }
 
+    // https://github.com/SomMeri/org.meri.jpa.tutorial/blob/master/src/main/java/org/meri/jpa/relationships/entities/bestpractice/SafeTwitterAccount.java
     public void setExperimentId(Experiment experimentId) {
+        if(sameAs(experimentId))
+            return ;
+        Experiment oldExperimentId = this.experimentId;
         this.experimentId = experimentId;
+
+        if(oldExperimentId!=null)
+            oldExperimentId.removeRun(this);
+        if(experimentId!=null)
+            experimentId.addRun(this);
+
+        this.experimentId = experimentId;
+    }
+
+    private boolean sameAs(Experiment newExperiment) {
+        return this.experimentId==null? newExperiment == null : experimentId.equals(newExperiment);
     }
 
     public Date getIniDate() {
@@ -191,22 +198,6 @@ public class Run {
 
     public void setLastDate(Date lastDate) {
         this.lastDate = lastDate;
-    }
-
-    public String getRunName() {
-        return runName;
-    }
-
-    public void setRunName(String runName) {
-        this.runName = runName;
-    }
-
-    public String getRunDescription() {
-        return runDescription;
-    }
-
-    public void setRunDescription(String runDescription) {
-        this.runDescription = runDescription;
     }
 
     public Long getIdProperties() {

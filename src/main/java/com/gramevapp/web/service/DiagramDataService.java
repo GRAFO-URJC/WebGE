@@ -29,8 +29,8 @@ public class DiagramDataService {
         return diagramRepository.findByRunId(runId);
     }
 
-    public void saveDiagram(DiagramData diagramData) {
-        diagramRepository.save(diagramData);
+    public DiagramData saveDiagram(DiagramData diagramData) {
+        return diagramRepository.save(diagramData);
     }
 
     public void saveDiagramPairList(List<DiagramPair> diagramPairList) {

@@ -181,7 +181,7 @@ public class UserDetails{
 
     public Experiment addExperiment(Experiment experiment) {
         this.listExperiments.add(experiment);
-        experiment.setUserId(user);
+        experiment.setUserId(this.user);
         return experiment;
     }
 

@@ -20,7 +20,7 @@ public class Grammar {
     @JoinTable(
             name = "grammar_list",
             joinColumns = {
-                    @JoinColumn(name = "GRAMMAR_ID", nullable = false)
+                    @JoinColumn(name = "GRAMMAR_ID")
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "EXPERIMENT_ID", referencedColumnName = "EXPERIMENT_ID")
@@ -40,10 +40,9 @@ public class Grammar {
     @Column(columnDefinition = "TEXT") // https://stackoverflow.com/questions/31833337/hibernate-could-not-execute-statement-sql-n-a-saving-nested-object
     private String fileText; // This is the text on the file - That's written in a areaText - So we can take it as a String
 
-    public Grammar(){
-        experimentId = new Experiment();
+    public Grammar(Experiment exp){
+        this.experimentId = exp;
     }
-
     /**
      * Copy constructor.
      */
@@ -51,6 +50,9 @@ public class Grammar {
         this(grammar.getExperimentId(), grammar.getRunId(), grammar.getGrammarName(), grammar.getGrammarDescription(), grammar.getFileText());
         //no defensive copies are created here, since
         //there are no mutable object fields (String is immutable)
+    }
+
+    public Grammar(){
     }
 
     public Grammar(Experiment experimentId, Long runId, String grammarName, String grammarDescription, String fileText) {
@@ -61,12 +63,12 @@ public class Grammar {
         this.fileText = fileText;
     }
 
-    public Grammar(String grammarName, String grammarDescription, String fileText) {
+    public Grammar(Experiment exp, String grammarName, String grammarDescription, String fileText) {
         this.grammarName = grammarName;
         this.grammarDescription = grammarDescription;
         this.fileText = fileText;
 
-        experimentId = new Experiment();
+        this.experimentId = exp;
     }
 
     public Long getId() {
@@ -82,7 +84,21 @@ public class Grammar {
     }
 
     public void setExperimentId(Experiment experimentId) {
+        if(sameAs(experimentId))
+            return ;
+        Experiment oldExperimentId = this.experimentId;
         this.experimentId = experimentId;
+
+        if(oldExperimentId!=null)
+            oldExperimentId.removeGrammar(this);
+        if(experimentId!=null)
+            experimentId.addGrammar(this);
+
+        this.experimentId = experimentId;
+    }
+
+    private boolean sameAs(Experiment newExperiment) {
+        return this.experimentId==null? newExperiment == null : experimentId.equals(newExperiment);
     }
 
     public String getGrammarName() {

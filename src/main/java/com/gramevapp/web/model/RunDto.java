@@ -6,8 +6,8 @@ public class RunDto {
     private String status;
     private String iniDate;
     private String lastDate;
-    private String runName;
-    private String runDescription;
+    private String experimentName;
+    private String experimentDescription;
 
     public Long getId() {
         return id;
@@ -49,19 +49,19 @@ public class RunDto {
         this.idExperiment = idExperiment;
     }
 
-    public String getRunName() {
-        return runName;
+    public String getExperimentName() {
+        return experimentName;
     }
 
-    public void setRunName(String runName) {
-        this.runName = runName;
+    public void setExperimentName(String experimentName) {
+        this.experimentName = experimentName;
     }
 
-    public String getRunDescription() {
-        return runDescription;
+    public String getExperimentDescription() {
+        return experimentDescription;
     }
 
-    public void setRunDescription(String runDescription) {
-        this.runDescription = runDescription;
+    public void setExperimentDescription(String experimentDescription) {
+        this.experimentDescription = experimentDescription;
     }
 }
