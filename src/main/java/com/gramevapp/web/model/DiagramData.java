@@ -56,6 +56,7 @@ public class DiagramData {
     java.sql.Timestamp time = new java.sql.Timestamp(calendar.getTime().getTime());
 
     public DiagramData() {
+        this.listPair = new ArrayList<>();
     }
 
     public DiagramData(double bestIndividual) {
@@ -104,7 +105,6 @@ public class DiagramData {
     public void setRunId(Run run) {
         this.runId = run;
         run.setDiagramData(this);
-
     }
 
     public Long getLongUserId() {

@@ -87,6 +87,10 @@ public class ExperimentService {
         experimentRepository.flush();
     }
 
+    public void updataExpDataType(){
+        experimentDataTypeRepository.flush();
+    }
+
     public List<Experiment> findByUserId(User user) {
         return experimentRepository.findByUserId(user);
     }
