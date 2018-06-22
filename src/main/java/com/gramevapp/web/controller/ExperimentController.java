@@ -158,12 +158,17 @@ public class ExperimentController {
                                 @ModelAttribute("grammar") GrammarDto grammarDto,
                                 @ModelAttribute("type") ExperimentDataTypeDto expDataTypeDto,
                                 @ModelAttribute("configuration") ExperimentDto expDto,
-                                @RequestParam String radioDataType,
+                                @RequestParam("radioDataType") String radioDataTypeHidden,
                                 @ModelAttribute("typeFile") FileModelDto fileModelDto,
                                 @ModelAttribute("configExp") @Valid ConfigExperimentDto configExperimentDto,
                                 BindingResult result) throws IllegalStateException, IOException {
 
         if (result.hasErrors()) {
+            return "/user/experiment/configExperiment";
+        }
+
+        if(radioDataTypeHidden.equals("on") && fileModelDto.getTypeFile().isEmpty()) {        // Radio button neither file path selected
+            result.rejectValue("typeFile", "error.typeFile", "Choose one file");
             return "/user/experiment/configExperiment";
         }
 
@@ -174,12 +179,6 @@ public class ExperimentController {
         }
 
         // CONFIGURATION SECTION
-        /*Experiment exp;
-        if(expDto.getId() == null)
-            exp = experimentService.saveExperiment(new Experiment());
-        else
-            exp = experimentService.findExperimentById(expDto.getId());*/
-
         // GRAMMAR SECTION
         Grammar grammar = experimentService.saveGrammar(new Grammar());
         grammar = grammarSection(grammar, grammarDto);
@@ -197,13 +196,13 @@ public class ExperimentController {
 
         // Experiment Data Type SECTION
         ExperimentDataType expDataType = experimentService.saveDataType(new ExperimentDataType());
-        if(!radioDataType.equals("on"))
-            expDataType = experimentService.findDataTypeById(Long.parseLong(radioDataType));
-        else if(radioDataType.equals("on") && fileModelDto.getTypeFile().isEmpty()) {        // Radio button neither file path selected
+        if(!radioDataTypeHidden.equals("on"))
+            expDataType = experimentService.findDataTypeById(Long.parseLong(radioDataTypeHidden));
+        else if(radioDataTypeHidden.equals("on") && fileModelDto.getTypeFile().isEmpty()) {        // Radio button neither file path selected
             result.rejectValue("typeFile", "error.typeFile", "Choose one file");
             return "/user/experiment/configExperiment";
         }
-        expDataType = experimentDataTypeSection(expDataType, expDataTypeDto, currentTimestamp);
+        expDataType = experimentDataTypeSection(fileModelDto, expDataType, expDataTypeDto, currentTimestamp);
         expDataType.setRunId(run.getId());
         run.setDefaultExpDataType(expDataType.getId());
         // END - Experiment Data Type SECTION
@@ -255,7 +254,7 @@ public class ExperimentController {
 
         // If Radio button and file path selected -> File path is selected
         // NULL -> didn't select the dataType file from the list - ON if th:value in input is empty
-        if( (radioDataType.equals("on") && !multipartFile.isEmpty()) || (!radioDataType.equals("on") && !multipartFile.isEmpty()) ) {
+        if( (radioDataTypeHidden.equals("on") && !multipartFile.isEmpty()) || (!radioDataTypeHidden.equals("on") && !multipartFile.isEmpty()) ) {
             File tmpFile = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") +
                     multipartFile.getOriginalFilename());
             multipartFile.transferTo(tmpFile);
@@ -264,10 +263,6 @@ public class ExperimentController {
             Reader reader = new FileReader(tmpFile);
             experimentService.loadExperimentRowTypeFile(reader, expDataType);   // Save row here
             reader.close();
-        }
-        else if(radioDataType.equals("on") && multipartFile.isEmpty()) {        // Radio button neither file path selected
-            result.rejectValue("typeFile", "error.typeFile", "Choose one file");
-            return "/user/experiment/configExperiment";
         }
         else{   // DataType selected from list
             List<ExperimentRowType> lExpRowType = expDataType.getListRowsFile();
@@ -302,29 +297,24 @@ public class ExperimentController {
         // TODO: no distinguir el tipo de fichero entre training, validation o test.
         properties.setProperty(TRAINING_PATH_PROP, dataFilePath);
 
-        ExpProperties expPropertiesEntity = createExpPropertiesEntity(properties, exp, run, propertiesDto, dataFilePath);
-        experimentService.saveExpProperties(expPropertiesEntity);
+        ExpProperties expPropertiesEntity = experimentService.saveExpProperties(new ExpProperties());
+        createExpPropertiesEntity(expPropertiesEntity, properties, exp, run, propertiesDto, dataFilePath);
 
-        exp.setIdProperties(expPropertiesEntity.getId());
-        run.setIdProperties(expPropertiesEntity.getId());
+        propertiesReader.close();
 
-        DiagramData diagramData = new DiagramData(run, user.getId());
+        DiagramData diagramData = diagramDataService.saveDiagram(new DiagramData());
+        diagramData.setLongUserId(user.getId());
+        diagramData.setRunId(run);
         diagramData.setTime(currentTimestamp);
 
-        diagramDataService.saveDiagram(diagramData);
-        run.setDiagramData(diagramData);
+        // Run experiment in new thread
+        runExperimentDetails(user, run);
 
         expDto.setId(exp.getId());
         expDto.setDefaultRunId(run.getId());
         expDto.setDefaultExpDataTypeId(exp.getDefaultExpDataType());
         expDto.setDefaultGrammarId(exp.getDefaultGrammar());
         expDto.setDiagramDataId(diagramData.getId());
-
-        // Run experiment in new thread
-        runExperimentDetails(user, run);
-
-        propertiesReader.close();
-        // END - Execute program with experiment info
 
         model.addAttribute("configuration", expDto);
         model.addAttribute("grammar", grammar);
@@ -572,8 +562,15 @@ public class ExperimentController {
         properties.load(propertiesReader);
         properties.setProperty(TRAINING_PATH_PROP, prop.getTrainingPath());
 
-        RunnableExpGramEv obj = new RunnableExpGramEv(properties,run.getDiagramData(),run);
+        RunnableExpGramEv obj = new RunnableExpGramEv(properties, run.getDiagramData(), run);
+        Thread.UncaughtExceptionHandler h = new Thread.UncaughtExceptionHandler() {
+            public void uncaughtException(Thread th, Throwable ex) {
+                run.getDiagramData().setFailed(true);
+                System.out.println("Uncaught exception: " + ex);
+            }
+        };
         Thread th = new Thread(obj);
+        th.setUncaughtExceptionHandler(h);
         th.start();
         threadMap.put(th.getId(), th);
         run.setThreaId(th.getId());
@@ -628,13 +625,14 @@ public class ExperimentController {
         propertiesWriter.close();
     }
 
-    public ExpProperties createExpPropertiesEntity(Properties properties, Experiment experiment, Run run, ExpPropertiesDto propDto, String dataFilePath){
-        ExpProperties expProp = new ExpProperties();
-
+    public ExpProperties createExpPropertiesEntity(ExpProperties expProp, Properties properties, Experiment experiment, Run run, ExpPropertiesDto propDto, String dataFilePath){
         expProp.setUuidPropDto(propDto.getId().toString());
 
         expProp.setIdExp(experiment.getId());
         expProp.setIdRun(run.getId());
+
+        experiment.setIdProperties(expProp.getId());
+        run.setIdProperties(expProp.getId());
 
         expProp.setLoggerBasePath(properties.getProperty("LoggerBasePath"));
         expProp.setErrorThreshold(Double.parseDouble(properties.getProperty("ErrorThreshold")));
@@ -729,18 +727,17 @@ public class ExperimentController {
         return grammarFilePath;
     }
 
-    public ExperimentDataType experimentDataTypeSection(ExperimentDataType expDataType, ExperimentDataTypeDto expDataTypeDto, java.sql.Timestamp currentTimestamp) throws IOException {
-        if (expDataType.getRunId() != null) {
-            expDataType.setModificationDate(currentTimestamp);
-            expDataType.setDataTypeType(expDataTypeDto.getDataTypeType().toString());
-        }
-        else {
+    public ExperimentDataType experimentDataTypeSection(FileModelDto fileModelDto, ExperimentDataType expDataType, ExperimentDataTypeDto expDataTypeDto, java.sql.Timestamp currentTimestamp) throws IOException {
+        if(! fileModelDto.getTypeFile().isEmpty()){
+            expDataType.setDataTypeName(expDataTypeDto.getDataTypeName());
+            expDataType.setDataTypeDescription(expDataTypeDto.getDataTypeDescription());
             expDataType.setCreationDate(currentTimestamp);
             expDataType.setDataTypeType("training");
         }
-
-        expDataType.setDataTypeName(expDataTypeDto.getDataTypeName());
-        expDataType.setDataTypeDescription(expDataTypeDto.getDataTypeDescription());
+        else if (expDataType.getRunId() != null) {
+            expDataType.setModificationDate(currentTimestamp);
+            expDataType.setDataTypeType(expDataTypeDto.getDataTypeType().toString());
+        }
 
         return expDataType;
     }
@@ -780,8 +777,6 @@ public class ExperimentController {
         exp.addRun(run);
         exp.addGrammar(grammar);
         exp.addExperimentDataType(expDataType);
-
-        System.out.println(exp.getIdExpDataTypeList().size());
 
         exp.setDefaultGrammar(grammar.getId());
         exp.setDefaultExpDataType(expDataType.getId());

@@ -146,7 +146,7 @@
                                     <div class="col-sm-12 col-md-6 col-lg-4">
                                         <label for="crossoverProb">Crossover Prob.:</label>
                                         <div th:classappend="${#fields.hasErrors('crossoverProb')}? 'has-error':'crossoverProb error'">
-                                            <input type="number" class="text-center" th:min="0" th:step="0.01" th:value="${configuration.getCrossoverProb()}" name="crossoverProb" id="crossoverProb"/>
+                                            <input type="number" class="text-center" th:min="0" th:max="1" th:step="0.01" th:value="${configuration.getCrossoverProb()}" name="crossoverProb" id="crossoverProb"/>
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-md-6 col-lg-4">
@@ -158,7 +158,7 @@
                                     <div class="col-sm-12 col-md-6 col-lg-4">
                                         <label for="mutationProb">Mutation Prob.:</label>
                                         <div th:classappend="${#fields.hasErrors('mutationProb')}? 'has-error':'mutationProb error'">
-                                            <input type="number" class="text-center" th:min="0" th:step="0.01" th:value="${configuration.getMutationProb()}" name="mutationProb" id="mutationProb"/>
+                                            <input type="number" class="text-center" th:min="0" th:max="1" th:step="0.01" th:value="${configuration.getMutationProb()}" name="mutationProb" id="mutationProb"/>
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-md-6 col-lg-4">
@@ -321,7 +321,7 @@
                                 </div>
 
                                 <!-- Data Type table to load -->
-                                <input class="hiddenRadio" type="radio" th:name="radioDataTypeHidden" th:id="radioDataTypeHidden" checked="checked" />
+                                <input class="hiddenRadio" type="radio" th:name="radioDataType" th:id="radioDataTypeHidden" checked="checked" />
                                 <div th:if="${not #lists.isEmpty(dataTypeList)}">
                                     <h2>Data type files</h2>
 
@@ -586,12 +586,10 @@
             console.log(cleanIterStat);
 
             if(document.getElementById('radioDataType'+cleanIterStat).checked) {
-                radioDataTypeHidden
-                $("radioDataTypeHidden").remove();
+                $("#radioDataTypeHidden").remove();
                 document.querySelector('#typeFile').required = false;
             }
         }
-        var cleanIterStat = iterStat.substring(iterStat.length - 1, iterStat.length);   // Dará error, si hay listado con mas de 9 obj, no pillará el id de 10, pq sólo mira hasta el último
     </script>
     <script type="text/javascript">
         // <![CDATA[
@@ -610,9 +608,7 @@
                     var statusStr = data['status'];
                     var bestIndividualStr = data['bestIndividual'];
                     var currentGenerationStr = data['currentGeneration'];
-                    // var defaultRunStatus = data['defaultRunId'];
 
-                    // $("statusHeader").text(statusStr);
                     $(status).text(statusStr);
                     $(bestIndividual).text(bestIndividualStr);
                     $(currentGeneration).text(currentGenerationStr);
@@ -623,30 +619,28 @@
                     var currentGeneration = "#currentGeneration" + iterStat;
                     var bestIndividual = "#bestIndividual" + iterStat;
 
-                    setTimeout(function(){
                         if (($(status).text() != "FINISHED") && ($(status).text() != "STOPPED") && ($(status).text() != "FAILED")) {
-                            console.log($(status).text());
                             if  ($(status).text() == "RUNNING")
                                 $("#runExperimentButton" + iterStat).text("Show plot execution");
                             $("#showPlot" + iterStat).addClass("hidden");
                             $("#showDelete" + iterStat).addClass("hidden");
-                            checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat);
+                            setTimeout(function(){
+                                checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat);
+                            }, 1000);
                         }
 
                         if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED")) {
-                            console.log($(status).text());
                             $("#showPlot" + iterStat).removeClass("hidden");
                             $("#showDelete" + iterStat).removeClass("hidden");
                             $("#runExperimentButton" + iterStat).text("Re-run experiment");
                         }
-                    }, 1000);
                 }
             });
         };
         // ]]>
 
         function showRunStatus(iterStat) {
-            var cleanIterStat = iterStat.substring(iterStat.length - 1, iterStat.length);   // Dará error, si hay listado con mas de 9 obj, no pillará el id de 10, pq sólo mira hasta el último
+            var cleanIterStat = iterStat.substring("runExperiment".length, iterStat.length);
 
             var runId = $("#runId" + cleanIterStat);
             var status = "#status" + cleanIterStat;
@@ -658,8 +652,7 @@
 
             setTimeout(function(){
                 checkRunStatus(runId, status, bestIndividual, currentGeneration, cleanIterStat)
-            }, 200);
-            // runController(runId);
+            }, 1000);
         }
     </script>
     <script>
@@ -667,15 +660,12 @@
         var indexesHide = [];
 
         $(document).ready(function(){
+
             $('[name="status"]').each(function (index) {
                 if(($(this).text() == "FINISHED") || ($(this).text() == "STOPPED") || ($(this).text() == "FAILED")) {
-                    console.log("Finished/Stopped/Failed = ");
-                    console.log(index);
                     indexesShow[index] = index;
                 }
                 if(($(this).text() == "RUNNING") || ($(this).text() == "INITIALIZING")){
-                    console.log("Running / initializing = ");
-                    console.log(index);
                     indexesHide[index] = index;
                     showRunStatus("runExperiment" + index);
                 }
@@ -713,7 +703,7 @@
         }
 
         function deleteRow(iterStat, runId) {
-            var cleanIterStat = iterStat.substring(iterStat.length - 1, iterStat.length);   // Dará error, si hay listado con mas de 9 obj, no pillará el id de 10, pq sólo mira hasta el último
+            var cleanIterStat = iterStat.substring("deleteRun".length, iterStat.length);
 
             $.ajax({
                 url: encodeURI("/user/experiment/expRepoSelected"),

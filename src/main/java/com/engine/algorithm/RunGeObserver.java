@@ -66,10 +66,15 @@ public class RunGeObserver implements Observer {
         if(this.diagramData.getRunId().getStatus().equals(Run.Status.FAILED))
             this.diagramData.setFailed(true);
 
-        if(currPercent == 100 || currBest <= 0.0)
-            this.diagramData.setFinished(true);
+        if(currPercent == 100 || currBest <= 0.0) {
 
-        this.diagramData.setBestIndividual(currBest);
+            this.diagramData.setFinished(true);
+        }
+
+        if(currBest > 0.0)
+            this.diagramData.setBestIndividual(currBest);
+        else
+            this.diagramData.setBestIndividual(0.0);
         this.diagramData.setCurrentGeneration(currGen);
         this.diagramData.setTime(currentTimestamp);
 

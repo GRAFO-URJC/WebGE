@@ -197,7 +197,7 @@
 
 
         function deleteRow(iterStat, expId) {
-            var cleanIterStat = iterStat.substring(iterStat.length - 1, iterStat.length);   // Dará error, si hay listado con mas de 9 obj, no pillará el id de 10, pq sólo mira hasta el último
+            var cleanIterStat = iterStat.substring("deleteExperiment".length, iterStat.length);   // Dará error, si hay listado con mas de 9 obj, no pillará el id de 10, pq sólo mira hasta el último
 
             $.ajax({
                 url: encodeURI("/user/experiment/expRepoSelected"),
