@@ -111,7 +111,7 @@
                                                 </td>
                                             </form>
                                         </tr>
-                                        <tr>
+                                        <tr th:id="'trAux' + ${iterStat.index}">
                                             <td colspan="6">
                                                 <div class="panel-collapse collapse" th:id="'collapse'+${iterStat.index}">
                                                     <h4><b>Experiment information </b></h4>
@@ -211,6 +211,7 @@
                 dataType: "json",
                 success: function(data){
                     $("#tr" + cleanIterStat).remove();
+                    $("#trAux" + cleanIterStat).remove();
                 }
             });
         };
