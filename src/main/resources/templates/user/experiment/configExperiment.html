@@ -83,8 +83,8 @@
                 </header>
 
                 <section class="panel-body">
-                    <form th:action="@{/user/experiment/start}" enctype="multipart/form-data" th:object="${configExp}" role="form" method="POST">
-                        <input type="hidden" th:name="defaultRunId" th:id="defaultRunId" th:value="${configuration.getDefaultRunId()}" />
+                    <form th:action="@{/user/experiment/start}" enctype="multipart/form-data" role="form" method="POST">
+                        <input type="text" th:name="defaultRunId" th:id="defaultRunId" th:value="${configuration.getDefaultRunId()}" />
 
                         <div class="row center-block form-horizontal">
 
@@ -104,11 +104,11 @@
                                 <div class="col-sm-12 col-md-12 col-lg-12" >
                                     <!-- Error handling -->
                                     <p class="text-warning"
-                                       th:each="error: ${#fields.errors('experimentName')}"
+                                       th:each="error: ${#fields.errors('configuration.experimentName')}"
                                        th:text="${error}">Validation error
                                     </p>
                                     <!-- END error handling -->
-                                    <div th:classappend="${#fields.hasErrors('experimentName')}? 'has-error':'experimentName error'">
+                                    <div th:classappend="${#fields.hasErrors('configuration.experimentName')}? 'has-error':'experimentName error'">
                                         <input type="text" class="form-control" id="experimentName" name="experimentName" th:value="${configuration.getExperimentName()}" placeholder="Name of the experiment" />
                                     </div>
                                 </div>
@@ -117,10 +117,10 @@
                                 <div class="col-sm-12 col-md-12 col-lg-12">
                                     <!-- Error handling -->
                                     <p class="text-warning"
-                                       th:each="error : ${#fields.errors('experimentDescription')}"
+                                       th:each="error : ${#fields.errors('configuration.experimentDescription')}"
                                        th:text="${error}">Validation error</p>
                                     <!-- END error handling -->
-                                    <div th:classappend="${#fields.hasErrors('experimentDescription')}? 'has-error':'experimentDescription error'">
+                                    <div th:classappend="${#fields.hasErrors('configuration.experimentDescription')}? 'has-error':'experimentDescription error'">
                                         <input type="text" class="form-control" id="experimentDescription" name="experimentDescription" th:value="${configuration.getExperimentDescription()}" placeholder="Description of the experiment" />
                                     </div>
                                 </div>
@@ -139,49 +139,49 @@
                                     </div>
                                     <div class="col-sm-12 col-md-6 col-lg-4">
                                         <label for="generations">Generations:</label>
-                                        <div th:classappend="${#fields.hasErrors('generations')}? 'has-error':'generations error'">
+                                        <div th:classappend="${#fields.hasErrors('configuration.generations')}? 'has-error':'generations error'">
                                             <input type="number" class="text-center" th:min="0" th:value="${configuration.getGenerations()}" name="generations" id="generations"/>
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-md-6 col-lg-4">
                                         <label for="crossoverProb">Crossover Prob.:</label>
-                                        <div th:classappend="${#fields.hasErrors('crossoverProb')}? 'has-error':'crossoverProb error'">
+                                        <div th:classappend="${#fields.hasErrors('configuration.crossoverProb')}? 'has-error':'crossoverProb error'">
                                             <input type="number" class="text-center" th:min="0" th:max="1" th:step="0.01" th:value="${configuration.getCrossoverProb()}" name="crossoverProb" id="crossoverProb"/>
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-md-6 col-lg-4">
                                         <label for="populationSize">Population size:</label>
-                                        <div th:classappend="${#fields.hasErrors('populationSize')}? 'has-error':'populationSize error'">
+                                        <div th:classappend="${#fields.hasErrors('configuration.populationSize')}? 'has-error':'populationSize error'">
                                             <input type="number" class="text-center" th:min="0" th:value="${configuration.getPopulationSize()}" name="populationSize" id="populationSize" />
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-md-6 col-lg-4">
                                         <label for="mutationProb">Mutation Prob.:</label>
-                                        <div th:classappend="${#fields.hasErrors('mutationProb')}? 'has-error':'mutationProb error'">
+                                        <div th:classappend="${#fields.hasErrors('configuration.mutationProb')}? 'has-error':'mutationProb error'">
                                             <input type="number" class="text-center" th:min="0" th:max="1" th:step="0.01" th:value="${configuration.getMutationProb()}" name="mutationProb" id="mutationProb"/>
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-md-6 col-lg-4">
                                         <label for="maxWraps">Max wraps:</label>
-                                        <div th:classappend="${#fields.hasErrors('maxWraps')}? 'has-error':'maxWraps error'">
+                                        <div th:classappend="${#fields.hasErrors('configuration.maxWraps')}? 'has-error':'maxWraps error'">
                                             <input type="number" class="text-center" th:min="0" th:value="${configuration.getMaxWraps()}" value="3" name="maxWraps" id="maxWraps"/>
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-md-6 col-lg-4">
                                         <label for="numCodons">Num. Codons:</label>
-                                        <div th:classappend="${#fields.hasErrors('numCodons')}? 'has-error':'numCodons error'">
+                                        <div th:classappend="${#fields.hasErrors('configuration.numCodons')}? 'has-error':'numCodons error'">
                                             <input type="number" class="text-center" th:min="0" th:value="${configuration.getNumCodons()}" value="100" name="numCodons" id="numCodons" />
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-md-6 col-lg-6">
                                         <label for="tournament">Tournament:</label>
-                                        <div th:classappend="${#fields.hasErrors('tournament')}? 'has-error':'tournament error'">
+                                        <div th:classappend="${#fields.hasErrors('configuration.tournament')}? 'has-error':'tournament error'">
                                             <input type="number" class="text-center" th:min="0" th:value="${configuration.getTournament()}" value="2" name="tournament" id="tournament" />
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-md-6 col-lg-6">
                                         <label for="numberRuns">Number of runs:</label>
-                                        <div th:classappend="${#fields.hasErrors('numberRuns')}? 'has-error':'numberRuns error'">
+                                        <div th:classappend="${#fields.hasErrors('configuration.numberRuns')}? 'has-error':'numberRuns error'">
                                             <input type="number" class="text-center" th:min="0" th:value="${configuration.getNumberRuns()}" value="1" name="numberRuns" id="numberRuns" />
                                         </div>
                                     </div>
@@ -209,6 +209,7 @@
                             <!-- END ExpPropertiesDto -->
 
                             <!-- Grammar file -->
+                            <input type="hidden" th:name="defaultGrammarId" th:id="defaultGrammarId" th:value="${configuration.getDefaultGrammarId()}" />
                             <div class="col-sm-12 col-md-6 col-lg-6 center-block">
                                 <div class="jumbotron row form-group">
                                     <h3>Grammar file information</h3>
@@ -223,12 +224,12 @@
                                     <div class="col-sm-12 col-md-12 col-lg-12">
                                         <!-- Error handling -->
                                         <p class="text-warning"
-                                           th:each="error: ${#fields.errors('grammarName')}"
+                                           th:each="error: ${#fields.errors('configuration.grammarName')}"
                                            th:text="${error}">Validation error
                                         </p>
                                         <!-- END error handling -->
-                                        <div th:classappend="${#fields.hasErrors('grammarName')}? 'has-error':'grammarName error'">
-                                            <input type="text" class="form-control" th:value="${grammar.getGrammarName()}" name="grammarName" id="grammarName" placeholder="Name of the grammar" />
+                                        <div th:classappend="${#fields.hasErrors('configuration.grammarName')}? 'has-error':'grammarName error'">
+                                            <input type="text" class="form-control" th:value="${configuration.getGrammarName()}" name="grammarName" id="grammarName" placeholder="Name of the grammar" />
                                         </div>
                                     </div>
                                 </div>
@@ -238,11 +239,11 @@
                                     <div class="col-sm-12 col-md-12 col-lg-12" >
                                         <!-- Error handling -->
                                         <p class="text-warning"
-                                           th:each="error : ${#fields.errors('grammarDescription')}"
+                                           th:each="error : ${#fields.errors('configuration.grammarDescription')}"
                                            th:text="${error}">Validation error</p>
                                         <!-- END error handling -->
-                                        <div th:classappend="${#fields.hasErrors('grammarDescription')}? 'has-error':'grammarDescription error'">
-                                            <input type="text" class="form-control" th:value="${grammar.getGrammarDescription()}" name="grammarDescription" id="grammarDescription" placeholder="Description of the grammar" />
+                                        <div th:classappend="${#fields.hasErrors('configuration.grammarDescription')}? 'has-error':'grammarDescription error'">
+                                            <input type="text" class="form-control" th:value="${configuration.getGrammarDescription()}" name="grammarDescription" id="grammarDescription" placeholder="Description of the grammar" />
                                         </div>
                                     </div>
                                 </div>
@@ -252,12 +253,12 @@
                                     <div class="col-sm-12 col-md-12 col-lg-12">
                                         <!-- Error handling -->
                                         <p class="text-warning"
-                                           th:each="error: ${#fields.errors('fileText')}"
+                                           th:each="error: ${#fields.errors('configuration.fileText')}"
                                            th:text="${error}">Validation error
                                         </p>
                                         <!-- END error handling -->
-                                        <div th:classappend="${#fields.hasErrors('fileText')}? 'has-error':'fileText error'">
-                                            <textarea rows="5" class="form-control" th:text="${grammar.getFileText()}" placeholder="Grammar file "  name="fileText" id="fileText" th:inline="text" style="resize: none;" />
+                                        <div th:classappend="${#fields.hasErrors('configuration.fileText')}? 'has-error':'fileText error'">
+                                            <textarea rows="5" class="form-control" th:text="${configuration.getFileText()}" placeholder="Grammar file "  name="fileText" id="fileText" th:inline="text" style="resize: none;" />
                                         </div>
                                     </div>
                                 </div>
@@ -284,11 +285,11 @@
                                     <div class="col-sm-12 col-md-12 col-lg-8">
                                         <!-- Error handling -->
                                         <p class="text-warning"
-                                           th:each="error : ${#fields.errors('dataTypeName')}"
+                                           th:each="error : ${#fields.errors('configuration.dataTypeName')}"
                                            th:text="${error}">Validation error</p>
                                         <!-- END error handling -->
-                                        <div th:classappend="${#fields.hasErrors('dataTypeName')}? 'has-error':'dataTypeName error'">
-                                            <input type="text" class="form-control" name="dataTypeName" id="dataTypeName" th:value="${type.getDataTypeName()}" placeholder="Name" />
+                                        <div th:classappend="${#fields.hasErrors('configuration.dataTypeName')}? 'has-error':'dataTypeName error'">
+                                            <input type="text" class="form-control" name="dataTypeName" id="dataTypeName" th:value="${configuration.getDataTypeName()}" placeholder="Name" />
                                         </div>
                                     </div>
                                 </div>
@@ -296,12 +297,12 @@
                                     <div class="col-sm-12 col-md-12 col-lg-12">
                                         <!-- Error handling -->
                                         <p class="text-warning"
-                                           th:each="error: ${#fields.errors('dataTypeDescription')}"
+                                           th:each="error: ${#fields.errors('configuration.dataTypeDescription')}"
                                            th:text="${error}">Validation error
                                         </p>
                                         <!-- END error handling -->
-                                        <div th:classappend="${#fields.hasErrors('dataTypeDescription')}? 'has-error':'dataTypeDescription error'">
-                                            <input type="text" class="form-control" name="dataTypeDescription" id="dataTypeDescription" th:value="${type.getDataTypeDescription()}" placeholder="Description of the file" />
+                                        <div th:classappend="${#fields.hasErrors('configuration.dataTypeDescription')}? 'has-error':'dataTypeDescription error'">
+                                            <input type="text" class="form-control" name="dataTypeDescription" id="dataTypeDescription" th:value="${configuration.getDataTypeDescription()}" placeholder="Description of the file" />
                                         </div>
                                     </div>
                                 </div>
@@ -310,17 +311,18 @@
                                     <div class="col-sm-12 col-md-12 col-lg-12">
                                         <!-- Error handling -->
                                         <p class="text-warning"
-                                           th:each="error: ${#fields.errors('typeFile')}"
+                                           th:each="error: ${#fields.errors('configuration.typeFile')}"
                                            th:text="${error}">Validation error
                                         </p>
                                         <!-- END error handling -->
-                                        <div th:classappend="${#fields.hasErrors('typeFile')}? 'has-error':'typeFile error'">
+                                        <div th:classappend="${#fields.hasErrors('configuration.typeFile')}? 'has-error':'typeFile error'">
                                             <input type="file" name="typeFile" id="typeFile" required="required" />
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Data Type table to load -->
+                                <input type="hidden" th:name="defaultExpDataTypeId" th:id="defaultExpDataTypeId" th:value="${configuration.getDefaultExpDataTypeId()}" />
                                 <input class="hiddenRadio" type="radio" th:name="radioDataType" th:id="radioDataTypeHidden" checked="checked" />
                                 <div th:if="${not #lists.isEmpty(dataTypeList)}">
                                     <h2>Data type files</h2>
@@ -343,10 +345,10 @@
                                             <td scope="row"><label th:text="${dataType.getDataTypeName()}" th:name="expDataTypeNameList" th:id="expDataTypeNameList" /></td>
                                             <td scope="row"><label th:text="${dataType.getDataTypeDescription()}" th:name="expDataTypeDescriptionList" th:id="expDataTypeDescriptionList" /></td>
                                             <td scope="row"><label th:text="${dataType.getDataTypeType()}" th:name="expDataTypeTypeList" th:id="expDataTypeTypeList" /></td>
+                                            <td scope="row"><label th:text="${dataType.getDataTypeType()}" th:name="expDataTypeTypeList" th:id="expDataTypeTypeList" /></td>
                                             <td scope="row"><label th:text="${dataType.getCreationDate()}" th:name="creationDate" th:id="creationDate" /></td>
                                             <input type="hidden" th:value="${dataType.getId()}" th:name="dataTypeId" th:id="dataTypeId" />
                                             <input type="hidden" th:value="${dataType.getDataTypeType()}" th:name="dataTypeType" th:id="dataTypeType" />
-                                            <!--<td scope="row"><a class="btn-default btn-sm" onclick="fillInput($(user.getId()) ,$(dataType.getId()),  $(dataType.getDataTypeName()))" id="loadDataTypeButton" name="loadDataTypeButton">select</a></td>-->
                                         </tr>
                                         </tbody>
                                     </table>
@@ -368,7 +370,7 @@
                             <!--  Save Clone and Run -->
                             <div class="row text-center">
                                 <div class="col-sm-4 col-md-4 col-lg-4">
-                                    <button type="submit" id="saveExperimentButton" name="saveExperimentButton" class="btn-primary btn-lg btn">Save experiment</button>
+                                    <button type="submit" id="saveExperimentButton" name="saveExperimentButton" onclick="document.querySelector('#typeFile').required = false;" class="btn-primary btn-lg btn">Save experiment</button>
                                 </div>
                                 <div class="col-sm-4 col-md-4 col-lg-4">
                                     <button type="submit" id="cloneExperimentButton" name="cloneExperimentButton" class="btn-primary btn-lg btn">Clone experiment</button>
@@ -428,10 +430,9 @@
                                         <td scope="row"><label th:name="currentGeneration" th:id="'currentGeneration'+${iterStat.index}" th:text="${run.getDiagramData().currentGeneration}" /></td>
                                         <td scope="row"><label th:name="status" th:id="'status'+${iterStat.index}" th:text="${run.getStatus()}" /></td>
                                         <td scope="row"><label th:name="iniDate" th:id="iniDate" th:text="${run.getIniDate()}" /></td>
-                                        <td scope="row"><label th:name="lastDate" th:id="lastDate" th:text="${run.getLastDate()}" /></td>
+                                        <td scope="row"><label th:name="lastDate" th:id="lastDate" th:text="${run.getModificationDate()}" /></td>
 
                                         <td scope="row">
-                                            <!--<button type="submit" id="loadExperimentButton" name="loadExperimentButton" class="btn-default btn-sm btn loadButton">Load experiment</button>-->
                                             <a th:href="@{/user/experiment/runList(runId=${run.getId()}, loadExperimentButton='loadExperimentButton')}" th:id="${'loadExperimentButton' + iterStat.index}" class="btn-default btn-sm btn loadButton">Load experiment</a>
                                         </td>
                                         <td scope="row">

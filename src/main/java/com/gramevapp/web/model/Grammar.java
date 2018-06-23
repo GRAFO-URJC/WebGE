@@ -2,12 +2,14 @@ package com.gramevapp.web.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name="grammar")
+@DynamicUpdate
 public class Grammar {
 
     @Id

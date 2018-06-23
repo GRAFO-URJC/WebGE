@@ -91,6 +91,10 @@ public class ExperimentService {
         experimentDataTypeRepository.flush();
     }
 
+    public void updateGrammar(){
+        grammarRepository.flush();
+    }
+
     public List<Experiment> findByUserId(User user) {
         return experimentRepository.findByUserId(user);
     }

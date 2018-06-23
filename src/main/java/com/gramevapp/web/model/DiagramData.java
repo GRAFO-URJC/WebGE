@@ -2,6 +2,7 @@ package com.gramevapp.web.model;
 
 
 import com.fasterxml.jackson.annotation.*;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.List;
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
+@DynamicUpdate
 public class DiagramData {
 
     @Id

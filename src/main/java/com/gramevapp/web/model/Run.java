@@ -1,6 +1,7 @@
 package com.gramevapp.web.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "run")
+@DynamicUpdate
 public class Run {
     public enum Status { INITIALIZING, RUNNING, STOPPED, FINISHED, FAILED; };
 
@@ -61,13 +63,13 @@ public class Run {
 
     @Column(name="endDate")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date lastDate;
+    private Date modificationDate;
 
     @Column
-    private Long defaultGrammar;
+    private Long defaultGrammarId;
 
     @Column
-    private Long defaultExpDataType;
+    private Long defaultExpDataTypeId;
 
     @Column
     private Long defaultRunId;
@@ -96,10 +98,10 @@ public class Run {
     private Integer numberRuns = 1;
 
     public Run(Run run){
-        this(run.getExperimentId(), run.getDiagramData(), run.getBestIndividual(), run.getCurrentGeneration(), run.getIdProperties(), run.getStatus(), run.getIniDate(), run.getLastDate(), run.getExperimentName(), run.getExperimentDescription(), run.getDefaultRunId(), run.getGenerations(), run.getPopulationSize(), run.getMaxWraps(), run.getTournament(), run.getCrossoverProb(), run.getMutationProb(), run.getInitialization(), run.getObjective(), run.getResults(), run.getNumCodons(), run.getNumberRuns());
+        this(run.getExperimentId(), run.getDiagramData(), run.getBestIndividual(), run.getCurrentGeneration(), run.getIdProperties(), run.getStatus(), run.getIniDate(), run.getModificationDate(), run.getExperimentName(), run.getExperimentDescription(), run.getDefaultRunId(), run.getGenerations(), run.getPopulationSize(), run.getMaxWraps(), run.getTournament(), run.getCrossoverProb(), run.getMutationProb(), run.getInitialization(), run.getObjective(), run.getResults(), run.getNumCodons(), run.getNumberRuns());
     }
 
-    public Run(Experiment experimentId, DiagramData diagramData, Double bestIndividual, Integer currentGeneration, Long idProperties, Status status, Date iniDate, Date lastDate, String experimentName, String experimentDescription, Long defaultRunId, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String objective, String results, Integer numCodons, Integer numberRuns) {
+    public Run(Experiment experimentId, DiagramData diagramData, Double bestIndividual, Integer currentGeneration, Long idProperties, Status status, Date iniDate, Date modificationDate, String experimentName, String experimentDescription, Long defaultRunId, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String objective, String results, Integer numCodons, Integer numberRuns) {
         this.experimentId = experimentId;
         this.diagramData = diagramData;
         this.bestIndividual = bestIndividual;
@@ -107,7 +109,7 @@ public class Run {
         this.idProperties = idProperties;
         this.status = status;
         this.iniDate = iniDate;
-        this.lastDate = lastDate;
+        this.modificationDate = modificationDate;
         this.experimentName = experimentName;
         this.experimentDescription = experimentDescription;
         this.defaultRunId = defaultRunId;
@@ -133,16 +135,16 @@ public class Run {
         java.sql.Date currentTimestamp = new java.sql.Date(calendar.getTime().getTime());
 
         this.iniDate = currentTimestamp;
-        this.lastDate = currentTimestamp;
+        this.modificationDate = currentTimestamp;
         this.status = status;
     }
 
-    public Run(Status status, String experimentName, String experimentDescription, Date iniDate, Date lastDate) {
+    public Run(Status status, String experimentName, String experimentDescription, Date iniDate, Date modificationDate) {
         this.experimentName = experimentName;
         this.experimentDescription = experimentDescription;
         this.status = status;
         this.iniDate = iniDate;
-        this.lastDate = lastDate;
+        this.modificationDate = modificationDate;
     }
 
     public Long getId() {
@@ -192,12 +194,12 @@ public class Run {
         this.status = status;
     }
 
-    public Date getLastDate() {
-        return lastDate;
+    public Date getModificationDate() {
+        return modificationDate;
     }
 
-    public void setLastDate(Date lastDate) {
-        this.lastDate = lastDate;
+    public void setModificationDate(Date modificationDate) {
+        this.modificationDate = modificationDate;
     }
 
     public Long getIdProperties() {
@@ -248,20 +250,20 @@ public class Run {
         this.experimentDescription = experimentDescription;
     }
 
-    public Long getDefaultGrammar() {
-        return defaultGrammar;
+    public Long getDefaultGrammarId() {
+        return defaultGrammarId;
     }
 
-    public void setDefaultGrammar(Long defaultGrammar) {
-        this.defaultGrammar = defaultGrammar;
+    public void setDefaultGrammarId(Long defaultGrammarId) {
+        this.defaultGrammarId = defaultGrammarId;
     }
 
-    public Long getDefaultExpDataType() {
-        return defaultExpDataType;
+    public Long getDefaultExpDataTypeId() {
+        return defaultExpDataTypeId;
     }
 
-    public void setDefaultExpDataType(Long defaultExpDataType) {
-        this.defaultExpDataType = defaultExpDataType;
+    public void setDefaultExpDataTypeId(Long defaultExpDataTypeId) {
+        this.defaultExpDataTypeId = defaultExpDataTypeId;
     }
 
     public Long getDefaultRunId() {
@@ -369,8 +371,8 @@ public class Run {
     }
 
     public void updateRun(Long grammar, Long expDataType, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date modificationDate){
-        this.defaultExpDataType = expDataType;
-        this.defaultGrammar = grammar;
+        this.defaultExpDataTypeId = expDataType;
+        this.defaultGrammarId = grammar;
         this.experimentName = experimentName;
         this.experimentDescription = experimentDescription;
         this.generations = generations;
@@ -383,7 +385,7 @@ public class Run {
         this.results = results;
         this.numCodons = numCodons;
         this.numberRuns = numberRuns;
-        this.lastDate = modificationDate;
+        this.modificationDate = modificationDate;
         this.objective = objective;
     }
 }
