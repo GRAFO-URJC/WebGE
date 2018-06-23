@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.gramevapp.web.other.BeanUtil;
 import com.gramevapp.web.service.ExperimentService;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.context.ApplicationContext;
 
 import javax.persistence.*;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Entity
 @Table(name="EXPERIMENT")
+@DynamicUpdate
 public class Experiment {
 
     @Id

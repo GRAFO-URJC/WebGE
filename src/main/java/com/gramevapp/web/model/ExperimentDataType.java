@@ -1,6 +1,7 @@
 package com.gramevapp.web.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @Entity
 @Table(name="experimentDataType")
+@DynamicUpdate
 public class ExperimentDataType {
 
     @Id

@@ -7,22 +7,21 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 
 public class ConfigExperimentDto {
     private static final String PATTERN = "^[\\p{L} \\d .'-]+$";;  // https://stackoverflow.com/questions/15805555/java-regex-to-validate-full-name-allow-only-spaces-and-letters
 
+    private Long id;
+
     @Pattern(regexp = PATTERN, message = "Experiment name cannot contain strange characters")
     @NotEmpty(message = "Enter experiment name")
-    private String experimentName="";
+    private String experimentName;
 
     private String experimentDescription;
     @Min(value=0)
     @Max(value=100000)
     @NotNull
-    private Integer generations = 1000;
+    private Integer generations = 100;
     @Min(value=0)
     @Max(value=100000)
     @NotNull
@@ -55,24 +54,23 @@ public class ConfigExperimentDto {
     @Max(value=100)
     @NotNull
     private Integer numberRuns = 1;
-    @NotEmpty(message = "Default grammar file cannot be empty")
-    private String defaultGrammar = " ";
-    @NotEmpty(message = "Default experiment data type file cannot be empty")
-    private String defaultExpDataType = " ";
+    private Long defaultGrammarId;
+    private Long defaultExpDataTypeId;
     @Pattern(regexp = PATTERN, message = "Grammar file name cannot contain strange characters")
     @NotEmpty(message = "Grammar file name cannot be empty")
-    private String grammarName = " ";
+    private String grammarName;
 
-    private String grammarDescription = " ";
+    private String grammarDescription;
     @NotEmpty(message = "Grammar area text cannot be empty")
-    private String fileText = " "; // This is the text on the file - That's written in an areaText - So we can take it as a String
+    private String fileText; // This is the text on the file - That's written in an areaText - So we can take it as a String
     @NotEmpty(message = "Data type file name cannot be empty")
     @Pattern(regexp = PATTERN, message = "Data type file name cannot contain strange characters")
-    private String dataTypeName = " ";
-    private String dataTypeDescription = " "; // status
+    private String dataTypeName;
+    private String dataTypeDescription; // status
     @NotEmpty(message = "Choose one data type option")
-    private String dataTypeType = " ";        // Validation, test, training
+    private String dataTypeType = "training";   // Validation, test, training
 
+    private Long diagramDataId;
     private Long defaultRunId;
 
     /**
@@ -85,8 +83,39 @@ public class ConfigExperimentDto {
      */
     @NotEmpty
     private String objective;
-
     private MultipartFile typeFile;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getDiagramDataId() {
+        return diagramDataId;
+    }
+
+    public void setDiagramDataId(Long diagramDataId) {
+        this.diagramDataId = diagramDataId;
+    }
+
+    public Long getDefaultGrammarId() {
+        return defaultGrammarId;
+    }
+
+    public void setDefaultGrammarId(Long defaultGrammarId) {
+        this.defaultGrammarId = defaultGrammarId;
+    }
+
+    public Long getDefaultExpDataTypeId() {
+        return defaultExpDataTypeId;
+    }
+
+    public void setDefaultExpDataTypeId(Long defaultExpDataTypeId) {
+        this.defaultExpDataTypeId = defaultExpDataTypeId;
+    }
 
     public String getObjective() {
         return objective;
@@ -200,21 +229,6 @@ public class ConfigExperimentDto {
         this.numberRuns = numberRuns;
     }
 
-    public String getDefaultGrammar() {
-        return defaultGrammar;
-    }
-
-    public void setDefaultGrammar(String defaultGrammar) {
-        this.defaultGrammar = defaultGrammar;
-    }
-
-    public String getDefaultExpDataType() {
-        return defaultExpDataType;
-    }
-
-    public void setDefaultExpDataType(String defaultExpDataType) {
-        this.defaultExpDataType = defaultExpDataType;
-    }
 
     public String getGrammarName() {
         return grammarName;
