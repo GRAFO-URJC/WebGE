@@ -12,12 +12,7 @@ import javax.validation.constraints.Size;
         @FieldMatch(first = "email", second = "confirmEmail", message = "The email fields must match")
 })
 
-
-
 public class UserRegistrationDto {
-
-    private Long id;
-
     private static final String USERNAME_PATTERN = "^[a-z0-9_-]{3,15}$";
 
 
@@ -32,11 +27,11 @@ public class UserRegistrationDto {
     private String LastName;
 
     @NotEmpty
-    @Size(min = 6, max = 15, message = "Your password must between 6 and 15 characters")
+    @Size(min = 6, max = 50, message = "Your password must between 6 and 15 characters")
     private String password;
 
     @NotEmpty
-    @Size(min = 6, max = 15, message = "Your confirmation password must between 6 and 15 characters")
+    @Size(min = 6, max = 50, message = "Your confirmation password must between 6 and 15 characters")
     private String confirmPassword;
 
     @Email
@@ -62,10 +57,6 @@ public class UserRegistrationDto {
 
     @AssertTrue
     private Boolean terms;
-
-    public Long getId(){ return id; }
-
-    public void setId(Long id){ this.id = id; }
 
     public String getAddress() {
         return address;

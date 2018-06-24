@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import sun.security.krb5.Config;
 
 import javax.validation.Valid;
@@ -64,7 +65,6 @@ public class ExperimentController {
         List<Run> runList;
         List<ExperimentDataType> expDataTypeList;
         List<Grammar> expGrammarList;
-        ConfigExperimentDto confExpDto = new ConfigExperimentDto();
 
         if(expConfig != null) {
             grammarDto = experimentService.findGrammarById(expConfig.getDefaultGrammar());
@@ -90,7 +90,39 @@ public class ExperimentController {
         model.addAttribute("dataTypeList", expDataTypeList);
         model.addAttribute("grammarList", expGrammarList);
         model.addAttribute("user", user);
-        model.addAttribute("configExp", confExpDto);
+
+        return "/user/experiment/configExperiment";
+    }
+
+    @GetMapping("/user/experiment/redirectConfigExperiment")
+    public String redirectViewConfigExperiment(Model model,
+                                   @ModelAttribute("idRun") String idRun){
+
+        User user = userService.getLoggedInUser();
+        if(user == null){
+            System.out.println("User not authenticated");
+            return "redirect:/login";
+        }
+
+        // WE NEED TO ADD HERE THE EXPERIMENT INFO TO SEND IT TO configExperiment
+        Run run = runService.findByRunId(Long.parseLong(idRun));
+        Grammar grammar = experimentService.findGrammarById(run.getExperimentId().getDefaultGrammar());
+        ExperimentDataType expDataType = experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType());
+
+        List<Run> runList = run.getExperimentId().getIdRunList();
+        List<ExperimentDataType> expDataTypeList = run.getExperimentId().getIdExpDataTypeList();
+        List<Grammar> expGrammarList = run.getExperimentId().getIdGrammarList();
+
+        ConfigExperimentDto configExpDto = new ConfigExperimentDto();
+        configExpDto = fillConfigExpDto(configExpDto, run.getExperimentId(), run, grammar, expDataType);
+
+        model.addAttribute("grammar", grammar);
+        model.addAttribute("type", expDataType);
+        model.addAttribute("configuration", configExpDto);
+        model.addAttribute("runList", runList);
+        model.addAttribute("dataTypeList", expDataTypeList);
+        model.addAttribute("grammarList", expGrammarList);
+        model.addAttribute("user", user);
 
         return "/user/experiment/configExperiment";
     }
@@ -173,8 +205,11 @@ public class ExperimentController {
                                 @RequestParam("radioDataType") String radioDataTypeHidden,
                                 @ModelAttribute("typeFile") FileModelDto fileModelDto,
                                 @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
-                                BindingResult result) throws IllegalStateException, IOException {
+                                BindingResult result,
+                                RedirectAttributes redirectAttrs) throws IllegalStateException, IOException {
         if (result.hasErrors()) {
+            configExpDto.setDefaultRunId(Long.parseLong("0"));
+            model.addAttribute("configuration", configExpDto);
             return "/user/experiment/configExperiment";
         }
 
@@ -323,11 +358,12 @@ public class ExperimentController {
 
         configExpDto = fillConfigExpDto(configExpDto, exp, run, grammar, expDataType);
 
-        model.addAttribute("configuration", configExpDto);
         model.addAttribute("dataTypeList", exp.getIdExpDataTypeList());
         model.addAttribute("runList", exp.getIdRunList());
+        model.addAttribute("configuration", configExpDto);
 
-        return "/user/experiment/configExperiment";
+        redirectAttrs.addAttribute("idRun", configExpDto.getDefaultRunId()).addFlashAttribute("configuration", "Experiment is being created");
+        return "redirect:/user/experiment/redirectConfigExperiment";
     }
 
     @RequestMapping(value="/user/experiment/experimentRepository", method=RequestMethod.GET)
@@ -560,6 +596,7 @@ public class ExperimentController {
         RunnableExpGramEv obj = new RunnableExpGramEv(properties, run.getDiagramData(), run);
         Thread.UncaughtExceptionHandler h = new Thread.UncaughtExceptionHandler() {
             public void uncaughtException(Thread th, Throwable ex) {
+                run.setStatus(Run.Status.FAILED);
                 run.getDiagramData().setFailed(true);
                 System.out.println("Uncaught exception: " + ex);
             }

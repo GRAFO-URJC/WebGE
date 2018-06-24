@@ -420,7 +420,7 @@
                             </thead>
                             <tbody>
 
-                            <input type="text" class="hiddenInput" th:name="defaultRunId" th:id="defaultRunId" th:value="${configuration.getDefaultRunId()}" />
+                            <input type="hidden" th:name="defaultRunId" th:id="defaultRunId" th:value="${configuration.getDefaultRunId()}" />
                             <th:block th:each="run, iterStat : ${runList}">
                                 <tr th:id="'tr' + ${iterStat.index}">
                                     <form th:action="@{/user/experiment/runList}" th:object="${expDetailsDto}" method="GET" class="form-horizontal">
@@ -584,7 +584,6 @@
     <script>
         function check(iterStat) {
             var cleanIterStat = iterStat.substring("radioDataType".length, iterStat.length);
-            console.log(cleanIterStat);
 
             if(document.getElementById('radioDataType'+cleanIterStat).checked) {
                 $("#radioDataTypeHidden").remove();
@@ -641,7 +640,7 @@
         // ]]>
 
         function showRunStatus(iterStat) {
-            var cleanIterStat = iterStat.substring("runExperiment".length, iterStat.length);
+            var cleanIterStat = iterStat.substring("runExperimentButton".length, iterStat.length);
 
             var runId = $("#runId" + cleanIterStat);
             var status = "#status" + cleanIterStat;
@@ -668,7 +667,7 @@
                 }
                 if(($(this).text() == "RUNNING") || ($(this).text() == "INITIALIZING")){
                     indexesHide[index] = index;
-                    showRunStatus("runExperiment" + index);
+                    showRunStatus("runExperimentButton" + index);
                 }
             });
 

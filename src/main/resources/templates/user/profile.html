@@ -106,27 +106,25 @@
             <div class="well">
                 <div class="tab-content">
                     <section id="tab1" class="tab-pane fade in active">
+                        <p class="col-lg-12" th:if="${'userLogged.isBasicInformation'} == true" >hola</p>
                         <form th:action="@{/user/updateUserBasicInfo}" th:object="${userBasicInfo}" enctype="multipart/form-data" class="form-horizontal" role="form" method="post">
-
                             <!-- Error handling -->
-                            <div class="col-lg-12">
-                                <p class="text-warning"
-                                   th:each="error: ${#fields.errors('firstName')}"
-                                   th:text="${error}">Validation error
-                                </p>
+                            <p th:if="${#fields.hasErrors('firstName')}" class="text-warning"
+                               th:each="error: ${#fields.errors('firstName')}"
+                               th:text="${error}">Validation error
+                            </p>
 
-                                <p class="text-warning"
-                                   th:each="error : ${#fields.errors('lastName')}"
-                                   th:text="${error}">Validation error</p>
+                            <p th:if="${#fields.hasErrors('lastName')}" class="text-warning"
+                               th:each="error : ${#fields.errors('lastName')}"
+                               th:text="${error}">Validation error</p>
 
-                                <p class="text-warning"
-                                   th:each="error : ${#fields.errors('email')}"
-                                   th:text="${error}">Validation error</p>
+                            <p th:if="${#fields.hasErrors('email')}" class="text-warning"
+                               th:each="error : ${#fields.errors('email')}"
+                               th:text="${error}">Validation error</p>
 
-                                <p class="text-warning"
-                                   th:each="error : ${#fields.errors('phone')}"
-                                   th:text="${error}">Validation error</p>
-                            </div>
+                            <p th:if="${#fields.hasErrors('phone')}" class="text-warning"
+                               th:each="error : ${#fields.errors('phone')}"
+                               th:text="${error}">Validation error</p>
                             <!-- END error handling -->
 
                             <div class="row">
@@ -137,9 +135,9 @@
                                     </div>
                                 </div>
 
-                                <div class="form-group col-lg-6 col-sm-6">
+                                <div class="form-group col-lg-6 co-sm-6">
                                     <label class="control-label" for="firstName">First name:</label>
-                                    <div th:classappend="${#fields.hasErrors('firstName')}? 'has-error':'firstName error'">
+                                    <div th:classappend="${#fields.hasErrors('firstName')}? 'has-error':'lastName error'">
                                         <input type="text" class="form-control" th:name="firstName" id="firstName" th:value="${userLogged.getUserDetails().getFirstName()}" />
                                     </div>
                                 </div>
@@ -160,7 +158,7 @@
                                 </div>
                                 <div class="form-group col-lg-6 col-sm-6">
                                     <label class="control-label" for="phone">Phone Number:</label>
-                                    <div th:classappend="${#fields.hasErrors('phone')}? 'has-error':'email error'">
+                                    <div th:classappend="${#fields.hasErrors('phone')}? 'has-error':'phone error'">
                                         <input type="tel" class="form-control" th:name="phone" id="phone" th:value="${userLogged.getUserDetails().getPhone()}" />
                                     </div>
                                 </div>
@@ -187,7 +185,9 @@
 
                                 <div class="form-group col-lg-4 col-sm-4">
                                     <label class="control-label" for="zipcode">Zipcode:</label>
-                                    <input type="text" class="form-control" th:name="zipcode" id="zipcode" th:value="${userLogged.getUserDetails().getZipcode()}"/>
+                                    <div th:classappend="${#fields.hasErrors('zipcode')}? 'has-error':'zipcode error'">
+                                        <input type="text" class="form-control" th:name="zipcode" id="zipcode" th:value="${userLogged.getUserDetails().getZipcode()}"/>
+                                    </div>
                                 </div>
                             </div>
 
@@ -204,14 +204,28 @@
                     <section class="tab-pane fade in" id="tab2">
                         <div class="box">
                             <form th:action="@{/user/updateStudy}" th:object="${userStudy}" class="form-horizontal" role="form" method="post">
+                                <!-- Error handling -->
+                                <p th:if="${#fields.hasErrors('workInformation')}" class="text-warning"
+                                   th:each="error: ${#fields.errors('workInformation')}"
+                                   th:text="${error}">Validation error
+                                </p>
+
+                                <p th:if="${#fields.hasErrors('studyInformation')}" class="text-warning"
+                                   th:each="error: ${#fields.errors('studyInformation')}"
+                                   th:text="${error}">Validation error
+                                </p>
                                 <div class="row">
                                     <div class="form-group col-lg-12 col-sm-12">
                                         <label class="control-label" for="studyInformation">Study:</label>
-                                        <input class="form-control" type="text" th:name="studyInformation" id="studyInformation" th:value="${userLogged.getUserDetails().getStudyInformation()}"/>
+                                        <div th:classappend="${#fields.hasErrors('studyInformation')}? 'has-error':'studyInformation error'">
+                                            <input class="form-control" type="text" th:name="studyInformation" id="studyInformation" th:value="${userLogged.getUserDetails().getStudyInformation()}"/>
+                                        </div>
                                     </div>
                                     <div class="form-group col-lg-12 col-sm-12">
                                         <label class="control-label" for="workInformation">Work:</label>
-                                        <input class="form-control" type="text" th:name="workInformation" id="workInformation" th:value="${userLogged.getUserDetails().getWorkInformation()}"/>
+                                        <div th:classappend="${#fields.hasErrors('workInformation')}? 'has-error':'workInformation error'">
+                                            <input class="form-control" type="text" th:name="workInformation" id="workInformation" th:value="${userLogged.getUserDetails().getWorkInformation()}"/>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -229,10 +243,17 @@
                     <section class="tab-pane fade in" id="tab3">
                         <div class="box">
                             <form th:action="@{/user/updateUserPassword}" th:object="${userPassword}" class="form-horizontal" role="form" method="post">
+                                <!-- Error handling -->
+                                <p th:if="${#fields.hasErrors('password')}" class="text-warning"
+                                   th:each="error: ${#fields.errors('password')}"
+                                   th:text="${error}">Validation error
+                                </p>
                                 <div class="row">
                                     <div class="form-group col-lg-6 col-sm-6">
                                         <label class="control-label" for="password">Password:</label>
-                                        <input class="form-control" type="password" th:name="password" id="password" />
+                                        <div th:classappend="${#fields.hasErrors('password')}? 'has-error':'password error'">
+                                            <input class="form-control" type="password" th:name="password" id="password" />
+                                        </div>
                                     </div>
                                     <div class="form-group col-lg-6 col-sm-6">
                                         <label class="control-label" for="confirmPassword">Confirm:</label>
@@ -254,10 +275,17 @@
                     <section class="tab-pane fade in" id="tab4">
                         <div class="box">
                             <form th:action="@{/user/updateAboutMe}" th:object="${userAboutMe}" class="form-horizontal" role="form" method="post">
+                                <!-- Error handling -->
+                                <p th:if="${#fields.hasErrors('aboutMe')}" class="text-warning"
+                                   th:each="error: ${#fields.errors('aboutMe')}"
+                                   th:text="${error}">Validation error
+                                </p>
                                 <div class="row">
                                     <div class="form-group col-lg-12 col-sm-12">
                                         <label class="control-label" for="aboutMe">About Me:</label>
-                                        <textarea class="form-control" style="resize: none;" rows="7" th:name="aboutMe" id="aboutMe" th:inline="text">[[${userLogged.getUserDetails().getAboutMe()}]]</textarea>
+                                        <div th:classappend="${#fields.hasErrors('aboutMe')}? 'has-error':'aboutMe error'">
+                                            <textarea class="form-control" style="resize: none;" rows="7" th:name="aboutMe" id="aboutMe" th:inline="text">[[${userLogged.getUserDetails().getAboutMe()}]]</textarea>
+                                        </div>
                                     </div>
                                 </div>
 

@@ -52,16 +52,16 @@ public class UserController {
             return "redirect:/login";
         }
 
-        UserUpdateBasicInfoDto upBasicInfoDto = new UserUpdateBasicInfoDto();
-        UserUpdateAboutDto upAboutDto = new UserUpdateAboutDto();
+        UserUpdateBasicInfoDto upBasicDto = new UserUpdateBasicInfoDto();
         UserUpdatePasswordDto upPassDto = new UserUpdatePasswordDto();
-        UserUpdateStudyDto upStudy = new UserUpdateStudyDto();
+        UserUpdateAboutDto updAboutDto = new UserUpdateAboutDto();
+        UserUpdateStudyDto upStudyDto = new UserUpdateStudyDto();
 
         model.addAttribute("userLogged", user);
-        model.addAttribute("userBasicInfo", upBasicInfoDto);
+        model.addAttribute("userBasicInfo", upBasicDto);
         model.addAttribute("userPassword", upPassDto);
-        model.addAttribute("userStudy", upStudy);
-        model.addAttribute("userAboutMe", upAboutDto);
+        model.addAttribute("userStudy", upStudyDto);
+        model.addAttribute("userAboutMe", updAboutDto);
 
         return "user/profile";
     }
@@ -75,9 +75,29 @@ public class UserController {
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
-        model.addAttribute("userLogged", user);     // If we don't set the model. In ${userLogged.getUsername()}" we will have fail
 
-        if(result.hasErrors()){
+        if(result.hasErrors()) {
+            UserUpdateAboutDto updAboutDto = new UserUpdateAboutDto();
+            updAboutDto.setAboutMe(user.getUserDetails().getAboutMe());
+
+            UserUpdateStudyDto upStudyDto = new UserUpdateStudyDto();
+            upStudyDto.setWorkInformation(user.getUserDetails().getWorkInformation());
+            upStudyDto.setStudyInformation(user.getUserDetails().getStudyInformation());
+
+            UserUpdateBasicInfoDto upBasicDto = new UserUpdateBasicInfoDto();
+            upBasicDto.setFirstName(user.getUserDetails().getFirstName());
+            upBasicDto.setLastName(user.getUserDetails().getLastName());
+            upBasicDto.setEmail(user.getEmail());
+            upBasicDto.setPhone(user.getUserDetails().getPhone());
+            upBasicDto.setAddressDirection(user.getUserDetails().getAddressDirection());
+            upBasicDto.setCity(user.getUserDetails().getCity());
+            upBasicDto.setState(user.getUserDetails().getState());
+            upBasicDto.setZipcode(user.getUserDetails().getZipcode());
+
+            model.addAttribute("userAboutMe", updAboutDto);
+            model.addAttribute("userStudy", upStudyDto);
+            model.addAttribute("userBasicInfo", upBasicDto);
+            model.addAttribute("userLogged", user);
             return "/user/profile";
         }
 
@@ -85,7 +105,6 @@ public class UserController {
             user.setPassword(passwordEncoder.encode(userUpDto.getPassword()));
             userService.save(user);
         }
-
 
         return "redirect:/user/profile";
     }
@@ -99,10 +118,30 @@ public class UserController {
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
-        model.addAttribute("userLogged", user);     // If we don't set the model. In ${userLogged.getUsername()}" we will have fail
 
-        if(result.hasErrors())
+        if(result.hasErrors()) {
+            UserUpdateAboutDto updAboutDto = new UserUpdateAboutDto();
+            updAboutDto.setAboutMe(user.getUserDetails().getAboutMe());
+
+            UserUpdateBasicInfoDto upBasicDto = new UserUpdateBasicInfoDto();
+            upBasicDto.setFirstName(user.getUserDetails().getFirstName());
+            upBasicDto.setLastName(user.getUserDetails().getLastName());
+            upBasicDto.setEmail(user.getEmail());
+            upBasicDto.setPhone(user.getUserDetails().getPhone());
+            upBasicDto.setAddressDirection(user.getUserDetails().getAddressDirection());
+            upBasicDto.setCity(user.getUserDetails().getCity());
+            upBasicDto.setState(user.getUserDetails().getState());
+            upBasicDto.setZipcode(user.getUserDetails().getZipcode());
+
+            UserUpdatePasswordDto upPassDto = new UserUpdatePasswordDto();
+            upPassDto.setPassword("");
+
+            model.addAttribute("userAboutMe", updAboutDto);
+            model.addAttribute("userPassword", upPassDto);
+            model.addAttribute("userBasicInfo", upBasicDto);
+            model.addAttribute("userLogged", user);
             return "/user/profile";
+        }
 
         user.getUserDetails().setStudyInformation(userUpDto.getStudyInformation());
         user.getUserDetails().setWorkInformation(userUpDto.getWorkInformation());
@@ -114,19 +153,35 @@ public class UserController {
         return "redirect:/user/profile";
     }
 
-    @RequestMapping(value="/user/updateUserBasicInfo",method=RequestMethod.POST)
+    @RequestMapping(value="/user/updateUserBasicInfo", method=RequestMethod.POST)
     public String updateUserInformation(Model model,
                                         @ModelAttribute("userBasicInfo") @Valid UserUpdateBasicInfoDto userUpDto,
                                         BindingResult result){
-
-        if(result.hasErrors()){
-            return "/user/profile";
-        }
 
         User user = userService.getLoggedInUser();
         if(user == null){
             System.out.println("User not authenticated");
             return "redirect:/login";
+        }
+
+        if(result.hasErrors()){
+            user.getUserDetails().setProfilePicture(null);
+
+            UserUpdateAboutDto upAboutDto = new UserUpdateAboutDto();
+            upAboutDto.setAboutMe(user.getUserDetails().getAboutMe());
+
+            UserUpdatePasswordDto upPassDto = new UserUpdatePasswordDto();
+            upPassDto.setPassword("");
+
+            UserUpdateStudyDto upStudyDto = new UserUpdateStudyDto();
+            upStudyDto.setWorkInformation(user.getUserDetails().getWorkInformation());
+            upStudyDto.setStudyInformation(user.getUserDetails().getStudyInformation());
+
+            model.addAttribute("userAboutMe", upAboutDto);
+            model.addAttribute("userPassword", upPassDto);
+            model.addAttribute("userStudy", upStudyDto);
+            model.addAttribute("userLogged", user);
+            return "/user/profile";
         }
 
         user.getUserDetails().setFirstName(userUpDto.getFirstName());
@@ -136,8 +191,9 @@ public class UserController {
         user.getUserDetails().setState(userUpDto.getState());
         user.getUserDetails().setCity(userUpDto.getCity());
         user.getUserDetails().setZipcode(userUpDto.getZipcode());
+        user.setEmail(userUpDto.getEmail());
 
-        if(userUpDto != null) {
+        if(!userUpDto.getProfilePicture().isEmpty()) {
             // Profile photo update
             Format formatter = new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss");
             String fileName = formatter.format(Calendar.getInstance().getTime()) + "_thumbnail.jpg";
@@ -162,25 +218,15 @@ public class UserController {
                     uploadFile.setFilePath(fileName);
 
                     user.getUserDetails().setProfilePicture(uploadFile);
-                    // userService.updateProfilePicture(user, fileName);
-
-                    /*File dirToClean = new File(PROFILE_PICTURE_PATH + user.getId());
-                    FileUtils.cleanDirectory(dirToClean);*/
-
                     System.out.println("Image Saved::: " + fileName);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-            // END - Profile photo update
         }
-
-        if(userService.findByEmail(userUpDto.getEmail())==null)
-            user.setEmail(userUpDto.getEmail());
 
         userService.save(user);
 
-        // model.addAttribute("image", user.getUploadFile().getBData());
         model.addAttribute("userLogged", user);     // If we don't set the model. In ${userLogged.getUsername()}" we will have fail
         model.addAttribute("message", "Basic user information updated");
         return "redirect:/user/profile";
@@ -196,16 +242,35 @@ public class UserController {
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
-        model.addAttribute("userLogged", user);     // If we don't set the model. In ${userLogged.getUsername()}" we will have fail
 
         if(result.hasErrors()){
-            return "/user/profile";
+            UserUpdateStudyDto upStudyDto = new UserUpdateStudyDto();
+            upStudyDto.setWorkInformation(user.getUserDetails().getWorkInformation());
+            upStudyDto.setStudyInformation(user.getUserDetails().getStudyInformation());
+
+            UserUpdatePasswordDto upPassDto = new UserUpdatePasswordDto();
+            upPassDto.setPassword("");
+
+            UserUpdateBasicInfoDto upBasicDto = new UserUpdateBasicInfoDto();
+            upBasicDto.setFirstName(user.getUserDetails().getFirstName());
+            upBasicDto.setLastName(user.getUserDetails().getLastName());
+            upBasicDto.setEmail(user.getEmail());
+            upBasicDto.setPhone(user.getUserDetails().getPhone());
+            upBasicDto.setAddressDirection(user.getUserDetails().getAddressDirection());
+            upBasicDto.setCity(user.getUserDetails().getCity());
+            upBasicDto.setState(user.getUserDetails().getState());
+            upBasicDto.setZipcode(user.getUserDetails().getZipcode());
+
+            model.addAttribute("userPassword", upPassDto);
+            model.addAttribute("userStudy", upStudyDto);
+            model.addAttribute("userBasicInfo", upBasicDto);
+            model.addAttribute("userLogged", user);
+            return "redirect:/user/profile";
         }
         user.getUserDetails().setAboutMe(userUpDto.getAboutMe());
 
         userService.save(user);
 
-        model.addAttribute("userLogged", user);
         model.addAttribute("message", "About me user information updated");
         return "/user/profile";
     }

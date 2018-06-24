@@ -5,15 +5,12 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.format.annotation.NumberFormat;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Pattern;
 
 public class UserUpdateBasicInfoDto {
 
-    private static final String PATTERN = "^[\\p{L} .'-]+$";  // https://stackoverflow.com/questions/15805555/java-regex-to-validate-full-name-allow-only-spaces-and-letters
+    private static final String PATTERN = "^[\\p{L} .'-]*$";  // https://stackoverflow.com/questions/15805555/java-regex-to-validate-full-name-allow-only-spaces-and-letters
     private static final String PATTERN_NUM_LETTERS = "^[\\p{L} \\d .'-]+$";
-
-    private Long id;
 
     //  Basic info
     @Pattern(regexp = PATTERN, message = "First name cannot contain strange characters")
@@ -36,21 +33,6 @@ public class UserUpdateBasicInfoDto {
     private Integer zipcode;
 
     private MultipartFile profilePicture;
-
-    @AssertTrue
-    private Boolean terms;
-
-    public Long getId() {
-        return id;
-    }
-
-    ;
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    ;
 
     public MultipartFile getProfilePicture() {
         return profilePicture;
@@ -114,14 +96,6 @@ public class UserUpdateBasicInfoDto {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public Boolean getTerms() {
-        return terms;
-    }
-
-    public void setTerms(Boolean terms) {
-        this.terms = terms;
     }
 
     public Integer getPhone() {
