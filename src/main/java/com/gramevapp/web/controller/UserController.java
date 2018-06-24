@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.imgscalr.Scalr;
 import org.apache.commons.io.IOUtils;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.imageio.ImageIO;
 import javax.validation.Valid;
@@ -45,7 +46,9 @@ public class UserController {
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @GetMapping("/user/profile")
-    public String userProfile(Model model){
+    public String userProfile(Model model,
+                              @RequestParam(value="message", required=false) String message,
+                              @RequestParam(value="areaActive", required=false) String areaActive){
         User user = userService.getLoggedInUser();
         if(user == null){
             System.out.println("User not authenticated");
@@ -56,6 +59,15 @@ public class UserController {
         UserUpdatePasswordDto upPassDto = new UserUpdatePasswordDto();
         UserUpdateAboutDto updAboutDto = new UserUpdateAboutDto();
         UserUpdateStudyDto upStudyDto = new UserUpdateStudyDto();
+
+        if(message != null) {
+            model.addAttribute("message", message);
+        }
+
+        if(areaActive != null)
+            model.addAttribute("areaActive", areaActive);
+        else
+            model.addAttribute("areaActive", "basicActive");
 
         model.addAttribute("userLogged", user);
         model.addAttribute("userBasicInfo", upBasicDto);
@@ -69,7 +81,8 @@ public class UserController {
     @RequestMapping(value="/user/updateUserPassword", method=RequestMethod.POST)
     public String updateUserPassword(Model model,
                                      @ModelAttribute("userPassword") @Valid UserUpdatePasswordDto userUpDto,
-                                     BindingResult result){
+                                     BindingResult result,
+                                     RedirectAttributes redirectAttrs){
         User user = userService.getLoggedInUser();
         if(user == null){
             System.out.println("User not authenticated");
@@ -100,19 +113,19 @@ public class UserController {
             model.addAttribute("userLogged", user);
             return "/user/profile";
         }
+        user.setPassword(passwordEncoder.encode(userUpDto.getPassword()));
+        userService.save(user);
 
-        if(userUpDto.getPassword().equals(userUpDto.getConfirmPassword())) {
-            user.setPassword(passwordEncoder.encode(userUpDto.getPassword()));
-            userService.save(user);
-        }
-
+        redirectAttrs.addAttribute("message","Password saved").addFlashAttribute("password", "Password info area");
+        redirectAttrs.addAttribute("areaActive","passwordActive").addFlashAttribute("passwordActive", "Activate password area");
         return "redirect:/user/profile";
     }
 
     @RequestMapping(value="/user/updateStudy", method=RequestMethod.POST)
     public String updateUserStudy(Model model,
                                   @ModelAttribute("userStudy") @Valid UserUpdateStudyDto userUpDto,
-                                  BindingResult result) {
+                                  BindingResult result,
+                                  RedirectAttributes redirectAttrs) {
         User user = userService.getLoggedInUser();
         if(user == null){
             System.out.println("User not authenticated");
@@ -147,16 +160,16 @@ public class UserController {
         user.getUserDetails().setWorkInformation(userUpDto.getWorkInformation());
 
         userService.save(user);
-
-        model.addAttribute("message", "Study/Work user information updated");
-
+        redirectAttrs.addAttribute("message","Study/Work area information updated").addFlashAttribute("Study/Work", "Study/Work area");
+        redirectAttrs.addAttribute("areaActive","studyActive").addFlashAttribute("studyActive", "Activate Study/Work area");
         return "redirect:/user/profile";
     }
 
     @RequestMapping(value="/user/updateUserBasicInfo", method=RequestMethod.POST)
     public String updateUserInformation(Model model,
                                         @ModelAttribute("userBasicInfo") @Valid UserUpdateBasicInfoDto userUpDto,
-                                        BindingResult result){
+                                        BindingResult result,
+                                        RedirectAttributes redirectAttrs){
 
         User user = userService.getLoggedInUser();
         if(user == null){
@@ -224,18 +237,18 @@ public class UserController {
                 }
             }
         }
-
         userService.save(user);
 
-        model.addAttribute("userLogged", user);     // If we don't set the model. In ${userLogged.getUsername()}" we will have fail
-        model.addAttribute("message", "Basic user information updated");
+        redirectAttrs.addAttribute("message","Basic information updated").addFlashAttribute("aboutMe", "Basic information area");
+        redirectAttrs.addAttribute("areaActive","basicActive").addFlashAttribute("basicActive", "Basic information area");
         return "redirect:/user/profile";
     }
 
     @RequestMapping(value="/user/updateAboutMe", method= RequestMethod.POST)
     public String updateAboutMe(Model model,
                                 @ModelAttribute("userAboutMe") @Valid UserUpdateAboutDto userUpDto,
-                                BindingResult result){
+                                BindingResult result,
+                                RedirectAttributes redirectAttrs){
 
         User user = userService.getLoggedInUser();
         if(user == null){
@@ -268,11 +281,11 @@ public class UserController {
             return "redirect:/user/profile";
         }
         user.getUserDetails().setAboutMe(userUpDto.getAboutMe());
-
         userService.save(user);
 
-        model.addAttribute("message", "About me user information updated");
-        return "/user/profile";
+        redirectAttrs.addAttribute("message","About me information area updated").addFlashAttribute("aboutMe", "About me area");
+        redirectAttrs.addAttribute("areaActive","aboutMeActive").addFlashAttribute("aboutMeActive", "Activate About me area");
+        return "redirect:/user/profile";
     }
 
     @GetMapping("/user")
