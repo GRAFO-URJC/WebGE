@@ -24,7 +24,6 @@ public class RunGeObserver implements Observer {
     // DATE TIMESTAMP
     Calendar calendar = Calendar.getInstance();
     java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
-    // END - DATE TIMESTAMP
 
     @Override
     public void update(Observable o, Object arg) {
@@ -49,16 +48,17 @@ public class RunGeObserver implements Observer {
         ApplicationContext context = BeanUtil.getAppContext();
         DiagramDataService dataDataService = (DiagramDataService) context.getBean("diagramDataService");
 
+        // value.getDiagramData().getListPair().remove(value);
         DiagramPair diagramPair = new DiagramPair(currBest, currGen);
 
-        this.diagramData.addListPair(diagramPair);
-
         if(this.diagramData.getRunId().getStatus().equals(Run.Status.INITIALIZING)){
-            dataDataService.deleteAllByDiagramId(this.diagramData);
-            this.diagramData.setListPair(new ArrayList<>());    // All the points were being added into the arrayList. But it needs to starts again.
-
+            /*if(!this.diagramData.getListPair().isEmpty()) {
+                // this.diagramData.getListPair().removeAll(auxList);
+            }*/
+                // dataDataService.deleteAllByDiagramId(this.diagramData);
             this.diagramData.getRunId().setStatus(Run.Status.RUNNING);
         }
+        this.diagramData.addListPair(diagramPair);
 
         if(this.diagramData.getRunId().getStatus().equals(Run.Status.STOPPED))
             this.diagramData.setStopped(true);
@@ -66,10 +66,8 @@ public class RunGeObserver implements Observer {
         if(this.diagramData.getRunId().getStatus().equals(Run.Status.FAILED))
             this.diagramData.setFailed(true);
 
-        if(currPercent == 100 || currBest <= 0.0) {
-
+        if(currPercent == 100 || currBest <= 0.0)
             this.diagramData.setFinished(true);
-        }
 
         if(currBest > 0.0)
             this.diagramData.setBestIndividual(currBest);
@@ -81,6 +79,9 @@ public class RunGeObserver implements Observer {
         dataDataService.saveDiagramPair(diagramPair);
 
         dataDataService.saveDiagram(this.diagramData);
+        //dataDataService.flushDiagramData();
+
+        // dataDataService.flushDiagramPair();
 
         /*
         if (dataMap.get("BestObjective") != null) {

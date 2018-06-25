@@ -61,7 +61,7 @@ public class Run {
     @Temporal(TemporalType.TIMESTAMP)
     private Date iniDate;
 
-    @Column(name="endDate")
+    @Column(name="modificationDate")
     @Temporal(TemporalType.TIMESTAMP)
     private Date modificationDate;
 

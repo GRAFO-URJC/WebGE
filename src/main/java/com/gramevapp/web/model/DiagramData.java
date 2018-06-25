@@ -23,9 +23,10 @@ public class DiagramData {
     private Long id;
 
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToMany(cascade=CascadeType.ALL,
-            fetch=FetchType.EAGER,
-            mappedBy = "diagramDataId")
+    @OneToMany(fetch=FetchType.EAGER,
+            cascade=CascadeType.ALL,
+            mappedBy = "diagramDataId",
+            orphanRemoval = true)
     private List<DiagramPair> listPair;   // To display diagram with one click.
 
     @Column
@@ -137,9 +138,9 @@ public class DiagramData {
         return listPair;
     }
 
-    public void setListPair(ArrayList<DiagramPair> listBestIndividual) {
+    /*public void setListPair(ArrayList<DiagramPair> listBestIndividual) {
         this.listPair = listBestIndividual;
-    }
+    }*/
 
     public void setBestIndividual(Double bestIndividual) {
         this.bestIndividual = bestIndividual;

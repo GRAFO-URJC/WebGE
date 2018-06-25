@@ -84,7 +84,7 @@
 
                 <section class="panel-body">
                     <form th:action="@{/user/experiment/start}" enctype="multipart/form-data" role="form" method="POST">
-                        <input type="text" th:name="defaultRunId" th:id="defaultRunId" th:value="${configuration.getDefaultRunId()}" />
+                        <input type="hidden" th:name="defaultRunId" th:id="defaultRunId" th:value="${configuration.getDefaultRunId()}" />
 
                         <div class="row center-block form-horizontal">
 
@@ -344,7 +344,6 @@
                                             <td scope="row"><label th:text="${dataType.getId()}" th:id="dataTypeId" th:name="dataTypeId" /></td>
                                             <td scope="row"><label th:text="${dataType.getDataTypeName()}" th:name="expDataTypeNameList" th:id="expDataTypeNameList" /></td>
                                             <td scope="row"><label th:text="${dataType.getDataTypeDescription()}" th:name="expDataTypeDescriptionList" th:id="expDataTypeDescriptionList" /></td>
-                                            <td scope="row"><label th:text="${dataType.getDataTypeType()}" th:name="expDataTypeTypeList" th:id="expDataTypeTypeList" /></td>
                                             <td scope="row"><label th:text="${dataType.getDataTypeType()}" th:name="expDataTypeTypeList" th:id="expDataTypeTypeList" /></td>
                                             <td scope="row"><label th:text="${dataType.getCreationDate()}" th:name="creationDate" th:id="creationDate" /></td>
                                             <input type="hidden" th:value="${dataType.getId()}" th:name="dataTypeId" th:id="dataTypeId" />

@@ -45,8 +45,6 @@ public class RunRestController {
             run.getDiagramData().setFailed(false);
             run.getDiagramData().setBestIndividual(1.0);
             run.getDiagramData().setCurrentGeneration(0);
-
-            run.getDiagramData().setListPair(new ArrayList<>());
         }
 
         if(run.getDiagramData().getFinished() || run.getDiagramData().getBestIndividual() <= 0.0) {
