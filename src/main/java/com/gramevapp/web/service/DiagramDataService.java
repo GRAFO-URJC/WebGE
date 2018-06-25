@@ -5,14 +5,17 @@ import com.gramevapp.web.model.DiagramPair;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.repository.DiagramDataRepository;
 import com.gramevapp.web.repository.DiagramPairRepository;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service("diagramDataService")
 @Transactional
+@DynamicUpdate
 public class DiagramDataService {
 
     @Autowired
@@ -42,21 +45,15 @@ public class DiagramDataService {
         diagramPairRepository.save(diagramPair);
     }
 
-
-    /*public void deleteDiagramPairList(List<DiagramPair> diagramPairList){
-        for(DiagramPair dp : diagramPairList)
-            diagramPairRepository.deleteAllBy(dp.getId());
+    /*public void deleteAllByDiagramId(DiagramData diagramDataId){
+        diagramPairRepository.deleteDiagramPairList(diagramDataId.getId());
     }*/
 
-    public void deleteAllByDiagramId(DiagramData diagramDataId){
-        diagramPairRepository.deleteAllByDiagramDataId(diagramDataId);
+    public void flushDiagramData() {
+        diagramRepository.flush();
     }
 
-    /*public boolean emptyList(List<DiagramPair> lDiagramPair){
-        Long id = lDiagramPair.get(0).getId();
-
-        List<DiagramPair> lDP = diagramPairRepository.findByDiagramDataId(id);
-        return lDP.isEmpty();
-    }*/
-
+    public void flushDiagramPair() {
+        diagramPairRepository.flush();
+    }
 }

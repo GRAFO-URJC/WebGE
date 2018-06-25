@@ -47,4 +47,6 @@ public class  RunService {
     public void deleteExpProperties(ExpProperties expProperties){
         expPropertiesRepository.delete(expProperties);
     }
+
+
 }

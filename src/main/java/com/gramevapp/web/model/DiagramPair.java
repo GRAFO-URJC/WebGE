@@ -1,6 +1,7 @@
 package com.gramevapp.web.model;
 
 import com.fasterxml.jackson.annotation.*;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
@@ -9,6 +10,7 @@ import javax.persistence.*;
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
+@DynamicUpdate
 public class DiagramPair
 {
     @Id
@@ -16,7 +18,7 @@ public class DiagramPair
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(targetEntity=DiagramData.class,fetch = FetchType.EAGER)
     @JoinTable(
             name = "diagram_pair_list",
             joinColumns = {

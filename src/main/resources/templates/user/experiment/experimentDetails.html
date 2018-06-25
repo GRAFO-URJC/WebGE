@@ -81,7 +81,7 @@
                                 <input type="hidden" th:id="runIdStop" th:name="runIdStop" th:value="${expDetails.getRunId()}" />
 
                                 <!-- Stop button -->
-                                <div class="row text-center">
+                                <div class="row text-center" th:id="stopDiv">
                                     <div class="col-sm-12 col-md-12 col-lg-12" style="padding:15px">
                                         <button type="submit" th:id="stopRunExperimentButton" th:name="stopRunExperimentButton" class="btn-danger btn-lg btn">Stop execution</button>
                                     </div>
@@ -252,7 +252,7 @@
                 async:true,
                 type: "GET",
                 dataType: "json",
-                success: function(data){
+                success: function(data) {
                     var bestIndividualStr = data['bestIndividual'];
                     var currentGenerationStr = data['currentGeneration'];
                     var statusStr = data['status'];
@@ -260,6 +260,9 @@
                     $("#bestIndividual").text(bestIndividualStr);
                     $("#currentGeneration").text(currentGenerationStr);
                     $("#status").text(statusStr);
+                    if (($('#status').text() == "FINISHED") || ($('#status').text() == "STOPPED") || ($('#status').text() == "FAILED")) {
+                        $("#stopDiv").remove();
+                    }
                 }
             });
         };
