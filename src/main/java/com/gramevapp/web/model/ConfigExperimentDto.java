@@ -21,7 +21,7 @@ public class ConfigExperimentDto {
     @Min(value=0)
     @Max(value=100000)
     @NotNull
-    private Integer generations = 100;
+    private Integer generations = 1000;
     @Min(value=0)
     @Max(value=100000)
     @NotNull

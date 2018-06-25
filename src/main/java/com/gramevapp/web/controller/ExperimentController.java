@@ -63,7 +63,6 @@ public class ExperimentController {
         ExperimentDataType expDataTypeDto;
         List<Run> runList;
         List<ExperimentDataType> expDataTypeList;
-        List<Grammar> expGrammarList;
 
         if(expConfig != null) {
             grammarDto = experimentService.findGrammarById(expConfig.getDefaultGrammar());
@@ -86,6 +85,7 @@ public class ExperimentController {
         model.addAttribute("runList", runList);
         model.addAttribute("dataTypeList", expDataTypeList);
         model.addAttribute("user", user);
+        model.addAttribute("configExp", new ConfigExperimentDto());
 
         return "/user/experiment/configExperiment";
     }
@@ -118,13 +118,11 @@ public class ExperimentController {
         ConfigExperimentDto configExpDto = new ConfigExperimentDto();
         configExpDto = fillConfigExpDto(configExpDto, run.getExperimentId(), run, grammar, expDataType);
 
-        model.addAttribute("grammar", grammar);
-        model.addAttribute("type", expDataType);
+        model.addAttribute("defaultRun", run.getId());
         model.addAttribute("configuration", configExpDto);
         model.addAttribute("runList", runList);
         model.addAttribute("dataTypeList", expDataTypeList);
-        model.addAttribute("grammarList", expGrammarList);
-        model.addAttribute("user", user);
+        model.addAttribute("configExp", configExpDto);
 
         return "/user/experiment/configExperiment";
     }
@@ -213,7 +211,8 @@ public class ExperimentController {
                                 BindingResult result,
                                 RedirectAttributes redirectAttrs) throws IllegalStateException, IOException {
         if (result.hasErrors()) {
-            configExpDto.setDefaultRunId(Long.parseLong("0"));
+            model.addAttribute("defaultRun", null);
+            model.addAttribute("defaultId", null);
             model.addAttribute("configuration", configExpDto);
             return "/user/experiment/configExperiment";
         }
@@ -361,10 +360,6 @@ public class ExperimentController {
         runExperimentDetails(user, run, run.getDiagramData());
 
         configExpDto = fillConfigExpDto(configExpDto, exp, run, grammar, expDataType);
-
-        model.addAttribute("dataTypeList", exp.getIdExpDataTypeList());
-        model.addAttribute("runList", exp.getIdRunList());
-        model.addAttribute("configuration", configExpDto);
 
         redirectAttrs.addAttribute("idRun", configExpDto.getDefaultRunId()).addFlashAttribute("configuration", "Experiment is being created");
         return "redirect:/user/experiment/redirectConfigExperiment";
