@@ -113,17 +113,22 @@ public class ExperimentController {
 
         List<Run> runList = run.getExperimentId().getIdRunList();
         List<ExperimentDataType> expDataTypeList = run.getExperimentId().getIdExpDataTypeList();
-        List<Grammar> expGrammarList = run.getExperimentId().getIdGrammarList();
 
         ConfigExperimentDto configExpDto = new ConfigExperimentDto();
         configExpDto = fillConfigExpDto(configExpDto, run.getExperimentId(), run, grammar, expDataType);
 
-        model.addAttribute("defaultRun", run.getId());
         model.addAttribute("configuration", configExpDto);
         model.addAttribute("runList", runList);
         model.addAttribute("dataTypeList", expDataTypeList);
         model.addAttribute("configExp", configExpDto);
 
+        return "/user/experiment/configExperiment";
+    }
+
+    @RequestMapping(value="/user/experiment/start")
+    public String saveExperiment(Model model){
+        model.addAttribute("configuration", new ConfigExperimentDto());
+        model.addAttribute("configExp", new ConfigExperimentDto());
         return "/user/experiment/configExperiment";
     }
 
@@ -133,6 +138,7 @@ public class ExperimentController {
                                 BindingResult result) throws IllegalStateException {
 
         if (result.hasErrors()) {
+            model.addAttribute("configuration", configExpDto);
             return "/user/experiment/configExperiment";
         }
 
@@ -143,8 +149,12 @@ public class ExperimentController {
         }
 
         Run updRun = runService.findByRunId(configExpDto.getDefaultRunId());
-        if((updRun == null)) // Do not update nothing
-            return "redirect:/user/experiment/configExperiment";
+        if(updRun == null) { // Do not update nothing
+            model.addAttribute("messageSave", "To save the experiment, first you need to create one");
+            model.addAttribute("configuration", configExpDto);
+            model.addAttribute("expConfig", configExpDto);
+            return "/user/experiment/configExperiment";
+        }
 
         // DATE TIMESTAMP
         Calendar calendar = Calendar.getInstance();
@@ -190,6 +200,7 @@ public class ExperimentController {
 
         configExpDto = fillConfigExpDto(configExpDto, updRun.getExperimentId(), updRun, updGrammar, updExpDataType);
 
+        model.addAttribute("expConfig", configExpDto);
         model.addAttribute("configuration", configExpDto);
         model.addAttribute("dataTypeList", updRun.getExperimentId().getIdExpDataTypeList());
         model.addAttribute("runList", updRun.getExperimentId().getIdRunList());
@@ -197,10 +208,24 @@ public class ExperimentController {
         return "/user/experiment/configExperiment";
     }
 
-    @RequestMapping(value="/user/experiment/start", method=RequestMethod.POST, params="cloneExperimentButton")
-    public String cloneExperiment(@ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto) {
-        return "/user/experiment/configExperiment";}
-
+    /**
+     * Load al the data from the view, save it and run the application.
+     *  "configExpDto" for validation -> configExp
+     *  "configuration" is for send data from Controller to View and
+     *  "configExp" is the object from the form View
+     *
+     * @param model
+     * @param grammarDto
+     * @param expDataTypeDto
+     * @param radioDataTypeHidden
+     * @param fileModelDto
+     * @param configExpDto
+     * @param result
+     * @param redirectAttrs
+     * @return
+     * @throws IllegalStateException
+     * @throws IOException
+     */
     @RequestMapping(value="/user/experiment/start", method=RequestMethod.POST, params="runExperimentButton")
     public String runExperiment(Model model,
                                 @ModelAttribute("grammar") GrammarDto grammarDto,
@@ -211,8 +236,6 @@ public class ExperimentController {
                                 BindingResult result,
                                 RedirectAttributes redirectAttrs) throws IllegalStateException, IOException {
         if (result.hasErrors()) {
-            model.addAttribute("defaultRun", null);
-            model.addAttribute("defaultId", null);
             model.addAttribute("configuration", configExpDto);
             return "/user/experiment/configExperiment";
         }
@@ -352,16 +375,12 @@ public class ExperimentController {
 
         DiagramData diagramData = diagramDataService.saveDiagram(new DiagramData());
         diagramDataService.flushDiagramData();
-        diagramData.setLongUserId(user.getId());
         diagramData.setRunId(run);
-        diagramData.setTime(currentTimestamp);
 
         // Run experiment in new thread
         runExperimentDetails(user, run, run.getDiagramData());
 
-        configExpDto = fillConfigExpDto(configExpDto, exp, run, grammar, expDataType);
-
-        redirectAttrs.addAttribute("idRun", configExpDto.getDefaultRunId()).addFlashAttribute("configuration", "Experiment is being created");
+        redirectAttrs.addAttribute("idRun", run.getId()).addFlashAttribute("configuration", "Experiment is being created");
         return "redirect:/user/experiment/redirectConfigExperiment";
     }
 
@@ -402,9 +421,11 @@ public class ExperimentController {
         List<Run> runList = exp.getIdRunList();
 
         ConfigExperimentDto configExpDto = new ConfigExperimentDto();
-        configExpDto = fillConfigExpDto(configExpDto, exp, null, grammar, expDataType);
+        configExpDto = fillConfigExpDto(configExpDto, exp, runService.findByRunId(exp.getDefaultRunId()), grammar, expDataType);
 
+        model.addAttribute("runList", runList);
         model.addAttribute("configuration", configExpDto);
+        model.addAttribute("configExp", configExpDto);
         model.addAttribute("runList", runList);
         model.addAttribute("dataTypeList", exp.getIdExpDataTypeList());
 
@@ -463,6 +484,7 @@ public class ExperimentController {
         configExpDto = fillConfigExpDto(configExpDto, run.getExperimentId(), run, grammar, expDataType);
 
         model.addAttribute("configuration", configExpDto);
+        model.addAttribute("configExp", configExpDto);
         model.addAttribute("runList", runList);
         model.addAttribute("dataTypeList", run.getExperimentId().getIdExpDataTypeList());
 
@@ -660,7 +682,6 @@ public class ExperimentController {
         expProp.setIdExp(experiment.getId());
         expProp.setIdRun(run.getId());
 
-        experiment.setIdProperties(expProp.getId());
         run.setIdProperties(expProp.getId());
 
         expProp.setLoggerBasePath(properties.getProperty("LoggerBasePath"));

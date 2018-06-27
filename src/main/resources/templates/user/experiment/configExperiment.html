@@ -84,15 +84,23 @@
 
                 <section class="panel-body">
                     <form th:action="@{/user/experiment/start}" th:object="${configExp}" enctype="multipart/form-data" role="form" method="POST">
-                        <div th:if="${defaultRunId != null}">
-                            <input type="hidden" th:name="defaultRunId" th:id="defaultRunId" th:value="${configuration.getdefaultRunId()}" />
+                        <div th:if="${configuration.getDefaultRunId() != null}">
+                            <input type="hidden" th:name="defaultRunId" th:id="defaultRunId" th:value="${configuration.getDefaultRunId()}" />
+                        </div>
+
+                        <div class="row center-block text-center form-horizontal">
+                            <div class="col-sm-6 col-md-offset-3 col-lg-offset-3" >
+                                <div th:if="${messageSave}" th:id="messageSave" class="alert alert-info">
+                                    <label th:text="${messageSave}"></label>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="row center-block form-horizontal">
                             <!-- Experiment NAME and DESCRIPTION -->
-                            <div class="row form-group" th:if="${defaultId != null}">
+                            <div class="row form-group" th:if="${configuration.getId() != null}">
                                 <div class="col-sm-12 col-md-12 col-lg-12" >
-                                    <input type="hidden" id="id" name="id" th:value="${configuration.getId()}" placeholder="Id of the experiment" />
+                                    <input type="hidden" th:id="id" th:name="id" th:value="${configuration.getId()}" placeholder="Id of the experiment" />
                                 </div>
                             </div>
 
@@ -363,14 +371,11 @@
                             </div>
 
                             <!--  Save Clone and Run -->
-                            <div class="row text-center">
-                                <div class="col-sm-4 col-md-4 col-lg-4">
+                            <div class="row text-center" >
+                                <div class="col-sm-12 col-md-6 col-lg-6" style="margin-bottom:2px">
                                     <button type="submit" id="saveExperimentButton" name="saveExperimentButton" onclick="document.querySelector('#typeFile').required = false;" class="btn-primary btn-lg btn">Save experiment</button>
                                 </div>
-                                <div class="col-sm-4 col-md-4 col-lg-4">
-                                    <button type="submit" id="cloneExperimentButton" name="cloneExperimentButton" class="btn-primary btn-lg btn">Clone experiment</button>
-                                </div>
-                                <div class="col-sm-4 col-md-4 col-lg-4">
+                                <div class="col-sm-12 col-md-6 col-lg-6" >
                                     <button type="submit" id="runExperimentButton" name="runExperimentButton" class="btn-primary btn-lg btn">Run experiment</button>
                                 </div>
                             </div>
@@ -433,7 +438,6 @@
                                             <!-- https://stackoverflow.com/questions/14938344/thymeleaf-construct-url-with-variable -->
                                             <a th:href="@{/user/experiment/runList(runId=${run.getId()}, runExperimentButton='runExperimentButton')}" target="_blank" th:id="${'runExperimentButton' + iterStat.index}"  onclick="showRunStatus(this.id)" class="btn-default btn-sm btn loadButton">Re-run experiment</a>
                                         </td>
-                                        <!--<td scope="row" th:if="${#strings.toString(run.status)} == 'FINISHED'">-->
                                         <td scope="row" th:id="'showPlot'+${iterStat.index}" class="" >
                                             <a th:href="@{/user/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}" target="_blank" class="btn-default btn-sm btn loadButton">Show plot execution</a>
                                         </td>

@@ -32,7 +32,7 @@ public class User implements Serializable {
             mappedBy = "user")
     private UserDetails userDetails;
 
-    @ManyToMany(cascade=CascadeType.PERSIST, fetch=FetchType.LAZY, targetEntity=Role.class)
+    @ManyToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, targetEntity=Role.class)
     @JoinTable(
             name = "users_roles",
             joinColumns ={
