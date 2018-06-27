@@ -1,18 +1,13 @@
 package com.gramevapp.web.model;
 
-import com.gramevapp.web.abstractClasses.AbstractDomainClass;
-
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "role")
 public class Role implements Serializable {
-    // Admin, normal user, user with privilages (?) ....
 
+    // Admin, normal user, user with privilages (?) ....
     @Id
     @Column(name = "ROLE_ID", nullable = false, updatable= false)
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -20,9 +15,6 @@ public class Role implements Serializable {
 
     @Column(name = "role")
     private String role;
-
-    @ManyToMany(mappedBy = "roles")
-    private List<User> users;
 
     public Role() {
     }
@@ -54,7 +46,6 @@ public class Role implements Serializable {
                 ", role name='" + role + '\'' +
                 '}';
     }
-
 
     public String getRole() {
         return role;

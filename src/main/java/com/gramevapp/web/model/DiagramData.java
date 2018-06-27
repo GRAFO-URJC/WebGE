@@ -37,9 +37,6 @@ public class DiagramData {
     private Run runId;
 
     @Column
-    private Long longUserId;
-
-    @Column
     private Integer currentGeneration = 0;
 
     @Column
@@ -51,13 +48,6 @@ public class DiagramData {
     @Column
     private Boolean failed = false;
 
-    Calendar calendar = Calendar.getInstance();
-
-    @Column(name="time")
-    // @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern="HH:mm:ss")
-    java.sql.Timestamp time = new java.sql.Timestamp(calendar.getTime().getTime());
-
     public DiagramData() {
         this.listPair = new ArrayList<>();
     }
@@ -68,15 +58,12 @@ public class DiagramData {
 
     public DiagramData(Run runId, Long longUserId) {
         this.runId = runId;
-        this.longUserId = longUserId;
-
         this.listPair = new ArrayList<>();
     }
 
-    public DiagramData(Integer currentGeneration, double bestIndividual, Run runId, Long longUserId) {
+    public DiagramData(Integer currentGeneration, double bestIndividual, Run runId) {
         this.bestIndividual = bestIndividual;
         this.runId = runId;
-        this.longUserId = longUserId;
         this.currentGeneration = currentGeneration;
 
         this.listPair = new ArrayList<>();
@@ -110,14 +97,6 @@ public class DiagramData {
         run.setDiagramData(this);
     }
 
-    public Long getLongUserId() {
-        return longUserId;
-    }
-
-    public void setLongUserId(Long longUserId) {
-        this.longUserId = longUserId;
-    }
-
     public Integer getCurrentGeneration() {
         return currentGeneration;
     }
@@ -137,10 +116,6 @@ public class DiagramData {
     public List<DiagramPair> getListPair() {
         return listPair;
     }
-
-    /*public void setListPair(ArrayList<DiagramPair> listBestIndividual) {
-        this.listPair = listBestIndividual;
-    }*/
 
     public void setBestIndividual(Double bestIndividual) {
         this.bestIndividual = bestIndividual;
@@ -185,15 +160,5 @@ public class DiagramData {
         listPair.remove(diagramPair);
         //remove myself from the twitter account
         diagramPair.setDiagramData(null);
-    }
-
-    //@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern="HH:mm:ss")
-    public java.sql.Timestamp getTime() {
-        return time;
-    }
-
-    public void setTime(java.sql.Timestamp time) {
-        this.time = time;
     }
 }

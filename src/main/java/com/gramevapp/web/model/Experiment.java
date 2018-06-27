@@ -41,9 +41,6 @@ public class Experiment {
     @Column(name="EXPERIMENT_DESCRIPTION") // Reference for user relation and ExpDataType and Grammar
     private String experimentDescription;
 
-    @Column
-    private Long idProperties;
-
     @JsonBackReference
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToMany(fetch=FetchType.LAZY,
@@ -400,14 +397,6 @@ public class Experiment {
 
     public void setDefaultRunId(Long defaultRunId) {
         this.defaultRunId = defaultRunId;
-    }
-
-    public Long getIdProperties() {
-        return idProperties;
-    }
-
-    public void setIdProperties(Long idProperties) {
-        this.idProperties = idProperties;
     }
 
     public void updateExperiment(Long grammar, Long expDataType, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date modificationDate){

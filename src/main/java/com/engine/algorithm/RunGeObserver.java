@@ -21,10 +21,6 @@ public class RunGeObserver implements Observer {
 
     private DiagramData diagramData;
 
-    // DATE TIMESTAMP
-    Calendar calendar = Calendar.getInstance();
-    java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
-
     @Override
     public void update(Observable o, Object arg) {
         HashMap<String, Object> dataMap = (HashMap<String, Object>) arg;
@@ -52,10 +48,6 @@ public class RunGeObserver implements Observer {
         DiagramPair diagramPair = new DiagramPair(currBest, currGen);
 
         if(this.diagramData.getRunId().getStatus().equals(Run.Status.INITIALIZING)){
-            /*if(!this.diagramData.getListPair().isEmpty()) {
-                // this.diagramData.getListPair().removeAll(auxList);
-            }*/
-                // dataDataService.deleteAllByDiagramId(this.diagramData);
             this.diagramData.getRunId().setStatus(Run.Status.RUNNING);
         }
         this.diagramData.addListPair(diagramPair);
@@ -74,15 +66,10 @@ public class RunGeObserver implements Observer {
         else
             this.diagramData.setBestIndividual(0.0);
         this.diagramData.setCurrentGeneration(currGen);
-        this.diagramData.setTime(currentTimestamp);
 
         dataDataService.saveDiagramPair(diagramPair);
 
         dataDataService.saveDiagram(this.diagramData);
-        //dataDataService.flushDiagramData();
-
-        // dataDataService.flushDiagramPair();
-
         /*
         if (dataMap.get("BestObjective") != null) {
             currBest = Double.valueOf(dataMap.get("BestObjective").toString());
