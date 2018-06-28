@@ -859,6 +859,7 @@ public class ExperimentController {
         }
         run.setStatus(Run.Status.STOPPED);
         run.getDiagramData().setStopped(true);
+        runService.saveRun(run);
 
         th.interrupt();
         runnables.get(threadId).stopExecution();
@@ -907,11 +908,11 @@ public class ExperimentController {
         Iterator<Grammar> grammarIt = lGrammar.iterator();
         while(grammarIt.hasNext() && !found) {
             Grammar grammarAux = grammarIt.next();
-            if (grammarAux.getId() == run.getDefaultGrammarId()) {
-                experimentService.deleteGrammar(grammarAux);
+            if (grammarAux.getId().longValue() == run.getDefaultGrammarId().longValue()) {
+                grammarAux.setExperimentId(null);
 
                 if(grammarAux.getId() == experiment.getDefaultGrammar())
-                    experiment.setDefaultRunId(null);
+                    experiment.setDefaultRunId(Long.parseLong("0"));
                 found = true;
             }
         }
@@ -921,11 +922,10 @@ public class ExperimentController {
         Iterator<ExperimentDataType> expDataIt = lExpDataType.iterator();
         while(expDataIt.hasNext() && !found) {
             ExperimentDataType expDataAux = expDataIt.next();
-            if (expDataAux.getId() == run.getDefaultExpDataTypeId()) {
-                experimentService.deleteDataTypeFile(expDataAux);
-
+            if (expDataAux.getId().longValue() == run.getDefaultExpDataTypeId().longValue()) {
+                expDataAux.setExperimentId(null);
                 if(expDataAux.getId() == experiment.getDefaultExpDataType())
-                    experiment.setIdExpDataTypeList(null);
+                    experiment.setDefaultExpDataType(Long.parseLong("0"));
                 found = true;
             }
         }
@@ -935,7 +935,7 @@ public class ExperimentController {
         Iterator<Run> runIt = lRun.iterator();
         while(runIt.hasNext() && !found){
             Run runAux = runIt.next();
-            if(runAux.getId() == run.getId()) {
+            if(runAux.getId().longValue() == run.getId().longValue()) {
                 runAux.setExperimentId(null);
 
                 if(runAux.getId() == experiment.getDefaultRunId())

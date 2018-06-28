@@ -52,12 +52,6 @@ public class RunGeObserver implements Observer {
         }
         this.diagramData.addListPair(diagramPair);
 
-        if(this.diagramData.getRunId().getStatus().equals(Run.Status.STOPPED))
-            this.diagramData.setStopped(true);
-
-        if(this.diagramData.getRunId().getStatus().equals(Run.Status.FAILED))
-            this.diagramData.setFailed(true);
-
         if(currPercent == 100 || currBest <= 0.0)
             this.diagramData.setFinished(true);
 
