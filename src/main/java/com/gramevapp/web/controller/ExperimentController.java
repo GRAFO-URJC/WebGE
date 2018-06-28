@@ -446,10 +446,11 @@ public class ExperimentController {
             Long threadId = run.getThreaId();
             // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
             Thread th = threadMap.get(threadId);
-            th.interrupt();
-            runnables.get(threadId).stopExecution();
+            if(th != null) {
+                th.interrupt();
+                runnables.get(threadId).stopExecution();
+            }
 
-            run.setStatus(Run.Status.STOPPED);
             experimentService.deleteExpProperties(experimentService.findPropertiesById(runIt.getIdProperties()));
         }
 
@@ -535,7 +536,7 @@ public class ExperimentController {
             model.addAttribute("expDetails", experimentDetailsDto);
             return "/user/experiment/experimentDetails";
         }
-        experimentDetailsDto.setStatus(run.getStatus());
+        experimentDetailsDto.setStatus(run.getStatus());    // The last status will be displayed in the new tab until Aj
         model.addAttribute("expDetails", experimentDetailsDto);
 
         Calendar calendar = Calendar.getInstance();
@@ -841,20 +842,28 @@ public class ExperimentController {
 
     @PostMapping(value="/user/experiment/stopRun", params="stopRunExperimentButton")
     public String stopRunExperiment(Model model,
-                                    @RequestParam("runIdStop") String runIdStop){
+                                    @RequestParam("runIdStop") String runIdStop,
+                                    RedirectAttributes redirectAttrs){
         Run run = runService.findByRunId(Long.parseLong(runIdStop));
         Long threadId = run.getThreaId();
 
         // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
         Thread th = threadMap.get(threadId);
-        th.interrupt();
+        if(th == null){
+            run.setStatus(Run.Status.FAILED);
+            run.getDiagramData().setFailed(true);
 
+            redirectAttrs.addAttribute("runId", run.getId()).addFlashAttribute("Stop", "Stop execution failed");
+            redirectAttrs.addAttribute("showPlotExecutionButton", "showPlotExecutionButton");
+            return "redirect:/user/experiment/runList";
+        }
+        run.setStatus(Run.Status.STOPPED);
+        run.getDiagramData().setStopped(true);
+
+        th.interrupt();
         runnables.get(threadId).stopExecution();
 
-        run.setStatus(Run.Status.STOPPED);
-
         ExperimentDetailsDto experimentDetailsDto = new ExperimentDetailsDto();
-
         experimentDetailsDto.setExperimentId(run.getExperimentId().getId());
         experimentDetailsDto.setExperimentName(run.getExperimentId().getExperimentName());
         experimentDetailsDto.setExperimentDescription(run.getExperimentId().getExperimentDescription());
