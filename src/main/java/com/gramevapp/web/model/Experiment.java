@@ -45,7 +45,8 @@ public class Experiment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToMany(fetch=FetchType.LAZY,
             cascade=CascadeType.ALL,
-            mappedBy = "experimentId")
+            mappedBy = "experimentId",
+            orphanRemoval = true)
     private List<Grammar> idGrammarList;
 
     @Column
@@ -55,7 +56,8 @@ public class Experiment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToMany(fetch=FetchType.LAZY,
             cascade=CascadeType.ALL,
-            mappedBy = "experimentId")
+            mappedBy = "experimentId",
+            orphanRemoval = true)
     private List<ExperimentDataType> idExpDataTypeList;
 
     @Column

@@ -26,7 +26,8 @@ public class DiagramData {
     @OneToMany(fetch=FetchType.EAGER,
             cascade=CascadeType.ALL,
             mappedBy = "diagramDataId",
-            orphanRemoval = true)
+            orphanRemoval = true,
+            targetEntity=DiagramPair.class)
     private List<DiagramPair> listPair;   // To display diagram with one click.
 
     @Column

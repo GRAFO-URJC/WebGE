@@ -117,18 +117,22 @@
                                                     <h4><b>Experiment information </b></h4>
                                                     <br/>
                                                     <ul class="list-inline">
-                                                        <!--<li>
-                                                            <span class="glyphicon glyphicon-chevron-right">
-                                                                Default grammar file name:
-                                                                <label th:text="${exp.getDefaultGrammar().getGrammarName()}"></label>
-                                                            </span>
+                                                        <li>
+                                                            <p>
+                                                                <span class="glyphicon glyphicon-chevron-right"> The experiment has
+                                                                <label th:text="${exp.getIdRunList().size()}"></label>
+                                                                    <i>runs</i>
+                                                                </span>
+                                                            </p>
                                                         </li>
                                                         <li>
-                                                            <span class="glyphicon glyphicon-chevron-right">
-                                                                Default data type file name:
-                                                                <label th:text="${exp.getDefaultExpDataType().getDataTypeName()}"></label>
-                                                            </span>
-                                                        </li>-->
+                                                            <p>
+                                                                <span class="glyphicon glyphicon-chevron-right"> The experiment has
+                                                                <label th:text="${exp.getIdExpDataTypeList().size()}"></label>
+                                                                    <i>data type file/s</i>
+                                                                </span>
+                                                            </p>
+                                                        </li>
                                                     </ul>
                                                 </div>
                                             </td>
