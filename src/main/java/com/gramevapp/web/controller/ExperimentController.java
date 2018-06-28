@@ -267,14 +267,16 @@ public class ExperimentController {
         runService.updateRun();
 
         // Experiment Data Type SECTION
-        ExperimentDataType expDataType = experimentService.saveDataType(new ExperimentDataType());
-        experimentService.updataExpDataType();
+        ExperimentDataType expDataType;
         if(!radioDataTypeHidden.equals("on"))
             expDataType = experimentService.findDataTypeById(Long.parseLong(radioDataTypeHidden));
         else if(radioDataTypeHidden.equals("on") && fileModelDto.getTypeFile().isEmpty()) {        // Radio button neither file path selected
             result.rejectValue("typeFile", "error.typeFile", "Choose one file");
             return "/user/experiment/configExperiment";
         }
+        else
+            expDataType = experimentService.saveDataType(new ExperimentDataType());
+
         expDataType = experimentDataTypeSection(fileModelDto, expDataType, expDataTypeDto, currentTimestamp);
         expDataType.setRunId(run.getId());
         run.setDefaultExpDataTypeId(expDataType.getId());
