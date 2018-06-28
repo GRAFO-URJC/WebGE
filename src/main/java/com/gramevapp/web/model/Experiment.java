@@ -182,7 +182,8 @@ public class Experiment {
         ExperimentService experimentService = (ExperimentService) context.getBean("experimentService");
 
         Grammar defaultGrammar= experimentService.findGrammarById(defaultGrammarId);
-        defaultGrammar.setExperimentId(this);
+        if(defaultGrammar != null)
+            defaultGrammar.setExperimentId(this);
     }
 
     public Long getDefaultExpDataType() {
@@ -195,7 +196,8 @@ public class Experiment {
         ExperimentService experimentService = (ExperimentService) context.getBean("experimentService");
 
         ExperimentDataType defaultExpDType= experimentService.findExperimentDataTypeById(defaultExpDataType);
-        defaultExpDType.setExperimentId(this);
+        if(defaultExpDType != null)
+            defaultExpDType.setExperimentId(this);
     }
 
     public List<Run> getIdRunList() {

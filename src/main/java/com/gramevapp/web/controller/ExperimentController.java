@@ -895,6 +895,29 @@ public class ExperimentController {
         return "/user/experiment/showDiagramPlot";
     }
 
+    @RequestMapping(value="/user/experiment/expRepoSelected", method=RequestMethod.POST, params="deleteDataType")
+    public
+    @ResponseBody Long deleteExpDataType(@RequestParam("expDataTypeId") String expDataTypeId){
+        Boolean found = false;
+
+        Long longExpDataTypeId = Long.parseLong(expDataTypeId);
+        ExperimentDataType expDataType = experimentService.findExperimentDataTypeById(longExpDataTypeId);
+
+        List<ExperimentDataType> lExpDataType = expDataType.getExperimentId().getIdExpDataTypeList();
+        Iterator<ExperimentDataType> expDataIt = lExpDataType.iterator();
+        while(expDataIt.hasNext() && !found) {
+            ExperimentDataType expDataAux = expDataIt.next();
+            if (expDataAux.getId().longValue() == expDataType.getId().longValue()) {
+                if(expDataAux.getId().longValue() == expDataType.getExperimentId().getDefaultExpDataType().longValue())
+                    expDataType.getExperimentId().setDefaultExpDataType(Long.parseLong("0"));
+                expDataAux.setExperimentId(null);
+                found = true;
+            }
+        }
+
+        return longExpDataTypeId;
+    }
+
     @RequestMapping(value="/user/experiment/expRepoSelected", method=RequestMethod.POST, params="deleteRun")
     public
     @ResponseBody Long deleteRun(@RequestParam("runId") String runId){
@@ -911,21 +934,8 @@ public class ExperimentController {
             if (grammarAux.getId().longValue() == run.getDefaultGrammarId().longValue()) {
                 grammarAux.setExperimentId(null);
 
-                if(grammarAux.getId() == experiment.getDefaultGrammar())
+                if(grammarAux.getId().longValue() == experiment.getDefaultGrammar().longValue())
                     experiment.setDefaultRunId(Long.parseLong("0"));
-                found = true;
-            }
-        }
-        found = false;
-
-        List<ExperimentDataType> lExpDataType = experiment.getIdExpDataTypeList();
-        Iterator<ExperimentDataType> expDataIt = lExpDataType.iterator();
-        while(expDataIt.hasNext() && !found) {
-            ExperimentDataType expDataAux = expDataIt.next();
-            if (expDataAux.getId().longValue() == run.getDefaultExpDataTypeId().longValue()) {
-                expDataAux.setExperimentId(null);
-                if(expDataAux.getId() == experiment.getDefaultExpDataType())
-                    experiment.setDefaultExpDataType(Long.parseLong("0"));
                 found = true;
             }
         }
@@ -938,7 +948,7 @@ public class ExperimentController {
             if(runAux.getId().longValue() == run.getId().longValue()) {
                 runAux.setExperimentId(null);
 
-                if(runAux.getId() == experiment.getDefaultRunId())
+                if(runAux.getId().longValue() == experiment.getDefaultRunId().longValue())
                     experiment.setDefaultRunId(Long.parseLong("0"));
                 found = true;
             }
