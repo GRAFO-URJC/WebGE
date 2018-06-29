@@ -45,9 +45,9 @@ public class DiagramDataService {
         diagramPairRepository.save(diagramPair);
     }
 
-    /*public void deleteAllByDiagramId(DiagramData diagramDataId){
-        diagramPairRepository.deleteDiagramPairList(diagramDataId.getId());
-    }*/
+    public void deleteDiagram(DiagramData diagramDataId){
+        diagramRepository.delete(diagramDataId);
+    }
 
     public void flushDiagramData() {
         diagramRepository.flush();

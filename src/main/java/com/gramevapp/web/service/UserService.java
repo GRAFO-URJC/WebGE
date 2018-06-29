@@ -119,6 +119,7 @@ public class UserService {
     }
 
     public User save(User s) {
+        userDetailsRepository.save(s.getUserDetails());
         return userRepository.save(s);
     }
 
@@ -139,5 +140,9 @@ public class UserService {
 
     public void updateProfilePicture(User user, String profilePicture) {
         this.userRepository.updateFilePath(user.getUsername(), profilePicture);
+    }
+
+    public void updateUser(){
+        this.userRepository.flush();
     }
 }

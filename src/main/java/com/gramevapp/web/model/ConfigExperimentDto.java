@@ -18,7 +18,7 @@ public class ConfigExperimentDto {
     private String experimentName;
     @Pattern(regexp = PATTERN, message = "Experiment description cannot contain strange characters")
     private String experimentDescription;
-    @Min(value=0)
+    @Min(value=100)
     @Max(value=100000)
     @NotNull
     private Integer generations = 1000;

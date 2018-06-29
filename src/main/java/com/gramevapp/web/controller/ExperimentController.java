@@ -92,7 +92,7 @@ public class ExperimentController {
 
     @GetMapping("/user/experiment/redirectConfigExperiment")
     public String redirectViewConfigExperiment(Model model,
-                                   @ModelAttribute("idRun") String idRun){
+                                               @ModelAttribute("idRun") String idRun){
 
         User user = userService.getLoggedInUser();
         if(user == null){
@@ -134,8 +134,8 @@ public class ExperimentController {
 
     @RequestMapping(value="/user/experiment/start", method=RequestMethod.POST, params="saveExperimentButton")
     public String saveExperiment(Model model,
-                                @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
-                                BindingResult result) throws IllegalStateException {
+                                 @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
+                                 BindingResult result) throws IllegalStateException {
 
         if (result.hasErrors()) {
             model.addAttribute("configuration", configExpDto);
@@ -192,11 +192,8 @@ public class ExperimentController {
         updExpDataType.setDataTypeDescription(configExpDto.getDataTypeDescription());
 
         experimentService.saveGrammar(updGrammar);
-        experimentService.updateGrammar();
         experimentService.saveDataType(updExpDataType);
-        experimentService.updataExpDataType();
         runService.saveRun(updRun);
-        runService.updateRun();
 
         configExpDto = fillConfigExpDto(configExpDto, updRun.getExperimentId(), updRun, updGrammar, updExpDataType);
 
@@ -255,7 +252,6 @@ public class ExperimentController {
         // GRAMMAR SECTION
         Grammar grammar = experimentService.saveGrammar(new Grammar());
         grammar = grammarSection(grammar, grammarDto);
-        experimentService.updateGrammar();
 
         // DATE TIMESTAMP
         Calendar calendar = Calendar.getInstance();
@@ -264,7 +260,6 @@ public class ExperimentController {
         // RUN SECTION
         Run run = runService.saveRun(new Run());
         runSection(run, grammar, configExpDto, currentTimestamp);
-        runService.updateRun();
 
         // Experiment Data Type SECTION
         ExperimentDataType expDataType;
@@ -295,7 +290,6 @@ public class ExperimentController {
         ExpPropertiesDto propertiesDto = new ExpPropertiesDto(user, 0.0, configExpDto.getTournament(), 0, configExpDto.getCrossoverProb(), grammarFilePath, 0, 1, configExpDto.getMutationProb(), false, 1, configExpDto.getNumCodons(), configExpDto.getPopulationSize(), configExpDto.getGenerations(), false, configExpDto.getMaxWraps(), 500, configExpDto.getExperimentName(), configExpDto.getExperimentDescription());
 
         experimentService.saveExperiment(exp);
-        experimentService.updateExperiment();  // Update exp
 
         // Reader - FILE DATA TYPE - Convert MultipartFile into Generic Java File - Then convert it to Reader
         String dataTypeDirectoryPath = DATATYPE_DIR_PATH;
@@ -375,9 +369,9 @@ public class ExperimentController {
 
         propertiesReader.close();
 
-        DiagramData diagramData = diagramDataService.saveDiagram(new DiagramData());
-        diagramDataService.flushDiagramData();
+        DiagramData diagramData = new DiagramData();
         diagramData.setRunId(run);
+        diagramDataService.saveDiagram(diagramData);
 
         // Run experiment in new thread
         runExperimentDetails(user, run, run.getDiagramData());
@@ -444,20 +438,49 @@ public class ExperimentController {
         Iterator<Run> listRunIt = expConfig.getIdRunList().iterator();
         while(listRunIt.hasNext()) {
             Run runIt = listRunIt.next();
-            Run run = runService.findByRunId(runIt.getId());
-            Long threadId = run.getThreaId();
+            Long threadId = runIt.getThreaId();
             // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
             Thread th = threadMap.get(threadId);
             if(th != null) {
+                runIt.getDiagramData().setStopped(true);
+                runIt.setStatus(Run.Status.STOPPED);
+
+                Iterator<DiagramPair> it = runIt.getDiagramData().getListPair().iterator();
+                ArrayList<DiagramPair> lPairAux = new ArrayList<>();
+                while(it.hasNext()){
+                    DiagramPair value = it.next();
+                    it.remove();
+                    lPairAux.add(value);
+                }
+                runIt.getDiagramData().getListPair().removeAll(lPairAux);
+                diagramDataService.saveDiagram(runIt.getDiagramData());
+                runService.saveRun(runIt);
+
                 th.interrupt();
                 runnables.get(threadId).stopExecution();
             }
-
+            listRunIt.remove();
+            runIt.setExperimentId(null);
+            runIt.getDiagramData().setRunId(null);
             experimentService.deleteExpProperties(experimentService.findPropertiesById(runIt.getIdProperties()));
+            diagramDataService.deleteDiagram(runIt.getDiagramData());
+        }
+
+        Iterator<Grammar> listGrammarIt = expConfig.getIdGrammarList().iterator();
+        while(listGrammarIt.hasNext()) {
+            Grammar grammarIt = listGrammarIt.next();
+            listGrammarIt.remove();
+            grammarIt.setExperimentId(null);
+        }
+
+        Iterator<ExperimentDataType> listDataTypeIt = expConfig.getIdExpDataTypeList().iterator();
+        while(listDataTypeIt.hasNext()) {
+            ExperimentDataType expData = listDataTypeIt.next();
+            listDataTypeIt.remove();
+            expData.setExperimentId(null);
         }
 
         experimentService.deleteExperiment(expConfig);
-
         return idExp;
     }
 
@@ -496,7 +519,7 @@ public class ExperimentController {
 
     @GetMapping(value="/user/experiment/runList", params="runExperimentButton")
     public String runExperiment(Model model,
-                          @RequestParam(value = "runId") String runId) throws IOException {
+                                @RequestParam(value = "runId") String runId) throws IOException {
 
         User user = userService.getLoggedInUser();
         if(user == null){
@@ -560,7 +583,7 @@ public class ExperimentController {
 
     @GetMapping(value="/user/experiment/runList", params="showPlotExecutionButton")
     public String showPlotExecutionExperiment(Model model,
-                                @RequestParam(value = "runId") String runId) {
+                                              @RequestParam(value = "runId") String runId) {
 
         User user = userService.getLoggedInUser();
         if(user == null){
@@ -674,7 +697,7 @@ public class ExperimentController {
         else {
             propertiesWriter.println("TrainingPath=" + propertiesDto.getTrainingPath().substring(2, propertiesDto.getTrainingPath().length()).replace("\\", "/"));
             propertiesWriter.println("TestPath=" + propertiesDto.getTestPath().substring(2, propertiesDto.getTestPath().length()).replace("\\", "/"));
-                                                                                   // ("\\", "/")
+            // ("\\", "/")
         }
         propertiesWriter.close();
     }
@@ -801,7 +824,7 @@ public class ExperimentController {
                     configExpDto.getPopulationSize(), configExpDto.getMaxWraps(), configExpDto.getTournament(), configExpDto.getCrossoverProb(), configExpDto.getMutationProb(),
                     configExpDto.getInitialization(), configExpDto.getResults(), configExpDto.getNumCodons(), configExpDto.getNumberRuns(), configExpDto.getObjective() ,currentTimestamp, currentTimestamp);
             exp.setDefaultRunId(longDefaultRunId);          // Doesn't exists -> We set up the run id obtained before
-            user.getUserDetails().addExperiment(exp);       // We add it only if doesn't exist
+            user.addExperiment(exp);       // We add it only if doesn't exist
 
         }
         else {  // The experiment data type configuration already exist
@@ -948,17 +971,17 @@ public class ExperimentController {
         while(runIt.hasNext() && !found){
             Run runAux = runIt.next();
             if(runAux.getId().longValue() == run.getId().longValue()) {
+                runAux.getDiagramData().setRunId(null);
+                diagramDataService.deleteDiagram(runAux.getDiagramData());
                 runAux.setExperimentId(null);
-
                 if(runAux.getId().longValue() == experiment.getDefaultRunId().longValue())
                     experiment.setDefaultRunId(Long.parseLong("0"));
                 found = true;
             }
         }
 
-        experimentService.saveExperiment(experiment);
-        experimentService.updateExperiment();
-        runService.deleteExpProperties(experimentService.findPropertiesById(run.getIdProperties()));
+        if(experimentService.findPropertiesById(run.getIdProperties()) != null)
+            runService.deleteExpProperties(experimentService.findPropertiesById(run.getIdProperties()));
 
         return longRunId;
     }

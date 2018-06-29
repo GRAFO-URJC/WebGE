@@ -144,7 +144,7 @@
                                     <div class="col-sm-12 col-md-6 col-lg-4">
                                         <label for="generations">Generations:</label>
                                         <div th:classappend="${#fields.hasErrors('generations')}? 'has-error':'generations error'">
-                                            <input type="number" class="text-center" th:min="0" th:value="${configuration.getGenerations()}" name="generations" id="generations"/>
+                                            <input type="number" class="text-center" th:min="100" th:value="${configuration.getGenerations()}" name="generations" id="generations"/>
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-md-6 col-lg-4">

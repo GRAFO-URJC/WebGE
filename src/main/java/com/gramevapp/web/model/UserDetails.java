@@ -44,22 +44,16 @@ public class UserDetails{
     @Column
     private String aboutMe =" ";
 
-    @JsonBackReference
-    @OneToMany(fetch=FetchType.LAZY,
-            mappedBy = "userId",
-            targetEntity=Experiment.class,
-            orphanRemoval = true)
-    private List<Experiment> listExperiments;
+
 
     @JoinColumn(name = "PROFILE_PICTURE_ID", unique = true)
     @OneToOne(cascade = CascadeType.ALL)
     private UploadFile profilePicture;
 
-    public UserDetails(){
-        this.listExperiments = new ArrayList<>();
+    public UserDetails() {
     }
 
-    public UserDetails(User user, String firstName, String lastName, Integer phone, String addressDirection, String city, String state, Integer zipcode, String studyInformation, String workInformation, String aboutMe, List<Experiment> listExperiments, UploadFile profilePicture) {
+    public UserDetails(User user, String firstName, String lastName, Integer phone, String addressDirection, String city, String state, Integer zipcode, String studyInformation, String workInformation, String aboutMe, UploadFile profilePicture) {
         this.user = user;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -71,7 +65,6 @@ public class UserDetails{
         this.studyInformation = studyInformation;
         this.workInformation = workInformation;
         this.aboutMe = aboutMe;
-        this.listExperiments = listExperiments;
         this.profilePicture = profilePicture;
     }
 
@@ -163,26 +156,12 @@ public class UserDetails{
         this.aboutMe = aboutMe;
     }
 
-    public List<Experiment> getListExperiments() {
-        return listExperiments;
-    }
-
-    public void setListExperiments(List<Experiment> listExperiments) {
-        this.listExperiments = listExperiments;
-    }
-
     public UploadFile getProfilePicture() {
         return profilePicture;
     }
 
     public void setProfilePicture(UploadFile profilePicture) {
         this.profilePicture = profilePicture;
-    }
-
-    public Experiment addExperiment(Experiment experiment) {
-        this.listExperiments.add(experiment);
-        experiment.setUserId(this.user);
-        return experiment;
     }
 
     public User getUser() {
