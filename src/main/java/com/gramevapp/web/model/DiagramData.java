@@ -95,7 +95,8 @@ public class DiagramData {
 
     public void setRunId(Run run) {
         this.runId = run;
-        run.setDiagramData(this);
+        if(run != null)
+            run.setDiagramData(this);
     }
 
     public Integer getCurrentGeneration() {
@@ -151,6 +152,10 @@ public class DiagramData {
             return ;
         this.listPair.add(diagramPair);
         diagramPair.setDiagramData(this);
+    }
+
+    public void setListPair(List<DiagramPair> listPair) {
+        this.listPair = listPair;
     }
 
     public void removeListPair(DiagramPair diagramPair) {

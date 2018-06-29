@@ -1,6 +1,7 @@
 package com.engine.algorithm;
 
 import com.gramevapp.web.model.DiagramData;
+import com.gramevapp.web.model.DiagramPair;
 import com.gramevapp.web.model.Run;
 
 import java.util.Properties;
