@@ -10,7 +10,6 @@ import java.util.List;
 
 @Repository
 public interface GrammarRepository extends JpaRepository<Grammar, Long> {
-    Grammar findById(Long id);
     Grammar findGrammarById(Long grammarId);
     List<Grammar> findAllByExperimentId(Experiment experimentId);
 }

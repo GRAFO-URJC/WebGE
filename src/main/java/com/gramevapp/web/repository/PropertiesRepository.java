@@ -6,6 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PropertiesRepository extends JpaRepository<ExpProperties, Long> {
-    ExpProperties findById(Long id);
     ExpProperties findByIdExpAndIdRun(Long idExp, Long idRun);
 }

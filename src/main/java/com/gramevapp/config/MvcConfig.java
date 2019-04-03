@@ -23,10 +23,10 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
     @Bean(name = "dataSource")
     public DriverManagerDataSource dataSource() {
         DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource();
-        driverManagerDataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        driverManagerDataSource.setUrl("jdbc:mysql://localhost:3306/test?autoReconnect=true&useSSL=false");
-        driverManagerDataSource.setUsername("root");
-        driverManagerDataSource.setPassword("1234");
+        driverManagerDataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        driverManagerDataSource.setUrl("jdbc:mysql://localhost:3306/webge?autoReconnect=true&useSSL=false&serverTimezone=UTC");
+        driverManagerDataSource.setUsername("usuario");
+        driverManagerDataSource.setPassword("01234");
         return driverManagerDataSource;
     }
 
