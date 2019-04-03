@@ -11,6 +11,5 @@ import java.util.List;
 
 @Repository
 public interface DiagramDataRepository extends JpaRepository<DiagramData, Long> {
-    DiagramData findById(Long id);
     DiagramData findByRunId(Run runId);
 }

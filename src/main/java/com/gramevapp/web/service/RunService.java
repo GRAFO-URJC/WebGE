@@ -25,7 +25,7 @@ public class  RunService {
     }
 
     public Run findByRunId(Long runId){
-        return runRepository.findById(runId);
+        return runRepository.findById(runId).get();
     }
 
     public List<Run> findAllByExperiment(Experiment exp){

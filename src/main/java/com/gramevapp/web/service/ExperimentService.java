@@ -108,20 +108,20 @@ public class ExperimentService {
     }
 
     public ExperimentDataType findDataTypeById(Long dataTypeId){
-        return experimentDataTypeRepository.findById(dataTypeId);
+        return experimentDataTypeRepository.findById(dataTypeId).get();
     }
 
     public Experiment findExperimentById(Long id)
     {
-        return experimentRepository.findById(id);
+        return experimentRepository.findById(id).get();
     }
 
     public ExperimentDataType findExperimentDataTypeById(Long id){
-        return experimentDataTypeRepository.findById(id);
+        return experimentDataTypeRepository.findById(id).get();
     }
 
     public ExpProperties findPropertiesById(Long propertiesId){
-        return propertiesRepository.findById(propertiesId);
+        return propertiesRepository.findById(propertiesId).get();
     }
 
     public ExpProperties findPropertiesByExpIdAndRunId(Long expId, Long runId){

@@ -6,6 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ExperimentRowTypeRepository extends JpaRepository<ExperimentRowType, Long> {
-    ExperimentRowType findById(Long id);    // Id of the row
     ExperimentRowType save(ExperimentRowType expRowType);
 }

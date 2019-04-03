@@ -107,7 +107,7 @@ public class UserService {
     }
 
     public User getById(Long id) {
-        return userRepository.findOne(id);
+        return userRepository.findById(id).get();
     }
 
     //@Override
