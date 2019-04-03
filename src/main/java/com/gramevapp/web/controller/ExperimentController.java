@@ -58,7 +58,10 @@ public class ExperimentController {
         }
 
         // WE NEED TO ADD HERE THE EXPERIMENT INFO TO SEND IT TO configExperiment
-        Experiment expConfig = experimentService.findExperimentById(configExpDto.getId());
+        Experiment expConfig = null;
+        if (configExpDto.getId() != null) {
+            expConfig = experimentService.findExperimentById(configExpDto.getId());
+        }
         Grammar grammarDto;
         ExperimentDataType expDataTypeDto;
         List<Run> runList;
