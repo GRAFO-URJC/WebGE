@@ -151,13 +151,15 @@ public class ExperimentController {
             return "redirect:/login";
         }
 
-        Run updRun = runService.findByRunId(configExpDto.getDefaultRunId());
-        if(updRun == null) { // Do not update nothing
+        Long runId = configExpDto.getDefaultRunId();
+        if(runId == null) { // Do not update nothing
             model.addAttribute("messageSave", "To save the experiment, first you need to create one");
             model.addAttribute("configuration", configExpDto);
             model.addAttribute("expConfig", configExpDto);
             return "/user/experiment/configExperiment";
         }
+
+        Run updRun = runService.findByRunId(runId);
 
         // DATE TIMESTAMP
         Calendar calendar = Calendar.getInstance();
@@ -280,8 +282,12 @@ public class ExperimentController {
         run.setDefaultExpDataTypeId(expDataType.getId());
         // END - Experiment Data Type SECTION
 
-        // Experiment section
-        Experiment exp = experimentService.findExperimentById(configExpDto.getId());
+        // Experiment section:
+
+        Experiment exp = null;
+        if (configExpDto.getId() != null) {
+            experimentService.findExperimentById(configExpDto.getId());
+        }
         exp = experimentSection(exp, user, expDataType, configExpDto, grammar, run, currentTimestamp, run.getId());
         // END - Experiment section
 
