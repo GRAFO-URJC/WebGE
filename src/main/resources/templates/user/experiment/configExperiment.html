@@ -552,6 +552,13 @@
         }, false);
     </script>
     <script>
+        function saveTextAsFileif(){
+            if (document.getElementById("fileText").value == '') {
+                alert("Grammar Empty");
+            }else{
+                saveTextAsFile();
+            }
+        }
         // Download grammar text area file
         function saveTextAsFile() {
             var textToWrite = document.getElementById('fileText').value;
@@ -577,7 +584,7 @@
         }
 
         var button = document.getElementById('downloadGrammarButton');
-        button.addEventListener('click', saveTextAsFile);
+        button.addEventListener('click', saveTextAsFileif);
 
         function destroyClickedElement(event) {
             // remove the link from the DOM
