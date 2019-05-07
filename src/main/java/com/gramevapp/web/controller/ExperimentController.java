@@ -1035,11 +1035,14 @@ public class ExperimentController {
         configExpDto.setDefaultExpDataTypeId(exp.getDefaultExpDataType());
         configExpDto.setDefaultGrammarId(exp.getDefaultGrammar());
 
+
         configExpDto.setGrammarName(grammar.getGrammarName());
         configExpDto.setGrammarDescription(grammar.getGrammarDescription());
         configExpDto.setFileText(grammar.getFileText());
 
         configExpDto.setDataTypeName(expDataType.getDataTypeName());
+                configExpDto.setinfo(expDataType.getinfo());
+
         configExpDto.setDataTypeDescription(expDataType.getDataTypeDescription());
 
         return configExpDto;

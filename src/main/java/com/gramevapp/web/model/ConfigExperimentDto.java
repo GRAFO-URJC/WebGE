@@ -68,6 +68,8 @@ public class ConfigExperimentDto {
     private String dataTypeName;
     @Pattern(regexp = PATTERN, message = "Data type file description cannot contain strange characters")
     private String dataTypeDescription; // status
+
+    private String info;
     @NotEmpty(message = "Choose one data type option")
     private String dataTypeType = "training";   // Validation, test, training
 
@@ -263,6 +265,13 @@ public class ConfigExperimentDto {
         this.dataTypeName = dataTypeName;
     }
 
+    public String getinfo() {
+        return info;
+    }
+
+    public void setinfo(String info) {
+        this.info = info;
+    }
     public String getDataTypeDescription() {
         return dataTypeDescription;
     }
