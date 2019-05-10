@@ -42,14 +42,14 @@ public class ExperimentDataTypeDto {
         this.dataTypeName = dataTypeName;
     }
 
-     public String getinfo() {
+    public String getinfo() {
         return info;
     }
 
     public void setinfo(String info) {
         this.info = info;
-
     }
+
     public String getDataTypeDescription() {
         return dataTypeDescription;
     }

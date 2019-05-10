@@ -364,8 +364,9 @@
                                 <!-- END Data Type table to load -->
 
                                 <div class="row form-group text-center">
-                                    <textarea id="fileText2" th:text="${configuration.getinfo()}"  />
+                                    <textarea th:text="${configuration.getinfo()}" name="info" id="info"/>
                                     <div class="col-sm-12 col-md-12 col-lg-12">
+                                        
                                         <a name="downloadTypeButton" id="downloadTypeButton" class="btn-default btn-sm btn">Download data type file</a>
                                     </div>
                                 </div>
@@ -506,7 +507,6 @@
                                                     <span class="glyphicon glyphicon-chevron-right">
                                                         Mutation probability:
                                                         <label th:text="${run.getMutationProb()}"></label>
-
                                                     </span>
                                                 </li>
                                                 <li>
@@ -552,7 +552,22 @@
             console.log("Filename: " + control.files[0].name);
             reader.readAsText(control.files[0]);
         }, false);
-    </script><script>
+
+         var ctrl = document.getElementById("typeFile");
+        ctrl.addEventListener("change", function(eve){
+            var read = new FileReader();
+            read.onload = function(eve){
+                var cont = eve.target.result;
+                document.getElementById('info').value = cont;
+            };
+            read.onerror = function(eve){
+                console.error("File could not be read! Code " + eve.target.error.code);
+            };
+            console.log("Filename: " + ctrl.files[0].name);
+            read.readAsText(ctrl.files[0]);
+        }, false);
+    </script>
+    <script>
         function saveTextAsFileif(){
             if (document.getElementById("fileText").value == '') {
                 alert("Grammar Empty");
@@ -561,7 +576,7 @@
             }
         }
         // Download grammar text area file
-        function saveTextAsFile2() {
+        function saveTextAsFile() {
             var textToWrite = document.getElementById('fileText').value;
             var textFileAsBlob = new Blob([ textToWrite ], { type: 'text/plain' });
             var fileNameToSaveAs =  document.getElementById('grammarName').value;
@@ -591,24 +606,22 @@
             // remove the link from the DOM
             document.body.removeChild(event.target);
         }
-    </script>
 
-    <script>
-        function saveTextAsFileif(){
-            if (document.getElementById("fileText").value == '') {
-                alert("Grammar Empty");
+         function saveTextAsFileif2(){
+            if (document.getElementById("info").value == '') {
+                alert("data type Empty");
             }else{
                 saveTextAsFile();
             }
         }
         // Download grammar text area file
-        function saveTextAsFile() {
-            var textToWrite = document.getElementById('fileText2').value;
+        function saveTextAsFile2() {
+            var textToWrite = document.getElementById('info').value;
             var textFileAsBlob = new Blob([ textToWrite ], { type: 'text/plain' });
             var fileNameToSaveAs =  document.getElementById('dataTypeName').value;
 
             var downloadLink = document.createElement("a");
-            downloadLink.download = fileNameToSaveAs+".csv";
+            downloadLink.download = fileNameToSaveAs+".cvs";
             downloadLink.innerHTML = "Download File";
 
             if (window.webkitURL != null) {
@@ -626,7 +639,7 @@
         }
 
         var button = document.getElementById('downloadTypeButton');
-        button.addEventListener('click', saveTextAsFile);
+        button.addEventListener('click', saveTextAsFileif2);
 
         function destroyClickedElement(event) {
             // remove the link from the DOM
