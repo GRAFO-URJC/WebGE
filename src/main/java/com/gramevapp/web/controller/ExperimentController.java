@@ -195,6 +195,8 @@ public class ExperimentController {
         ExperimentDataType updExpDataType = experimentService.findExperimentDataTypeById(updRun.getDefaultExpDataTypeId());
         updExpDataType.setDataTypeName(configExpDto.getDataTypeName());
         updExpDataType.setDataTypeDescription(configExpDto.getDataTypeDescription());
+        updExpDataType.setinfo(configExpDto.getinfo());
+
 
         experimentService.saveGrammar(updGrammar);
         experimentService.saveDataType(updExpDataType);
@@ -815,6 +817,7 @@ public class ExperimentController {
     public ExperimentDataType experimentDataTypeSection(FileModelDto fileModelDto, ExperimentDataType expDataType, ExperimentDataTypeDto expDataTypeDto, java.sql.Timestamp currentTimestamp) throws IOException {
         if(! fileModelDto.getTypeFile().isEmpty()){
             expDataType.setDataTypeName(expDataTypeDto.getDataTypeName());
+            expDataType.setinfo(expDataTypeDto.getinfo());
             expDataType.setDataTypeDescription(expDataTypeDto.getDataTypeDescription());
             expDataType.setCreationDate(currentTimestamp);
             expDataType.setDataTypeType("training");
@@ -1035,14 +1038,12 @@ public class ExperimentController {
         configExpDto.setDefaultExpDataTypeId(exp.getDefaultExpDataType());
         configExpDto.setDefaultGrammarId(exp.getDefaultGrammar());
 
-
         configExpDto.setGrammarName(grammar.getGrammarName());
         configExpDto.setGrammarDescription(grammar.getGrammarDescription());
         configExpDto.setFileText(grammar.getFileText());
 
         configExpDto.setDataTypeName(expDataType.getDataTypeName());
-                configExpDto.setinfo(expDataType.getinfo());
-
+        configExpDto.setinfo(expDataType.getinfo());
         configExpDto.setDataTypeDescription(expDataType.getDataTypeDescription());
 
         return configExpDto;

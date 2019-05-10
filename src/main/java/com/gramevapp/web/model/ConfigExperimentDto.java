@@ -66,10 +66,10 @@ public class ConfigExperimentDto {
     @NotEmpty(message = "Data type file name cannot be empty")
     @Pattern(regexp = PATTERN, message = "Data type file name cannot contain strange characters")
     private String dataTypeName;
+    @NotEmpty(message = "Grammar area text cannot be empty")
+    private String info;
     @Pattern(regexp = PATTERN, message = "Data type file description cannot contain strange characters")
     private String dataTypeDescription; // status
-
-    private String info;
     @NotEmpty(message = "Choose one data type option")
     private String dataTypeType = "training";   // Validation, test, training
 
@@ -272,6 +272,7 @@ public class ConfigExperimentDto {
     public void setinfo(String info) {
         this.info = info;
     }
+
     public String getDataTypeDescription() {
         return dataTypeDescription;
     }

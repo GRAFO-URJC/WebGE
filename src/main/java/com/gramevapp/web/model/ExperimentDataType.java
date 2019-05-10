@@ -78,13 +78,11 @@ public class ExperimentDataType {
         this(eDType.getExperimentId(), eDType.getRunId(), eDType.getDataTypeName(), eDType.getinfo(), eDType.getDataTypeDescription(), eDType.getDataTypeType(), eDType.getCreationDate(), eDType.getModificationDate(), eDType.getHeader(), eDType.getListRowsFile());
     }
 
-
-
     public ExperimentDataType(){
         this.listRowsFile = new ArrayList<>();
     }
 
-    public ExperimentDataType(Experiment experimentId, Long runId, String dataTypeName,String info, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, List<String> header, List<ExperimentRowType> listRowsFile) {
+    public ExperimentDataType(Experiment experimentId, Long runId, String dataTypeName, String info, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, List<String> header, List<ExperimentRowType> listRowsFile) {
         this.experimentId = experimentId;
         this.runId = runId;
         this.dataTypeName = dataTypeName;
@@ -188,12 +186,11 @@ public class ExperimentDataType {
         this.dataTypeName = dataTypeName;
     }
 
-
     public String getinfo() {
         return info;
     }
 
-    public void getinfo(String info) {
+    public void setinfo(String info) {
         this.info = info;
     }
 
