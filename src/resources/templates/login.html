@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <link rel="stylesheet" th:href="@{/assets/dist/css/bootstrap.css}" />
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+        <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+
+        <title>Login</title>
+    </head>
+    <body>
+
+
+        <!-- Header -->
+        <header class="navbar navbar-default navbar-static-top" id="header">
+            <div class="container">
+
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".header-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" th:href="@{/}">WebGE <i>by URJC</i></a>
+                </div>
+
+                <div class="collapse navbar-collapse header-collapse">
+                    <ul sec:authorize="isAuthenticated()" class="nav navbar-nav">
+                        <li><a th:href="@{/}"><span class="glyphicon glyphicon-home" rel="tooltip" title="Home page"></span></a></li>
+                        <li><a th:href="@{/user/experiment/configExperiment}" rel="tooltip" title="New experiment"><span class="glyphicon glyphicon glyphicon-plus-sign"></span></a></li>
+                        <li><a th:href="@{/user/experiment/experimentRepository}" rel="tooltip" title="List of experiments"><span class="glyphicon glyphicon-th-list"></span></a></li>
+                        <li><a th:href="@{/user/profile}" rel="tooltip" title="User profile"><span class="glyphicon glyphicon-user"></span></a></li>
+                    </ul>
+
+                    <p sec:authorize="isAuthenticated()" class="navbar-text navbar-right btn-sm btn btn-default"><a  th:href="@{/logout}" rel="tooltip" title="Log out"><span class="glyphicon glyphicon-off"></span></a></p>
+                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn-sm btn btn-default"><a th:href="@{/registration}" rel="tooltip" title="Register"><span class="glyphicon glyphicon-list-alt"></span></a></p>
+                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn-sm btn btn-default"><a th:href="@{/user}"><span class="glyphicon glyphicon-log-in" rel="tooltip" title="Log in"></span></a></p>
+                </div>
+            </div>
+        </header>
+        <!-- END Header -->
+
+        <!-- Main -->
+        <div class="container">
+            <div id="forms" class="panel panel-default">
+                <header class="panel-heading">
+                    <h2>Login Area </h2>
+                </header>
+
+                <section class="panel-body center-block text-center" style="width: 330px;">
+                    <form th:action="@{/login}" method="post">
+                        <div th:if="${param.error}">
+                            <div class="alert alert-danger">
+                                Invalid username or password.
+                            </div>
+                        </div>
+                        <div th:if="${param.logout}">
+                            <div class="alert alert-info">
+                                You have been logged out.
+                            </div>
+                        </div>
+                        <div th:if="${message}" class="alert alert-info">
+                            <label th:text="${message}"></label>
+                        </div>
+
+                        <div class="form-group col-lg-12">
+                            <label class="control-label h3" for="username">Username:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                                <input type="text"
+                                       class="text-center"
+                                       id="username"
+                                       name="username"
+                                       autofocus="autofocus"
+                                       placeholder="Username"
+                                       style="width: 250px;  padding-right: 40px;"/>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-lg-12">
+                            <label class="control-label h3" for="password">Password:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                                <input type="password"
+                                       class="text-center"
+                                       id="password"
+                                       name="password"
+                                       placeholder="Password"
+                                       style="width: 250px; padding-right: 40px;"/>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 text-center">
+                            <input type="submit" class="btn-primary btn-lg btn" name="login-submit" id="login-submit" value="Log In" />
+                        </div>
+
+                        <div class="col-lg-12 text-center h4">
+                            <br/>
+                            <p><a th:href="@{/registration}">Sign in</a></p>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+        <!-- END Main -->
+
+        <script>
+            $(document).ready(function(){
+                $("[rel=tooltip]").tooltip({ placement: 'right'});
+            });
+        </script>
+
+    </body>
+</html>
