@@ -39,6 +39,9 @@ public class ExperimentDataType {
     private String dataTypeName;
 
     @Column
+    private String info;
+
+    @Column
     private String dataTypeDescription;
 
     @Column
@@ -72,17 +75,18 @@ public class ExperimentDataType {
      * Copy constructor.
      */
     public ExperimentDataType(ExperimentDataType eDType) {
-        this(eDType.getExperimentId(), eDType.getRunId(), eDType.getDataTypeName(), eDType.getDataTypeDescription(), eDType.getDataTypeType(), eDType.getCreationDate(), eDType.getModificationDate(), eDType.getHeader(), eDType.getListRowsFile());
+        this(eDType.getExperimentId(), eDType.getRunId(), eDType.getDataTypeName(), eDType.getinfo(), eDType.getDataTypeDescription(), eDType.getDataTypeType(), eDType.getCreationDate(), eDType.getModificationDate(), eDType.getHeader(), eDType.getListRowsFile());
     }
 
     public ExperimentDataType(){
         this.listRowsFile = new ArrayList<>();
     }
 
-    public ExperimentDataType(Experiment experimentId, Long runId, String dataTypeName, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, List<String> header, List<ExperimentRowType> listRowsFile) {
+    public ExperimentDataType(Experiment experimentId, Long runId, String dataTypeName, String info, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, List<String> header, List<ExperimentRowType> listRowsFile) {
         this.experimentId = experimentId;
         this.runId = runId;
         this.dataTypeName = dataTypeName;
+        this.info = info;
         this.dataTypeDescription = dataTypeDescription;
         this.dataTypeType = dataTypeType;
         this.creationDate = creationDate;
@@ -91,8 +95,9 @@ public class ExperimentDataType {
         this.listRowsFile = listRowsFile;
     }
 
-    public ExperimentDataType(Experiment exp, String dataTypeName, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate) {
+    public ExperimentDataType(Experiment exp, String dataTypeName, String info, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate) {
         this.dataTypeName = dataTypeName;
+        this.info = info;
         this.dataTypeDescription = dataTypeDescription;
         this.dataTypeType = dataTypeType;
         this.creationDate = creationDate;
@@ -101,8 +106,9 @@ public class ExperimentDataType {
         this.experimentId = exp;
     }
 
-    public ExperimentDataType(String dataTypeName, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, ArrayList<ExperimentRowType> listRowsFile) {
+    public ExperimentDataType(String dataTypeName, String info, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, ArrayList<ExperimentRowType> listRowsFile) {
         this.dataTypeName = dataTypeName;
+        this.info = info;
         this.dataTypeDescription = dataTypeDescription;
         this.dataTypeType = dataTypeType;
         this.creationDate = creationDate;
@@ -178,6 +184,14 @@ public class ExperimentDataType {
 
     public void setDataTypeName(String dataTypeName) {
         this.dataTypeName = dataTypeName;
+    }
+
+    public String getinfo() {
+        return info;
+    }
+
+    public void setinfo(String info) {
+        this.info = info;
     }
 
     public String getDataTypeDescription() {
