@@ -1,0 +1,5 @@
+To open "list of existing experiments", "http://localhost:8181/user/experiment/experimentRepository".
+
+First we will need to open the SQL and change the table experiment_data_type
+
+And change it with this code: ALTER TABLE `experiment_data_type` ADD `info` LONGTEXT NULL DEFAULT NULL AFTER `data_type_name`; 
