@@ -13,6 +13,8 @@ public class ExperimentDataTypeDto {
     @NotEmpty
     private String dataTypeName;
     @NotEmpty
+    private String info;
+    @NotEmpty
     private String dataTypeDescription; // status
     @NotEmpty
     private Type dataTypeType;        // Validation, test, training
@@ -38,6 +40,14 @@ public class ExperimentDataTypeDto {
 
     public void setDataTypeName(String dataTypeName) {
         this.dataTypeName = dataTypeName;
+    }
+
+    public String getinfo() {
+        return info;
+    }
+
+    public void setinfo(String info) {
+        this.info = info;
     }
 
     public String getDataTypeDescription() {

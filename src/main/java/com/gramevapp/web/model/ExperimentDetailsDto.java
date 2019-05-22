@@ -27,6 +27,7 @@ public class ExperimentDetailsDto {
     private String fileText = " "; // This is the text on the file - That's written in an areaText - So we can take it as a String
 
     private String dataTypeName = " ";
+    private String info = "";
     private String dataTypeDescription = " "; // status
     private String dataTypeType = " ";        // Validation, test, training
 
@@ -291,6 +292,14 @@ public class ExperimentDetailsDto {
 
     public void setDataTypeName(String dataTypeName) {
         this.dataTypeName = dataTypeName;
+    }
+
+    public String getinfo() {
+        return info;
+    }
+
+    public void setinfo(String info) {
+        this.info = info;
     }
 
     public String getDataTypeDescription() {
