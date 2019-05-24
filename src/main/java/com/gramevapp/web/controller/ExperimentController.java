@@ -142,7 +142,7 @@ public class ExperimentController {
 
         if (result.hasErrors()) {
             model.addAttribute("configuration", configExpDto);
-            return "/user/experiment/configExperiment";
+            return "user/experiment/configExperiment";
         }
 
         User user = userService.getLoggedInUser();
@@ -246,7 +246,7 @@ public class ExperimentController {
 
         if(radioDataTypeHidden.equals("on") && fileModelDto.getTypeFile().isEmpty()) {        // Radio button neither file path selected
             result.rejectValue("typeFile", "error.typeFile", "Choose one file");
-            return "/user/experiment/configExperiment";
+            return "user/experiment/configExperiment";
         }
 
         User user = userService.getLoggedInUser();

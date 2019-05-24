@@ -111,7 +111,7 @@ public class UserController {
             model.addAttribute("userStudy", upStudyDto);
             model.addAttribute("userBasicInfo", upBasicDto);
             model.addAttribute("userLogged", user);
-            return "/user/profile";
+            return "user/profile";
         }
         user.setPassword(passwordEncoder.encode(userUpDto.getPassword()));
         userService.save(user);
@@ -153,7 +153,7 @@ public class UserController {
             model.addAttribute("userPassword", upPassDto);
             model.addAttribute("userBasicInfo", upBasicDto);
             model.addAttribute("userLogged", user);
-            return "/user/profile";
+            return "user/profile";
         }
 
         user.getUserDetails().setStudyInformation(userUpDto.getStudyInformation());
@@ -194,7 +194,7 @@ public class UserController {
             model.addAttribute("userPassword", upPassDto);
             model.addAttribute("userStudy", upStudyDto);
             model.addAttribute("userLogged", user);
-            return "/user/profile";
+            return "user/profile";
         }
 
         user.getUserDetails().setFirstName(userUpDto.getFirstName());
