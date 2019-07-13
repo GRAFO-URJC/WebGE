@@ -20,4 +20,4 @@ out/
 .DS_Store
 
 # Temporal storage for files
-resources/
+/resources
