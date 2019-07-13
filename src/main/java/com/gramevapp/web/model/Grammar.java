@@ -6,6 +6,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name="grammar")
@@ -39,6 +40,10 @@ public class Grammar {
     @Column
     private String grammarDescription;
 
+    @Column(name="creationDate")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date creationDate = null;
+
     @Column(columnDefinition = "TEXT") // https://stackoverflow.com/questions/31833337/hibernate-could-not-execute-statement-sql-n-a-saving-nested-object
     private String fileText; // This is the text on the file - That's written in a areaText - So we can take it as a String
 
@@ -49,20 +54,23 @@ public class Grammar {
      * Copy constructor.
      */
     public Grammar(Grammar grammar) {
-        this(grammar.getExperimentId(), grammar.getRunId(), grammar.getGrammarName(), grammar.getGrammarDescription(), grammar.getFileText());
+        this(grammar.getExperimentId(), grammar.getRunId(), grammar.getGrammarName(), grammar.getGrammarDescription(), grammar.getFileText(), grammar.getCreationDate());
         //no defensive copies are created here, since
         //there are no mutable object fields (String is immutable)
     }
 
+    public Date getCreationDate() { return creationDate; }
+
     public Grammar(){
     }
 
-    public Grammar(Experiment experimentId, Long runId, String grammarName, String grammarDescription, String fileText) {
+    public Grammar(Experiment experimentId, Long runId, String grammarName, String grammarDescription, String fileText, Date creationDate) {
         this.experimentId = experimentId;
         this.runId = runId;
         this.grammarName = grammarName;
         this.grammarDescription = grammarDescription;
         this.fileText = fileText;
+        this.creationDate = creationDate;
     }
 
     public Grammar(Experiment exp, String grammarName, String grammarDescription, String fileText) {
@@ -134,4 +142,7 @@ public class Grammar {
     public void setRunId(Long runId) {
         this.runId = runId;
     }
+
+    public void setCreationDate(Date creationDate) { this.creationDate = creationDate;}
+
 }
