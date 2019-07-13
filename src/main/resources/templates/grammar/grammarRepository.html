@@ -99,7 +99,7 @@
                                                 <td scope="row"><label th:name="id" th:id="id" th:text="${gr.id}" id="id" /></td>
                                                 <td scope="row"><label th:name="name" th:id="name" th:text="${gr.grammarName}" id="name" /></td>
                                                 <td scope="row"><label th:name="description" th:id="description" th:text="${gr.grammarDescription}" id="description" /></td>
-                                                <td scope="row"><label th:name="creationDate" th:id="creationDate" text="-" id="creationDate" /></td>
+                                                <td scope="row"><label th:name="creationDate" th:id="creationDate" th:text="${gr.creationDate}" id="creationDate" /></td>
                                                 <td scope="row">
                                                     <a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse" class="accordion-toggle">Display grammar <span class="glyphicon glyphicon-chevron-down"></span> </a>
                                                 </td>
