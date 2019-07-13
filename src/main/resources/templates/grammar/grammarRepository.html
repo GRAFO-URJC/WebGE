@@ -61,6 +61,7 @@
 
                     <p sec:authorize="isAuthenticated()" class="navbar-text navbar-right btn-sm btn btn-default"><a  th:href="@{/logout}" rel="tooltip" title="Log out"><span class="glyphicon glyphicon-off"></span></a></p>
                     <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-sm btn-default"><a th:href="@{/registration}" rel="tooltip" title="Register"><span class="glyphicon glyphicon-list-alt"></span></a></p>
+                    <p sec:authorize="isAuthenticated()" class="navbar-text navbar-right btn btn-sm btn-default" th:text="${user.username}"/>
                     <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-sm btn-default"><a th:href="@{/user}"><span class="glyphicon glyphicon-log-in" rel="tooltip" title="Log in"></span></a></p>
                 </div>
             </div>
@@ -72,16 +73,11 @@
             <div class="row">
                 <div id="forms" class="panel panel-default">
                     <header class="panel-heading">
-                        <h2>Grammars created by <span th:text="${user.username}"></span></h2>
+                        <h2>My Grammars</h2>
                     </header>
 
                     <section class="panel-body center-block">
                         <div th:if="${not #lists.isEmpty(grammarList)}">
-                            <div class="inner-addon left-addon">
-                                <i class="glyphicon glyphicon-search "></i>
-                                <input class="form-control" id="searchExperiment" type="text" placeholder="Search experiment ..." />
-                            </div>
-                            <br/>
                             <table class="table table-hover" id="expRepository">
                                 <thead>
                                     <tr>
@@ -107,7 +103,7 @@
                                                     <button type="submit" th:id="duplicateGrammar" th:name="duplicateGrammar" class="btn-default btn btn-sm">Duplicate</button>
                                                 </td>
                                                 <td scope="row">
-                                                    <button type="button" th:name="${gr.id}" th:id="${'deleteExperiment' + iterStat.index}" onclick="confirmDelete(this.id, this.name)" class="btn-default btn btn-sm"><span class="glyphicon glyphicon-trash small" rel="tooltip" title="Delete experiment"></span></button>
+                                                    <button type="button" th:name="${gr.id}" th:id="${'deleteGrammar' + iterStat.index}" onclick="confirmDelete(this.id, this.name)" class="btn-default btn btn-sm"><span class="glyphicon glyphicon-trash small" rel="tooltip" title="Delete grammar"></span></button>
                                                 </td>
                                             </form>
                                         </tr>
@@ -115,9 +111,7 @@
                                             <td></td>
                                             <td colspan="6">
                                                 <div class="panel-collapse collapse" th:id="'collapse'+${iterStat.index}">
-                                                    <textarea rows="5" class="form-control" th:text="${gr.fileText}" placeholder="Grammar content"  name="fileText" id="fileText" th:inline="text" style="resize: none;" />
-                                                    <br/>
-                                                    <button type="submit" th:id="saveGrammar" th:name="saveGrammar" class="btn-default btn btn-sm">Save grammar</button>
+                                                    <textarea disabled rows="8" class="form-control" th:text="${gr.fileText}" placeholder="Grammar content"  name="fileText" id="fileText" th:inline="text" style="resize: none;" />
                                                 </div>
                                             </td>
                                         </tr>
@@ -178,20 +172,20 @@
     </script>
     <script>
         function confirmDelete(iterStat, expId) {
-            var result = confirm("Are you sure to delete this experiment ?");
+            var result = confirm("Delete the selected grammar?");
             if(result)
                 deleteRow(iterStat, expId);
         }
 
 
-        function deleteRow(iterStat, expId) {
-            var cleanIterStat = iterStat.substring("deleteExperiment".length, iterStat.length);   // Dará error, si hay listado con mas de 9 obj, no pillará el id de 10, pq sólo mira hasta el último
+        function deleteRow(iterStat, grId) {
+            var cleanIterStat = iterStat.substring("deleteGrammar".length, iterStat.length);   // Dará error, si hay listado con mas de 9 obj, no pillará el id de 10, pq sólo mira hasta el último
 
             $.ajax({
-                url: encodeURI("/experiment/expRepoSelected"),
+                url: encodeURI("/grammar/grammarRepoSelected"),
                 data: {
-                    'experimentId' : expId,
-                    'deleteExperiment' : 'deleteExperiment'
+                    'grammarId' : grId,
+                    'deleteGrammar' : 'deleteGrammar'
                 },
                 cache: false,
                 async:true,

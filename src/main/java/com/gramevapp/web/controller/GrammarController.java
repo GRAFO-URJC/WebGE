@@ -11,6 +11,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
@@ -42,5 +44,16 @@ public class GrammarController {
         return "grammar/grammarRepository";
     }
 
+
+    @RequestMapping(value="/grammar/grammarRepoSelected", method=RequestMethod.POST, params="deleteGrammar")
+    public
+    @ResponseBody
+    Long expRepoSelectedDelete(@RequestParam("grammarId") String grammarId){
+        Long idGrammar = Long.parseLong(grammarId);
+
+        grammarRepository.deleteById(idGrammar);
+
+        return idGrammar;
+    }
 
 }
