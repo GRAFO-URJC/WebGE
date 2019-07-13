@@ -1,9 +1,7 @@
 package com.gramevapp.web.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -46,6 +44,9 @@ public class Grammar {
 
     @Column(columnDefinition = "TEXT") // https://stackoverflow.com/questions/31833337/hibernate-could-not-execute-statement-sql-n-a-saving-nested-object
     private String fileText; // This is the text on the file - That's written in a areaText - So we can take it as a String
+
+    @Column(name="user_id")
+    private Long userId;
 
     public Grammar(Experiment exp){
         this.experimentId = exp;
