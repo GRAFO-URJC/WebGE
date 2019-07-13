@@ -34,7 +34,7 @@ public class GrammarController {
             return "redirect:/login";
         }
 
-        List<Grammar> grammarList = grammarRepository.findAll();
+        List<Grammar> grammarList = grammarRepository.findByUserId(user.getId());
 
         model.addAttribute("grammarList", grammarList);
         model.addAttribute("user", user);
