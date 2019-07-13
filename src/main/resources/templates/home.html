@@ -29,8 +29,8 @@
                 <div class="collapse navbar-collapse header-collapse">
                     <ul sec:authorize="isAuthenticated()" class="nav navbar-nav">
                         <li><a th:href="@{/}"><span class="glyphicon glyphicon-home" rel="tooltip" title="Home page"></span></a></li>
-                        <li><a th:href="@{/user/experiment/configExperiment}" rel="tooltip" title="New experiment"><span class="glyphicon glyphicon glyphicon-plus-sign"></span></a></li>
-                        <li><a th:href="@{/user/experiment/experimentRepository}" rel="tooltip" title="List of experiments"><span class="glyphicon glyphicon-th-list"></span></a></li>
+                        <li><a th:href="@{/experiment/configExperiment}" rel="tooltip" title="New experiment"><span class="glyphicon glyphicon glyphicon-plus-sign"></span></a></li>
+                        <li><a th:href="@{/experiment/experimentRepository}" rel="tooltip" title="List of experiments"><span class="glyphicon glyphicon-th-list"></span></a></li>
                         <li><a th:href="@{/user/profile}" rel="tooltip" title="User profile"><span class="glyphicon glyphicon-user"></span></a></li>
                     </ul>
 

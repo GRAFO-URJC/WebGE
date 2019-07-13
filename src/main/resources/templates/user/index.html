@@ -33,8 +33,8 @@
                 <div class="collapse navbar-collapse header-collapse">
                     <ul sec:authorize="isAuthenticated()" class="nav navbar-nav">
                         <li><a th:href="@{/}"><span class="glyphicon glyphicon-home" rel="tooltip" title="Home page"></span></a></li>
-                        <li><a th:href="@{/user/experiment/configExperiment}" rel="tooltip" title="New experiment"><span class="glyphicon glyphicon glyphicon-plus-sign"></span></a></li>
-                        <li><a th:href="@{/user/experiment/experimentRepository}" rel="tooltip" title="List of experiments"><span class="glyphicon glyphicon-th-list"></span></a></li>
+                        <li><a th:href="@{/experiment/configExperiment}" rel="tooltip" title="New experiment"><span class="glyphicon glyphicon glyphicon-plus-sign"></span></a></li>
+                        <li><a th:href="@{/experiment/experimentRepository}" rel="tooltip" title="List of experiments"><span class="glyphicon glyphicon-th-list"></span></a></li>
                         <li><a th:href="@{/user/profile}" rel="tooltip" title="User profile"><span class="glyphicon glyphicon-user"></span></a></li>
                     </ul>
 
@@ -56,7 +56,7 @@
                 <section class="panel-body form-horizontal center-block text-center">
 
                     <div class="row">
-                        <a href="/user/experiment/configExperiment" th:href="@{/user/experiment/configExperiment}" >
+                        <a href="/experiment/configExperiment" th:href="@{/experiment/configExperiment}" >
                             <div class="col-sm-6 col-md-4 col-lg-4 mt-4 form-group">
                                 <div class="card center-block">
                                     <img class="card-img-top" th:src="@{/images/index/experiments_adn.jpg}" />
@@ -70,7 +70,7 @@
                             </div>
                         </a>
 
-                        <a href="/user/experiment/experimentRepository" th:href="@{/user/experiment/experimentRepository}"  >
+                        <a href="/experiment/experimentRepository" th:href="@{/experiment/experimentRepository}"  >
                             <div class="col-sm-6 col-md-4 col-lg-4 mt-4 form-group">
                                 <div class="card center-block">
                                     <img class="card-img-top" th:src="@{/images/index/chain_adn.jpg}" />

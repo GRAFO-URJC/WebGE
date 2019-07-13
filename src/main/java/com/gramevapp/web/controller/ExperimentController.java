@@ -47,7 +47,7 @@ public class ExperimentController {
     private final String DATATYPE_DIR_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "dataType" + File.separator + "";
     private final String PROPERTIES_DIR_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "properties" + File.separator + "";
 
-    @GetMapping("/user/experiment/configExperiment")
+    @GetMapping("/experiment/configExperiment")
     public String configExperiment(Model model,
                                    @ModelAttribute("configuration") ConfigExperimentDto configExpDto){
 
@@ -90,10 +90,10 @@ public class ExperimentController {
         model.addAttribute("user", user);
         model.addAttribute("configExp", new ConfigExperimentDto());
 
-        return "user/experiment/configExperiment";
+        return "experiment/configExperiment";
     }
 
-    @GetMapping("/user/experiment/redirectConfigExperiment")
+    @GetMapping("/experiment/redirectConfigExperiment")
     public String redirectViewConfigExperiment(Model model,
                                                @ModelAttribute("idRun") String idRun){
 
@@ -109,7 +109,7 @@ public class ExperimentController {
             model.addAttribute("type",  new ExperimentDataType());
             model.addAttribute("configuration", new ConfigExperimentDto());
             model.addAttribute("user", user);
-            return "user/experiment/configExperiment";
+            return "experiment/configExperiment";
         }
         Grammar grammar = experimentService.findGrammarById(run.getExperimentId().getDefaultGrammar());
         ExperimentDataType expDataType = experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType());
@@ -125,24 +125,24 @@ public class ExperimentController {
         model.addAttribute("dataTypeList", expDataTypeList);
         model.addAttribute("configExp", configExpDto);
 
-        return "user/experiment/configExperiment";
+        return "experiment/configExperiment";
     }
 
-    @RequestMapping(value="/user/experiment/start")
+    @RequestMapping(value="/experiment/start")
     public String saveExperiment(Model model){
         model.addAttribute("configuration", new ConfigExperimentDto());
         model.addAttribute("configExp", new ConfigExperimentDto());
-        return "user/experiment/configExperiment";
+        return "experiment/configExperiment";
     }
 
-    @RequestMapping(value="/user/experiment/start", method=RequestMethod.POST, params="saveExperimentButton")
+    @RequestMapping(value="/experiment/start", method=RequestMethod.POST, params="saveExperimentButton")
     public String saveExperiment(Model model,
                                  @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
                                  BindingResult result) throws IllegalStateException {
 
         if (result.hasErrors()) {
             model.addAttribute("configuration", configExpDto);
-            return "user/experiment/configExperiment";
+            return "experiment/configExperiment";
         }
 
         User user = userService.getLoggedInUser();
@@ -156,7 +156,7 @@ public class ExperimentController {
             model.addAttribute("messageSave", "To save the experiment, first you need to create one");
             model.addAttribute("configuration", configExpDto);
             model.addAttribute("expConfig", configExpDto);
-            return "user/experiment/configExperiment";
+            return "experiment/configExperiment";
         }
 
         Run updRun = runService.findByRunId(runId);
@@ -209,7 +209,7 @@ public class ExperimentController {
         model.addAttribute("dataTypeList", updRun.getExperimentId().getIdExpDataTypeList());
         model.addAttribute("runList", updRun.getExperimentId().getIdRunList());
 
-        return "user/experiment/configExperiment";
+        return "experiment/configExperiment";
     }
 
     /**
@@ -230,7 +230,7 @@ public class ExperimentController {
      * @throws IllegalStateException
      * @throws IOException
      */
-    @RequestMapping(value="/user/experiment/start", method=RequestMethod.POST, params="runExperimentButton")
+    @RequestMapping(value="/experiment/start", method=RequestMethod.POST, params="runExperimentButton")
     public String runExperiment(Model model,
                                 @ModelAttribute("grammar") GrammarDto grammarDto,
                                 @ModelAttribute("type") ExperimentDataTypeDto expDataTypeDto,
@@ -241,12 +241,12 @@ public class ExperimentController {
                                 RedirectAttributes redirectAttrs) throws IllegalStateException, IOException {
         if (result.hasErrors()) {
             model.addAttribute("configuration", configExpDto);
-            return "user/experiment/configExperiment";
+            return "experiment/configExperiment";
         }
 
         if(radioDataTypeHidden.equals("on") && fileModelDto.getTypeFile().isEmpty()) {        // Radio button neither file path selected
             result.rejectValue("typeFile", "error.typeFile", "Choose one file");
-            return "user/experiment/configExperiment";
+            return "experiment/configExperiment";
         }
 
         User user = userService.getLoggedInUser();
@@ -274,7 +274,7 @@ public class ExperimentController {
             expDataType = experimentService.findDataTypeById(Long.parseLong(radioDataTypeHidden));
         else if(radioDataTypeHidden.equals("on") && fileModelDto.getTypeFile().isEmpty()) {        // Radio button neither file path selected
             result.rejectValue("typeFile", "error.typeFile", "Choose one file");
-            return "user/experiment/configExperiment";
+            return "experiment/configExperiment";
         }
         else
             expDataType = experimentService.saveDataType(new ExperimentDataType());
@@ -388,10 +388,10 @@ public class ExperimentController {
         runExperimentDetails(user, run, run.getDiagramData());
 
         redirectAttrs.addAttribute("idRun", run.getId()).addFlashAttribute("configuration", "Experiment is being created");
-        return "redirect:/user/experiment/redirectConfigExperiment";
+        return "redirect:/experiment/redirectConfigExperiment";
     }
 
-    @RequestMapping(value="/user/experiment/experimentRepository", method=RequestMethod.GET)
+    @RequestMapping(value="/experiment/experimentRepository", method=RequestMethod.GET)
     public String experimentRepository(Model model){
 
         User user = userService.getLoggedInUser();
@@ -405,10 +405,10 @@ public class ExperimentController {
         model.addAttribute("experimentList", lExperiment);
         model.addAttribute("user", user);
 
-        return "user/experiment/experimentRepository";
+        return "experiment/experimentRepository";
     }
 
-    @RequestMapping(value="/user/experiment/expRepoSelected", method=RequestMethod.GET, params="loadExperimentButton")
+    @RequestMapping(value="/experiment/expRepoSelected", method=RequestMethod.GET, params="loadExperimentButton")
     public String expRepoSelected(Model model,
                                   @RequestParam(required=false) String id){ // Exp ID
 
@@ -419,7 +419,7 @@ public class ExperimentController {
         }
 
         if(id == null)
-            return "redirect:user/experiment/experimentRepository";
+            return "redirect:experiment/experimentRepository";
 
         Experiment exp = experimentService.findExperimentByUserIdAndExpId(user, Long.parseLong(id));
 
@@ -436,10 +436,10 @@ public class ExperimentController {
         model.addAttribute("runList", runList);
         model.addAttribute("dataTypeList", exp.getIdExpDataTypeList());
 
-        return "user/experiment/configExperiment";
+        return "experiment/configExperiment";
     }
 
-    @RequestMapping(value="/user/experiment/expRepoSelected", method=RequestMethod.POST, params="deleteExperiment")
+    @RequestMapping(value="/experiment/expRepoSelected", method=RequestMethod.POST, params="deleteExperiment")
     public
     @ResponseBody Long expRepoSelectedDelete(@RequestParam("experimentId") String experimentId){
         Long idExp = Long.parseLong(experimentId);
@@ -495,7 +495,7 @@ public class ExperimentController {
         return idExp;
     }
 
-    @RequestMapping(value="/user/experiment/runList", method=RequestMethod.GET, params="loadExperimentButton")
+    @RequestMapping(value="/experiment/runList", method=RequestMethod.GET, params="loadExperimentButton")
     public String loadExperiment(Model model,
                                  @RequestParam("runId") String runId) {
 
@@ -525,10 +525,10 @@ public class ExperimentController {
         model.addAttribute("runList", runList);
         model.addAttribute("dataTypeList", run.getExperimentId().getIdExpDataTypeList());
 
-        return "user/experiment/configExperiment";
+        return "experiment/configExperiment";
     }
 
-    @GetMapping(value="/user/experiment/runList", params="runExperimentButton")
+    @GetMapping(value="/experiment/runList", params="runExperimentButton")
     public String runExperiment(Model model,
                                 @RequestParam(value = "runId") String runId) throws IOException {
 
@@ -570,7 +570,7 @@ public class ExperimentController {
 
         if(run.getStatus().equals(Run.Status.RUNNING)){      // We don't execute it if it's RUNNING
             model.addAttribute("expDetails", experimentDetailsDto);
-            return "user/experiment/experimentDetails";
+            return "experiment/experimentDetails";
         }
         experimentDetailsDto.setStatus(run.getStatus());    // The last status will be displayed in the new tab until Aj
         model.addAttribute("expDetails", experimentDetailsDto);
@@ -589,10 +589,10 @@ public class ExperimentController {
         diagramDataService.saveDiagram(diagramData);
         runExperimentDetails(user, run, run.getDiagramData());
 
-        return "user/experiment/experimentDetails";
+        return "experiment/experimentDetails";
     }
 
-    @GetMapping(value="/user/experiment/runList", params="showPlotExecutionButton")
+    @GetMapping(value="/experiment/runList", params="showPlotExecutionButton")
     public String showPlotExecutionExperiment(Model model,
                                               @RequestParam(value = "runId") String runId) {
 
@@ -635,7 +635,7 @@ public class ExperimentController {
 
         model.addAttribute("expDetails", experimentDetailsDto);
 
-        return "user/experiment/showDiagramPlot";
+        return "experiment/showDiagramPlot";
     }
 
     public void runExperimentDetails(User user, Run run, DiagramData diagramData) throws IOException {
@@ -872,12 +872,12 @@ public class ExperimentController {
         return exp;
     }
 
-    @GetMapping("/user/experiment/experimentDetails")
+    @GetMapping("/experiment/experimentDetails")
     public String experimentDetails(@ModelAttribute("expDetails") ExperimentDetailsDto expDetailsDto){
-        return "user/experiment/experimentDetails";
+        return "experiment/experimentDetails";
     }
 
-    @PostMapping(value="/user/experiment/stopRun", params="stopRunExperimentButton")
+    @PostMapping(value="/experiment/stopRun", params="stopRunExperimentButton")
     public String stopRunExperiment(Model model,
                                     @RequestParam("runIdStop") String runIdStop,
                                     RedirectAttributes redirectAttrs){
@@ -892,7 +892,7 @@ public class ExperimentController {
 
             redirectAttrs.addAttribute("runId", run.getId()).addFlashAttribute("Stop", "Stop execution failed");
             redirectAttrs.addAttribute("showPlotExecutionButton", "showPlotExecutionButton");
-            return "redirect:user/experiment/runList";
+            return "redirect:experiment/runList";
         }
         run.setStatus(Run.Status.STOPPED);
         run.getDiagramData().setStopped(true);
@@ -929,10 +929,10 @@ public class ExperimentController {
         experimentDetailsDto.setStatus(run.getStatus());
 
         model.addAttribute("expDetails", experimentDetailsDto);
-        return "user/experiment/showDiagramPlot";
+        return "experiment/showDiagramPlot";
     }
 
-    @RequestMapping(value="/user/experiment/expRepoSelected", method=RequestMethod.POST, params="deleteDataType")
+    @RequestMapping(value="/experiment/expRepoSelected", method=RequestMethod.POST, params="deleteDataType")
     public
     @ResponseBody Long deleteExpDataType(@RequestParam("expDataTypeId") String expDataTypeId){
         Boolean found = false;
@@ -955,7 +955,7 @@ public class ExperimentController {
         return longExpDataTypeId;
     }
 
-    @RequestMapping(value="/user/experiment/expRepoSelected", method=RequestMethod.POST, params="deleteRun")
+    @RequestMapping(value="/experiment/expRepoSelected", method=RequestMethod.POST, params="deleteRun")
     public
     @ResponseBody Long deleteRun(@RequestParam("runId") String runId){
         Boolean found = false;

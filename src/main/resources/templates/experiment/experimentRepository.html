@@ -54,8 +54,8 @@
                 <div class="collapse navbar-collapse header-collapse">
                     <ul sec:authorize="isAuthenticated()" class="nav navbar-nav">
                         <li><a th:href="@{/}"><span class="glyphicon glyphicon-home" rel="tooltip" title="Home page"></span></a></li>
-                        <li><a th:href="@{/user/experiment/configExperiment}" rel="tooltip" title="New experiment"><span class="glyphicon glyphicon glyphicon-plus-sign"></span></a></li>
-                        <li><a th:href="@{/user/experiment/experimentRepository}" rel="tooltip" title="List of experiments"><span class="glyphicon glyphicon-th-list"></span></a></li>
+                        <li><a th:href="@{/experiment/configExperiment}" rel="tooltip" title="New experiment"><span class="glyphicon glyphicon glyphicon-plus-sign"></span></a></li>
+                        <li><a th:href="@{/experiment/experimentRepository}" rel="tooltip" title="List of experiments"><span class="glyphicon glyphicon-th-list"></span></a></li>
                         <li><a th:href="@{/user/profile}" rel="tooltip" title="User profile"><span class="glyphicon glyphicon-user"></span></a></li>
                     </ul>
 
@@ -94,7 +94,7 @@
                                 <tbody id="expTable">
                                     <th:block th:each="exp, iterStat : ${experimentList}">
                                         <tr th:id="'tr' + ${iterStat.index}">
-                                            <form th:action="@{/user/experiment/expRepoSelected}" th:object="${expRepository}" method="GET">
+                                            <form th:action="@{/experiment/expRepoSelected}" th:object="${expRepository}" method="GET">
                                                 <input type="text" class="hiddenInput" th:name="id" th:id="id" th:value="${exp.getId()}" />
                                                 <td scope="row"><label th:name="id" th:id="id" th:text="${exp.id}" id="id" /></td>
                                                 <td scope="row"><label th:name="name" th:id="name" th:text="${exp.experimentName}" id="name" /></td>
@@ -204,7 +204,7 @@
             var cleanIterStat = iterStat.substring("deleteExperiment".length, iterStat.length);   // Dará error, si hay listado con mas de 9 obj, no pillará el id de 10, pq sólo mira hasta el último
 
             $.ajax({
-                url: encodeURI("/user/experiment/expRepoSelected"),
+                url: encodeURI("/experiment/expRepoSelected"),
                 data: {
                     'experimentId' : expId,
                     'deleteExperiment' : 'deleteExperiment'
