@@ -25,7 +25,7 @@ public class GrammarController {
     private GrammarRepository grammarRepository;
 
 
-    @RequestMapping(value="/user/grammarRepository", method= RequestMethod.GET)
+    @RequestMapping(value="/grammar/grammarRepository", method= RequestMethod.GET)
     public String experimentRepository(Model model){
 
         User user = userService.getLoggedInUser();
@@ -39,7 +39,7 @@ public class GrammarController {
         model.addAttribute("grammarList", grammarList);
         model.addAttribute("user", user);
 
-        return "user/grammarRepository";
+        return "grammar/grammarRepository";
     }
 
 
