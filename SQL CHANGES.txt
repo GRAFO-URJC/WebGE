@@ -1,4 +1,4 @@
-To open "list of existing experiments", "http://localhost:8181/user/experiment/experimentRepository".
+To open "list of existing experiments", "http://localhost:8181/experiment/experimentRepository".
 
 First we will need to open the SQL and change the table experiment_data_type
 

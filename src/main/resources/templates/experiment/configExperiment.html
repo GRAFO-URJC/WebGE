@@ -62,8 +62,8 @@
                 <div class="collapse navbar-collapse header-collapse">
                     <ul sec:authorize="isAuthenticated()" class="nav navbar-nav">
                         <li><a th:href="@{/}"><span class="glyphicon glyphicon-home" rel="tooltip" title="Home page"></span></a></li>
-                        <li><a th:href="@{/user/experiment/configExperiment}" rel="tooltip" title="New experiment"><span class="glyphicon glyphicon glyphicon-plus-sign"></span></a></li>
-                        <li><a th:href="@{/user/experiment/experimentRepository}" rel="tooltip" title="List of experiments"><span class="glyphicon glyphicon-th-list"></span></a></li>
+                        <li><a th:href="@{/experiment/configExperiment}" rel="tooltip" title="New experiment"><span class="glyphicon glyphicon glyphicon-plus-sign"></span></a></li>
+                        <li><a th:href="@{/experiment/experimentRepository}" rel="tooltip" title="List of experiments"><span class="glyphicon glyphicon-th-list"></span></a></li>
                         <li><a th:href="@{/user/profile}" rel="tooltip" title="User profile"><span class="glyphicon glyphicon-user"></span></a></li>
                     </ul>
 
@@ -83,7 +83,7 @@
                 </header>
 
                 <section class="panel-body">
-                    <form th:action="@{/user/experiment/start}" th:object="${configExp}" enctype="multipart/form-data" role="form" method="POST">
+                    <form th:action="@{/experiment/start}" th:object="${configExp}" enctype="multipart/form-data" role="form" method="POST">
                         <div th:if="${configuration.getDefaultRunId() != null}">
                             <input type="hidden" th:name="defaultRunId" th:id="defaultRunId" th:value="${configuration.getDefaultRunId()}" />
                         </div>
@@ -431,7 +431,7 @@
 
                             <th:block th:each="run, iterStat : ${runList}">
                                 <tr th:id="'tr' + ${iterStat.index}">
-                                    <form th:action="@{/user/experiment/runList}" th:object="${expDetailsDto}" method="GET" class="form-horizontal">
+                                    <form th:action="@{/experiment/runList}" th:object="${expDetailsDto}" method="GET" class="form-horizontal">
                                         <td scope="row"><label th:text="${run.getId()}" th:id="'runId'+${iterStat.index}" /></td>
                                         <td scope="row"><label th:name="runName" th:id="runName" th:text="${run.getExperimentName()}" /></td>
                                         <td scope="row"><label th:name="bestIndividual" th:id="'bestIndividual'+${iterStat.index}" th:text="${run.getDiagramData().bestIndividual}" /></td>
@@ -441,14 +441,14 @@
                                         <td scope="row"><label th:name="lastDate" th:id="lastDate" th:text="${run.getModificationDate()}" /></td>
 
                                         <td scope="row">
-                                            <a th:href="@{/user/experiment/runList(runId=${run.getId()}, loadExperimentButton='loadExperimentButton')}" th:id="${'loadExperimentButton' + iterStat.index}" class="btn-default btn-sm btn loadButton">Load experiment</a>
+                                            <a th:href="@{/experiment/runList(runId=${run.getId()}, loadExperimentButton='loadExperimentButton')}" th:id="${'loadExperimentButton' + iterStat.index}" class="btn-default btn-sm btn loadButton">Load experiment</a>
                                         </td>
                                         <td scope="row">
                                             <!-- https://stackoverflow.com/questions/14938344/thymeleaf-construct-url-with-variable -->
-                                            <a th:href="@{/user/experiment/runList(runId=${run.getId()}, runExperimentButton='runExperimentButton')}" target="_blank" th:id="${'runExperimentButton' + iterStat.index}"  onclick="showRunStatus(this.id)" class="btn-default btn-sm btn loadButton">Re-run experiment</a>
+                                            <a th:href="@{/experiment/runList(runId=${run.getId()}, runExperimentButton='runExperimentButton')}" target="_blank" th:id="${'runExperimentButton' + iterStat.index}"  onclick="showRunStatus(this.id)" class="btn-default btn-sm btn loadButton">Re-run experiment</a>
                                         </td>
                                         <td scope="row" th:id="'showPlot'+${iterStat.index}" class="" >
-                                            <a th:href="@{/user/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}" target="_blank" class="btn-default btn-sm btn loadButton">Show plot execution</a>
+                                            <a th:href="@{/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}" target="_blank" class="btn-default btn-sm btn loadButton">Show plot execution</a>
                                         </td>
                                         <td scope="row">
                                             <a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse" class="accordion-toggle">More details <span class="glyphicon glyphicon-chevron-down"></span></a>
@@ -779,7 +779,7 @@
             var cleanIterStat = iterStat.substring("deleteDataType".length, iterStat.length);
 
             $.ajax({
-                url: encodeURI("/user/experiment/expRepoSelected"),
+                url: encodeURI("/experiment/expRepoSelected"),
                 data: {
                     'expDataTypeId' : expDataTypeId,
                     'deleteDataType' : 'deleteDataType'
@@ -798,7 +798,7 @@
             var cleanIterStat = iterStat.substring("deleteRun".length, iterStat.length);
 
             $.ajax({
-                url: encodeURI("/user/experiment/expRepoSelected"),
+                url: encodeURI("/experiment/expRepoSelected"),
                 data: {
                     'runId' : runId,
                     'deleteRun' : 'deleteRun'
