@@ -146,4 +146,11 @@ public class Grammar {
 
     public void setCreationDate(Date creationDate) { this.creationDate = creationDate;}
 
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 }
