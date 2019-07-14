@@ -11,7 +11,15 @@
             <div class="row">
                 <div id="forms" class="panel panel-default">
                     <header class="panel-heading">
-                        <h2>My Grammars</h2>
+                        <div class="row">
+                            <div class="col-sm-9"><h2>My Grammars</h2></div>
+                            <div class="col-sm-3">
+                                <form method="post" action="/grammar/grammarDetail">
+                                    <button type="submit" class="btn-default btn btn-sm">New grammar</button>
+                                    <input type="hidden" name="grammarId" value="-1"/>
+                                </form>
+                            </div>
+                        </div>
                     </header>
 
                     <section class="panel-body center-block">
@@ -28,22 +36,22 @@
                                 <tbody id="expTable">
                                     <th:block th:each="gr, iterStat : ${grammarList}">
                                         <tr th:id="'tr' + ${iterStat.index}">
-                                            <form th:action="@{/experiment/expRepoSelected}" th:object="${expRepository}" method="GET">
-                                                <input type="text" class="hiddenInput" th:name="id" th:id="id" th:value="${gr.getId()}" />
-                                                <td scope="row"><label th:name="id" th:id="id" th:text="${gr.id}" id="id" /></td>
-                                                <td scope="row"><label th:name="name" th:id="name" th:text="${gr.grammarName}" id="name" /></td>
-                                                <td scope="row"><label th:name="description" th:id="description" th:text="${gr.grammarDescription}" id="description" /></td>
-                                                <td scope="row"><label th:name="creationDate" th:id="creationDate" th:text="${gr.creationDate}" id="creationDate" /></td>
-                                                <td scope="row">
-                                                    <a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse" class="accordion-toggle">Display grammar <span class="glyphicon glyphicon-chevron-down"></span> </a>
-                                                </td>
-                                                <td scope="row">
+                                            <td scope="row"><label th:name="id" th:id="id" th:text="${gr.id}" id="id" /></td>
+                                            <td scope="row"><label th:name="name" th:id="name" th:text="${gr.grammarName}" id="name" /></td>
+                                            <td scope="row"><label th:name="description" th:id="description" th:text="${gr.grammarDescription}" id="description" /></td>
+                                            <td scope="row"><label th:name="creationDate" th:id="creationDate" th:text="${gr.creationDate}" id="creationDate" /></td>
+                                            <td scope="row">
+                                                <a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse" class="accordion-toggle">Display grammar <span class="glyphicon glyphicon-chevron-down"></span> </a>
+                                            </td>
+                                            <td scope="row">
+                                                <form th:action="@{/grammar/grammarDetail}"  method="POST">
                                                     <button type="submit" th:id="duplicateGrammar" th:name="duplicateGrammar" class="btn-default btn btn-sm">Duplicate</button>
-                                                </td>
-                                                <td scope="row">
-                                                    <button type="button" th:name="${gr.id}" th:id="${'deleteGrammar' + iterStat.index}" onclick="confirmDelete(this.id, this.name)" class="btn-default btn btn-sm"><span class="glyphicon glyphicon-trash small" rel="tooltip" title="Delete grammar"></span></button>
-                                                </td>
-                                            </form>
+                                                    <input type="hidden" name="grammarId" th:value="${gr.getId()}"/>
+                                                </form>
+                                            </td>
+                                            <td scope="row">
+                                                <button type="button" th:name="${gr.id}" th:id="${'deleteGrammar' + iterStat.index}" onclick="confirmDelete(this.id, this.name)" class="btn-default btn btn-sm"><span class="glyphicon glyphicon-trash small" rel="tooltip" title="Delete grammar"></span></button>
+                                            </td>
                                         </tr>
                                         <tr th:id="'trAux' + ${iterStat.index}">
                                             <td></td>

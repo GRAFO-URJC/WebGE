@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layouts/default">
+<body>
+
+    <div id="page" layout:fragment="content" message=${errorMessage}>
+
+        <!-- Main -->
+        <div class="container">
+            <div class="row">
+                <div id="forms" class="panel panel-default">
+                    <header class="panel-heading">
+                        <h2>New Grammar</h2>
+                    </header>
+
+                    <section class="panel-body center-block">
+                        <form name="newGrammarForm" th:action="@{/grammar/saveGrammar}" th:object="${grammar}" enctype="multipart/form-data" role="form" method="POST">
+                            <div class="row form-group">
+                                <div class="col-sm-1 col-md-1 col-lg-1">
+                                    <p><b>Name:</b></p>
+                                </div>
+                                <div class="col-sm-11 col-md-11 col-lg-11">
+                                    <input id="grammarName" type="text" class="form-control" th:value="${grammar.getGrammarName()}" name="grammarName" placeholder="Name of the grammar" />
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-sm-1 col-md-1 col-lg-1">
+                                    <p><b>Description:</b></p>
+                                </div>
+                                <div class="col-sm-11 col-md-11 col-lg-11">
+                                    <input id="grammarDescription" type="text" class="form-control" th:value="${grammar.getGrammarDescription()}" name="grammarDescription" placeholder="Description of the grammar" />
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-sm-1 col-md-1 col-lg-1">
+                                    <p><b>Content:</b></p>
+                                </div>
+                                <div class="col-sm-11 col-md-11 col-lg-11">
+                                    <textarea id="fileText" rows="5" class="form-control" th:text="${grammar.getFileText()}" placeholder="Grammar file "  name="fileText" th:inline="text" style="resize: none;" />
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                <button type="submit" th:id="saveGrammar" th:name="saveGrammar" class="btn-default btn btn-sm">Save</button>
+                            </div>
+                        </form>
+<!--
+                        <br/>
+                        <div class="row form-group">
+                            <div class="col-sm-12 col-md-12 col-lg-12" >
+                                &lt;!&ndash; Error handling &ndash;&gt;
+                                <p class="text-warning"
+                                   th:each="error : ${#fields.errors('grammarDescription')}"
+                                   th:text="${error}">Validation error</p>
+                                &lt;!&ndash; END error handling &ndash;&gt;
+                                <div th:classappend="${#fields.hasErrors('grammarDescription')}? 'has-error':'grammarDescription error'">
+                                    <input type="text" class="form-control" th:value="${grammar.getGrammarDescription()}" name="grammarDescription" id="grammarDescription" placeholder="Description of the grammar" />
+                                </div>
+                            </div>
+                        </div>
+                        <br/>
+
+                        <div class="row form-group">
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                &lt;!&ndash; Error handling &ndash;&gt;
+                                <p class="text-warning"
+                                   th:each="error: ${#fields.errors('fileText')}"
+                                   th:text="${error}">Validation error
+                                </p>
+                                &lt;!&ndash; END error handling &ndash;&gt;
+                                <div th:classappend="${#fields.hasErrors('fileText')}? 'has-error':'fileText error'">
+                                    <textarea rows="5" class="form-control" th:text="${grammar.getFileText()}" placeholder="Grammar file "  name="fileText" id="fileText" th:inline="text" style="resize: none;" />
+                                </div>
+                            </div>
+                        </div>
+                        <br/>
+
+                        <div class="row form-group text-center">
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                <a name="downloadGrammarButton" id="downloadGrammarButton" class="btn-default btn-sm btn">Download grammar</a>
+                            </div>
+                        </div>-->
+                    </section>
+                </div>
+            </div>
+        </div>
+        <!-- END Main -->
+
+    </div>
+
+</body>
+</html>

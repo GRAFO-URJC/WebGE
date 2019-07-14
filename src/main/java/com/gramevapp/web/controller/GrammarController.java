@@ -56,4 +56,36 @@ public class GrammarController {
         return idGrammar;
     }
 
+
+    @RequestMapping(value="/grammar/grammarDetail", method= RequestMethod.POST)
+    public String editGrammar(Model model, @RequestParam("grammarId") String grammarId){
+
+        User user = userService.getLoggedInUser();
+        if(user == null){
+            System.out.println("User not authenticated");
+            return "redirect:/login";
+        }
+
+        long idGrammar = Long.parseLong(grammarId);
+
+        Grammar gr = new Grammar();
+        if (idGrammar != -1) {
+            gr = grammarRepository.findGrammarById(idGrammar);
+        }
+
+        model.addAttribute("grammar", gr);
+        model.addAttribute("user", user);
+
+        return "grammar/grammarDetail";
+    }
+
+    @RequestMapping(value="/grammar/saveGrammar", method=RequestMethod.POST)
+    public
+    @ResponseBody
+    Long saveGrammar(@RequestParam("grammar") Grammar gr){
+        System.out.println(gr.getGrammarName());
+
+        return null;
+    }
+
 }
