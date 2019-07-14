@@ -2,6 +2,7 @@ package com.gramevapp.web.controller;
 
 import com.engine.algorithm.RunnableExpGramEv;
 import com.gramevapp.web.model.*;
+import com.gramevapp.web.repository.GrammarRepository;
 import com.gramevapp.web.service.DiagramDataService;
 import com.gramevapp.web.service.ExperimentService;
 import com.gramevapp.web.service.RunService;
@@ -37,6 +38,9 @@ public class ExperimentController {
 
     @Autowired
     private DiagramDataService diagramDataService;
+
+    @Autowired
+    private GrammarRepository grammarRepository;
 
     @ModelAttribute
     public FileModelDto fileModel(){
@@ -82,6 +86,9 @@ public class ExperimentController {
             expDataTypeList = new ArrayList();
         }
 
+        List<Grammar> grammarList = grammarRepository.findByUserId(user.getId());
+
+        model.addAttribute("grammarList", grammarList);
         model.addAttribute("grammar", grammarDto);
         model.addAttribute("type", expDataTypeDto);
         model.addAttribute("configuration", configExpDto);
