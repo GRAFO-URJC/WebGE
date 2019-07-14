@@ -9,11 +9,12 @@ import com.gramevapp.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -28,7 +29,7 @@ public class GrammarController {
 
 
     @RequestMapping(value="/grammar/grammarRepository", method= RequestMethod.GET)
-    public String experimentRepository(Model model){
+    public String grammarRepository(Model model){
 
         User user = userService.getLoggedInUser();
         if(user == null){
@@ -80,12 +81,10 @@ public class GrammarController {
     }
 
     @RequestMapping(value="/grammar/saveGrammar", method=RequestMethod.POST)
-    public
-    @ResponseBody
-    Long saveGrammar(@RequestParam("grammar") Grammar gr){
-        System.out.println(gr.getGrammarName());
-
-        return null;
+    public String saveGrammar(Model model, @ModelAttribute("grammar") @Valid Grammar gr){
+        gr.setCreationDate(new Date(System.currentTimeMillis()));
+        grammarRepository.save(gr);
+        return grammarRepository(model);
     }
 
 }
