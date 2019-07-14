@@ -31,6 +31,7 @@
                                         <th scope="col">Grammar name</th>
                                         <th scope="col">Grammar description</th>
                                         <th scope="col">Creation date</th>
+                                        <th scope="col" colspan="4">Controls</th>
                                     </tr>
                                 </thead>
                                 <tbody id="expTable">
@@ -45,9 +46,12 @@
                                             </td>
                                             <td scope="row">
                                                 <form th:action="@{/grammar/grammarDetail}"  method="POST">
-                                                    <button type="submit" th:id="duplicateGrammar" th:name="duplicateGrammar" class="btn-default btn btn-sm">Duplicate</button>
+                                                    <button type="submit" th:id="duplicateGrammar" th:name="duplicateGrammar" class="btn-default btn btn-sm">Duplicate grammar</button>
                                                     <input type="hidden" name="grammarId" th:value="${gr.getId()}"/>
                                                 </form>
+                                            </td>
+                                            <td scope="row">
+                                                <button type="button" th:name="${gr.id}" th:id="${'downloadGrammar' + gr.getId()}" th:attr="onclick=|downloadGrammar('fileText${gr.getId()}')|" class="btn-default btn btn-sm"><span class="glyphicon glyphicon-download" rel="tooltip" title="Download grammar"></span></button>
                                             </td>
                                             <td scope="row">
                                                 <button type="button" th:name="${gr.id}" th:id="${'deleteGrammar' + iterStat.index}" onclick="confirmDelete(this.id, this.name)" class="btn-default btn btn-sm"><span class="glyphicon glyphicon-trash small" rel="tooltip" title="Delete grammar"></span></button>
@@ -57,7 +61,7 @@
                                             <td></td>
                                             <td colspan="6">
                                                 <div class="panel-collapse collapse" th:id="'collapse'+${iterStat.index}">
-                                                    <textarea disabled rows="8" class="form-control" th:text="${gr.fileText}" placeholder="Grammar content"  name="fileText" id="fileText" th:inline="text" style="resize: none;" />
+                                                    <textarea disabled rows="8" class="form-control" th:text="${gr.fileText}" placeholder="Grammar content"  name="fileText" th:id="fileText + ${gr.getId()}" th:inline="text" style="resize: none;" />
                                                 </div>
                                             </td>
                                         </tr>
@@ -143,6 +147,29 @@
                 }
             });
         };
+
+
+        function downloadGrammar(elemName){
+            var textToWrite = document.getElementById(elemName).value;
+            var textFileAsBlob = new Blob([ textToWrite ], { type: 'text/plain' });
+
+            var downloadLink = document.createElement("a");
+            downloadLink.download = "grammar.bnf";
+            downloadLink.innerHTML = "Download File";
+
+            if (window.webkitURL != null) {
+                // Chrome allows the link to be clicked without actually adding it to the DOM.
+                downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+            } else {
+                // Firefox requires the link to be added to the DOM before it can be clicked.
+                downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+                downloadLink.onclick = destroyClickedElement;
+                downloadLink.style.display = "none";
+                document.body.appendChild(downloadLink);
+            }
+
+            downloadLink.click();
+        }
 
     </script>
     </div>
