@@ -22,9 +22,4 @@ public class HomeController {
         return "home";
     }
 
-    @GetMapping("/kitchen")
-    public String bootstrapKitchen() {
-        return "bootStrap/kitchen";
-    }
-
 }

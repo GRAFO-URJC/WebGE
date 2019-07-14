@@ -1,72 +1,10 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.w3.org/1999/xhtml"
-      lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+<html lang="en"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layouts/default">
+<body>
 
-        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css" /> <!-- For the profile template -->
-        <link th:href="@{/assets/dist/css/bootstrap.css}" rel="stylesheet" id="profile-css" />
-        <link th:href="@{/assets/dist/css/experimentRepository.css}" rel="stylesheet" id="experimentRepository-css" />
-
-        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
-        <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-
-        <style>
-            /* enable absolute positioning */
-            .inner-addon {
-                position: relative;
-            }
-
-            /* style icon */
-            .inner-addon .glyphicon {
-                position: absolute;
-                padding: 5px;
-                pointer-events: none;
-            }
-
-            /* align icon */
-            .left-addon .glyphicon  { left:  0px;}
-            .right-addon .glyphicon { right: 0px;}
-
-            /* add padding  */
-            .left-addon input  { padding-left:  30px; }
-            .right-addon input { padding-right: 30px; }
-        </style>
-
-        <title>Grammars created by the user</title>
-    </head>
-    <body>
-
-        <!-- Header -->
-        <header class="navbar navbar-default navbar-static-top" id="header">
-            <div class="container">
-
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".header-collapse">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" th:href="@{/}">WebGE <i>by URJC</i></a>
-                </div>
-
-                <div class="collapse navbar-collapse header-collapse">
-                    <ul sec:authorize="isAuthenticated()" class="nav navbar-nav">
-                        <li><a th:href="@{/}"><span class="glyphicon glyphicon-home" rel="tooltip" title="Home page"></span></a></li>
-                        <li><a th:href="@{/experiment/configExperiment}" rel="tooltip" title="New experiment"><span class="glyphicon glyphicon glyphicon-plus-sign"></span></a></li>
-                        <li><a th:href="@{/experiment/experimentRepository}" rel="tooltip" title="List of experiments"><span class="glyphicon glyphicon-th-list"></span></a></li>
-                        <li><a th:href="@{/user/profile}" rel="tooltip" title="User profile"><span class="glyphicon glyphicon-user"></span></a></li>
-                    </ul>
-
-                    <p sec:authorize="isAuthenticated()" class="navbar-text navbar-right btn-sm btn btn-default"><a  th:href="@{/logout}" rel="tooltip" title="Log out"><span class="glyphicon glyphicon-off"></span></a></p>
-                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-sm btn-default"><a th:href="@{/registration}" rel="tooltip" title="Register"><span class="glyphicon glyphicon-list-alt"></span></a></p>
-                    <p sec:authorize="isAuthenticated()" class="navbar-text navbar-right btn btn-sm btn-default" th:text="${user.username}"/>
-                    <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-sm btn-default"><a th:href="@{/user}"><span class="glyphicon glyphicon-log-in" rel="tooltip" title="Log in"></span></a></p>
-                </div>
-            </div>
-        </header>
-        <!-- END Header -->
+    <div id="page" layout:fragment="content" message=${errorMessage}>
 
         <!-- Main -->
         <div class="container">
@@ -199,5 +137,6 @@
         };
 
     </script>
-    </body>
+    </div>
+</body>
 </html>
