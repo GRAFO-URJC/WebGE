@@ -213,66 +213,27 @@
                             <!-- END ExpPropertiesDto -->
 
                             <!-- Grammar file -->
-                            <input type="hidden" th:name="defaultGrammarId" th:id="defaultGrammarId" th:value="${configuration.getDefaultGrammarId()}" />
                             <div class="col-sm-12 col-md-6 col-lg-6 center-block">
                                 <div class="jumbotron row form-group">
-                                    <h3>Grammar file information</h3>
+                                    <h3>Select the Grammar</h3>
                                 </div>
                                 <div class="row form-group center-block">
                                     <div class="col-sm-12 col-md-12 col-lg-12">
-                                        <span>Upload your grammar file: <input type="file" name="grammarFile" id="grammarFile"/></span>
-                                        <p class="help-block">Select your grammar to be run here</p>
+                                        <select name="grammarSelection" onchange="updateGrammarContent">
+                                            <option th:each="gr : ${grammarList}" th:value="${gr.getId()}" th:text="${gr.getGrammarName() + ' - ' + gr.getGrammarDescription()}"/>
+                                        </select>
                                     </div>
                                 </div>
-                                <div class="row form-group">
-                                    <div class="col-sm-12 col-md-12 col-lg-12">
-                                        <!-- Error handling -->
-                                        <p class="text-warning"
-                                           th:each="error: ${#fields.errors('grammarName')}"
-                                           th:text="${error}">Validation error
-                                        </p>
-                                        <!-- END error handling -->
-                                        <div th:classappend="${#fields.hasErrors('grammarName')}? 'has-error':'grammarName error'">
-                                            <input type="text" class="form-control" th:value="${configuration.getGrammarName()}" name="grammarName" id="grammarName" placeholder="Name of the grammar" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <br/>
 
-                                <div class="row form-group">
-                                    <div class="col-sm-12 col-md-12 col-lg-12" >
-                                        <!-- Error handling -->
-                                        <p class="text-warning"
-                                           th:each="error : ${#fields.errors('grammarDescription')}"
-                                           th:text="${error}">Validation error</p>
-                                        <!-- END error handling -->
-                                        <div th:classappend="${#fields.hasErrors('grammarDescription')}? 'has-error':'grammarDescription error'">
-                                            <input type="text" class="form-control" th:value="${configuration.getGrammarDescription()}" name="grammarDescription" id="grammarDescription" placeholder="Description of the grammar" />
-                                        </div>
-                                    </div>
-                                </div>
                                 <br/>
 
                                 <div class="row form-group">
                                     <div class="col-sm-12 col-md-12 col-lg-12">
-                                        <!-- Error handling -->
-                                        <p class="text-warning"
-                                           th:each="error: ${#fields.errors('fileText')}"
-                                           th:text="${error}">Validation error
-                                        </p>
-                                        <!-- END error handling -->
-                                        <div th:classappend="${#fields.hasErrors('fileText')}? 'has-error':'fileText error'">
-                                            <textarea rows="5" class="form-control" th:text="${configuration.getFileText()}" placeholder="Grammar file "  name="fileText" id="fileText" th:inline="text" style="resize: none;" />
-                                        </div>
+                                        <textarea rows="8" disabled class="form-control" name="fileText" id="fileText" th:inline="text" style="resize: none;"></textarea>
                                     </div>
                                 </div>
                                 <br/>
 
-                                <div class="row form-group text-center">
-                                    <div class="col-sm-12 col-md-12 col-lg-12">
-                                        <a name="downloadGrammarButton" id="downloadGrammarButton" class="btn-default btn-sm btn">Download grammar</a>
-                                    </div>
-                                </div>
                             </div>
                             <!-- END Grammar file -->
 
