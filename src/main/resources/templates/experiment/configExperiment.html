@@ -215,12 +215,13 @@
                             <!-- Grammar file -->
                             <div class="col-sm-12 col-md-6 col-lg-6 center-block">
                                 <div class="jumbotron row form-group">
-                                    <h3>Select the Grammar</h3>
+                                    <h3>Grammar</h3>
                                 </div>
                                 <div class="row form-group center-block">
                                     <div class="col-sm-12 col-md-12 col-lg-12">
-                                        <select name="grammarSelection" onchange="updateGrammarContent">
-                                            <option th:each="gr : ${grammarList}" th:value="${gr.getId()}" th:text="${gr.getGrammarName() + ' - ' + gr.getGrammarDescription()}"/>
+                                        <select id="grammarSelector" name="grammarSelector" onchange="updateGrammarContent()">
+                                            <option value="grammarContentEmpty">Select a grammar ...</option>
+                                            <option th:each="gr : ${grammarList}" th:value="'grammarContent' + ${gr.getId()}" th:text="${gr.getGrammarName() + ' - ' + gr.getGrammarDescription()}"/>
                                         </select>
                                     </div>
                                 </div>
@@ -230,6 +231,10 @@
                                 <div class="row form-group">
                                     <div class="col-sm-12 col-md-12 col-lg-12">
                                         <textarea rows="8" disabled class="form-control" name="fileText" id="fileText" th:inline="text" style="resize: none;"></textarea>
+                                        <div style="display: none">
+                                            <textarea id="grammarContentEmpty"></textarea>
+                                            <textarea th:each="gr : ${grammarList}" th:id="'grammarContent' + ${gr.getId()}" th:text="${gr.getFileText()}"></textarea>
+                                        </div>
                                     </div>
                                 </div>
                                 <br/>
@@ -499,23 +504,17 @@
 
     </div>
 
-    <script>
-        // Load the file in grammar text area
-        // External data file handling starts here
-        var control = document.getElementById("grammarFile");
-        control.addEventListener("change", function(event){
-            var reader = new FileReader();
-            reader.onload = function(event){
-                var contents = event.target.result;
-                document.getElementById('fileText').value = contents;
-            };
-            reader.onerror = function(event){
-                console.error("File could not be read! Code " + event.target.error.code);
-            };
-            console.log("Filename: " + control.files[0].name);
-            reader.readAsText(control.files[0]);
-        }, false);
 
+    <script>
+        // Updates the content of the textarea including the text of the selected grammar.
+        function updateGrammarContent() {
+            $("#fileText").val($("#"+$("#grammarSelector").val()).val());
+        }
+    </script>
+
+
+    <!-- Old scripts below -->
+    <script>
          var ctrl = document.getElementById("typeFile");
         ctrl.addEventListener("change", function(eve){
             var read = new FileReader();
@@ -529,80 +528,6 @@
             console.log("Filename: " + ctrl.files[0].name);
             read.readAsText(ctrl.files[0]);
         }, false);
-    </script>
-    <script>
-        function saveTextAsFileif(){
-            if (document.getElementById("fileText").value == '') {
-                alert("Grammar Empty");
-            }else{
-                saveTextAsFile();
-            }
-        }
-        // Download grammar text area file
-        function saveTextAsFile() {
-            var textToWrite = document.getElementById('fileText').value;
-            var textFileAsBlob = new Blob([ textToWrite ], { type: 'text/plain' });
-            var fileNameToSaveAs =  document.getElementById('grammarName').value;
-
-            var downloadLink = document.createElement("a");
-            downloadLink.download = fileNameToSaveAs+".txt";
-            downloadLink.innerHTML = "Download File";
-
-            if (window.webkitURL != null) {
-                // Chrome allows the link to be clicked without actually adding it to the DOM.
-                downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
-            } else {
-                // Firefox requires the link to be added to the DOM before it can be clicked.
-                downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
-                downloadLink.onclick = destroyClickedElement;
-                downloadLink.style.display = "none";
-                document.body.appendChild(downloadLink);
-            }
-
-            downloadLink.click();
-        }
-
-        var button = document.getElementById('downloadGrammarButton');
-        button.addEventListener('click', saveTextAsFileif);
-
-        function destroyClickedElement(event) {
-            // remove the link from the DOM
-            document.body.removeChild(event.target);
-        }
-
-         function saveTextAsFileif2(){
-            if (document.getElementById("info").value == '') {
-                alert("data type Empty");
-            }else{
-                saveTextAsFile();
-            }
-        }
-        // Download grammar text area file
-        function saveTextAsFile2() {
-            var textToWrite = document.getElementById('info').value;
-            var textFileAsBlob = new Blob([ textToWrite ], { type: 'text/plain' });
-            var fileNameToSaveAs =  document.getElementById('dataTypeName').value;
-
-            var downloadLink = document.createElement("a");
-            downloadLink.download = fileNameToSaveAs+".cvs";
-            downloadLink.innerHTML = "Download File";
-
-            if (window.webkitURL != null) {
-                // Chrome allows the link to be clicked without actually adding it to the DOM.
-                downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
-            } else {
-                // Firefox requires the link to be added to the DOM before it can be clicked.
-                downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
-                downloadLink.onclick = destroyClickedElement;
-                downloadLink.style.display = "none";
-                document.body.appendChild(downloadLink);
-            }
-
-            downloadLink.click();
-        }
-
-        var button = document.getElementById('downloadTypeButton');
-        button.addEventListener('click', saveTextAsFileif2);
 
         function destroyClickedElement(event) {
             // remove the link from the DOM
