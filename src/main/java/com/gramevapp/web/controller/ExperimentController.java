@@ -239,7 +239,7 @@ public class ExperimentController {
      */
     @RequestMapping(value="/experiment/start", method=RequestMethod.POST, params="runExperimentButton")
     public String runExperiment(Model model,
-                                @ModelAttribute("grammar") GrammarDto grammarDto,
+                                @RequestParam("grammarId") String grammarId,
                                 @ModelAttribute("type") ExperimentDataTypeDto expDataTypeDto,
                                 @RequestParam("radioDataType") String radioDataTypeHidden,
                                 @ModelAttribute("typeFile") FileModelDto fileModelDto,
@@ -264,8 +264,7 @@ public class ExperimentController {
 
         // CONFIGURATION SECTION
         // GRAMMAR SECTION
-        Grammar grammar = experimentService.saveGrammar(new Grammar());
-        grammar = grammarSection(grammar, grammarDto);
+        Grammar grammar = grammarRepository.findGrammarById(Long.parseLong(grammarId));
 
         // DATE TIMESTAMP
         Calendar calendar = Calendar.getInstance();

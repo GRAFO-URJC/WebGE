@@ -214,14 +214,16 @@
 
                             <!-- Grammar file -->
                             <div class="col-sm-12 col-md-6 col-lg-6 center-block">
+                                <input type="hidden" name="grammarName" value="To remove"/>
+                                <input type="hidden" name="fileText" value="To remove"/>
                                 <div class="jumbotron row form-group">
                                     <h3>Grammar</h3>
                                 </div>
                                 <div class="row form-group center-block">
                                     <div class="col-sm-12 col-md-12 col-lg-12">
-                                        <select id="grammarSelector" name="grammarSelector" onchange="updateGrammarContent()">
+                                        <select id="grammarId" name="grammarId" onchange="updateGrammarContent()">
                                             <option value="grammarContentEmpty">Select a grammar ...</option>
-                                            <option th:each="gr : ${grammarList}" th:value="'grammarContent' + ${gr.getId()}" th:text="${gr.getGrammarName() + ' - ' + gr.getGrammarDescription()}"/>
+                                            <option th:each="gr : ${grammarList}" th:value="${gr.getId()}" th:text="${gr.getGrammarName() + ' - ' + gr.getGrammarDescription()}"/>
                                         </select>
                                     </div>
                                 </div>
@@ -230,7 +232,7 @@
 
                                 <div class="row form-group">
                                     <div class="col-sm-12 col-md-12 col-lg-12">
-                                        <textarea rows="8" disabled class="form-control" name="fileText" id="fileText" th:inline="text" style="resize: none;"></textarea>
+                                        <textarea rows="8" disabled class="form-control" name="grammarContainer" id="grammarContainer" th:inline="text" style="resize: none;"></textarea>
                                         <div style="display: none">
                                             <textarea id="grammarContentEmpty"></textarea>
                                             <textarea th:each="gr : ${grammarList}" th:id="'grammarContent' + ${gr.getId()}" th:text="${gr.getFileText()}"></textarea>
@@ -508,7 +510,7 @@
     <script>
         // Updates the content of the textarea including the text of the selected grammar.
         function updateGrammarContent() {
-            $("#fileText").val($("#"+$("#grammarSelector").val()).val());
+            $("#grammarContainer").val($("#grammarContent"+$("#grammarId").val()).val());
         }
     </script>
 
