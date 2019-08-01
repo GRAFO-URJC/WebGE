@@ -11,6 +11,9 @@ Other nice implementations of GE, but based in Python:
  * Dynamic Structured Grammatical Evolution (DSGE): https://github.com/nunolourenco/dsge
  
 
-## Contributors of this project
-
+## Former contributors to this project
+ * Gonçalo Silveira (@gonkyprojects) - Internship 2019.
+ * Victor Oliveira (@victorOliveira1997) - Internship 2019.
+ * Carlos García Moreno (@garciamorenc) - By means of https://github.com/jmcolmenar/tfg-evaluacion-ge-2016-2017 .
+ * Alberto Niironen (@smensito) - Degree final work.
 
