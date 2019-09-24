@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.w3.org/1999/xhtml"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layouts/default"
       lang="en">
 
     <head>
@@ -31,13 +33,7 @@
         Instead, use plain th:id, th:value and th:name without using th:field. Then you will get what you wanted.
     -->
     <body>
-    <div>
-
-        <!-- Header -->
-        <!--Use of th replace-->
-        <div th:replace="fragments/menu::menu"></div>
-        <!-- END Header -->
-
+    <div id="page" layout:fragment="content" message=${errorMessage}>
         <!-- Main -->
         <div class="container">
             <div id="forms" class="panel panel-default">

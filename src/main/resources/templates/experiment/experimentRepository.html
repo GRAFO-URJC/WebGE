@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.w3.org/1999/xhtml"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layouts/default"
       lang="en">
     <head>
         <meta charset="utf-8" />
@@ -38,13 +40,8 @@
         <title>Experiment list by User</title>
     </head>
     <body>
-
-        <!-- Header -->
-        <!--Use of th replace-->
-        <div th:replace="fragments/menu::menu"></div>
-        <!-- END Header -->
-
-        <!-- Main -->
+    <div id="page" layout:fragment="content" message=${errorMessage}>
+    <!-- Main -->
         <div class="container">
             <div class="row">
                 <div id="forms" class="panel panel-default">
@@ -146,6 +143,7 @@
             </div>
         </div>
         <!-- END Modal -->
+    </div>
 
 
     <script>
