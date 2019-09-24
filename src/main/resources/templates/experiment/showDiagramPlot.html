@@ -1,219 +1,216 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-          xmlns:sec="http://www.w3.org/1999/xhtml"
-          lang="en">
+      xmlns:sec="http://www.w3.org/1999/xhtml"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layouts/default"
+      lang="en">
 
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css" /> <!-- For the profile template -->
-        <link th:href="@{/assets/dist/css/bootstrap.css}" rel="stylesheet" id="main-css" />
-        <link th:href="@{/assets/dist/css/experimentDetails.css}" rel="stylesheet" id="experimentDetails-css" />
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"/>
+    <!-- For the profile template -->
+    <link th:href="@{/assets/dist/css/bootstrap.css}" rel="stylesheet" id="main-css"/>
+    <link th:href="@{/assets/dist/css/experimentDetails.css}" rel="stylesheet" id="experimentDetails-css"/>
 
-        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 
-        <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
-        <style>
-            .line {
-                fill: none;
-                stroke: #000;
-                stroke-width: 1.5px;
-            }
-        </style>
+    <style>
+        .line {
+            fill: none;
+            stroke: #000;
+            stroke-width: 1.5px;
+        }
+    </style>
 
-        <title>Experiment testing area</title>
-    </head>
+    <title>Experiment testing area</title>
+</head>
 
-    <!--
-        Attribute th:field will replace attributes value, id and name in your input tag.
-        Instead, use plain th:id, th:value and th:name without using th:field. Then you will get what you wanted.
-    -->
+<!--
+    Attribute th:field will replace attributes value, id and name in your input tag.
+    Instead, use plain th:id, th:value and th:name without using th:field. Then you will get what you wanted.
+-->
 
-    <body>
-        <div>
+<body>
+<div id="page" layout:fragment="content" message=${errorMessage}>
+    <!-- Main -->
+    <div class="container">
+        <div id="forms" class="panel panel-default">
+            <header class="panel-heading">
+                <h2>Run details of <i><span th:text="${expDetails.getExperimentName()}"></span></i></h2>
+            </header>
 
-            <!-- Header -->
-            <!--Use of th replace-->
-            <div th:replace="fragments/menu::menu"></div>
-            <!-- END Header -->
-
-            <!-- Main -->
-            <div class="container">
-                <div id="forms" class="panel panel-default">
-                    <header class="panel-heading">
-                        <h2>Run details of <i><span th:text="${expDetails.getExperimentName()}"></span></i></h2>
-                    </header>
-
-                    <section class="panel-body">
-                        <div class="row form-group">
-                            <div class="col-sm-12 col-md-12 col-lg-12">
-                                <div id="chartContainer" style="height: 360px; width: 100%;"></div>
-                            </div>
-                        </div>
-
-                        <!-- Show Diagram Plot details -->
-                        <div class="row form-group text-center" style="margin-bottom: 0px;">
-                            <div class="col-sm-6 col-md-6 col-lg-6" >
-                                <h4>
-                                    <label>Run name: </label>
-                                    <label th:id="experimentName" th:text="${expDetails.getExperimentName()}" />
-                                </h4>
-                            </div>
-                            <div class="col-sm-6 col-md-6 col-lg-6" >
-                                <h4>
-                                    <label>Run description: </label>
-                                    <label th:id="experimentDescription" th:text="${expDetails.getExperimentDescription()}" />
-                                </h4>
-                            </div>
-                        </div>
-                        <div class="row form-group text-center" style="margin-bottom: 0px;">
-                            <div class="col-sm-6 col-md-6 col-lg-6">
-                                <h4>
-                                    <label>Run id: </label>
-                                    <label th:id="runId" th:text="${expDetails.getRunId()}" />
-                                </h4>
-                            </div>
-                            <div class="col-sm-6 col-md-6 col-lg-6">
-                                <h4>
-                                    <label>Run status: </label>
-                                    <label th:id="status" th:text="${expDetails.getStatus()}" />
-                                </h4>
-                            </div>
-                        </div>
-                        <div class="row form-group text-center" style="margin-bottom: 0px;">
-                            <div class="col-sm-6 col-md-6 col-lg-6">
-                                <h4>
-                                    <label>Best individual: </label>
-                                    <label th:id="bestIndividual" th:text="${expDetails.getBestIndividual()}" />
-                                </h4>
-                            </div>
-                            <div class="col-sm-6 col-md-6 col-lg-6" >
-                                <h4>
-                                    <label>Current generation: </label>
-                                    <label th:id="currentGeneration" th:text="${expDetails.getCurrentGeneration()}" />
-                                </h4>
-                            </div>
-                        </div>
-                        <!-- END - Show Diagram Plot details -->
-                    </section>
+            <section class="panel-body">
+                <div class="row form-group">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <div id="chartContainer" style="height: 360px; width: 100%;"></div>
+                    </div>
                 </div>
 
-            </div>
-            <!-- END Main -->
-
+                <!-- Show Diagram Plot details -->
+                <div class="row form-group text-center" style="margin-bottom: 0px;">
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <h4>
+                            <label>Run name: </label>
+                            <label th:id="experimentName" th:text="${expDetails.getExperimentName()}"/>
+                        </h4>
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <h4>
+                            <label>Run description: </label>
+                            <label th:id="experimentDescription" th:text="${expDetails.getExperimentDescription()}"/>
+                        </h4>
+                    </div>
+                </div>
+                <div class="row form-group text-center" style="margin-bottom: 0px;">
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <h4>
+                            <label>Run id: </label>
+                            <label th:id="runId" th:text="${expDetails.getRunId()}"/>
+                        </h4>
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <h4>
+                            <label>Run status: </label>
+                            <label th:id="status" th:text="${expDetails.getStatus()}"/>
+                        </h4>
+                    </div>
+                </div>
+                <div class="row form-group text-center" style="margin-bottom: 0px;">
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <h4>
+                            <label>Best individual: </label>
+                            <label th:id="bestIndividual" th:text="${expDetails.getBestIndividual()}"/>
+                        </h4>
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <h4>
+                            <label>Current generation: </label>
+                            <label th:id="currentGeneration" th:text="${expDetails.getCurrentGeneration()}"/>
+                        </h4>
+                    </div>
+                </div>
+                <!-- END - Show Diagram Plot details -->
+            </section>
         </div>
 
-        <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
-        <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
-        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    </div>
+    <!-- END Main -->
 
-        <script>
-            var dataPoints = [],
-                xPoint,
-                yPoint;
+</div>
 
-            var chart = new CanvasJS.Chart("chartContainer",{
-                animationEnabled: true,
-                backgroundColor: "transparent",
-                colorSet: "greenShades",
-                animationEnabled: true,
-                exportEnabled: true,
-                theme: "theme3",
-                zoomEnabled: true,
-                panEnabled: true,
+<script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
-                title:{
-                    text:"Diagram data flow showing best individual"
-                },
-                data: [{
-                    markerSize: 4,
-                    color: "OrangeRed",
-                    type : "line",
-                    dataPoints: dataPoints, toolTipContent: "Best individual : <b>{y}</b> <br/> Current generation : <b>{x}</b>"
-                }],
-                axisX:{
-                    title: "Current generation",
-                    labelAngle: -50,
-                    lineThickness:0.5,
-                    tickThickness:0.5,
-                },
-                axisY: {
-                    title: "Best individual",
-                    maximum: 1,
-                    minimum: 0,
-                    lineThickness:1,
-                    tickThickness: 1,
-                    gridThickness: 1,
-                },
-                toolTip:{
-                    shared: true,
-                    enabled: true,
-                    animationEnabled: true,
-                },
-            });
+<script>
+    var dataPoints = [],
+        xPoint,
+        yPoint;
 
-            function reloadPlotD3(runId) {
-                $.ajax({
-                    url: encodeURI("/user/rest/diagramFlow/"),
-                    data: {
-                        'runId': runId.text(),
-                    },
-                    type: "GET",
-                    dataType: "json",
-                    success: function(data){
-                        var diagramPairList = data['listPair'];
-                        $.each(diagramPairList, function(index){
-                            xPoint = diagramPairList[index]['currentGeneration'];
-                            yPoint = diagramPairList[index]['bestIndividual'];
+    var chart = new CanvasJS.Chart("chartContainer", {
+        animationEnabled: true,
+        backgroundColor: "transparent",
+        colorSet: "greenShades",
+        animationEnabled: true,
+        exportEnabled: true,
+        theme: "theme3",
+        zoomEnabled: true,
+        panEnabled: true,
 
-                            dataPoints.push({x: parseInt(xPoint), y: parseFloat(yPoint)});
-                        });
-                        chart.options.data[0].dataPoints = dataPoints;
+        title: {
+            text: "Diagram data flow showing best individual"
+        },
+        data: [{
+            markerSize: 4,
+            color: "OrangeRed",
+            type: "line",
+            dataPoints: dataPoints, toolTipContent: "Best individual : <b>{y}</b> <br/> Current generation : <b>{x}</b>"
+        }],
+        axisX: {
+            title: "Current generation",
+            labelAngle: -50,
+            lineThickness: 0.5,
+            tickThickness: 0.5,
+        },
+        axisY: {
+            title: "Best individual",
+            maximum: 1,
+            minimum: 0,
+            lineThickness: 1,
+            tickThickness: 1,
+            gridThickness: 1,
+        },
+        toolTip: {
+            shared: true,
+            enabled: true,
+            animationEnabled: true,
+        },
+    });
 
-                        chart.render();
-                    }
+    function reloadPlotD3(runId) {
+        $.ajax({
+            url: encodeURI("/user/rest/diagramFlow/"),
+            data: {
+                'runId': runId.text(),
+            },
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                var diagramPairList = data['listPair'];
+                $.each(diagramPairList, function (index) {
+                    xPoint = diagramPairList[index]['currentGeneration'];
+                    yPoint = diagramPairList[index]['bestIndividual'];
+
+                    dataPoints.push({x: parseInt(xPoint), y: parseFloat(yPoint)});
                 });
+                chart.options.data[0].dataPoints = dataPoints;
+
+                chart.render();
             }
+        });
+    }
 
-            function checkRunStatus(runId) {
-                $.ajax({
-                    url: encodeURI("/user/rest/runStatus/"),
-                    data: {
-                        'runId': runId,
-                        'status': $("#status").text()
-                    },
-                    cache: false,
-                    async:true,
-                    type: "GET",
-                    dataType: "json",
-                    success: function(data){
-                        var bestIndividualStr = data['bestIndividual'];
-                        var currentGenerationStr = data['currentGeneration'];
-                        var statusStr = data['status'];
+    function checkRunStatus(runId) {
+        $.ajax({
+            url: encodeURI("/user/rest/runStatus/"),
+            data: {
+                'runId': runId,
+                'status': $("#status").text()
+            },
+            cache: false,
+            async: true,
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                var bestIndividualStr = data['bestIndividual'];
+                var currentGenerationStr = data['currentGeneration'];
+                var statusStr = data['status'];
 
-                        $("#bestIndividual").text(bestIndividualStr);
-                        $("#currentGeneration").text(currentGenerationStr);
-                        $("#status").text(statusStr);
-                    }
-                });
-            };
+                $("#bestIndividual").text(bestIndividualStr);
+                $("#currentGeneration").text(currentGenerationStr);
+                $("#status").text(statusStr);
+            }
+        });
+    };
 
-            $(document).ready(function() {
-                dataPoints = [];
+    $(document).ready(function () {
+        dataPoints = [];
 
-                setTimeout(function(){
-                    reloadPlotD3($("#runId"));
-                }, 100);
-            });
+        setTimeout(function () {
+            reloadPlotD3($("#runId"));
+        }, 100);
+    });
 
-        </script>
+</script>
 
-        <script>
-            $(document).ready(function(){
-                $("[rel=tooltip]").tooltip({ placement: 'right'});
-            });
-        </script>
-    </body>
+<script>
+    $(document).ready(function () {
+        $("[rel=tooltip]").tooltip({placement: 'right'});
+    });
+</script>
+</body>
 </html>
