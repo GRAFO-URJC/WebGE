@@ -140,12 +140,10 @@
 		</dependency>
 
 		<!-->https://springframework.guru/spring-boot-web-application-part-5-spring-security/<-->
-		<!--
 		<dependency>
 			<groupId>org.thymeleaf.extras</groupId>
-			<artifactId>thymeleaf-extras-springsecurity4</artifactId>
+			<artifactId>thymeleaf-extras-springsecurity5</artifactId>
 		</dependency>
-		-->
 
 		<!-- To read CSV files correctly -->
 		<dependency>
