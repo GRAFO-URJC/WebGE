@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+      xmlns:sec="http://www.w3.org/1999/xhtml"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layouts/default">
+lang="en">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -14,6 +17,7 @@
     </head>
     <body>
 
+    <div id="page" layout:fragment="content" message=${errorMessage}>
         <!-- Main -->
         <div class="container">
             <div id="forms" class="panel panel-default">
@@ -83,6 +87,6 @@
                 $("[rel=tooltip]").tooltip({ placement: 'right'});
             });
         </script>
-
+    </div>
     </body>
 </html>
