@@ -1,47 +1,52 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.w3.org/1999/xhtml"
-      lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layouts/default">
+lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-        <link rel="stylesheet" th:href="@{/assets/dist/css/home.css}" />
-        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
-        <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" th:href="@{/assets/dist/css/home.css}"/>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+    <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 
-        <title>Evolutive Grammars</title>
-    </head>
-    <body>
+    <title>Evolutive Grammars</title>
+</head>
+<body>
+<div id="page" layout:fragment="content" message=${errorMessage}>
+    <!-- Main -->
+    <section class="container">
+        <div id="forms" class="panel panel-default">
+            <header class="panel-heading">
+                <h2>What is WebGE?</h2>
+            </header>
 
-        <!-- Main -->
-        <section class="container">
-            <div id="forms" class="panel panel-default">
-                <header class="panel-heading">
-                    <h2>What is WebGE?</h2>
-                </header>
-
-                <div class="panel-body center-block" style="">
-                    <div class="row form-group">
-                        <div class="col-sm-12 col-md-12 col-lg-12">
-                            WebGE is a tool for the construction of algorithms capable of working with Evolutive Grammars. Developed by researchers from the Rey Juan Carlos University.
-                            This initiative aims to encourage the use of this tool, providing a web format in which users can interact with each other and, in addition, make experiments with their own Evolutionary Grammars
-                        </div>
-                    </div>
-                    <div class="form-group col-sm-12 col-md-12 col-lg-12 text-center">
-                        <a th:href="@{/user}" class="btn-primary btn-lg btn">Log in</a>
-                        <a th:href="@{/registration}" class="btn-primary btn-lg btn">Sign in</a>
+            <div class="panel-body center-block" style="">
+                <div class="row form-group">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        WebGE is a tool for the construction of algorithms capable of working with Evolutive Grammars.
+                        Developed by researchers from the Rey Juan Carlos University.
+                        This initiative aims to encourage the use of this tool, providing a web format in which users
+                        can interact with each other and, in addition, make experiments with their own Evolutionary
+                        Grammars
                     </div>
                 </div>
+                <div class="form-group col-sm-12 col-md-12 col-lg-12 text-center">
+                    <a th:href="@{/user}" class="btn-primary btn-lg btn">Log in</a>
+                    <a th:href="@{/registration}" class="btn-primary btn-lg btn">Sign in</a>
+                </div>
             </div>
-        </section>
-        <!-- END Main -->
+        </div>
+    </section>
+    <!-- END Main -->
 
-        <script>
-            $(document).ready(function(){
-                $("[rel=tooltip]").tooltip({ placement: 'right'});
-            });
-        </script>
-
-    </body>
+    <script>
+        $(document).ready(function () {
+            $("[rel=tooltip]").tooltip({placement: 'right'});
+        });
+    </script>
+</div>
+</body>
 </html>
