@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
-<!--<head th:replace="fragments/header :: head"></head>-->
+<head>
+<div th:include="fragments/header :: head" th:remove="tag"></div>
+</head>
 <body>
 
-    <!-- Header -->
     <div th:fragment="menu" >
         <header class="navbar navbar-default navbar-static-top" id="header">
             <div class="container">
@@ -69,7 +70,6 @@
             </div>
         </div>
     </header>-->
-    <!-- END Header -->
 
     <div layout:fragment="content"></div>
 
