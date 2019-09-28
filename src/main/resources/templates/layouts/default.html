@@ -70,9 +70,10 @@
             </div>
         </div>
     </header>-->
+    <div layout:fragment="wrapper" class="wrapper">
+        <div layout:fragment="content">
+        </div>
+        <div th:include="fragments/footer :: footer"></div>
+    </div>
 
-    <div layout:fragment="content"></div>
-
-    <div th:replace="fragments/footer :: footer"></div>
-
-</div>
+</body>
