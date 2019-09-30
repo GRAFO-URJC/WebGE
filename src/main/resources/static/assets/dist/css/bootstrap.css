@@ -5908,3 +5908,24 @@ button.close {
 .no-border {
     border:0px;
 }
+
+/* custom footer*/
+.footer{
+  background-color: #F5F5F5;
+  position:absolute;
+  bottom:0;
+  width:100%;
+  height: 5rem;
+}
+
+.wrapper {
+  position: relative;
+  min-height: 87.5vh;
+}
+
+#page{
+  padding-bottom: 5rem;
+}
+
+
+
