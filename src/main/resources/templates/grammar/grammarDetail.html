@@ -1,7 +1,32 @@
 <!DOCTYPE html>
 <html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorator="layouts/default">
+<head th:insert="fragments/header :: head">
+    <!--Add Style-->
+    <style>
+        /* enable absolute positioning */
+        .inner-addon {
+            position: relative;
+        }
+
+        /* style icon */
+        .inner-addon .glyphicon {
+            position: absolute;
+            padding: 5px;
+            pointer-events: none;
+        }
+
+        /* align icon */
+        .left-addon .glyphicon  { left:  0px;}
+        .right-addon .glyphicon { right: 0px;}
+
+        /* add padding  */
+        .left-addon input  { padding-left:  30px; }
+        .right-addon input { padding-right: 30px; }
+    </style>
+</head>
 <body>
 
     <div id="page" layout:fragment="content" message=${errorMessage}>
