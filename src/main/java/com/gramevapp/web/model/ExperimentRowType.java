@@ -6,15 +6,15 @@ import java.util.Iterator;
 import java.util.List;
 
 @Entity
-@Table(name="experimentRowType")
+@Table(name="experiment_row_type")
 public class ExperimentRowType {
     @Id
-    @Column(name = "EXPERIMENTROWTYPE_ID", nullable = false, updatable= false)
+    @Column(name = "experimentrowtype_id", nullable = false, updatable= false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER) // https://www.thoughts-on-java.org/hibernate-tips-map-bidirectional-many-one-association/
-    @PrimaryKeyJoinColumn
+    //@PrimaryKeyJoinColumn
     private ExperimentDataType expDataTypeId;
 
     private ArrayList<String> dataRow;

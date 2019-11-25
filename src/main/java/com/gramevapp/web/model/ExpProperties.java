@@ -11,7 +11,7 @@ public class ExpProperties {
     private static final String CLASS_PATH_SEPARATOR = "\\;";
 
     @Id
-    @Column(name = "PROPERTIES_ID", nullable = false, updatable= false)
+    @Column(name = "properties_id", nullable = false, updatable= false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
