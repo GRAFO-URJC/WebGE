@@ -10,7 +10,7 @@ import java.util.Calendar;
 import java.util.List;
 
 @Entity
-@Table(name="DIAGRAM_DATA")
+@Table(name="diagram_data")
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
@@ -18,7 +18,7 @@ import java.util.List;
 public class DiagramData {
 
     @Id
-    @Column(name = "DIAGRAM_DATA_ID", nullable = false, updatable= false)
+    @Column(name = "diagram_data_id", nullable = false, updatable= false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
