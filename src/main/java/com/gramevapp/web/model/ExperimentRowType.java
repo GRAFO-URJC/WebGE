@@ -14,7 +14,7 @@ public class ExperimentRowType {
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER) // https://www.thoughts-on-java.org/hibernate-tips-map-bidirectional-many-one-association/
-    //@PrimaryKeyJoinColumn
+    @PrimaryKeyJoinColumn
     private ExperimentDataType expDataTypeId;
 
     private ArrayList<String> dataRow;
