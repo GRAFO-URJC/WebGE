@@ -17,8 +17,7 @@ services:
       - backend
 
   gramev:
-    image: gramev
-    build: .
+    image: leichen0710/webge:gramev
     links:
       - db
     depends_on:
