@@ -13,12 +13,12 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name="EXPERIMENT")
+@Table(name="experiment")
 @DynamicUpdate
 public class Experiment {
 
     @Id
-    @Column(name = "EXPERIMENT_ID", nullable = false, updatable= false)
+    @Column(name = "experiment_id", nullable = false, updatable= false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -27,10 +27,10 @@ public class Experiment {
     @JoinTable(
             name = "users_experiments",
             joinColumns = {
-                    @JoinColumn(name = "EXPERIMENT_ID", nullable = false)
+                    @JoinColumn(name = "experiment_id", nullable = false)
             },
             inverseJoinColumns = {
-                    @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID")
+                    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
             }
     )
     private User userId;

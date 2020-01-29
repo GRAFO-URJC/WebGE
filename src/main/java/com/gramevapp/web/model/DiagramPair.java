@@ -6,7 +6,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import javax.persistence.*;
 
 @Entity
-@Table(name="DIAGRAM_PAIR")
+@Table(name="diagram_pair")
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
@@ -14,7 +14,7 @@ import javax.persistence.*;
 public class DiagramPair
 {
     @Id
-    @Column(name = "DIAGRAM_PAIR_ID", updatable= false)
+    @Column(name = "diagram_pair_id", updatable= false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
@@ -22,10 +22,10 @@ public class DiagramPair
     @JoinTable(
             name = "diagram_pair_list",
             joinColumns = {
-                    @JoinColumn(name = "DIAGRAM_PAIR_ID", nullable = false)
+                    @JoinColumn(name = "diagram_pair_id", nullable = false)
             },
             inverseJoinColumns = {
-                    @JoinColumn(name = "DIAGRAM_DATA_ID", referencedColumnName = "DIAGRAM_DATA_ID")
+                    @JoinColumn(name = "diagram_data_id", referencedColumnName = "diagram_data_id")
             }
     )
     private DiagramData diagramDataId;

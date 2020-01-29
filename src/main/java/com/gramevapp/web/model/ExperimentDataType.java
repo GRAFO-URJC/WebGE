@@ -2,6 +2,8 @@ package com.gramevapp.web.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -10,12 +12,12 @@ import java.util.Iterator;
 import java.util.List;
 
 @Entity
-@Table(name="experimentDataType")
+@Table(name="experiment_data_type")
 @DynamicUpdate
 public class ExperimentDataType {
 
     @Id
-    @Column(name = "EXPERIMENT_DATA_TYPE_ID", nullable = false, updatable= false)
+    @Column(name = "experimentdatatype_id", nullable = false, updatable= false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
@@ -24,10 +26,10 @@ public class ExperimentDataType {
     @JoinTable(
             name = "exp_data_type_list",
             joinColumns = {
-                    @JoinColumn(name = "EXPERIMENT_DATA_TYPE_ID")
+                    @JoinColumn(name = "experiment_data_type_id")
                 },
             inverseJoinColumns = {
-                    @JoinColumn(name = "EXPERIMENT_ID", referencedColumnName = "EXPERIMENT_ID")
+                    @JoinColumn(name = "experiment_id", referencedColumnName = "experiment_id")
             }
     )
     private Experiment experimentId;
