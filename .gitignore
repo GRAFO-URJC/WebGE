@@ -15,9 +15,12 @@ buildNumber.properties
 *.iml
 
 # Ignore output files
-target/
+target/*
 out/
 .DS_Store
 
 # Temporal storage for files
 /resources
+
+# Allow
+!target/gramev-0.0.1-SNAPSHOT.jar
