@@ -468,7 +468,7 @@
                                             <a th:href="@{/experiment/runList(runId=${run.getId()}, runExperimentButton='runExperimentButton')}"
                                                target="_blank" th:id="${'runExperimentButton' + iterStat.index}"
                                                onclick="showRunStatus(this.id)"
-                                               class="btn-default btn-sm btn loadButton">Re-run experiment</a>
+                                               class="btn-default btn-sm btn loadButton hidden">Re-run experiment</a>
                                         </td>
                                         <td scope="row" th:id="'showPlot'+${iterStat.index}" class="">
                                             <a th:href="@{/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}"
@@ -637,9 +637,7 @@
                     var bestIndividual = "#bestIndividual" + iterStat;
 
                     if (($(status).text() != "FINISHED") && ($(status).text() != "STOPPED") && ($(status).text() != "FAILED")) {
-                        if ($(status).text() == "RUNNING")
-                            $("#runExperimentButton" + iterStat).text("Show plot execution");
-                        $("#showPlot" + iterStat).addClass("hidden");
+                        $("#runExperimentButton" + iterStat).addClass("hidden");
                         $("#showDelete" + iterStat).addClass("hidden");
                         setTimeout(function () {
                             checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat);
@@ -647,9 +645,8 @@
                     }
 
                     if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED")) {
-                        $("#showPlot" + iterStat).removeClass("hidden");
                         $("#showDelete" + iterStat).removeClass("hidden");
-                        $("#runExperimentButton" + iterStat).text("Re-run experiment");
+                        $("#runExperimentButton" + iterStat).removeClass("hidden");
                     }
                 }
             });
@@ -689,13 +686,13 @@
             });
 
             indexesShow.forEach(function (element, index) {
-                $("#showPlot" + indexesShow[index]).removeClass("hidden");
+                $("#runExperimentButton" + indexesShow[index]).removeClass("hidden");
                 $("#showDelete" + indexesShow[index]).removeClass("hidden");
             });
 
             indexesHide.forEach(function (element, index) {
-                $("#showPlot" + indexesHide[index]).addClass("hidden");
                 $("#showDelete" + indexesHide[index]).addClass("hidden");
+                $("#runExperimentButton" + indexesShow[index]).addClass("hidden");
             });
         });
 
