@@ -147,12 +147,15 @@ public class ExperimentController {
                                  @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
                                  BindingResult result) throws IllegalStateException {
 
+        User user = userService.getLoggedInUser();
+        List<Grammar> grammarList = grammarRepository.findByUserId(user.getId());
+        model.addAttribute("grammarList", grammarList);
+
         if (result.hasErrors()) {
             model.addAttribute("configuration", configExpDto);
             return "experiment/configExperiment";
         }
 
-        User user = userService.getLoggedInUser();
         if(user == null){
             System.out.println("User not authenticated");
             return "redirect:/login";
@@ -246,6 +249,11 @@ public class ExperimentController {
                                 @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
                                 BindingResult result,
                                 RedirectAttributes redirectAttrs) throws IllegalStateException, IOException {
+
+        User user = userService.getLoggedInUser();
+        List<Grammar> grammarList = grammarRepository.findByUserId(user.getId());
+        model.addAttribute("grammarList", grammarList);
+        
         if (result.hasErrors()) {
             model.addAttribute("configuration", configExpDto);
             return "experiment/configExperiment";
@@ -256,7 +264,6 @@ public class ExperimentController {
             return "experiment/configExperiment";
         }
 
-        User user = userService.getLoggedInUser();
         if (user == null) {
             System.out.println("User not authenticated");
             return "redirect:/login";
