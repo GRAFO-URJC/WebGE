@@ -34,19 +34,6 @@ public class RunRestController {
         run.setCurrentGeneration(run.getDiagramData().getCurrentGeneration());
         run.setBestIndividual(run.getDiagramData().getBestIndividual());
 
-        if(status.equals("INITIALIZING")) {
-            run.setStatus(Run.Status.RUNNING);
-
-            run.setBestIndividual(1.0);
-            run.setCurrentGeneration(0);
-
-            run.getDiagramData().setFinished(false);
-            run.getDiagramData().setStopped(false);
-            run.getDiagramData().setFailed(false);
-            run.getDiagramData().setBestIndividual(1.0);
-            run.getDiagramData().setCurrentGeneration(0);
-        }
-
         if(run.getDiagramData().getFinished() || run.getDiagramData().getBestIndividual() <= 0.0) {
             if(run.getDiagramData().getBestIndividual() <= 0.0)
                 run.setBestIndividual(0.0);
