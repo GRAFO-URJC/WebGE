@@ -21,9 +21,9 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         //https://stackoverflow.com/questions/32843115/how-to-configure-spring-data-to-use-postgres-with-hibernate-without-xml
         driverManagerDataSource.setDriverClassName("org.postgresql.Driver");
         //MASTER
-        //driverManagerDataSource.setUrl("jdbc:postgresql://db:5432/webge");
+        driverManagerDataSource.setUrl("jdbc:postgresql://db:5432/webge");
         //DEVELOP
-        driverManagerDataSource.setUrl("jdbc:postgresql://localhost:5432/webge");
+        //driverManagerDataSource.setUrl("jdbc:postgresql://localhost:5432/webge");
         driverManagerDataSource.setUsername("usuario");
         driverManagerDataSource.setPassword("01234");
         return driverManagerDataSource;
