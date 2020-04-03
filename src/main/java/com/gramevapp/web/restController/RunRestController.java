@@ -24,28 +24,36 @@ public class RunRestController {
     Run getRunStatus(String runId, String status) {
 
         User user = userService.getLoggedInUser();
-        if(user == null)
+        if (user == null)
             System.out.println("User not authenticated");
 
-        if(runId == "")
+        if (runId == "")
             return null;
 
         Run run = runService.findByRunId(Long.parseLong(runId));
         run.setCurrentGeneration(run.getDiagramData().getCurrentGeneration());
         run.setBestIndividual(run.getDiagramData().getBestIndividual());
 
-        if(run.getDiagramData().getFinished() || run.getDiagramData().getBestIndividual() <= 0.0) {
-            if(run.getDiagramData().getBestIndividual() <= 0.0)
+        if (run.getDiagramData().getFinished() || run.getDiagramData().getBestIndividual() <= 0.0) {
+            if (run.getDiagramData().getBestIndividual() <= 0.0) {
                 run.setBestIndividual(0.0);
-            run.setStatus(Run.Status.FINISHED);
+            }
+            this.setStatus(run, Run.Status.FINISHED);
         }
 
-        if(run.getDiagramData().getStopped())
-            run.setStatus(Run.Status.STOPPED);
-        if(run.getDiagramData().getFailed())
-            run.setStatus(Run.Status.FAILED);
+        if (run.getDiagramData().getStopped()) {
+            this.setStatus(run, Run.Status.STOPPED);
+        }
+        if (run.getDiagramData().getFailed()) {
+            this.setStatus(run, Run.Status.FAILED);
+        }
 
         return run;
+    }
+
+    private void setStatus(Run run, Run.Status runStatus) {
+        run.setStatus(runStatus);
+        runService.saveRun(run);
     }
 
 }
