@@ -5,117 +5,123 @@
       layout:decorator="layouts/default"
       lang="en">
 
-    <head>
-        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css" /> <!-- For the profile template -->
-        <link th:href="@{/assets/dist/css/experimentDetails.css}" rel="stylesheet" id="experimentDetails-css" />
+<head>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"/>
+    <!-- For the profile template -->
+    <link th:href="@{/assets/dist/css/experimentDetails.css}" rel="stylesheet" id="experimentDetails-css"/>
 
-        <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
-        <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
-        <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
-        <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
-        <style>
-            .line {
-                fill: none;
-                stroke: #000;
-                stroke-width: 1.5px;
-            }
-        </style>
+    <style>
+        .line {
+            fill: none;
+            stroke: #000;
+            stroke-width: 1.5px;
+        }
+    </style>
 
-        <title>Experiment testing area</title>
-    </head>
+    <title>Experiment testing area</title>
+</head>
 
-    <!--
-        Attribute th:field will replace attributes value, id and name in your input tag.
-        Instead, use plain th:id, th:value and th:name without using th:field. Then you will get what you wanted.
-    -->
-    <body>
-    <div id="page" layout:fragment="content" message=${errorMessage}>
-        <!-- Main -->
-        <div class="container">
-            <div id="forms" class="panel panel-default">
-                <header class="panel-heading">
-                    <h2>Run details of  <i><span th:text="${expDetails.getExperimentName()}"></span></i></h2>
-                </header>
+<!--
+    Attribute th:field will replace attributes value, id and name in your input tag.
+    Instead, use plain th:id, th:value and th:name without using th:field. Then you will get what you wanted.
+-->
+<body>
+<div id="page" layout:fragment="content" message=${errorMessage}>
+    <!-- Main -->
+    <div class="container">
+        <div id="forms" class="panel panel-default">
+            <header class="panel-heading">
+                <h2>Run details of <i><span th:text="${expDetails.getExperimentName()}"></span></i></h2>
+            </header>
 
-                <section class="panel-body">
-                    <div class="row form-group">
-                        <div class="col-sm-12 col-md-12 col-lg-12">
-                            <div id="chartContainer" style="height: 360px; width: 100%;"></div>
-                        </div>
-                    </div>
-
-                    <div class="row center-block form-horizontal">
-                        <form th:action="@{/experiment/stopRun}" method="POST" role="form">
-                            <div class="row center-block form-horizontal">
-                                <input type="hidden" th:id="runIdStop" th:name="runIdStop" th:value="${expDetails.getRunId()}" />
-
-                                <!-- Stop button -->
-                                <div class="row text-center" th:id="stopDiv">
-                                    <div class="col-sm-12 col-md-12 col-lg-12" style="padding:15px">
-                                        <button type="submit" th:id="stopRunExperimentButton" th:name="stopRunExperimentButton" class="btn-danger btn-lg btn">Stop execution</button>
-                                    </div>
-                                </div>
-                                <!-- END - Stop button -->
-                            </div>
-                        </form>
-                    </div>
-
+            <section class="panel-body">
+                <div class="row form-group">
                     <div class="col-sm-12 col-md-12 col-lg-12">
-                        <hr/>
+                        <div id="chartContainer" style="height: 360px; width: 100%;"></div>
                     </div>
+                </div>
 
-                    <!-- Show Diagram Plot details -->
-                    <div class="row form-group text-center" style="margin-bottom: 0px;">
-                        <div class="col-sm-6 col-md-6 col-lg-6" >
-                            <h4>
-                                <label>Run name: </label>
-                                <label th:id="experimentName" th:text="${expDetails.getExperimentName()}" />
-                            </h4>
-                        </div>
-                        <div class="col-sm-6 col-md-6 col-lg-6" >
-                            <h4>
-                                <label>Run description: </label>
-                                <label th:id="experimentDescription" th:text="${expDetails.getExperimentDescription()}" />
-                            </h4>
-                        </div>
-                    </div>
-                    <div class="row form-group text-center" style="margin-bottom: 0px;">
-                        <div class="col-sm-6 col-md-6 col-lg-6">
-                            <h4>
-                                <label>Run id: </label>
-                                <label th:id="runId" th:text="${expDetails.getRunId()}" />
-                            </h4>
-                        </div>
-                        <div class="col-sm-6 col-md-6 col-lg-6">
-                            <h4>
-                                <label>Run status: </label>
-                                <label th:id="status" th:text="${expDetails.getStatus()}" />
-                            </h4>
-                        </div>
-                    </div>
-                    <div class="row form-group text-center" style="margin-bottom: 0px;">
-                        <div class="col-sm-6 col-md-6 col-lg-6">
-                            <h4>
-                                <label>Best individual: </label>
-                                <label th:id="bestIndividual" th:text="${expDetails.getBestIndividual()}" />
-                            </h4>
-                        </div>
-                        <div class="col-sm-6 col-md-6 col-lg-6" >
-                            <h4>
-                                <label>Current generation: </label>
-                                <label th:id="currentGeneration" th:text="${expDetails.getCurrentGeneration()}" />
-                            </h4>
-                        </div>
-                    </div>
-                    <!-- END - Show Diagram Plot details -->
-                </section>
-            </div>
+                <div class="row center-block form-horizontal">
+                    <form th:action="@{/experiment/stopRun}" method="POST" role="form">
+                        <div class="row center-block form-horizontal">
+                            <input type="hidden" th:id="runIdStop" th:name="runIdStop"
+                                   th:value="${expDetails.getRunId()}"/>
 
+                            <!-- Stop button -->
+                            <div class="row text-center" th:id="stopDiv">
+                                <div class="col-sm-12 col-md-12 col-lg-12" style="padding:15px">
+                                    <button type="submit" th:id="stopRunExperimentButton"
+                                            th:name="stopRunExperimentButton" class="btn-danger btn-lg btn">Stop
+                                        execution
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- END - Stop button -->
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-sm-12 col-md-12 col-lg-12">
+                    <hr/>
+                </div>
+
+                <!-- Show Diagram Plot details -->
+                <div class="row form-group text-center" style="margin-bottom: 0px;">
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <h4>
+                            <label>Run name: </label>
+                            <label th:id="experimentName" th:text="${expDetails.getExperimentName()}"/>
+                        </h4>
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <h4>
+                            <label>Run description: </label>
+                            <label th:id="experimentDescription" th:text="${expDetails.getExperimentDescription()}"/>
+                        </h4>
+                    </div>
+                </div>
+                <div class="row form-group text-center" style="margin-bottom: 0px;">
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <h4>
+                            <label>Run id: </label>
+                            <label th:id="runId" th:text="${expDetails.getRunId()}"/>
+                        </h4>
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <h4>
+                            <label>Run status: </label>
+                            <label th:id="status" th:text="${expDetails.getStatus()}"/>
+                        </h4>
+                    </div>
+                </div>
+                <div class="row form-group text-center" style="margin-bottom: 0px;">
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <h4>
+                            <label>Best individual: </label>
+                            <label th:id="bestIndividual" th:text="${expDetails.getBestIndividual()}"/>
+                        </h4>
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <h4>
+                            <label>Current generation: </label>
+                            <label th:id="currentGeneration" th:text="${expDetails.getCurrentGeneration()}"/>
+                        </h4>
+                    </div>
+                </div>
+                <!-- END - Show Diagram Plot details -->
+            </section>
         </div>
-        <!-- END Main -->
+
+    </div>
+    <!-- END Main -->
 
     <script>
+        let dataLoaderCount = 0;
         // <![CDATA[
         var dataPoints = [],
             xPoint,
@@ -124,7 +130,7 @@
             isStopped,
             isFailed;
 
-        var chart = new CanvasJS.Chart("chartContainer",{
+        var chart = new CanvasJS.Chart("chartContainer", {
             animationEnabled: true,
             backgroundColor: "transparent",
             colorSet: "greenShades",
@@ -134,31 +140,31 @@
             zoomEnabled: true,
             panEnabled: true,
 
-            title:{
-                text:"Diagram data flow showing best individual at the moment"
+            title: {
+                text: "Diagram data flow showing best individual at the moment"
             },
             data: [{
                 markerSize: 4,
                 color: "OrangeRed",
-                type : "line",
+                type: "line",
                 // lineDashType : "dash",
                 dataPoints: dataPoints
             }],
-            axisX:{
+            axisX: {
                 title: "Current generation",
                 labelAngle: -50,
-                lineThickness:0.5,
-                tickThickness:0.5,
+                lineThickness: 0.5,
+                tickThickness: 0.5,
             },
             axisY: {
                 title: "Best individual",
                 maximum: 1,
                 minimum: 0,
-                lineThickness:1,
+                lineThickness: 1,
                 tickThickness: 1,
                 gridThickness: 1,
             },
-            toolTip:{
+            toolTip: {
                 shared: true,
                 enabled: true,
                 animationEnabled: true,
@@ -173,20 +179,18 @@
                 data: {
                     'runId': runId,
                 },
-                success: function(data){
-                    xPoint = data['currentGeneration'];
-                    yPoint = data['bestIndividual'];
+                success: function (data) {
+                    let diagramPairList = data['listPair'];
 
-                    $.each(data, function(key, value){
+                    for (dataLoaderCount; dataLoaderCount < diagramPairList.length; dataLoaderCount++) {
+                        xPoint = diagramPairList[dataLoaderCount]['currentGeneration'];
+                        yPoint = diagramPairList[dataLoaderCount]['bestIndividual'];
+
                         dataPoints.push({x: parseInt(xPoint), y: parseFloat(yPoint)});
-                    });
+
+                    }
 
                     chart.options.data[0].dataPoints = dataPoints;
-
-                    if (dataPoints.length > 12)
-                    {
-                        dataPoints.shift();
-                    }
 
                     isFinnish = data['finished'];
                     isStopped = data['stopped'];
@@ -194,13 +198,13 @@
 
                     chart.render();
                 },
-                complete:function(data){
-                        setTimeout(function () {
-                            if(!isFinnish && !isStopped && !isFailed) {
-                                reloadPlotD3($("#runId").text());
-                                checkRunStatus($("#runId").text());
-                            }
-                        }, 1000);
+                complete: function (data) {
+                    setTimeout(function () {
+                        if (!isFinnish && !isStopped && !isFailed) {
+                            reloadPlotD3($("#runId").text());
+                            checkRunStatus($("#runId").text());
+                        }
+                    }, 1000);
                 }
             });
         }
@@ -213,10 +217,10 @@
                     'status': $("#status").text()
                 },
                 cache: false,
-                async:true,
+                async: true,
                 type: "GET",
                 dataType: "json",
-                success: function(data) {
+                success: function (data) {
                     var bestIndividualStr = data['bestIndividual'];
                     var currentGenerationStr = data['currentGeneration'];
                     var statusStr = data['status'];
@@ -231,10 +235,10 @@
             });
         };
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             dataPoints = [];
 
-            setTimeout(function(){
+            setTimeout(function () {
                 reloadPlotD3($("#runId").text());
             }, 100);
         });
@@ -243,10 +247,10 @@
     </script>
 
     <script>
-        $(document).ready(function(){
-            $("[rel=tooltip]").tooltip({ placement: 'right'});
+        $(document).ready(function () {
+            $("[rel=tooltip]").tooltip({placement: 'right'});
         });
     </script>
-    </div>
-    </body>
+</div>
+</body>
 </html>
