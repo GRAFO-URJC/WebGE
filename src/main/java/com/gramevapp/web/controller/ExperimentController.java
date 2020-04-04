@@ -43,7 +43,7 @@ public class ExperimentController {
     private GrammarRepository grammarRepository;
 
     @ModelAttribute
-    public FileModelDto fileModel(){
+    public FileModelDto fileModel() {
         return new FileModelDto();
     }
 
@@ -53,10 +53,10 @@ public class ExperimentController {
 
     @GetMapping("/experiment/configExperiment")
     public String configExperiment(Model model,
-                                   @ModelAttribute("configuration") ConfigExperimentDto configExpDto){
+                                   @ModelAttribute("configuration") ConfigExperimentDto configExpDto) {
 
         User user = userService.getLoggedInUser();
-        if(user == null){
+        if (user == null) {
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
@@ -71,14 +71,13 @@ public class ExperimentController {
         List<Run> runList;
         List<ExperimentDataType> expDataTypeList;
 
-        if(expConfig != null) {
+        if (expConfig != null) {
             grammarDto = experimentService.findGrammarById(expConfig.getDefaultGrammar());
             expDataTypeDto = experimentService.findExperimentDataTypeById(expConfig.getDefaultExpDataType());
 
             runList = expConfig.getIdRunList();
             expDataTypeList = expConfig.getIdExpDataTypeList();
-        }
-        else {
+        } else {
             grammarDto = new Grammar();
             expDataTypeDto = new ExperimentDataType();
 
@@ -102,18 +101,18 @@ public class ExperimentController {
 
     @GetMapping("/experiment/redirectConfigExperiment")
     public String redirectViewConfigExperiment(Model model,
-                                               @ModelAttribute("idRun") String idRun){
+                                               @ModelAttribute("idRun") String idRun) {
 
         User user = userService.getLoggedInUser();
-        if(user == null){
+        if (user == null) {
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
 
         Run run = runService.findByRunId(Long.parseLong(idRun));
-        if(run == null) { // Run eliminated
-            model.addAttribute("grammar",  new Grammar());
-            model.addAttribute("type",  new ExperimentDataType());
+        if (run == null) { // Run eliminated
+            model.addAttribute("grammar", new Grammar());
+            model.addAttribute("type", new ExperimentDataType());
             model.addAttribute("configuration", new ConfigExperimentDto());
             model.addAttribute("user", user);
             return "experiment/configExperiment";
@@ -135,14 +134,14 @@ public class ExperimentController {
         return "experiment/configExperiment";
     }
 
-    @RequestMapping(value="/experiment/start")
-    public String saveExperiment(Model model){
+    @RequestMapping(value = "/experiment/start")
+    public String saveExperiment(Model model) {
         model.addAttribute("configuration", new ConfigExperimentDto());
         model.addAttribute("configExp", new ConfigExperimentDto());
         return "experiment/configExperiment";
     }
 
-    @RequestMapping(value="/experiment/start", method=RequestMethod.POST, params="saveExperimentButton")
+    @RequestMapping(value = "/experiment/start", method = RequestMethod.POST, params = "saveExperimentButton")
     public String saveExperiment(Model model,
                                  @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
                                  BindingResult result) throws IllegalStateException {
@@ -156,13 +155,13 @@ public class ExperimentController {
             return "experiment/configExperiment";
         }
 
-        if(user == null){
+        if (user == null) {
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
 
         Long runId = configExpDto.getDefaultRunId();
-        if(runId == null) { // Do not update nothing
+        if (runId == null) { // Do not update nothing
             model.addAttribute("messageSave", "To save the experiment, first you need to create one");
             model.addAttribute("configuration", configExpDto);
             model.addAttribute("expConfig", configExpDto);
@@ -224,9 +223,9 @@ public class ExperimentController {
 
     /**
      * Load al the data from the view, save it and run the application.
-     *  "configExpDto" for validation -> configExp
-     *  "configuration" is for send data from Controller to View and
-     *  "configExp" is the object from the form View
+     * "configExpDto" for validation -> configExp
+     * "configuration" is for send data from Controller to View and
+     * "configExp" is the object from the form View
      *
      * @param model
      * @param grammarDto
@@ -240,7 +239,7 @@ public class ExperimentController {
      * @throws IllegalStateException
      * @throws IOException
      */
-    @RequestMapping(value="/experiment/start", method=RequestMethod.POST, params="runExperimentButton")
+    @RequestMapping(value = "/experiment/start", method = RequestMethod.POST, params = "runExperimentButton")
     public String runExperiment(Model model,
                                 @RequestParam("grammarId") String grammarId,
                                 @ModelAttribute("type") ExperimentDataTypeDto expDataTypeDto,
@@ -253,13 +252,13 @@ public class ExperimentController {
         User user = userService.getLoggedInUser();
         List<Grammar> grammarList = grammarRepository.findByUserId(user.getId());
         model.addAttribute("grammarList", grammarList);
-        
+
         if (result.hasErrors()) {
             model.addAttribute("configuration", configExpDto);
             return "experiment/configExperiment";
         }
 
-        if(radioDataTypeHidden.equals("on") && fileModelDto.getTypeFile().isEmpty()) {        // Radio button neither file path selected
+        if (radioDataTypeHidden.equals("on") && fileModelDto.getTypeFile().isEmpty()) {        // Radio button neither file path selected
             result.rejectValue("typeFile", "error.typeFile", "Choose one file");
             return "experiment/configExperiment";
         }
@@ -283,13 +282,12 @@ public class ExperimentController {
 
         // Experiment Data Type SECTION
         ExperimentDataType expDataType;
-        if(!radioDataTypeHidden.equals("on"))
+        if (!radioDataTypeHidden.equals("on"))
             expDataType = experimentService.findDataTypeById(Long.parseLong(radioDataTypeHidden));
-        else if(radioDataTypeHidden.equals("on") && fileModelDto.getTypeFile().isEmpty()) {        // Radio button neither file path selected
+        else if (radioDataTypeHidden.equals("on") && fileModelDto.getTypeFile().isEmpty()) {        // Radio button neither file path selected
             result.rejectValue("typeFile", "error.typeFile", "Choose one file");
             return "experiment/configExperiment";
-        }
-        else
+        } else
             expDataType = experimentService.saveDataType(new ExperimentDataType());
 
         expDataType = experimentDataTypeSection(fileModelDto, expDataType, expDataTypeDto, currentTimestamp);
@@ -317,17 +315,15 @@ public class ExperimentController {
 
         // Reader - FILE DATA TYPE - Convert MultipartFile into Generic Java File - Then convert it to Reader
         String dataTypeDirectoryPath = DATATYPE_DIR_PATH;
-        if(expDataType.getDataTypeType().equals("validation")) {
+        if (expDataType.getDataTypeType().equals("validation")) {
             dataTypeDirectoryPath += "validation\\" + user.getId();
             propertiesDto.setValidationPath(dataTypeDirectoryPath);
             propertiesDto.setValidation(true);
-        }
-        else if(expDataType.getDataTypeType().equals("test")){
+        } else if (expDataType.getDataTypeType().equals("test")) {
             dataTypeDirectoryPath += "test\\" + user.getId();
             propertiesDto.setTestPath(dataTypeDirectoryPath);
             propertiesDto.setTest(true);
-        }
-        else {
+        } else {
             dataTypeDirectoryPath += "training\\" + user.getId();
             propertiesDto.setTrainingPath(dataTypeDirectoryPath + File.separator + configExpDto.getExperimentName() + "_" + expDataType.getId() + ".csv");
             propertiesDto.setTraining(true);
@@ -337,7 +333,7 @@ public class ExperimentController {
         if (!dir.exists())
             dir.mkdirs();
 
-        String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + configExpDto.getExperimentName().replaceAll("\\s+","") + "_" + propertiesDto.getId() + ".properties";
+        String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + configExpDto.getExperimentName().replaceAll("\\s+", "") + "_" + propertiesDto.getId() + ".properties";
         createPropertiesFile(propertiesFilePath, propertiesDto, configExpDto.getExperimentName(), currentTimestamp);  // Write in property file
         // END - Create ExpPropertiesDto file
 
@@ -347,7 +343,7 @@ public class ExperimentController {
 
         // If Radio button and file path selected -> File path is selected
         // NULL -> didn't select the dataType file from the list - ON if th:value in input is empty
-        if( (radioDataTypeHidden.equals("on") && !multipartFile.isEmpty()) || (!radioDataTypeHidden.equals("on") && !multipartFile.isEmpty()) ) {
+        if ((radioDataTypeHidden.equals("on") && !multipartFile.isEmpty()) || (!radioDataTypeHidden.equals("on") && !multipartFile.isEmpty())) {
             File tmpFile = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") +
                     multipartFile.getOriginalFilename());
             multipartFile.transferTo(tmpFile);
@@ -356,8 +352,7 @@ public class ExperimentController {
             Reader reader = new FileReader(tmpFile);
             experimentService.loadExperimentRowTypeFile(reader, expDataType);   // Save row here
             reader.close();
-        }
-        else{   // DataType selected from list
+        } else {   // DataType selected from list
             List<ExperimentRowType> lExpRowType = expDataType.getListRowsFile();
 
             // Create temporal training path file
@@ -370,7 +365,7 @@ public class ExperimentController {
 
             writer.append(expDataType.headerToString());
 
-            for(ExperimentRowType e : lExpRowType)
+            for (ExperimentRowType e : lExpRowType)
                 writer.append(e.toString());
             writer.close();
             dataFilePath = tmpFile.getAbsolutePath();
@@ -404,11 +399,11 @@ public class ExperimentController {
         return "redirect:/experiment/redirectConfigExperiment";
     }
 
-    @RequestMapping(value="/experiment/experimentRepository", method=RequestMethod.GET)
-    public String experimentRepository(Model model){
+    @RequestMapping(value = "/experiment/experimentRepository", method = RequestMethod.GET)
+    public String experimentRepository(Model model) {
 
         User user = userService.getLoggedInUser();
-        if(user == null){
+        if (user == null) {
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
@@ -421,17 +416,17 @@ public class ExperimentController {
         return "experiment/experimentRepository";
     }
 
-    @RequestMapping(value="/experiment/expRepoSelected", method=RequestMethod.GET, params="loadExperimentButton")
+    @RequestMapping(value = "/experiment/expRepoSelected", method = RequestMethod.GET, params = "loadExperimentButton")
     public String expRepoSelected(Model model,
-                                  @RequestParam(required=false) String id){ // Exp ID
+                                  @RequestParam(required = false) String id) { // Exp ID
 
         User user = userService.getLoggedInUser();
-        if(user == null){
+        if (user == null) {
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
 
-        if(id == null)
+        if (id == null)
             return "redirect:experiment/experimentRepository";
 
         Experiment exp = experimentService.findExperimentByUserIdAndExpId(user, Long.parseLong(id));
@@ -452,26 +447,27 @@ public class ExperimentController {
         return "experiment/configExperiment";
     }
 
-    @RequestMapping(value="/experiment/expRepoSelected", method=RequestMethod.POST, params="deleteExperiment")
+    @RequestMapping(value = "/experiment/expRepoSelected", method = RequestMethod.POST, params = "deleteExperiment")
     public
-    @ResponseBody Long expRepoSelectedDelete(@RequestParam("experimentId") String experimentId){
+    @ResponseBody
+    Long expRepoSelectedDelete(@RequestParam("experimentId") String experimentId) {
         Long idExp = Long.parseLong(experimentId);
 
         Experiment expConfig = experimentService.findExperimentById(idExp);
 
         Iterator<Run> listRunIt = expConfig.getIdRunList().iterator();
-        while(listRunIt.hasNext()) {
+        while (listRunIt.hasNext()) {
             Run runIt = listRunIt.next();
             Long threadId = runIt.getThreaId();
             // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
             Thread th = threadMap.get(threadId);
-            if(th != null) {
+            if (th != null) {
                 runIt.getDiagramData().setStopped(true);
                 runIt.setStatus(Run.Status.STOPPED);
 
                 Iterator<DiagramPair> it = runIt.getDiagramData().getListPair().iterator();
                 ArrayList<DiagramPair> lPairAux = new ArrayList<>();
-                while(it.hasNext()){
+                while (it.hasNext()) {
                     DiagramPair value = it.next();
                     it.remove();
                     lPairAux.add(value);
@@ -491,14 +487,14 @@ public class ExperimentController {
         }
 
         Iterator<Grammar> listGrammarIt = expConfig.getIdGrammarList().iterator();
-        while(listGrammarIt.hasNext()) {
+        while (listGrammarIt.hasNext()) {
             Grammar grammarIt = listGrammarIt.next();
             listGrammarIt.remove();
             grammarIt.setExperimentId(null);
         }
 
         Iterator<ExperimentDataType> listDataTypeIt = expConfig.getIdExpDataTypeList().iterator();
-        while(listDataTypeIt.hasNext()) {
+        while (listDataTypeIt.hasNext()) {
             ExperimentDataType expData = listDataTypeIt.next();
             listDataTypeIt.remove();
             expData.setExperimentId(null);
@@ -508,12 +504,12 @@ public class ExperimentController {
         return idExp;
     }
 
-    @RequestMapping(value="/experiment/runList", method=RequestMethod.GET, params="loadExperimentButton")
+    @RequestMapping(value = "/experiment/runList", method = RequestMethod.GET, params = "loadExperimentButton")
     public String loadExperiment(Model model,
                                  @RequestParam("runId") String runId) {
 
         User user = userService.getLoggedInUser();
-        if(user == null){
+        if (user == null) {
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
@@ -541,12 +537,12 @@ public class ExperimentController {
         return "experiment/configExperiment";
     }
 
-    @GetMapping(value="/experiment/runList", params="runExperimentButton")
+    @GetMapping(value = "/experiment/runList", params = "runExperimentButton")
     public String runExperiment(Model model,
                                 @RequestParam(value = "runId") String runId) throws IOException {
 
         User user = userService.getLoggedInUser();
-        if(user == null){
+        if (user == null) {
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
@@ -555,6 +551,33 @@ public class ExperimentController {
         Run run = runService.findByRunId(longRunId);
         DiagramData diagramData = diagramDataService.findByRunId(run);
 
+        ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, diagramData);
+
+        if (run.getStatus().equals(Run.Status.RUNNING)) {      // We don't execute it if it's RUNNING
+            model.addAttribute("expDetails", experimentDetailsDto);
+            return "experiment/experimentDetails";
+        }
+        experimentDetailsDto.setStatus(run.getStatus());    // The last status will be displayed in the new tab until Aj
+        model.addAttribute("expDetails", experimentDetailsDto);
+
+        Calendar calendar = Calendar.getInstance();
+        java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
+        run.setModificationDate(currentTimestamp);
+
+        Iterator<DiagramPair> it = diagramData.getListPair().iterator();
+        ArrayList<DiagramPair> lAux = new ArrayList<>();
+        while (it.hasNext()) {
+            DiagramPair value = it.next();
+            lAux.add(value);
+        }
+        diagramData.getListPair().removeAll(lAux);
+        diagramDataService.saveDiagram(diagramData);
+        runExperimentDetails(user, run, run.getDiagramData());
+
+        return "experiment/experimentDetails";
+    }
+
+    private ExperimentDetailsDto setExperimentDetailDto(Run run, DiagramData diagramData) {
         ExperimentDetailsDto experimentDetailsDto = new ExperimentDetailsDto();
 
         experimentDetailsDto.setExperimentId(run.getExperimentId().getId());
@@ -580,37 +603,15 @@ public class ExperimentController {
 
         experimentDetailsDto.setBestIndividual(diagramData.getBestIndividual());
         experimentDetailsDto.setCurrentGeneration(diagramData.getCurrentGeneration());
-
-        if(run.getStatus().equals(Run.Status.RUNNING)){      // We don't execute it if it's RUNNING
-            model.addAttribute("expDetails", experimentDetailsDto);
-            return "experiment/experimentDetails";
-        }
-        experimentDetailsDto.setStatus(run.getStatus());    // The last status will be displayed in the new tab until Aj
-        model.addAttribute("expDetails", experimentDetailsDto);
-
-        Calendar calendar = Calendar.getInstance();
-        java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
-        run.setModificationDate(currentTimestamp);
-
-        Iterator<DiagramPair> it = diagramData.getListPair().iterator();
-        ArrayList<DiagramPair> lAux = new ArrayList<>();
-        while(it.hasNext()){
-            DiagramPair value = it.next();
-            lAux.add(value);
-        }
-        diagramData.getListPair().removeAll(lAux);
-        diagramDataService.saveDiagram(diagramData);
-        runExperimentDetails(user, run, run.getDiagramData());
-
-        return "experiment/experimentDetails";
+        return experimentDetailsDto;
     }
 
-    @GetMapping(value="/experiment/runList", params="showPlotExecutionButton")
+    @GetMapping(value = "/experiment/runList", params = "showPlotExecutionButton")
     public String showPlotExecutionExperiment(Model model,
                                               @RequestParam(value = "runId") String runId) {
 
         User user = userService.getLoggedInUser();
-        if(user == null){
+        if (user == null) {
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
@@ -618,6 +619,14 @@ public class ExperimentController {
         Long longRunId = Long.parseLong(runId);
         Run run = runService.findByRunId(longRunId);
         DiagramData diagramData = diagramDataService.findByRunId(run);
+
+        if (run.getStatus().equals(Run.Status.RUNNING)) {
+            ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, diagramData);
+            model.addAttribute("expDetails", experimentDetailsDto);
+            return "experiment/experimentDetails";
+        }
+
+
 
         ExperimentDetailsDto experimentDetailsDto = new ExperimentDetailsDto();
 
@@ -653,7 +662,7 @@ public class ExperimentController {
 
     public void runExperimentDetails(User user, Run run, DiagramData diagramData) throws IOException {
         ExpProperties prop = experimentService.findPropertiesById(run.getIdProperties());
-        String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + run.getExperimentName().replaceAll("\\s+","") + "_" + prop.getUuidPropDto() + ".properties";
+        String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + run.getExperimentName().replaceAll("\\s+", "") + "_" + prop.getUuidPropDto() + ".properties";
 
         File propertiesFile = new File(propertiesFilePath);
         Reader propertiesReader = new FileReader(propertiesFile);
@@ -675,7 +684,7 @@ public class ExperimentController {
         th.start();
         threadMap.put(th.getId(), th);
         run.setThreaId(th.getId());
-        runnables.put(th.getId(),obj);
+        runnables.put(th.getId(), obj);
         // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
 
         propertiesReader.close();
@@ -689,36 +698,35 @@ public class ExperimentController {
 
         PrintWriter propertiesWriter = new PrintWriter(propertiesNewFile);
 
-        propertiesWriter.println("# ExpPropertiesDto for " +  expName);
+        propertiesWriter.println("# ExpPropertiesDto for " + expName);
         propertiesWriter.println("# " + currentTimeStamp.toString());
-        propertiesWriter.println("LoggerBasePath=" +  propertiesDto.getLoggerBasePath().replace("\\", "/"));
-        propertiesWriter.println("ErrorThreshold=" +  propertiesDto.getErrorThreshold());
+        propertiesWriter.println("LoggerBasePath=" + propertiesDto.getLoggerBasePath().replace("\\", "/"));
+        propertiesWriter.println("ErrorThreshold=" + propertiesDto.getErrorThreshold());
         propertiesWriter.println("TournamentSize=" + propertiesDto.getTournamentSize());
         propertiesWriter.println("WorkDir=" + propertiesDto.getWorkDir().replace("\\", "/"));
         propertiesWriter.println("RealDataCopied=" + propertiesDto.getRealDataCopied());
         propertiesWriter.println("CrossoverProb=" + propertiesDto.getCrossoverProb());
         propertiesWriter.println("BnfPathFile=" + propertiesDto.getBnfPathFile().substring(2, propertiesDto.getBnfPathFile().length()).replace("\\", "/"));
-        propertiesWriter.println("Objectives=" +  propertiesDto.getObjectives());
+        propertiesWriter.println("Objectives=" + propertiesDto.getObjectives());
         propertiesWriter.println("ClassPathSeparator=" + propertiesDto.getClassPathSeparator());
-        propertiesWriter.println("Executions=" +  propertiesDto.getExecutions());
+        propertiesWriter.println("Executions=" + propertiesDto.getExecutions());
         propertiesWriter.println("LoggerLevel=" + propertiesDto.getLoggerLevel());
-        propertiesWriter.println("MutationProb=" +  propertiesDto.getMutationProb());
+        propertiesWriter.println("MutationProb=" + propertiesDto.getMutationProb());
         propertiesWriter.println("NormalizeData=" + propertiesDto.getNormalizedData());
-        propertiesWriter.println("LogPopulation=" +  propertiesDto.getLogPopulation());
+        propertiesWriter.println("LogPopulation=" + propertiesDto.getLogPopulation());
         propertiesWriter.println("ChromosomeLength=" + propertiesDto.getChromosomeLength());
-        propertiesWriter.println("NumIndividuals=" +  propertiesDto.getNumIndividuals());
+        propertiesWriter.println("NumIndividuals=" + propertiesDto.getNumIndividuals());
         propertiesWriter.println("NumGenerations=" + propertiesDto.getNumGenerations());
-        propertiesWriter.println("ViewResults=" +  propertiesDto.getViewResults());
+        propertiesWriter.println("ViewResults=" + propertiesDto.getViewResults());
         propertiesWriter.println("MaxWraps=" + propertiesDto.getMaxWraps());
         propertiesWriter.println("ModelWidth=" + propertiesDto.getModelWidth());
 
-        if(propertiesDto.getTraining())
+        if (propertiesDto.getTraining())
             propertiesWriter.println("TrainingPath=" + propertiesDto.getTrainingPath().substring(2, propertiesDto.getTrainingPath().length()).replace("\\", "/"));
-        else if(propertiesDto.getValidation()) {
+        else if (propertiesDto.getValidation()) {
             propertiesWriter.println("TrainingPath=" + propertiesDto.getTrainingPath().substring(2, propertiesDto.getTrainingPath().length()).replace("\\", "/")); // TEMPORAL UNTIL KNOW IF WE NEED THIS OR NOT
             propertiesWriter.println("ValidationPath=" + propertiesDto.getValidationPath().substring(2, propertiesDto.getValidationPath().length()).replace("\\", "/"));
-        }
-        else {
+        } else {
             propertiesWriter.println("TrainingPath=" + propertiesDto.getTrainingPath().substring(2, propertiesDto.getTrainingPath().length()).replace("\\", "/"));
             propertiesWriter.println("TestPath=" + propertiesDto.getTestPath().substring(2, propertiesDto.getTestPath().length()).replace("\\", "/"));
             // ("\\", "/")
@@ -726,7 +734,7 @@ public class ExperimentController {
         propertiesWriter.close();
     }
 
-    public ExpProperties createExpPropertiesEntity(ExpProperties expProp, Properties properties, Experiment experiment, Run run, ExpPropertiesDto propDto, String dataFilePath){
+    public ExpProperties createExpPropertiesEntity(ExpProperties expProp, Properties properties, Experiment experiment, Run run, ExpPropertiesDto propDto, String dataFilePath) {
         expProp.setUuidPropDto(propDto.getId().toString());
 
         expProp.setIdExp(experiment.getId());
@@ -766,7 +774,7 @@ public class ExperimentController {
         return expProp;
     }
 
-    public Grammar grammarSection(Grammar grammar, GrammarDto grammarDto){
+    public Grammar grammarSection(Grammar grammar, GrammarDto grammarDto) {
         grammar.setGrammarName(grammarDto.getGrammarName());
         grammar.setGrammarDescription(grammarDto.getGrammarDescription());
         grammar.setFileText(grammarDto.getFileText());
@@ -774,7 +782,7 @@ public class ExperimentController {
         return grammar;
     }
 
-    public Run runSection(Run run, Grammar grammar, ConfigExperimentDto configExpDto, java.sql.Timestamp currentTimestamp){
+    public Run runSection(Run run, Grammar grammar, ConfigExperimentDto configExpDto, java.sql.Timestamp currentTimestamp) {
         run.setDefaultRunId(run.getId());
         run.setStatus(Run.Status.INITIALIZING);
 
@@ -808,7 +816,7 @@ public class ExperimentController {
         if (!dir.exists())
             dir.mkdirs();
 
-        String grammarFilePath = GRAMMAR_DIR_PATH + user.getId() + File.separator + configExpDto.getExperimentName().replaceAll("\\s+","") + "_" + grammar.getId() + ".bnf";
+        String grammarFilePath = GRAMMAR_DIR_PATH + user.getId() + File.separator + configExpDto.getExperimentName().replaceAll("\\s+", "") + "_" + grammar.getId() + ".bnf";
 
         File grammarNewFile = new File(grammarFilePath);
         if (!grammarNewFile.exists()) {
@@ -828,14 +836,13 @@ public class ExperimentController {
     }
 
     public ExperimentDataType experimentDataTypeSection(FileModelDto fileModelDto, ExperimentDataType expDataType, ExperimentDataTypeDto expDataTypeDto, java.sql.Timestamp currentTimestamp) throws IOException {
-        if(! fileModelDto.getTypeFile().isEmpty()){
+        if (!fileModelDto.getTypeFile().isEmpty()) {
             expDataType.setDataTypeName(expDataTypeDto.getDataTypeName());
             expDataType.setinfo(expDataTypeDto.getinfo());
             expDataType.setDataTypeDescription(expDataTypeDto.getDataTypeDescription());
             expDataType.setCreationDate(currentTimestamp);
             expDataType.setDataTypeType("training");
-        }
-        else if (expDataType.getRunId() != null) {
+        } else if (expDataType.getRunId() != null) {
             expDataType.setModificationDate(currentTimestamp);
             expDataType.setDataTypeType(expDataTypeDto.getDataTypeType().toString());
         }
@@ -843,16 +850,15 @@ public class ExperimentController {
         return expDataType;
     }
 
-    public Experiment experimentSection(Experiment exp, User user, ExperimentDataType expDataType, ConfigExperimentDto configExpDto, Grammar grammar, Run run, java.sql.Timestamp currentTimestamp, Long longDefaultRunId){
-        if(exp == null) {   // We create it
-            exp = new Experiment(user, configExpDto.getExperimentName(), configExpDto.getExperimentDescription() ,configExpDto.getGenerations(),
+    public Experiment experimentSection(Experiment exp, User user, ExperimentDataType expDataType, ConfigExperimentDto configExpDto, Grammar grammar, Run run, java.sql.Timestamp currentTimestamp, Long longDefaultRunId) {
+        if (exp == null) {   // We create it
+            exp = new Experiment(user, configExpDto.getExperimentName(), configExpDto.getExperimentDescription(), configExpDto.getGenerations(),
                     configExpDto.getPopulationSize(), configExpDto.getMaxWraps(), configExpDto.getTournament(), configExpDto.getCrossoverProb(), configExpDto.getMutationProb(),
-                    configExpDto.getInitialization(), configExpDto.getResults(), configExpDto.getNumCodons(), configExpDto.getNumberRuns(), configExpDto.getObjective() ,currentTimestamp, currentTimestamp);
+                    configExpDto.getInitialization(), configExpDto.getResults(), configExpDto.getNumCodons(), configExpDto.getNumberRuns(), configExpDto.getObjective(), currentTimestamp, currentTimestamp);
             exp.setDefaultRunId(longDefaultRunId);          // Doesn't exists -> We set up the run id obtained before
             user.addExperiment(exp);       // We add it only if doesn't exist
 
-        }
-        else {  // The experiment data type configuration already exist
+        } else {  // The experiment data type configuration already exist
             exp.setUserId(user);
 
             exp.setExperimentName(configExpDto.getExperimentName());
@@ -886,20 +892,20 @@ public class ExperimentController {
     }
 
     @GetMapping("/experiment/experimentDetails")
-    public String experimentDetails(@ModelAttribute("expDetails") ExperimentDetailsDto expDetailsDto){
+    public String experimentDetails(@ModelAttribute("expDetails") ExperimentDetailsDto expDetailsDto) {
         return "experiment/experimentDetails";
     }
 
-    @PostMapping(value="/experiment/stopRun", params="stopRunExperimentButton")
+    @PostMapping(value = "/experiment/stopRun", params = "stopRunExperimentButton")
     public String stopRunExperiment(Model model,
                                     @RequestParam("runIdStop") String runIdStop,
-                                    RedirectAttributes redirectAttrs){
+                                    RedirectAttributes redirectAttrs) {
         Run run = runService.findByRunId(Long.parseLong(runIdStop));
         Long threadId = run.getThreaId();
 
         // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
         Thread th = threadMap.get(threadId);
-        if(th == null){
+        if (th == null) {
             run.setStatus(Run.Status.FAILED);
             run.getDiagramData().setFailed(true);
 
@@ -945,9 +951,10 @@ public class ExperimentController {
         return "experiment/showDiagramPlot";
     }
 
-    @RequestMapping(value="/experiment/expRepoSelected", method=RequestMethod.POST, params="deleteDataType")
+    @RequestMapping(value = "/experiment/expRepoSelected", method = RequestMethod.POST, params = "deleteDataType")
     public
-    @ResponseBody Long deleteExpDataType(@RequestParam("expDataTypeId") String expDataTypeId){
+    @ResponseBody
+    Long deleteExpDataType(@RequestParam("expDataTypeId") String expDataTypeId) {
         Boolean found = false;
 
         Long longExpDataTypeId = Long.parseLong(expDataTypeId);
@@ -955,10 +962,10 @@ public class ExperimentController {
 
         List<ExperimentDataType> lExpDataType = expDataType.getExperimentId().getIdExpDataTypeList();
         Iterator<ExperimentDataType> expDataIt = lExpDataType.iterator();
-        while(expDataIt.hasNext() && !found) {
+        while (expDataIt.hasNext() && !found) {
             ExperimentDataType expDataAux = expDataIt.next();
             if (expDataAux.getId().longValue() == expDataType.getId().longValue()) {
-                if(expDataAux.getId().longValue() == expDataType.getExperimentId().getDefaultExpDataType().longValue())
+                if (expDataAux.getId().longValue() == expDataType.getExperimentId().getDefaultExpDataType().longValue())
                     expDataType.getExperimentId().setDefaultExpDataType(Long.parseLong("0"));
                 expDataAux.setExperimentId(null);
                 found = true;
@@ -968,9 +975,10 @@ public class ExperimentController {
         return longExpDataTypeId;
     }
 
-    @RequestMapping(value="/experiment/expRepoSelected", method=RequestMethod.POST, params="deleteRun")
+    @RequestMapping(value = "/experiment/expRepoSelected", method = RequestMethod.POST, params = "deleteRun")
     public
-    @ResponseBody Long deleteRun(@RequestParam("runId") String runId){
+    @ResponseBody
+    Long deleteRun(@RequestParam("runId") String runId) {
         Boolean found = false;
 
         Long longRunId = Long.parseLong(runId);
@@ -979,12 +987,12 @@ public class ExperimentController {
 
         List<Grammar> lGrammar = experiment.getIdGrammarList();
         Iterator<Grammar> grammarIt = lGrammar.iterator();
-        while(grammarIt.hasNext() && !found) {
+        while (grammarIt.hasNext() && !found) {
             Grammar grammarAux = grammarIt.next();
             if (grammarAux.getId().longValue() == run.getDefaultGrammarId().longValue()) {
                 grammarAux.setExperimentId(null);
 
-                if(grammarAux.getId().longValue() == experiment.getDefaultGrammar().longValue())
+                if (grammarAux.getId().longValue() == experiment.getDefaultGrammar().longValue())
                     experiment.setDefaultRunId(Long.parseLong("0"));
                 found = true;
             }
@@ -993,26 +1001,26 @@ public class ExperimentController {
 
         List<Run> lRun = run.getExperimentId().getIdRunList();
         Iterator<Run> runIt = lRun.iterator();
-        while(runIt.hasNext() && !found){
+        while (runIt.hasNext() && !found) {
             Run runAux = runIt.next();
-            if(runAux.getId().longValue() == run.getId().longValue()) {
+            if (runAux.getId().longValue() == run.getId().longValue()) {
                 runAux.getDiagramData().setRunId(null);
                 diagramDataService.deleteDiagram(runAux.getDiagramData());
                 runAux.setExperimentId(null);
-                if(runAux.getId().longValue() == experiment.getDefaultRunId().longValue())
+                if (runAux.getId().longValue() == experiment.getDefaultRunId().longValue())
                     experiment.setDefaultRunId(Long.parseLong("0"));
                 found = true;
             }
         }
 
-        if(experimentService.findPropertiesById(run.getIdProperties()) != null)
+        if (experimentService.findPropertiesById(run.getIdProperties()) != null)
             runService.deleteExpProperties(experimentService.findPropertiesById(run.getIdProperties()));
 
         return longRunId;
     }
 
-    public ConfigExperimentDto fillConfigExpDto(ConfigExperimentDto configExpDto, Experiment exp, Run run, Grammar grammar, ExperimentDataType expDataType){
-        if(run == null){
+    public ConfigExperimentDto fillConfigExpDto(ConfigExperimentDto configExpDto, Experiment exp, Run run, Grammar grammar, ExperimentDataType expDataType) {
+        if (run == null) {
             configExpDto.setDefaultRunId(exp.getDefaultRunId());
             configExpDto.setExperimentName(exp.getExperimentName());
             configExpDto.setExperimentDescription(exp.getExperimentDescription());
@@ -1028,8 +1036,7 @@ public class ExperimentController {
             configExpDto.setNumCodons(exp.getNumCodons());
             configExpDto.setNumberRuns(exp.getNumberRuns());
             configExpDto.setObjective(exp.getObjective());
-        }
-        else {
+        } else {
             configExpDto.setDefaultRunId(run.getId());
             configExpDto.setExperimentName(run.getExperimentName());
             configExpDto.setExperimentDescription(run.getExperimentDescription());
