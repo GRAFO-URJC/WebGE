@@ -1,6 +1,7 @@
 package com.gramevapp.web.restController;
 
 import com.gramevapp.web.model.DiagramData;
+import com.gramevapp.web.model.DiagramPair;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.model.User;
 import com.gramevapp.web.service.DiagramDataService;
@@ -8,6 +9,10 @@ import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 
 
 @RestController("diagramDataRestController")
@@ -27,13 +32,23 @@ public class DiagramDataRestController {
     public @ResponseBody
     DiagramData getLastBestIndividual(String runId) {
         User user = userService.getLoggedInUser();
-        if(user == null)
+        if (user == null)
             System.out.println("User not authenticated");
         Long longRunId = Long.parseLong(runId);
         Run run = runService.findByRunId(longRunId);
 
         DiagramData diagramData = diagramDataService.getLastBestIndividual(run);
-
+        diagramData.getListPair().sort(new Comparator<DiagramPair>() {
+            @Override
+            public int compare(DiagramPair o1, DiagramPair o2) {
+                if (o1.getCurrentGeneration() > o2.getCurrentGeneration()) {
+                    return 1;
+                } else if (o1.getCurrentGeneration() == o2.getCurrentGeneration()) {
+                    return 0;
+                }
+                return -1;
+            }
+        });
         return diagramData;
     }
 }
