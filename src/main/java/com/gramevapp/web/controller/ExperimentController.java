@@ -438,6 +438,8 @@ public class ExperimentController {
         ConfigExperimentDto configExpDto = new ConfigExperimentDto();
         configExpDto = fillConfigExpDto(configExpDto, exp, runService.findByRunId(exp.getDefaultRunId()), grammar, expDataType);
 
+        model.addAttribute("grammarList", grammarRepository.findByUserId(user.getId()));
+        model.addAttribute("grammar", grammar);
         model.addAttribute("runList", runList);
         model.addAttribute("configuration", configExpDto);
         model.addAttribute("configExp", configExpDto);
