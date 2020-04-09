@@ -25,6 +25,8 @@ public class RunService {
     }
 
     public Run findByRunId(Long runId){
+        if(runId==null)
+            return null;
         return runRepository.findById(runId).get();
     }
 

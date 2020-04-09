@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.w3.org/1999/xhtml"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorator="layouts/default"
+      layout:decorate="~{layouts/default}"
       lang="en">
 <head>
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"/>
@@ -227,7 +227,8 @@
                                     <select id="grammarId" name="grammarId" onchange="updateGrammarContent()">
                                         <option value="grammarContentEmpty">Select a grammar ...</option>
                                         <option th:each="gr : ${grammarList}" th:value="${gr.getId()}"
-                                                th:text="${gr.getGrammarName() + ' - ' + gr.getGrammarDescription()}"/>
+                                                th:text="${gr.getGrammarName() + ' - ' + gr.getGrammarDescription()}"
+                                                th:selected="(${(grammar !=null) && (grammar.getId() == gr.getId())})"/>
                                     </select>
                                 </div>
                             </div>
@@ -577,6 +578,8 @@
         function updateGrammarContent() {
             $("#grammarContainer").val($("#grammarContent" + $("#grammarId").val()).val());
         }
+
+        $(document).ready(updateGrammarContent);
     </script>
 
     <!-- Old scripts below -->
@@ -711,7 +714,7 @@
         //disabled or not disabled button downloadDataTypeFile
         document.getElementById("info").addEventListener("change", function () {
             console.log($(this).val());
-            console.log($(this).val()==="");
+            console.log($(this).val() === "");
 
             if ($(this).val() === "") {
                 $("#downloadTypeButton").attr("disabled", true);
@@ -773,11 +776,11 @@
         };
 
 
-        function downloadDataTypeFile(){
+        function downloadDataTypeFile() {
 
             var textToWrite = document.getElementById("info").value;
-            textToWrite = listToMatrix(textToWrite.split("/(\s*;\s*/)|((\n\r)|(\r\n))"),11);
-            exportCSVFile(textToWrite,"datatypefile");
+            textToWrite = listToMatrix(textToWrite.split("/(\s*;\s*/)|((\n\r)|(\r\n))"), 11);
+            exportCSVFile(textToWrite, "datatypefile");
         }
 
         //https://stackoverflow.com/questions/4492385/how-to-convert-simple-array-into-two-
@@ -817,7 +820,7 @@
             return str;
         }
 
-        function exportCSVFile( items, fileName) {
+        function exportCSVFile(items, fileName) {
 
             const jsonObject = JSON.stringify(items);
 
