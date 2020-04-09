@@ -228,7 +228,7 @@
                                         <option value="grammarContentEmpty">Select a grammar ...</option>
                                         <option th:each="gr : ${grammarList}" th:value="${gr.getId()}"
                                                 th:text="${gr.getGrammarName() + ' - ' + gr.getGrammarDescription()}"
-                                                th:selected="(${grammar.getId() == gr.getId()})"/>
+                                                th:selected="(${(grammar !=null) && (grammar.getId() == gr.getId())})"/>
                                     </select>
                                 </div>
                             </div>
@@ -578,6 +578,7 @@
         function updateGrammarContent() {
             $("#grammarContainer").val($("#grammarContent" + $("#grammarId").val()).val());
         }
+
         $(document).ready(updateGrammarContent);
     </script>
 
