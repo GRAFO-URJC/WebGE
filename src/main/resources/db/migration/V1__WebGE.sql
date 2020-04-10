@@ -1,4 +1,4 @@
-CREATE SCHEMA webge;
+CREATE SCHEMA IF NOT EXISTS webge;
 drop table if exists webge.SPRING_SESSION_ATTRIBUTES cascade;
 drop table if exists webge.SPRING_SESSION cascade;
 drop table if exists webge.diagram_pair_list cascade;
