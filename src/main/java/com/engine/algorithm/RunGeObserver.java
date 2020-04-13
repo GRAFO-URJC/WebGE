@@ -66,15 +66,6 @@ public class RunGeObserver implements Observer {
         dataDataService.saveDiagramPair(diagramPair);
 
         dataDataService.saveDiagram(this.diagramData);
-
-        /*
-        if (dataMap.get("BestObjective") != null) {
-            currBest = Double.valueOf(dataMap.get("BestObjective").toString());
-
-        } else if (dataMap.get("Objectives") != null) {
-            double objs[][] = (double [][]) dataMap.get("Objectives");
-        }
-         */
     }
 
     public DiagramData getDiagramData() {
