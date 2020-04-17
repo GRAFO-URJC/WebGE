@@ -94,116 +94,117 @@
             </section>
         </div>
 
-    <!-- END Main -->
+        <!-- END Main -->
 
-</div>
+    </div>
 
-<script>
-    var dataPoints = [],
-        xPoint,
-        yPoint;
+    <script>
+        var dataPoints = [],
+            xPoint,
+            yPoint;
 
-    var chart = new CanvasJS.Chart("chartContainer", {
-        animationEnabled: true,
-        backgroundColor: "transparent",
-        colorSet: "greenShades",
-        animationEnabled: true,
-        exportEnabled: true,
-        theme: "theme3",
-        zoomEnabled: true,
-        panEnabled: true,
-
-        title: {
-            text: "Diagram data flow showing best individual"
-        },
-        data: [{
-            markerSize: 4,
-            color: "OrangeRed",
-            type: "line",
-            dataPoints: dataPoints, toolTipContent: "Best individual : <b>{y}</b> <br/> Current generation : <b>{x}</b>"
-        }],
-        axisX: {
-            title: "Current generation",
-            labelAngle: -50,
-            lineThickness: 0.5,
-            tickThickness: 0.5,
-        },
-        axisY: {
-            title: "Best individual",
-            maximum: 1,
-            minimum: 0,
-            lineThickness: 1,
-            tickThickness: 1,
-            gridThickness: 1,
-        },
-        toolTip: {
-            shared: true,
-            enabled: true,
+        var chart = new CanvasJS.Chart("chartContainer", {
             animationEnabled: true,
-        },
-    });
+            backgroundColor: "transparent",
+            colorSet: "greenShades",
+            animationEnabled: true,
+            exportEnabled: true,
+            theme: "theme3",
+            zoomEnabled: true,
+            panEnabled: true,
 
-    function reloadPlotD3(runId) {
-        $.ajax({
-            url: encodeURI("/user/rest/diagramFlow/"),
-            data: {
-                'runId': runId.text(),
+            title: {
+                text: "Diagram data flow showing best individual"
             },
-            type: "GET",
-            dataType: "json",
-            success: function (data) {
-                var diagramPairList = data['listPair'];
-                $.each(diagramPairList, function (index) {
-                    xPoint = diagramPairList[index]['currentGeneration'];
-                    yPoint = diagramPairList[index]['bestIndividual'];
-
-                    dataPoints.push({x: parseInt(xPoint), y: parseFloat(yPoint)});
-                });
-                chart.options.data[0].dataPoints = dataPoints;
-
-                chart.render();
-            }
-        });
-    }
-
-    function checkRunStatus(runId) {
-        $.ajax({
-            url: encodeURI("/user/rest/runStatus/"),
-            data: {
-                'runId': runId,
-                'status': $("#status").text()
+            data: [{
+                markerSize: 4,
+                color: "OrangeRed",
+                type: "line",
+                dataPoints: dataPoints,
+                toolTipContent: "Best individual : <b>{y}</b> <br/> Current generation : <b>{x}</b>"
+            }],
+            axisX: {
+                title: "Current generation",
+                labelAngle: -50,
+                lineThickness: 0.5,
+                tickThickness: 0.5,
             },
-            cache: false,
-            async: true,
-            type: "GET",
-            dataType: "json",
-            success: function (data) {
-                var bestIndividualStr = data['bestIndividual'];
-                var currentGenerationStr = data['currentGeneration'];
-                var statusStr = data['status'];
-
-                $("#bestIndividual").text(bestIndividualStr);
-                $("#currentGeneration").text(currentGenerationStr);
-                $("#status").text(statusStr);
-            }
+            axisY: {
+                title: "Best individual",
+                maximum: 1,
+                minimum: 0,
+                lineThickness: 1,
+                tickThickness: 1,
+                gridThickness: 1,
+            },
+            toolTip: {
+                shared: true,
+                enabled: true,
+                animationEnabled: true,
+            },
         });
-    };
 
-    $(document).ready(function () {
-        dataPoints = [];
+        function reloadPlotD3(runId) {
+            $.ajax({
+                url: encodeURI("/user/rest/diagramFlow/"),
+                data: {
+                    'runId': runId.text(),
+                },
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    var diagramPairList = data['listPair'];
+                    $.each(diagramPairList, function (index) {
+                        xPoint = diagramPairList[index]['currentGeneration'];
+                        yPoint = diagramPairList[index]['bestIndividual'];
 
-        setTimeout(function () {
-            reloadPlotD3($("#runId"));
-        }, 100);
-    });
+                        dataPoints.push({x: parseInt(xPoint), y: parseFloat(yPoint)});
+                    });
+                    chart.options.data[0].dataPoints = dataPoints;
 
-</script>
+                    chart.render();
+                }
+            });
+        }
 
-<script>
-    $(document).ready(function () {
-        $("[rel=tooltip]").tooltip({placement: 'right'});
-    });
-</script>
+        function checkRunStatus(runId) {
+            $.ajax({
+                url: encodeURI("/user/rest/runStatus/"),
+                data: {
+                    'runId': runId,
+                    'status': $("#status").text()
+                },
+                cache: false,
+                async: true,
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    var bestIndividualStr = data['bestIndividual'];
+                    var currentGenerationStr = data['currentGeneration'];
+                    var statusStr = data['status'];
+
+                    $("#bestIndividual").text(bestIndividualStr);
+                    $("#currentGeneration").text(currentGenerationStr);
+                    $("#status").text(statusStr);
+                }
+            });
+        };
+
+        $(document).ready(function () {
+            dataPoints = [];
+
+            setTimeout(function () {
+                reloadPlotD3($("#runId"));
+            }, 100);
+        });
+
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $("[rel=tooltip]").tooltip({placement: 'right'});
+        });
+    </script>
 </div>
 </body>
 </html>
