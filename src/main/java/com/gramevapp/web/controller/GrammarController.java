@@ -34,11 +34,6 @@ public class GrammarController {
     public String grammarRepository(Model model) {
 
         User user = userService.getLoggedInUser();
-        if (user == null) {
-            System.out.println("User not authenticated");
-            return "redirect:/login";
-        }
-
         List<Grammar> grammarList = grammarRepository.findByUserId(user.getId());
 
         model.addAttribute("grammarList", grammarList);
@@ -71,11 +66,6 @@ public class GrammarController {
     public String editGrammar(Model model, @RequestParam("grammarId") String grammarId) {
 
         User user = userService.getLoggedInUser();
-        if (user == null) {
-            System.out.println("User not authenticated");
-            return "redirect:/login";
-        }
-
         long idGrammar = Long.parseLong(grammarId);
 
         Grammar gr = new Grammar();
