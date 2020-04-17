@@ -1,8 +1,6 @@
 package com.gramevapp.web.controller;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.*;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,20 +40,7 @@ public class FileUploadController {
                 String filePath = "resources/fileData.log";
                 File dir = new File(filePath);
                 //File dir = new File(rootPath + File.separator + "tmpFiles");
-                if (!dir.exists())
-                    dir.mkdirs();
-
-                // Create the file on server
-                File serverFile = new File(dir.getAbsolutePath()
-                        + File.separator + name);
-                BufferedOutputStream stream = new BufferedOutputStream(
-                        new FileOutputStream(serverFile));
-                stream.write(bytes);
-                stream.close();
-
-                logger.info("Server File Location="
-                        + serverFile.getAbsolutePath());
-
+                createFile(dir, bytes, name);
                 return "You successfully uploaded file=" + name;
             } catch (Exception e) {
                 return "You failed to upload " + name + " => " + e.getMessage();
@@ -64,6 +49,21 @@ public class FileUploadController {
             return "You failed to upload " + name
                     + " because the file was empty.";
         }
+    }
+
+    private void createFile(File dir, byte[] bytes,String name) throws IOException {
+        if (!dir.exists())
+            dir.mkdirs();
+
+        // Create the file on server
+        File serverFile = new File(dir.getAbsolutePath()
+                + File.separator + name);
+        BufferedOutputStream stream = new BufferedOutputStream(
+                new FileOutputStream(serverFile));
+        stream.write(bytes);
+        stream.close();
+
+        logger.info("Server File Location=" + serverFile.getAbsolutePath());
     }
 
     /**
@@ -87,18 +87,7 @@ public class FileUploadController {
                 // Creating the directory to store file
                 String rootPath = System.getProperty("catalina.base");
                 File dir = new File(rootPath + File.separator + "tmpFiles");
-                if (!dir.exists())
-                    dir.mkdirs();
-
-                // Create the file on server
-                File serverFile = new File(dir.getAbsolutePath()
-                        + File.separator + name);
-                BufferedOutputStream stream = new BufferedOutputStream(
-                        new FileOutputStream(serverFile));
-                stream.write(bytes);
-                stream.close();
-
-                logger.info("Server File Location=" + serverFile.getAbsolutePath());
+                createFile(dir, bytes,name);
 
                 message = message + "You successfully uploaded file=" + name + " ";
             } catch (Exception e) {
