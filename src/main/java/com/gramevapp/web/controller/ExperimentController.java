@@ -497,6 +497,8 @@ public class ExperimentController {
             expData.setExperimentId(null);
         }
 
+        expConfig.setDefaultGrammar(null);
+        experimentService.saveExperiment(expConfig);
         experimentService.deleteExperiment(expConfig);
         return idExp;
     }

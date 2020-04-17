@@ -44,7 +44,6 @@ public class Experiment {
     @JsonBackReference
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToMany(fetch=FetchType.LAZY,
-            cascade=CascadeType.ALL,
             mappedBy = "experimentId",
             orphanRemoval = true)
     private List<Grammar> idGrammarList;
