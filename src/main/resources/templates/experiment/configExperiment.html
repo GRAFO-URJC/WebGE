@@ -701,8 +701,6 @@
         });
 
         $(document).ready(function () {
-            $("[rel=tooltip]").tooltip({placement: 'right'});
-
             $("#searchExperiment").on("keyup", function () {
                 var value = $(this).val().toLowerCase();
                 $("#runTable tr").filter(function () {
