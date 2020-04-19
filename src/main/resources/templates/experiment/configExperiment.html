@@ -260,6 +260,19 @@
                             <div class="jumbotron row form-group">
                                 <h3>Data type information</h3>
                             </div>
+
+                            <div class="row form-group center-block">
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <select id="datasetId" name="datasetId" onchange="updateDatasetContent()">
+                                        <option value=-1>Select a dataset ...</option>
+                                        <option th:each="dataset,ite : ${datasetList}" th:value="${ite.index}"
+                                                th:text="${dataset.getDataTypeName() + ' - ' + dataset.getDataTypeDescription()}"
+                                                th:selected="(${(experimentDataType !=null) && (experimentDataType.getId() == dataset.getId())})"/>
+                                    </select>
+                                    <input id="experimentDataTypeId" name="experimentDataTypeId" hidden="true"/>
+                                </div>
+                            </div>
+
                             <div class="row form-group center-block">
                                 <div class="col-sm-12 col-md-12 col-lg-8">
                                     <!-- Error handling -->
@@ -269,7 +282,9 @@
                                     <!-- END error handling -->
                                     <div th:classappend="${#fields.hasErrors('dataTypeName')}? 'has-error':'dataTypeName error'">
                                         <input type="text" class="form-control" name="dataTypeName" id="dataTypeName"
-                                               th:value="${configuration.getDataTypeName()}" placeholder="Name"/>
+                                               th:value="${configuration.getDataTypeName()}"
+                                               placeholder="Name of dataset"
+                                               readonly/>
                                     </div>
                                 </div>
                             </div>
@@ -285,21 +300,7 @@
                                         <input type="text" class="form-control" name="dataTypeDescription"
                                                id="dataTypeDescription"
                                                th:value="${configuration.getDataTypeDescription()}"
-                                               placeholder="Description of the file"/>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row form-group">
-                                <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <!-- Error handling -->
-                                    <p class="text-warning"
-                                       th:each="error: ${#fields.errors('typeFile')}"
-                                       th:text="${error}">Validation error
-                                    </p>
-                                    <!-- END error handling -->
-                                    <div th:classappend="${#fields.hasErrors('typeFile')}? 'has-error':'typeFile error'">
-                                        <input type="file" name="typeFile" id="typeFile" required="required"/>
+                                               placeholder="Description of the file" readonly/>
                                     </div>
                                 </div>
                             </div>
@@ -369,14 +370,8 @@
                             <div class="row form-group text-center">
 
                                 <textarea rows="5" class="form-control" th:text="${configuration.getinfo()}" name="info"
-                                          id="info"/>
+                                          id="info" readonly/>
 
-                                <div class="col-sm-12 col-md-12 col-lg-12">
-
-                                    <a name="downloadTypeButton" id="downloadTypeButton" class="btn-default btn-sm btn"
-                                       disabled="true" onclick="downloadDataTypeFile()">Download
-                                        data type file</a>
-                                </div>
                             </div>
                         </div>
                         <!-- END Training Test Validation files -->
@@ -577,32 +572,43 @@
     </div>
 
 
-    <script>
+    <script th:inline="javascript">
         // Updates the content of the textarea including the text of the selected grammar.
         function updateGrammarContent() {
             $("#grammarContainer").val($("#grammarContent" + $("#grammarId").val()).val());
         }
 
-        $(document).ready(updateGrammarContent);
+        function updateDatasetContent() {
+            let i = parseInt($('#datasetId').val());
+
+            if (i >= 0) {
+                $('#dataTypeName').val(datasetListInfo[i].dataTypeName);
+                $('#dataTypeDescription').val(datasetListInfo[i].dataTypeDescription);
+                $('#info').val(datasetListInfo[i].info);
+                $('#experimentDataTypeId').val(datasetListInfo[i].idDataset);
+            }
+
+        }
+        let datasetListInfo = [];
+        let data ={};
+        function saveDatasetInfo(){
+            /*<![CDATA[*/
+            /*[# th:each="dataset : ${datasetList}"]*/
+            data ={};
+            data.idDataset=/*[[${dataset.getId()}]]*/;
+            data.dataTypeName=/*[[${dataset.getDataTypeName()}]]*/;
+            data.dataTypeDescription=/*[[${dataset.getDataTypeDescription()}]]*/;
+            data.info=/*[[${dataset.getinfo()}]]*/;
+            datasetListInfo.push(data);
+            /*[/]*/
+            /*]]>*/
+        }
+
+
     </script>
 
     <!-- Old scripts below -->
     <script>
-        var ctrl = document.getElementById("typeFile");
-        ctrl.addEventListener("change", function (eve) {
-            var read = new FileReader();
-            read.onload = function (eve) {
-                var cont = eve.target.result;
-                document.getElementById('info').value = cont;
-                $("#downloadTypeButton").attr("disabled", false);
-            };
-            read.onerror = function (eve) {
-                console.error("File could not be read! Code " + eve.target.error.code);
-                $("#downloadTypeButton").attr("disabled", true);
-            };
-            read.readAsText(ctrl.files[0]);
-        }, false);
-
         function destroyClickedElement(event) {
             // remove the link from the DOM
             document.body.removeChild(event.target);
@@ -683,6 +689,17 @@
 
         $(document).ready(function () {
 
+            $("#searchExperiment").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#runTable tr").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+
+            saveDatasetInfo();
+            updateGrammarContent();
+            updateDatasetContent()
+
             $('[name="status"]').each(function (index) {
                 if (($(this).text() == "FINISHED") || ($(this).text() == "STOPPED") || ($(this).text() == "FAILED")) {
                     indexesShow[index] = index;
@@ -703,28 +720,6 @@
                 $("#runExperimentButton" + indexesShow[index]).addClass("hidden");
             });
         });
-
-        $(document).ready(function () {
-            $("#searchExperiment").on("keyup", function () {
-                var value = $(this).val().toLowerCase();
-                $("#runTable tr").filter(function () {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-                });
-            });
-        });
-
-        //disabled or not disabled button downloadDataTypeFile
-        document.getElementById("info").addEventListener("change", function () {
-            console.log($(this).val());
-            console.log($(this).val() === "");
-
-            if ($(this).val() === "") {
-                $("#downloadTypeButton").attr("disabled", true);
-            } else {
-                $("#downloadTypeButton").attr("disabled", false);
-            }
-        }, false);
-
 
         function confirmDelete(iterStat, runId) {
             var result = confirm("Are you sure to delete this run ?");

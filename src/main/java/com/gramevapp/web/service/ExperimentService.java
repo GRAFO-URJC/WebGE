@@ -71,6 +71,37 @@ public class ExperimentService {
 
     }
 
+    public void loadExperimentRowType(ExperimentDataType expDataType){
+
+        ArrayList<String> columnList = new ArrayList<>();
+
+        String[] columns = expDataType.getinfo().split("\r\n");
+        for(String column : columns[0].split(";")) {
+            columnList.add(column);
+        }
+
+        expDataType.setHeader(columnList);
+
+        for(int i = 1;i<columns.length;i++){
+
+            ArrayList<String> rowColumnList = new ArrayList<>();
+
+            String[] rowColumns = columns[i].split(";");
+            for(String rowColumn : rowColumns) {
+                rowColumnList.add(rowColumn);
+            }
+
+            ExperimentRowType expRowType = new ExperimentRowType();
+            expRowType.setExpDataTypeId(expDataType);
+            expRowType.setDataRow(rowColumnList);
+
+            expDataType.addExperimentRowType(expRowType);
+
+            experimentRowTypeRepository.save(expRowType);
+        }
+
+    }
+
     public ExperimentDataType saveDataType(ExperimentDataType expDataType){
         return experimentDataTypeRepository.save(expDataType);
     }

@@ -54,7 +54,6 @@ public class Experiment {
     @JsonBackReference
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToMany(fetch=FetchType.LAZY,
-            cascade=CascadeType.ALL,
             mappedBy = "experimentId",
             orphanRemoval = true)
     private List<ExperimentDataType> idExpDataTypeList;
@@ -419,5 +418,10 @@ public class Experiment {
         this.numberRuns = numberRuns;
         this.modificationDate = modificationDate;
         this.objective = objective;
+    }
+
+    @Override
+    public String toString(){
+        return String.valueOf(this.id);
     }
 }
