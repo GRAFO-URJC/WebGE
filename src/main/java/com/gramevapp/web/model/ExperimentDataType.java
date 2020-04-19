@@ -49,6 +49,9 @@ public class ExperimentDataType {
     @Column
     private String dataTypeType;        // Validation, training, test
 
+    @Column
+    private Long userIdUserId;
+
     // https://softwareyotrasdesvirtudes.com/2012/09/20/anotaciones-en-jpa-para-sobrevivir-a-una-primera-persistenica/
     @Column(name="creationDate")
     @Temporal(TemporalType.TIMESTAMP)
@@ -250,4 +253,13 @@ public class ExperimentDataType {
 
         return stringBuilder.toString();
     }
+
+    public Long getUserIdUserId() {
+        return userIdUserId;
+    }
+
+    public void setUserIdUserId(Long userIdUserId) {
+        this.userIdUserId = userIdUserId;
+    }
+
 }

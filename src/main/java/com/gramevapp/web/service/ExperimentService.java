@@ -144,12 +144,20 @@ public class ExperimentService {
         return experimentDataTypeRepository.findAllByExperimentId(experimentId);
     }
 
+    public List<ExperimentDataType> findAllExperimentDataTypeByUserId(Long userId){
+        return experimentDataTypeRepository.findAllByUserIdUserId(userId);
+    }
+
     public void deleteExperiment(Experiment experiment){
         experimentRepository.delete(experiment);
     }
 
     public void deleteDataTypeFile(ExperimentDataType experimentDataType){
         experimentDataTypeRepository.delete(experimentDataType);
+    }
+
+    public void deleteDataTypeFile(Long id){
+        experimentDataTypeRepository.delete(this.findDataTypeById(id));
     }
 
     public void deleteGrammar(Grammar grammar){
