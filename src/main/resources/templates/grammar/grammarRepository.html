@@ -3,7 +3,6 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/default}">
-<head th:insert="fragments/header :: head">
     <!--Add Style-->
     <style>
         /* enable absolute positioning */
@@ -95,17 +94,21 @@
                                         <button type="button" th:name="${gr.id}"
                                                 th:id="${'downloadGrammar' + gr.getId()}"
                                                 th:attr="onclick=|downloadGrammar('fileText${gr.getId()}')|"
-                                                class="btn-default btn btn-sm"><span
-                                                class="glyphicon glyphicon-download" rel="tooltip"
-                                                title="Download grammar"></span></button>
+                                                class="btn-default btn btn-sm"
+                                                rel="tooltip"
+                                                title="Download grammar"
+                                        ><span
+                                                class="glyphicon glyphicon-download"></span></button>
                                     </td>
                                     <td scope="row">
                                         <button type="button" th:name="${gr.id}"
                                                 th:id="${'deleteGrammar' + iterStat.index}"
                                                 onclick="confirmDelete(this.id, this.name)"
-                                                class="btn-default btn btn-sm"><span
-                                                class="glyphicon glyphicon-trash small" rel="tooltip"
-                                                title="Delete grammar"></span></button>
+                                                class="btn-default btn btn-sm"
+                                                rel="tooltip"
+                                                title="Delete grammar"
+                                        ><span
+                                                class="glyphicon glyphicon-trash small"></span></button>
                                     </td>
                                 </tr>
                                 <tr th:id="'trAux' + ${iterStat.index}">
