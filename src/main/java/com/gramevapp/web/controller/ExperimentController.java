@@ -51,6 +51,13 @@ public class ExperimentController {
     private final String DATATYPE_DIR_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "dataType" + File.separator + "";
     private final String PROPERTIES_DIR_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "properties" + File.separator + "";
 
+    private void modelAddData(Model model, User user, Grammar grammar, ExperimentDataType experimentDataType) {
+        model.addAttribute("grammarList", grammarRepository.findByUserId(user.getId()));
+        model.addAttribute("datasetList", experimentService.findAllExperimentDataTypeByUserId(user.getId()));
+        model.addAttribute("grammar", grammar);
+        model.addAttribute("experimentDataType", experimentDataType);
+    }
+
     @GetMapping("/experiment/configExperiment")
     public String configExperiment(Model model,
                                    @ModelAttribute("configuration") ConfigExperimentDto configExpDto) {
@@ -61,8 +68,8 @@ public class ExperimentController {
         */
 
         User user = userService.getLoggedInUser();
-        model.addAttribute("grammarList", grammarRepository.findByUserId(user.getId()));
-        model.addAttribute("grammar", new Grammar());
+        modelAddData(model, user, null, null);
+
         model.addAttribute("type", new ExperimentDataType());
         model.addAttribute("configuration", configExpDto);
         model.addAttribute("runList", new ArrayList());
@@ -94,6 +101,7 @@ public class ExperimentController {
     @RequestMapping(value = "/experiment/start", method = RequestMethod.POST, params = "runExperimentButton")
     public String runExperiment(Model model,
                                 @RequestParam("grammarId") String grammarId,
+                                @RequestParam("experimentDataTypeId") String experimentDataTypeId,
                                 @ModelAttribute("type") ExperimentDataTypeDto expDataTypeDto,
                                 @RequestParam("radioDataType") String radioDataTypeHidden,
                                 @ModelAttribute("typeFile") FileModelDto fileModelDto,
@@ -102,7 +110,7 @@ public class ExperimentController {
                                 RedirectAttributes redirectAttrs) throws IllegalStateException, IOException {
 
         User user = userService.getLoggedInUser();
-        model.addAttribute("grammarList", grammarRepository.findByUserId(user.getId()));
+        modelAddData(model, user, null, null);
 
         // Check the data received
         if (result.hasErrors()) {
@@ -133,9 +141,8 @@ public class ExperimentController {
         runSection(run, grammar, configExpDto, currentTimestamp);
 
         // Experiment Data Type SECTION
-        ExperimentDataType expDataType = !radioDataTypeHidden.equals("on") ?
-                experimentService.findDataTypeById(Long.parseLong(radioDataTypeHidden)) :
-                experimentService.saveDataType(new ExperimentDataType());
+        ExperimentDataType expDataType = experimentService.
+                findExperimentDataTypeById(Long.valueOf(experimentDataTypeId));
 
         expDataType = experimentDataTypeSection(fileModelDto, expDataType, expDataTypeDto, currentTimestamp);
         expDataType.setRunId(run.getId());
@@ -218,7 +225,7 @@ public class ExperimentController {
                                  BindingResult result) throws IllegalStateException, IOException {
 
         User user = userService.getLoggedInUser();
-        model.addAttribute("grammarList", grammarRepository.findByUserId(user.getId()));
+        modelAddData(model, user, null, null);
 
         if (result.hasErrors()) {
             model.addAttribute("configuration", configExpDto);
@@ -357,7 +364,7 @@ public class ExperimentController {
 
         // If Radio button and file path selected -> File path is selected
         // NULL -> didn't select the dataType file from the list - ON if th:value in input is empty
-        if ((radioDataTypeHidden.equals("on") && !multipartFile.isEmpty()) || (!radioDataTypeHidden.equals("on") && !multipartFile.isEmpty())) {
+        if ((multipartFile.getOriginalFilename() == "null") && (radioDataTypeHidden.equals("on") && !multipartFile.isEmpty()) || (!radioDataTypeHidden.equals("on") && !multipartFile.isEmpty())) {
             File tmpFile = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") +
                     multipartFile.getOriginalFilename());
             multipartFile.transferTo(tmpFile);
@@ -367,8 +374,8 @@ public class ExperimentController {
             experimentService.loadExperimentRowTypeFile(reader, expDataType);   // Save row here
             reader.close();
         } else {   // DataType selected from list
+            experimentService.loadExperimentRowType(expDataType);
             List<ExperimentRowType> lExpRowType = expDataType.getListRowsFile();
-
             // Create temporal training path file
             File tmpFile = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") +
                     "trainingPathFile.csv");
@@ -433,8 +440,7 @@ public class ExperimentController {
         ConfigExperimentDto configExpDto = fillConfigExpDto(new ConfigExperimentDto(), exp,
                 runService.findByRunId(exp.getDefaultRunId()), grammar, expDataType);
 
-        model.addAttribute("grammarList", grammarRepository.findByUserId(user.getId()));
-        model.addAttribute("grammar", grammar);
+        modelAddData(model, user, grammar, experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()));
         model.addAttribute("runList", runList);
         model.addAttribute("configuration", configExpDto);
         model.addAttribute("configExp", configExpDto);

@@ -46,6 +46,7 @@ public class DataSetController {
 
     @RequestMapping(value = "/dataset/saveDataset", method = RequestMethod.POST)
     public String saveGrammar(Model model, @ModelAttribute("experimentDataType") @Valid ExperimentDataType experimentDataType) {
+        experimentDataType.setDataTypeType("training");
         experimentDataType.setCreationDate(new Date(System.currentTimeMillis()));
         experimentDataType.setUserIdUserId(userService.getLoggedInUser().getId());
         experimentService.saveDataType(experimentDataType);
