@@ -45,20 +45,20 @@
         <div class="row">
             <div id="forms" class="panel panel-default">
                 <header class="panel-heading">
-                    <h2>New Grammar</h2>
+                    <h2>New Dataset</h2>
                 </header>
 
                 <section class="panel-body center-block">
-                    <form name="newGrammarForm" th:action="@{/grammar/saveGrammar}" th:object="${grammar}"
+                    <form name="newDatasetForm" th:action="@{/dataset/saveDataset}" th:object="${experimentDataType}"
                           enctype="multipart/form-data" role="form" method="POST">
                         <div class="row form-group">
                             <div class="col-sm-1 col-md-1 col-lg-1">
                                 <p><b>Name:</b></p>
                             </div>
                             <div class="col-sm-11 col-md-11 col-lg-11">
-                                <input id="grammarName" type="text" class="form-control"
-                                       th:value="${grammar.getGrammarName()}" name="grammarName"
-                                       placeholder="Name of the grammar"/>
+                                <input id="dataTypeName" type="text" class="form-control"
+                                       th:value="${experimentDataType.getDataTypeName()}" name="dataTypeName"
+                                       placeholder="Name of the dataset" required="required"/>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -66,35 +66,57 @@
                                 <p><b>Description:</b></p>
                             </div>
                             <div class="col-sm-11 col-md-11 col-lg-11">
-                                <input id="grammarDescription" type="text" class="form-control"
-                                       th:value="${grammar.getGrammarDescription()}" name="grammarDescription"
-                                       placeholder="Description of the grammar"/>
+                                <input id="dataTypeDescription" type="text" class="form-control"
+                                       th:value="${experimentDataType.getDataTypeDescription()}"
+                                       name="dataTypeDescription"
+                                       placeholder="Description of the dataset" required="required"/>
                             </div>
                         </div>
+
+                        <div class="row form-group">
+                            <div class="col-sm-1 col-md-1 col-lg-1">
+                            </div>
+                            <div class="col-sm-11 col-md-11 col-lg-11">
+                                <input type="file" name="typeFile" id="typeFile" required="required"/>
+                            </div>
+                        </div>
+
                         <div class="row form-group">
                             <div class="col-sm-1 col-md-1 col-lg-1">
                                 <p><b>Content:</b></p>
                             </div>
                             <div class="col-sm-11 col-md-11 col-lg-11">
-                                <textarea id="fileText" rows="5" class="form-control" th:text="${grammar.getFileText()}"
-                                          placeholder="Grammar file " name="fileText" th:inline="text"
-                                          style="resize: none;"/>
+                                <textarea id="info" rows="5" class="form-control"
+                                          th:text="${experimentDataType.getinfo()}"
+                                          placeholder="Dataset file content" name="info" th:inline="text"
+                                          style="resize: none;" readonly/>
                             </div>
                         </div>
                         <div class="col-sm-12 col-md-12 col-lg-12">
-                            <button type="submit" th:id="saveGrammar" th:name="saveGrammar"
+                            <button type="submit" th:id="saveDataset" th:name="saveDataset"
                                     class="btn-default btn btn-sm">Save
                             </button>
                         </div>
-                        <input type="hidden" name="userId" id="userId" th:value="${user.id}"/>
                     </form>
                 </section>
             </div>
         </div>
     </div>
     <!-- END Main -->
-
+    <script>
+        let ctrl = document.getElementById("typeFile");
+        ctrl.addEventListener("change", function (eve) {
+            let read = new FileReader();
+            read.onload = function (eve) {
+                let cont = eve.target.result;
+                document.getElementById('info').value = cont;
+            };
+            read.onerror = function (eve) {
+                console.error("File could not be read! Code " + eve.target.error.code);
+            };
+            read.readAsText(ctrl.files[0]);
+        }, false);
+    </script>
 </div>
-
 </body>
 </html>
