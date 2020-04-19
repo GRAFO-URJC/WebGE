@@ -353,9 +353,11 @@
                                                 <button type="button" th:name="${dataType.id}"
                                                         th:id="${'deleteDataType' + iterStat.index}"
                                                         onclick="confirmDeleteDataType(this.id, this.name)"
-                                                        class="btn-default btn btn-sm"><span
-                                                        class="glyphicon glyphicon-trash small" rel="tooltip"
-                                                        title="Delete run"></span></button>
+                                                        class="btn-default btn btn-sm"
+                                                        rel="tooltip"
+                                                        title="Delete run"
+                                                ><span
+                                                        class="glyphicon glyphicon-trash small"></span></button>
                                             </td>
                                         </tr>
                                     </th:block>
@@ -486,9 +488,11 @@
                                             <button type="button" th:name="${run.id}"
                                                     th:id="${'deleteRun' + iterStat.index}"
                                                     onclick="confirmDelete(this.id, this.name)"
-                                                    class="btn-default btn btn-sm"><span
-                                                    class="glyphicon glyphicon-trash small" rel="tooltip"
-                                                    title="Delete run"></span></button>
+                                                    class="btn-default btn btn-sm"
+                                                    rel="tooltip"
+                                                    title="Delete run"
+                                            ><span
+                                                    class="glyphicon glyphicon-trash small"></span></button>
                                         </td>
                                     </form>
                                 </tr>
