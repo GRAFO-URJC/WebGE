@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+<!--Add Style-->
+<style>
+    /* enable absolute positioning */
+    .inner-addon {
+        position: relative;
+    }
+
+    /* style icon */
+    .inner-addon .glyphicon {
+        position: absolute;
+        padding: 5px;
+        pointer-events: none;
+    }
+
+    /* align icon */
+    .left-addon .glyphicon {
+        left: 0px;
+    }
+
+    .right-addon .glyphicon {
+        right: 0px;
+    }
+
+    /* add padding  */
+    .left-addon input {
+        padding-left: 30px;
+    }
+
+    .right-addon input {
+        padding-right: 30px;
+    }
+</style>
+</head>
+<body>
+<div id="page" layout:fragment="content" message=${errorMessage}>
+
+    <!-- Main -->
+    <div class="container">
+        <div class="row">
+            <div id="forms" class="panel panel-default">
+                <header class="panel-heading">
+                    <div class="row">
+                        <div class="col-sm-9"><h2>My datasets</h2></div>
+                        <div class="col-sm-3">
+                            <form action="/dataset/datasetDetail">
+                                <button type="submit" class="btn-default btn btn-sm">New dataset</button>
+                            </form>
+                        </div>
+                    </div>
+                </header>
+
+                <section class="panel-body center-block">
+                    <div th:if="${not #lists.isEmpty(datasetList)}">
+                        <table class="table table-hover" id="expRepository">
+                            <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Dataset name</th>
+                                <th scope="col">Dataset description</th>
+                                <th scope="col">Creation date</th>
+                                <th scope="col" colspan="4">Controls</th>
+                            </tr>
+                            </thead>
+                            <tbody id="expTable">
+                            <th:block th:each="dataset, iterStat : ${datasetList}">
+                                <tr th:id="'tr' + ${iterStat.index}">
+                                    <td scope="row"><label th:name="id" th:id="id" th:text="${dataset.getId()}"
+                                                           id="id"/></td>
+                                    <td scope="row"><label th:name="name" th:id="name"
+                                                           th:text="${dataset.getDataTypeName()}"
+                                                           id="name"/></td>
+                                    <td scope="row"><label th:name="description" th:id="description"
+                                                           th:text="${dataset.getDataTypeDescription()}"
+                                                           id="description"/></td>
+                                    <td scope="row"><label th:name="creationDate" th:id="creationDate"
+                                                           th:text="${dataset.getCreationDate()}" id="creationDate"/>
+                                    </td>
+                                    <td scope="row">
+                                        <a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse"
+                                           class="accordion-toggle">Display dataset<span
+                                                class="glyphicon glyphicon-chevron-down"></span> </a>
+                                    </td>
+                                    <td scope="row">
+                                        <button type="button" th:name="${dataset.getId()}"
+                                                th:id="${'downloadDataset' + dataset.getId()}"
+                                                th:attr="onclick=|downloadDataset('fileText${dataset.getId()}')|"
+                                                class="btn-default btn btn-sm"
+                                                rel="tooltip"
+                                                title="Download dataset"
+                                        ><span
+                                                class="glyphicon glyphicon-download"></span></button>
+                                    </td>
+                                    <td scope="row">
+                                        <button type="button" th:name="${dataset.getId()}"
+                                                th:id="${'deleteDataset' + iterStat.index}"
+                                                onclick="confirmDelete(this.id, this.name)"
+                                                class="btn-default btn btn-sm"
+                                                rel="tooltip"
+                                                title="Delete dataset"
+                                        ><span
+                                                class="glyphicon glyphicon-trash small"></span></button>
+                                    </td>
+                                </tr>
+                                <tr th:id="'trAux' + ${iterStat.index}">
+                                    <td colspan="6">
+                                        <div th:id="'collapse'+${iterStat.index}" class="panel-collapse collapse">
+                                            <textarea disabled rows="8" class="form-control"
+                                                      th:text="${dataset.getinfo()}"
+                                                      placeholder="Dataset content" name="fileText"
+                                                      th:id="fileText + ${dataset.getId()}" th:inline="text"
+                                                      style="resize: none;"/>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </th:block>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    <!-- END Main -->
+
+
+    <!-- Modal -->
+    <div id="detailsModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Dataset content</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Dataset.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- END Modal -->
+
+    <script>
+        function downloadDataset(elemName) {
+            let textToWrite = document.getElementById(elemName).value.split(/[\r\n]/);
+            const rows = [];
+            textToWrite.forEach(function (value) {
+                rows.push(value.split(";"));
+            });
+            let csvContent = "";
+
+            rows.forEach(function (rowArray) {
+                let row = rowArray.join(";");
+                csvContent += row + "\r\n";
+
+            });
+            let textFileAsBlob = new Blob([csvContent], {type: 'text/csv'});
+
+            let downloadLink = document.createElement("a");
+            downloadLink.download = "dataset.csv";
+            downloadLink.innerHTML = "Download File";
+
+            if (window.webkitURL != null) {
+                // Chrome allows the link to be clicked without actually adding it to the DOM.
+                downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+            } else {
+                // Firefox requires the link to be added to the DOM before it can be clicked.
+                downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+                downloadLink.onclick = destroyClickedElement;
+                downloadLink.style.display = "none";
+                document.body.appendChild(downloadLink);
+            }
+
+            downloadLink.click();
+        }
+
+        function confirmDelete(iterStat, expId) {
+            if (confirm("Delete the selected dataset?")) {
+                deleteRow(iterStat, expId);
+            }
+        }
+
+
+        function deleteRow(iterStat, datasetId) {
+            let cleanIterStat = iterStat.substring("deleteGrammar".length, iterStat.length);   // Dará error, si hay listado con mas de 9 obj, no pillará el id de 10, pq sólo mira hasta el último
+
+            $.ajax({
+                url: encodeURI("/dataset/deleteDataset"),
+                data: {
+                    'datasetId': datasetId,
+                    'deleteDataset': 'deleteDataset'
+                },
+                cache: false,
+                async: true,
+                type: "POST",
+                dataType: "json",
+                success: function (data) {
+                    if (data == -1) {
+                        alert("Dataset is used in experiment, cannot be deleted.")
+                    } else {
+                        $("#tr" + cleanIterStat).remove();
+                        $("#trAux" + cleanIterStat).remove();
+                    }
+                }
+            });
+        };
+    </script>
+
+</div>
+</body>
+</html>

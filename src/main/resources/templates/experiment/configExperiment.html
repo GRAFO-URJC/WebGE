@@ -2,13 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.w3.org/1999/xhtml"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorator="layouts/default"
+      layout:decorate="~{layouts/default}"
       lang="en">
 <head>
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"/>
     <!-- For the profile template -->
     <link th:href="@{/assets/dist/css/configExperiment.css}" rel="stylesheet" id="configExperiment-css"/>
 
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
     <!-- Without this, the bootsrap modals, collapses, etc won't work -->
     <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
@@ -226,7 +227,8 @@
                                     <select id="grammarId" name="grammarId" onchange="updateGrammarContent()">
                                         <option value="grammarContentEmpty">Select a grammar ...</option>
                                         <option th:each="gr : ${grammarList}" th:value="${gr.getId()}"
-                                                th:text="${gr.getGrammarName() + ' - ' + gr.getGrammarDescription()}"/>
+                                                th:text="${gr.getGrammarName() + ' - ' + gr.getGrammarDescription()}"
+                                                th:selected="(${(grammar !=null) && (grammar.getId() == gr.getId())})"/>
                                     </select>
                                 </div>
                             </div>
@@ -258,6 +260,19 @@
                             <div class="jumbotron row form-group">
                                 <h3>Data type information</h3>
                             </div>
+
+                            <div class="row form-group center-block">
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <select id="datasetId" name="datasetId" onchange="updateDatasetContent()">
+                                        <option value=-1>Select a dataset ...</option>
+                                        <option th:each="dataset,ite : ${datasetList}" th:value="${ite.index}"
+                                                th:text="${dataset.getDataTypeName() + ' - ' + dataset.getDataTypeDescription()}"
+                                                th:selected="(${(experimentDataType !=null) && (experimentDataType.getId() == dataset.getId())})"/>
+                                    </select>
+                                    <input id="experimentDataTypeId" name="experimentDataTypeId" hidden="true"/>
+                                </div>
+                            </div>
+
                             <div class="row form-group center-block">
                                 <div class="col-sm-12 col-md-12 col-lg-8">
                                     <!-- Error handling -->
@@ -267,7 +282,9 @@
                                     <!-- END error handling -->
                                     <div th:classappend="${#fields.hasErrors('dataTypeName')}? 'has-error':'dataTypeName error'">
                                         <input type="text" class="form-control" name="dataTypeName" id="dataTypeName"
-                                               th:value="${configuration.getDataTypeName()}" placeholder="Name"/>
+                                               th:value="${configuration.getDataTypeName()}"
+                                               placeholder="Name of dataset"
+                                               readonly/>
                                     </div>
                                 </div>
                             </div>
@@ -283,21 +300,7 @@
                                         <input type="text" class="form-control" name="dataTypeDescription"
                                                id="dataTypeDescription"
                                                th:value="${configuration.getDataTypeDescription()}"
-                                               placeholder="Description of the file"/>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row form-group">
-                                <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <!-- Error handling -->
-                                    <p class="text-warning"
-                                       th:each="error: ${#fields.errors('typeFile')}"
-                                       th:text="${error}">Validation error
-                                    </p>
-                                    <!-- END error handling -->
-                                    <div th:classappend="${#fields.hasErrors('typeFile')}? 'has-error':'typeFile error'">
-                                        <input type="file" name="typeFile" id="typeFile" required="required"/>
+                                               placeholder="Description of the file" readonly/>
                                     </div>
                                 </div>
                             </div>
@@ -351,9 +354,11 @@
                                                 <button type="button" th:name="${dataType.id}"
                                                         th:id="${'deleteDataType' + iterStat.index}"
                                                         onclick="confirmDeleteDataType(this.id, this.name)"
-                                                        class="btn-default btn btn-sm"><span
-                                                        class="glyphicon glyphicon-trash small" rel="tooltip"
-                                                        title="Delete run"></span></button>
+                                                        class="btn-default btn btn-sm"
+                                                        rel="tooltip"
+                                                        title="Delete run"
+                                                ><span
+                                                        class="glyphicon glyphicon-trash small"></span></button>
                                             </td>
                                         </tr>
                                     </th:block>
@@ -365,14 +370,8 @@
                             <div class="row form-group text-center">
 
                                 <textarea rows="5" class="form-control" th:text="${configuration.getinfo()}" name="info"
-                                          id="info"/>
+                                          id="info" readonly/>
 
-                                <div class="col-sm-12 col-md-12 col-lg-12">
-
-                                    <a name="downloadTypeButton" id="downloadTypeButton" class="btn-default btn-sm btn"
-                                       disabled="true" onclick="downloadDataTypeFile()">Download
-                                        data type file</a>
-                                </div>
                             </div>
                         </div>
                         <!-- END Training Test Validation files -->
@@ -468,7 +467,7 @@
                                             <a th:href="@{/experiment/runList(runId=${run.getId()}, runExperimentButton='runExperimentButton')}"
                                                target="_blank" th:id="${'runExperimentButton' + iterStat.index}"
                                                onclick="showRunStatus(this.id)"
-                                               class="btn-default btn-sm btn loadButton">Re-run experiment</a>
+                                               class="btn-default btn-sm btn loadButton hidden">Re-run experiment</a>
                                         </td>
                                         <td scope="row" th:id="'showPlot'+${iterStat.index}" class="">
                                             <a th:href="@{/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}"
@@ -484,9 +483,11 @@
                                             <button type="button" th:name="${run.id}"
                                                     th:id="${'deleteRun' + iterStat.index}"
                                                     onclick="confirmDelete(this.id, this.name)"
-                                                    class="btn-default btn btn-sm"><span
-                                                    class="glyphicon glyphicon-trash small" rel="tooltip"
-                                                    title="Delete run"></span></button>
+                                                    class="btn-default btn btn-sm"
+                                                    rel="tooltip"
+                                                    title="Delete run"
+                                            ><span
+                                                    class="glyphicon glyphicon-trash small"></span></button>
                                         </td>
                                     </form>
                                 </tr>
@@ -571,30 +572,43 @@
     </div>
 
 
-    <script>
+    <script th:inline="javascript">
         // Updates the content of the textarea including the text of the selected grammar.
         function updateGrammarContent() {
             $("#grammarContainer").val($("#grammarContent" + $("#grammarId").val()).val());
         }
+
+        function updateDatasetContent() {
+            let i = parseInt($('#datasetId').val());
+
+            if (i >= 0) {
+                $('#dataTypeName').val(datasetListInfo[i].dataTypeName);
+                $('#dataTypeDescription').val(datasetListInfo[i].dataTypeDescription);
+                $('#info').val(datasetListInfo[i].info);
+                $('#experimentDataTypeId').val(datasetListInfo[i].idDataset);
+            }
+
+        }
+        let datasetListInfo = [];
+        let data ={};
+        function saveDatasetInfo(){
+            /*<![CDATA[*/
+            /*[# th:each="dataset : ${datasetList}"]*/
+            data ={};
+            data.idDataset=/*[[${dataset.getId()}]]*/;
+            data.dataTypeName=/*[[${dataset.getDataTypeName()}]]*/;
+            data.dataTypeDescription=/*[[${dataset.getDataTypeDescription()}]]*/;
+            data.info=/*[[${dataset.getinfo()}]]*/;
+            datasetListInfo.push(data);
+            /*[/]*/
+            /*]]>*/
+        }
+
+
     </script>
 
     <!-- Old scripts below -->
     <script>
-        var ctrl = document.getElementById("typeFile");
-        ctrl.addEventListener("change", function (eve) {
-            var read = new FileReader();
-            read.onload = function (eve) {
-                var cont = eve.target.result;
-                document.getElementById('info').value = cont;
-                $("#downloadTypeButton").attr("disabled", false);
-            };
-            read.onerror = function (eve) {
-                console.error("File could not be read! Code " + eve.target.error.code);
-                $("#downloadTypeButton").attr("disabled", true);
-            };
-            read.readAsText(ctrl.files[0]);
-        }, false);
-
         function destroyClickedElement(event) {
             // remove the link from the DOM
             document.body.removeChild(event.target);
@@ -637,9 +651,7 @@
                     var bestIndividual = "#bestIndividual" + iterStat;
 
                     if (($(status).text() != "FINISHED") && ($(status).text() != "STOPPED") && ($(status).text() != "FAILED")) {
-                        if ($(status).text() == "RUNNING")
-                            $("#runExperimentButton" + iterStat).text("Show plot execution");
-                        $("#showPlot" + iterStat).addClass("hidden");
+                        $("#runExperimentButton" + iterStat).addClass("hidden");
                         $("#showDelete" + iterStat).addClass("hidden");
                         setTimeout(function () {
                             checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat);
@@ -647,9 +659,8 @@
                     }
 
                     if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED")) {
-                        $("#showPlot" + iterStat).removeClass("hidden");
                         $("#showDelete" + iterStat).removeClass("hidden");
-                        $("#runExperimentButton" + iterStat).text("Re-run experiment");
+                        $("#runExperimentButton" + iterStat).removeClass("hidden");
                     }
                 }
             });
@@ -678,6 +689,17 @@
 
         $(document).ready(function () {
 
+            $("#searchExperiment").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#runTable tr").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+
+            saveDatasetInfo();
+            updateGrammarContent();
+            updateDatasetContent()
+
             $('[name="status"]').each(function (index) {
                 if (($(this).text() == "FINISHED") || ($(this).text() == "STOPPED") || ($(this).text() == "FAILED")) {
                     indexesShow[index] = index;
@@ -689,39 +711,15 @@
             });
 
             indexesShow.forEach(function (element, index) {
-                $("#showPlot" + indexesShow[index]).removeClass("hidden");
+                $("#runExperimentButton" + indexesShow[index]).removeClass("hidden");
                 $("#showDelete" + indexesShow[index]).removeClass("hidden");
             });
 
             indexesHide.forEach(function (element, index) {
-                $("#showPlot" + indexesHide[index]).addClass("hidden");
                 $("#showDelete" + indexesHide[index]).addClass("hidden");
+                $("#runExperimentButton" + indexesShow[index]).addClass("hidden");
             });
         });
-
-        $(document).ready(function () {
-            $("[rel=tooltip]").tooltip({placement: 'right'});
-
-            $("#searchExperiment").on("keyup", function () {
-                var value = $(this).val().toLowerCase();
-                $("#runTable tr").filter(function () {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-                });
-            });
-        });
-
-        //disabled or not disabled button downloadDataTypeFile
-        document.getElementById("info").addEventListener("change", function () {
-            console.log($(this).val());
-            console.log($(this).val()==="");
-
-            if ($(this).val() === "") {
-                $("#downloadTypeButton").attr("disabled", true);
-            } else {
-                $("#downloadTypeButton").attr("disabled", false);
-            }
-        }, false);
-
 
         function confirmDelete(iterStat, runId) {
             var result = confirm("Are you sure to delete this run ?");
@@ -775,11 +773,11 @@
         };
 
 
-        function downloadDataTypeFile(){
+        function downloadDataTypeFile() {
 
             var textToWrite = document.getElementById("info").value;
-            textToWrite = listToMatrix(textToWrite.split("/(\s*;\s*/)|((\n\r)|(\r\n))"),11);
-            exportCSVFile(textToWrite,"datatypefile");
+            textToWrite = listToMatrix(textToWrite.split("/(\s*;\s*/)|((\n\r)|(\r\n))"), 11);
+            exportCSVFile(textToWrite, "datatypefile");
         }
 
         //https://stackoverflow.com/questions/4492385/how-to-convert-simple-array-into-two-
@@ -819,7 +817,7 @@
             return str;
         }
 
-        function exportCSVFile( items, fileName) {
+        function exportCSVFile(items, fileName) {
 
             const jsonObject = JSON.stringify(items);
 
@@ -827,7 +825,7 @@
 
             const exportName = fileName + ".csv" || "export.csv";
 
-            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const blob = new Blob([csv], {type: "text/csv;charset=utf-8;"});
             if (navigator.msSaveBlob) {
                 navigator.msSaveBlob(blob, exportName);
             } else {

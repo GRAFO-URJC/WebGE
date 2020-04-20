@@ -2,115 +2,147 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.w3.org/1999/xhtml"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorator="layouts/default"
+      layout:decorate="~{layouts/default}"
       lang="en">
-    <head>
-        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css" /> <!-- For the profile template -->
-        <link th:href="@{/assets/dist/css/experimentRepository.css}" rel="stylesheet" id="experimentRepository-css" />
+<head>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"/>
+    <!-- For the profile template -->
+    <link th:href="@{/assets/dist/css/experimentRepository.css}" rel="stylesheet" id="experimentRepository-css"/>
 
-        <style>
-            /* enable absolute positioning */
-            .inner-addon {
-                position: relative;
-            }
+    <style>
+        /* enable absolute positioning */
+        .inner-addon {
+            position: relative;
+        }
 
-            /* style icon */
-            .inner-addon .glyphicon {
-                position: absolute;
-                padding: 5px;
-                pointer-events: none;
-            }
+        /* style icon */
+        .inner-addon .glyphicon {
+            position: absolute;
+            padding: 5px;
+            pointer-events: none;
+        }
 
-            /* align icon */
-            .left-addon .glyphicon  { left:  0px;}
-            .right-addon .glyphicon { right: 0px;}
+        /* align icon */
+        .left-addon .glyphicon {
+            left: 0px;
+        }
 
-            /* add padding  */
-            .left-addon input  { padding-left:  30px; }
-            .right-addon input { padding-right: 30px; }
-        </style>
+        .right-addon .glyphicon {
+            right: 0px;
+        }
 
-        <title>Experiment list by User</title>
-    </head>
-    <body>
-    <div id="page" layout:fragment="content" message=${errorMessage}>
+        /* add padding  */
+        .left-addon input {
+            padding-left: 30px;
+        }
+
+        .right-addon input {
+            padding-right: 30px;
+        }
+    </style>
+
+    <title>Experiment list by User</title>
+</head>
+<body>
+<div id="page" layout:fragment="content" message=${errorMessage}>
     <!-- Main -->
-        <div class="container">
-            <div class="row">
-                <div id="forms" class="panel panel-default">
-                    <header class="panel-heading">
-                        <h2>List of experiments User: <span th:text="${user.username}"></span></h2>
-                    </header>
+    <div class="container">
+        <div class="row">
+            <div id="forms" class="panel panel-default">
+                <header class="panel-heading">
+                    <h2>List of experiments User: <span th:text="${user.username}"></span></h2>
+                </header>
 
-                    <section class="panel-body center-block">
-                        <div th:if="${not #lists.isEmpty(experimentList)}">
-                            <div class="inner-addon left-addon">
-                                <i class="glyphicon glyphicon-search "></i>
-                                <input class="form-control" id="searchExperiment" type="text" placeholder="Search experiment ..." />
-                            </div>
-                            <br/>
-                            <table class="table table-hover" id="expRepository">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Experiment name</th>
-                                        <th scope="col">Experiment description</th>
-                                        <th scope="col">Creation date</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="expTable">
-                                    <th:block th:each="exp, iterStat : ${experimentList}">
-                                        <tr th:id="'tr' + ${iterStat.index}">
-                                            <form th:action="@{/experiment/expRepoSelected}" th:object="${expRepository}" method="GET">
-                                                <input type="text" class="hiddenInput" th:name="id" th:id="id" th:value="${exp.getId()}" />
-                                                <td scope="row"><label th:name="id" th:id="id" th:text="${exp.id}" id="id" /></td>
-                                                <td scope="row"><label th:name="name" th:id="name" th:text="${exp.experimentName}" id="name" /></td>
-                                                <td scope="row"><label th:name="description" th:id="description" th:text="${exp.experimentDescription}" id="description" /></td>
-                                                <td scope="row"><label th:name="creationDate" th:id="creationDate" th:text="${exp.getCreationDate()}" id="creationDate" /></td>
-                                                <td scope="row">
-                                                    <button type="submit" th:id="loadExperimentButton" th:name="loadExperimentButton" class="btn-default btn btn-sm">Load experiment</button>
-                                                </td>
-                                                <td scope="row">
-                                                    <a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse" class="accordion-toggle">More details <span class="glyphicon glyphicon-chevron-down"></span> </a>
-                                                </td>
-                                                <td scope="row">
-                                                    <button type="button" th:name="${exp.id}" th:id="${'deleteExperiment' + iterStat.index}" onclick="confirmDelete(this.id, this.name)" class="btn-default btn btn-sm"><span class="glyphicon glyphicon-trash small" rel="tooltip" title="Delete experiment"></span></button>
-                                                </td>
-                                            </form>
-                                        </tr>
-                                        <tr th:id="'trAux' + ${iterStat.index}">
-                                            <td colspan="6">
-                                                <div class="panel-collapse collapse" th:id="'collapse'+${iterStat.index}">
-                                                    <h4><b>Experiment information </b></h4>
-                                                    <br/>
-                                                    <ul class="list-inline">
-                                                        <li>
-                                                            <p>
+                <section class="panel-body center-block">
+                    <div th:if="${not #lists.isEmpty(experimentList)}">
+                        <div class="inner-addon left-addon">
+                            <i class="glyphicon glyphicon-search "></i>
+                            <input class="form-control" id="searchExperiment" type="text"
+                                   placeholder="Search experiment ..."/>
+                        </div>
+                        <br/>
+                        <table class="table table-hover" id="expRepository">
+                            <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Experiment name</th>
+                                <th scope="col">Experiment description</th>
+                                <th scope="col">Creation date</th>
+                            </tr>
+                            </thead>
+                            <tbody id="expTable">
+                            <th:block th:each="exp, iterStat : ${experimentList}">
+                                <tr th:id="'tr' + ${iterStat.index}">
+                                    <form th:action="@{/experiment/expRepoSelected}" th:object="${expRepository}"
+                                          method="GET">
+                                        <input type="text" class="hiddenInput" th:name="id" th:id="id"
+                                               th:value="${exp.getId()}"/>
+                                        <td scope="row"><label th:name="id" th:id="id" th:text="${exp.id}" id="id"/>
+                                        </td>
+                                        <td scope="row"><label th:name="name" th:id="name"
+                                                               th:text="${exp.experimentName}" id="name"/></td>
+                                        <td scope="row"><label th:name="description" th:id="description"
+                                                               th:text="${exp.experimentDescription}" id="description"/>
+                                        </td>
+                                        <td scope="row"><label th:name="creationDate" th:id="creationDate"
+                                                               th:text="${exp.getCreationDate()}" id="creationDate"/>
+                                        </td>
+                                        <td scope="row">
+                                            <button type="submit" th:id="loadExperimentButton"
+                                                    th:name="loadExperimentButton" class="btn-default btn btn-sm">Load
+                                                experiment
+                                            </button>
+                                        </td>
+                                        <td scope="row">
+                                            <a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse"
+                                               class="accordion-toggle">More details <span
+                                                    class="glyphicon glyphicon-chevron-down"></span> </a>
+                                        </td>
+                                        <td scope="row">
+                                            <button type="button" th:name="${exp.id}"
+                                                    th:id="${'deleteExperiment' + iterStat.index}"
+                                                    onclick="confirmDelete(this.id, this.name)"
+                                                    class="btn-default btn btn-sm"
+                                                    rel="tooltip"
+                                                    title="Delete experiment"
+                                            ><span
+                                                    class="glyphicon glyphicon-trash small"></span></button>
+                                        </td>
+                                    </form>
+                                </tr>
+                                <tr th:id="'trAux' + ${iterStat.index}">
+                                    <td colspan="6">
+                                        <div class="panel-collapse collapse" th:id="'collapse'+${iterStat.index}">
+                                            <h4><b>Experiment information </b></h4>
+                                            <br/>
+                                            <ul class="list-inline">
+                                                <li>
+                                                    <p>
                                                                 <span class="glyphicon glyphicon-chevron-right"> The experiment has
                                                                 <label th:text="${exp.getIdRunList().size()}"></label>
                                                                     <i>runs</i>
                                                                 </span>
-                                                            </p>
-                                                        </li>
-                                                        <li>
-                                                            <p>
+                                                    </p>
+                                                </li>
+                                                <li>
+                                                    <p>
                                                                 <span class="glyphicon glyphicon-chevron-right"> The experiment has
                                                                 <label th:text="${exp.getIdExpDataTypeList().size()}"></label>
                                                                     <i>data type file/s</i>
                                                                 </span>
-                                                            </p>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </th:block>
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
-                </div>
+                                                    </p>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </th:block>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
             </div>
+        </div>
         <!-- END Main -->
 
 
@@ -139,21 +171,15 @@
 
 
     <script>
-        $("#expTypeTable tr").attr({"id" : "selected"}).siblings().removeAttr('id');
+        $("#expTypeTable tr").attr({"id": "selected"}).siblings().removeAttr('id');
         $("#moreDetails").attr("")
     </script>
 
     <script>
-        $(document).ready(function(){
-            $("[rel=tooltip]").tooltip({ placement: 'right'});
-        });
-    </script>
-
-    <script>
-        $(document).ready(function(){
-            $("#searchExperiment").on("keyup", function() {
+        $(document).ready(function () {
+            $("#searchExperiment").on("keyup", function () {
                 var value = $(this).val().toLowerCase();
-                $("#expTable tr").filter(function() {
+                $("#expTable tr").filter(function () {
                     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
                 });
             });
@@ -162,7 +188,7 @@
     <script>
         function confirmDelete(iterStat, expId) {
             var result = confirm("Are you sure to delete this experiment ?");
-            if(result)
+            if (result)
                 deleteRow(iterStat, expId);
         }
 
@@ -173,14 +199,14 @@
             $.ajax({
                 url: encodeURI("/experiment/expRepoSelected"),
                 data: {
-                    'experimentId' : expId,
-                    'deleteExperiment' : 'deleteExperiment'
+                    'experimentId': expId,
+                    'deleteExperiment': 'deleteExperiment'
                 },
                 cache: false,
-                async:true,
+                async: true,
                 type: "POST",
                 dataType: "json",
-                success: function(data){
+                success: function (data) {
                     $("#tr" + cleanIterStat).remove();
                     $("#trAux" + cleanIterStat).remove();
                 }
@@ -188,6 +214,6 @@
         };
 
     </script>
-    </div>
-    </body>
+</div>
+</body>
 </html>

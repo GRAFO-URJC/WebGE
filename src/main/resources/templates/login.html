@@ -3,83 +3,78 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.w3.org/1999/xhtml"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorator="layouts/default">
+      layout:decorate="~{layouts/default}">
 lang="en">
-    <head>
-        <title>Login</title>
-    </head>
-    <body>
+<head>
+    <title>Login</title>
+</head>
+<body>
 
-    <div id="page" layout:fragment="content" message=${errorMessage}>
-        <!-- Main -->
-        <div class="container">
-            <div id="forms" class="panel panel-default">
-                <header class="panel-heading">
-                    <h2>Login Area </h2>
-                </header>
+<div id="page" layout:fragment="content" message=${errorMessage}>
+    <!-- Main -->
+    <div class="container">
+        <div id="forms" class="panel panel-default">
+            <header class="panel-heading">
+                <h2>Login Area </h2>
+            </header>
 
-                <section class="panel-body center-block text-center" style="width: 330px;">
-                    <form th:action="@{/login}" method="post">
-                        <div th:if="${param.error}">
-                            <div class="alert alert-danger">
-                                Invalid username or password.
-                            </div>
+            <section class="panel-body center-block text-center" style="width: 330px;">
+                <form th:action="@{/login}" method="post">
+                    <div th:if="${param.error}">
+                        <div class="alert alert-danger">
+                            Invalid username or password.
                         </div>
-                        <div th:if="${param.logout}">
-                            <div class="alert alert-info">
-                                You have been logged out.
-                            </div>
+                    </div>
+                    <div th:if="${param.logout}">
+                        <div class="alert alert-info">
+                            You have been logged out.
                         </div>
-                        <div th:if="${message}" class="alert alert-info">
-                            <label th:text="${message}"></label>
-                        </div>
+                    </div>
+                    <div th:if="${message}" class="alert alert-info">
+                        <label th:text="${message}"></label>
+                    </div>
 
-                        <div class="form-group col-lg-12">
-                            <label class="control-label h3" for="username">Username:</label>
-                            <div class="input-group">
-                                <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                                <input type="text"
-                                       class="text-center"
-                                       id="username"
-                                       name="username"
-                                       autofocus="autofocus"
-                                       placeholder="Username"
-                                       style="width: 250px;  padding-right: 40px;"/>
-                            </div>
+                    <div class="form-group col-lg-12">
+                        <label class="control-label h3" for="username">Username:</label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                            <input type="text"
+                                   class="text-center"
+                                   id="username"
+                                   name="username"
+                                   autofocus="autofocus"
+                                   placeholder="Username"
+                                   style="width: 250px;  padding-right: 40px;"/>
                         </div>
+                    </div>
 
-                        <div class="form-group col-lg-12">
-                            <label class="control-label h3" for="password">Password:</label>
-                            <div class="input-group">
-                                <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-                                <input type="password"
-                                       class="text-center"
-                                       id="password"
-                                       name="password"
-                                       placeholder="Password"
-                                       style="width: 250px; padding-right: 40px;"/>
-                            </div>
+                    <div class="form-group col-lg-12">
+                        <label class="control-label h3" for="password">Password:</label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                            <input type="password"
+                                   class="text-center"
+                                   id="password"
+                                   name="password"
+                                   placeholder="Password"
+                                   style="width: 250px; padding-right: 40px;"/>
                         </div>
+                    </div>
 
-                        <div class="col-lg-12 text-center">
-                            <input type="submit" class="btn-primary btn-lg btn" name="login-submit" id="login-submit" value="Log In" />
-                        </div>
+                    <div class="col-lg-12 text-center">
+                        <input type="submit" class="btn-primary btn-lg btn" name="login-submit" id="login-submit"
+                               value="Log In"/>
+                    </div>
 
-                        <div class="col-lg-12 text-center h4">
-                            <br/>
-                            <p><a th:href="@{/registration}">Sign in</a></p>
-                        </div>
-                    </form>
-                </section>
-            </div>
+                    <div class="col-lg-12 text-center h4">
+                        <br/>
+                        <p><a th:href="@{/registration}">Sign in</a></p>
+                    </div>
+                </form>
+            </section>
         </div>
-        <!-- END Main -->
-
-        <script>
-            $(document).ready(function(){
-                $("[rel=tooltip]").tooltip({ placement: 'right'});
-            });
-        </script>
     </div>
-    </body>
+    <!-- END Main -->
+</div>
+</body>
 </html>

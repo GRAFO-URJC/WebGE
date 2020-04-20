@@ -3,105 +3,100 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.w3.org/1999/xhtml"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorator="layouts/default"
+      layout:decorate="~{layouts/default}"
       lang="en">
-    <head>
-        <link rel="stylesheet" th:href="@{/assets/dist/css/index.css}" />
-        <title>Main area</title>
-    </head>
+<head>
+    <link rel="stylesheet" th:href="@{/assets/dist/css/index.css}"/>
+    <title>Main area</title>
+</head>
 
-    <body>
-    <div id="page" layout:fragment="content" message=${errorMessage}>
+<body>
+<div id="page" layout:fragment="content" message=${errorMessage}>
     <!-- Header -->
-        <!-- Main -->
-        <div class="container">
-            <div id="forms" class="panel panel-default">
-                <header class="panel-heading">
-                    <h2>Home </h2>
-                </header>
+    <!-- Main -->
+    <div class="container">
+        <div id="forms" class="panel panel-default">
+            <header class="panel-heading">
+                <h2>Home </h2>
+            </header>
 
-                <section class="panel-body form-horizontal center-block text-center">
+            <section class="panel-body form-horizontal center-block text-center">
 
-                    <div class="row">
-                        <a href="/experiment/configExperiment" th:href="@{/experiment/configExperiment}" >
-                            <div class="col-sm-6 col-md-4 col-lg-4 mt-4 form-group">
-                                <div class="card center-block">
-                                    <img class="card-img-top" th:src="@{/images/index/experiments_adn.jpg}" />
-                                    <div class="card-block">
-                                        <h4 class="card-title mt-3">New experiment</h4>
-                                        <div class="card-text">
-                                            Creates a new experiment
-                                        </div>
+                <div class="row">
+                    <a href="/experiment/configExperiment" th:href="@{/experiment/configExperiment}">
+                        <div class="col-sm-6 col-md-4 col-lg-4 mt-4 form-group">
+                            <div class="card center-block">
+                                <img class="card-img-top" th:src="@{/images/index/experiments_adn.jpg}"/>
+                                <div class="card-block">
+                                    <h4 class="card-title mt-3">New experiment</h4>
+                                    <div class="card-text">
+                                        Creates a new experiment
                                     </div>
                                 </div>
                             </div>
-                        </a>
+                        </div>
+                    </a>
 
-                        <a href="/experiment/experimentRepository" th:href="@{/experiment/experimentRepository}"  >
-                            <div class="col-sm-6 col-md-4 col-lg-4 mt-4 form-group">
-                                <div class="card center-block">
-                                    <img class="card-img-top" th:src="@{/images/index/chain_adn.jpg}" />
-                                    <div class="card-block">
-                                        <h4 class="card-title mt-3">My experiments</h4>
-                                        <div class="card-text">
-                                            Loads your saved experiments
-                                        </div>
+                    <a href="/experiment/experimentRepository" th:href="@{/experiment/experimentRepository}">
+                        <div class="col-sm-6 col-md-4 col-lg-4 mt-4 form-group">
+                            <div class="card center-block">
+                                <img class="card-img-top" th:src="@{/images/index/chain_adn.jpg}"/>
+                                <div class="card-block">
+                                    <h4 class="card-title mt-3">My experiments</h4>
+                                    <div class="card-text">
+                                        Loads your saved experiments
                                     </div>
                                 </div>
                             </div>
-                        </a>
+                        </div>
+                    </a>
 
-                        <a href="/grammar/grammarRepository" th:href="@{/grammar/grammarRepository}"  >
-                            <div class="col-sm-6 col-md-4 col-lg-4 mt-4 form-group">
-                                <div class="card center-block">
-                                    <img class="card-img-top" th:src="@{/images/index/grammar.png}" />
-                                    <div class="card-block">
-                                        <h4 class="card-title mt-3">My grammars</h4>
-                                        <div class="card-text">
-                                            Loads your saved gramamrs
-                                        </div>
+                    <a href="/grammar/grammarRepository" th:href="@{/grammar/grammarRepository}">
+                        <div class="col-sm-6 col-md-4 col-lg-4 mt-4 form-group">
+                            <div class="card center-block">
+                                <img class="card-img-top" th:src="@{/images/index/grammar.png}"/>
+                                <div class="card-block">
+                                    <h4 class="card-title mt-3">My grammars</h4>
+                                    <div class="card-text">
+                                        Loads your saved gramamrs
                                     </div>
                                 </div>
                             </div>
-                        </a>
+                        </div>
+                    </a>
 
-                        <a href="/datasets/list" th:href="@{/datasets/list}"  >
-                            <div class="col-sm-6 col-md-4 col-lg-4 mt-4 form-group">
-                                <div class="card center-block">
-                                    <img class="card-img-top" th:src="@{/images/index/dataset.png}" />
-                                    <div class="card-block">
-                                        <h4 class="card-title mt-3">My datasets</h4>
-                                        <div class="card-text">
-                                            Manage datasets
-                                        </div>
+                    <a href="/datasets/list" th:href="@{/datasets/list}">
+                        <div class="col-sm-6 col-md-4 col-lg-4 mt-4 form-group">
+                            <div class="card center-block">
+                                <img class="card-img-top" th:src="@{/images/index/dataset.png}"/>
+                                <div class="card-block">
+                                    <h4 class="card-title mt-3">My datasets</h4>
+                                    <div class="card-text">
+                                        Manage datasets
                                     </div>
                                 </div>
                             </div>
-                        </a>
+                        </div>
+                    </a>
 
-                        <a href="/user/profile" th:href="@{/user/profile}"  >
-                            <div class="col-sm-6 col-md-4 col-lg-4 mt-4 form-group">
-                                <div class="card center-block">
-                                    <img class="card-img-top" th:src="@{/images/index/profile_adn.jpg}" />
-                                    <div class="card-block">
-                                        <h4 class="card-title mt-3">Profile</h4>
-                                        <div class="card-text">
-                                            See your personal information and update new one
-                                        </div>
+                    <a href="/user/profile" th:href="@{/user/profile}">
+                        <div class="col-sm-6 col-md-4 col-lg-4 mt-4 form-group">
+                            <div class="card center-block">
+                                <img class="card-img-top" th:src="@{/images/index/profile_adn.jpg}"/>
+                                <div class="card-block">
+                                    <h4 class="card-title mt-3">Profile</h4>
+                                    <div class="card-text">
+                                        See your personal information and update new one
                                     </div>
                                 </div>
                             </div>
-                        </a>
-                    </div>
-                </section>
-            </div>
+                        </div>
+                    </a>
+                </div>
+            </section>
+        </div>
         <!-- END Main -->
     </div>
-    <script>
-        $(document).ready(function(){
-            $("[rel=tooltip]").tooltip({ placement: 'right'});
-        });
-    </script>
-    </div>
-    </body>
+</div>
+</body>
 </html>

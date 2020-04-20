@@ -1,52 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-<div th:include="fragments/header :: head" th:remove="tag"></div>
+    <div th:include="fragments/header :: head" th:remove="tag"></div>
+    <script>
+        $(document).ready(function () {
+            $("[rel=tooltip]").tooltip({placement: 'right'});
+        });
+    </script>
 </head>
 <body>
 
-    <div th:fragment="menu" >
-        <header class="navbar navbar-default navbar-static-top" id="header">
-            <div class="container">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".header-collapse">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" th:href="@{/}">WebGE <i>by URJC</i></a>
-                </div>
-
-                <div class="collapse navbar-collapse header-collapse">
-                    <ul sec:authorize="isAuthenticated()" class="nav navbar-nav">
-                        <li><a th:href="@{/}"><span class="glyphicon glyphicon-home" rel="tooltip" title="Home page"></span></a>
-                        </li>
-                        <li><a th:href="@{/experiment/configExperiment}" rel="tooltip" title="New experiment"><span
-                                class="glyphicon glyphicon glyphicon-plus-sign"></span></a></li>
-                        <li><a th:href="@{/experiment/experimentRepository}" rel="tooltip" title="List of experiments"><span
-                                class="glyphicon glyphicon-th-list"></span></a></li>
-                        <li><a th:href="@{/user/profile}" rel="tooltip" title="User profile"><span
-                                class="glyphicon glyphicon-user"></span></a></li>
-                    </ul>
-
-                    <a th:href="@{/logout}" rel="tooltip" title="Log out"><p sec:authorize="isAuthenticated()"
-                                                                             class="navbar-text navbar-right btn-sm btn btn-default">
-                        <span style="color:#4183c4" class="glyphicon glyphicon-off"></span></p></a>
-                    <a th:href="@{/registration}" rel="tooltip" title="Register"><p sec:authorize="isAnonymous()"
-                                                                                    class="navbar-text navbar-right btn-sm btn btn-default">
-                        <span style="color:#4183c4" class="glyphicon glyphicon-list-alt"></span></p></a>
-                    <a th:href="@{/user}"><p sec:authorize="isAnonymous()"
-                                             class="navbar-text navbar-right btn-sm btn btn-default"><span
-                            style="color:#4183c4" class="glyphicon glyphicon-log-in" rel="tooltip"
-                            title="Log in"></span></p></a>
-
-                </div>
-            </div>
-        </header>
-    </div>
-    <!--
+<div th:fragment="menu">
     <header class="navbar navbar-default navbar-static-top" id="header">
         <div class="container">
-
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".header-collapse">
                     <span class="sr-only">Toggle navigation</span>
@@ -57,23 +23,38 @@
 
             <div class="collapse navbar-collapse header-collapse">
                 <ul sec:authorize="isAuthenticated()" class="nav navbar-nav">
-                    <li><a th:href="@{/}"><span class="glyphicon glyphicon-home" rel="tooltip" title="Home page"></span></a></li>
-                    <li><a th:href="@{/experiment/configExperiment}" rel="tooltip" title="New experiment"><span class="glyphicon glyphicon glyphicon-plus-sign"></span></a></li>
-                    <li><a th:href="@{/experiment/experimentRepository}" rel="tooltip" title="List of experiments"><span class="glyphicon glyphicon-th-list"></span></a></li>
-                    <li><a th:href="@{/user/profile}" rel="tooltip" title="User profile"><span class="glyphicon glyphicon-user"></span></a></li>
+                    <li><a th:href="@{/}"><span class="glyphicon glyphicon-home" rel="tooltip" title="Home page"></span></a>
+                    </li>
+                    <li><a th:href="@{/experiment/configExperiment}" rel="tooltip" title="New experiment"><span
+                            class="glyphicon glyphicon glyphicon-plus-sign"></span></a></li>
+                    <li><a th:href="@{/experiment/experimentRepository}" rel="tooltip" title="List of experiments"><span
+                            class="glyphicon glyphicon-th-list"></span></a></li>
+                    <li><a th:href="@{/user/profile}" rel="tooltip" title="User profile"><span
+                            class="glyphicon glyphicon-user"></span></a></li>
                 </ul>
 
-                <p sec:authorize="isAuthenticated()" class="navbar-text navbar-right btn-sm btn btn-default"><a  th:href="@{/logout}" rel="tooltip" title="Log out"><span class="glyphicon glyphicon-off"></span></a></p>
-                <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-sm btn-default"><a th:href="@{/registration}" rel="tooltip" title="Register"><span class="glyphicon glyphicon-list-alt"></span></a></p>
-                <p sec:authorize="isAuthenticated()" class="navbar-text navbar-right btn btn-sm btn-default" th:text="${user.username}"/>
-                <p sec:authorize="isAnonymous()" class="navbar-text navbar-right btn btn-sm btn-default"><a th:href="@{/user}"><span class="glyphicon glyphicon-log-in" rel="tooltip" title="Log in"></span></a></p>
+                <a th:href="@{/logout}"><p sec:authorize="isAuthenticated()"
+                                           class="navbar-text navbar-right btn-sm btn btn-default" rel="tooltip"
+                                           title="Log out">
+                    <span style="color:#4183c4" class="glyphicon glyphicon-off"></span></p></a>
+                <a th:href="@{/registration}"><p sec:authorize="isAnonymous()"
+                                                 class="navbar-text navbar-right btn-sm btn btn-default" rel="tooltip"
+                                                 title="Register">
+                    <span style="color:#4183c4" class="glyphicon glyphicon-list-alt"></span></p></a>
+                <a th:href="@{/user}"><p sec:authorize="isAnonymous()"
+                                         class="navbar-text navbar-right btn-sm btn btn-default"><span
+                        style="color:#4183c4" class="glyphicon glyphicon-log-in" rel="tooltip"
+                        title="Log in"></span></p></a>
+
             </div>
         </div>
-    </header>-->
-    <div layout:fragment="wrapper" class="wrapper">
-        <div layout:fragment="content">
-        </div>
-        <div th:include="fragments/footer :: footer"></div>
+    </header>
+</div>
+
+<div layout:fragment="wrapper" class="wrapper">
+    <div layout:fragment="content">
     </div>
+    <div th:include="fragments/footer :: footer"></div>
+</div>
 
 </body>
