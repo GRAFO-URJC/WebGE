@@ -445,10 +445,10 @@ public class ExperimentController {
         List<Run> runList = exp.getIdRunList();
 
         ConfigExperimentDto configExpDto = fillConfigExpDto(new ConfigExperimentDto(), exp,
-                runService.findByRunId(exp.getDefaultRunId()), grammar, expDataType);
+                exp.getIdRunList().isEmpty() ? null : runService.findByRunId(exp.getDefaultRunId()),
+                grammar, expDataType);
 
-        modelAddData(model, user, grammar,
-                experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()),
+        modelAddData(model, user, grammar, experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()),
                 exp.getIdExpDataTypeList());
         model.addAttribute("runList", runList);
         model.addAttribute("configuration", configExpDto);
@@ -957,7 +957,10 @@ public class ExperimentController {
 
         if (experimentService.findPropertiesById(run.getIdProperties()) != null)
             runService.deleteExpProperties(experimentService.findPropertiesById(run.getIdProperties()));
-
+        if (experiment.getDefaultRunId() == longRunId) {
+            experiment.setDefaultRunId(null);
+            experimentService.saveExperiment(experiment);
+        }
         return longRunId;
     }
 
