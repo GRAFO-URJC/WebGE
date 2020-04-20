@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service("runService")
-public class  RunService {
+public class RunService {
     @Autowired
     RunRepository runRepository;
 
@@ -25,6 +25,8 @@ public class  RunService {
     }
 
     public Run findByRunId(Long runId){
+        if(runId==null)
+            return null;
         return runRepository.findById(runId).get();
     }
 

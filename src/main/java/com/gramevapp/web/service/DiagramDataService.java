@@ -5,6 +5,7 @@ import com.gramevapp.web.model.DiagramPair;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.repository.DiagramDataRepository;
 import com.gramevapp.web.repository.DiagramPairRepository;
+import com.gramevapp.web.repository.RunRepository;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,9 @@ public class DiagramDataService {
     @Autowired
     private DiagramPairRepository diagramPairRepository;
 
+    @Autowired
+    private RunRepository runRepository;
+
     public DiagramData getLastBestIndividual(Run runId){
         return diagramRepository.findByRunId(runId);
     }
@@ -34,6 +38,10 @@ public class DiagramDataService {
 
     public DiagramData saveDiagram(DiagramData diagramData) {
         return diagramRepository.save(diagramData);
+    }
+
+    public void saveRun(Run run){
+        runRepository.save(run);
     }
 
     public void saveDiagramPairList(List<DiagramPair> diagramPairList) {

@@ -49,7 +49,9 @@ public class RunGeObserver implements Observer {
 
         if(this.diagramData.getRunId().getStatus().equals(Run.Status.INITIALIZING)){
             this.diagramData.getRunId().setStatus(Run.Status.RUNNING);
+            dataDataService.saveRun(this.diagramData.getRunId());
         }
+
         this.diagramData.addListPair(diagramPair);
 
         if(currPercent == 100 || currBest <= 0.0)
@@ -64,14 +66,6 @@ public class RunGeObserver implements Observer {
         dataDataService.saveDiagramPair(diagramPair);
 
         dataDataService.saveDiagram(this.diagramData);
-        /*
-        if (dataMap.get("BestObjective") != null) {
-            currBest = Double.valueOf(dataMap.get("BestObjective").toString());
-
-        } else if (dataMap.get("Objectives") != null) {
-            double objs[][] = (double [][]) dataMap.get("Objectives");
-        }
-         */
     }
 
     public DiagramData getDiagramData() {
