@@ -12,7 +12,7 @@ services:
       POSTGRES_PASSWORD: "01234"
       POSTGRES_DB: "webge"
     volumes:
-      - ./src/main/resources/db/migration/V1__WebGE.sql:/docker-entrypoint-initdb.d/init.sql
+      - pgdata:/var/lib/postgresql/data
     networks:
       - backend
 
@@ -33,7 +33,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: "01234"
     networks:
       - backend
-
+volumes:
+  pgdata:
 
 networks:
   backend:
