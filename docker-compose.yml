@@ -19,6 +19,8 @@ services:
   gramev:
     image: leichen0710/webge:develop
     #image: leichen0710/webge:master
+    #local develop
+    #image: leichen0710/aux:aux
     links:
       - db
     depends_on:
