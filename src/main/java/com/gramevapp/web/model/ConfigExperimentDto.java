@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 public class ConfigExperimentDto {
-    private static final String PATTERN = "^[\\p{L} \\d .'-]*$";;  // https://stackoverflow.com/questions/15805555/java-regex-to-validate-full-name-allow-only-spaces-and-letters
+    private static final String PATTERN = "[^[@#$&()\\-`.+,/\"]*^[\\p{L} \\d .'-]*$]*$";//"^[\\p{L} \\d .'-]*$";  // https://stackoverflow.com/questions/15805555/java-regex-to-validate-full-name-allow-only-spaces-and-letters
 
     private Long id;
 
