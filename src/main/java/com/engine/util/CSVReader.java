@@ -36,7 +36,7 @@ public class CSVReader {
         try{
             inputStream = new Scanner(file);
             while(inputStream.hasNext()){
-                inputStream.next();
+                inputStream.nextLine();
                 nRows++;
             }
             inputStream.close();
@@ -52,7 +52,7 @@ public class CSVReader {
         String[] values;
         try{
             inputStream = new Scanner(file);
-            firstLine = inputStream.next();
+            firstLine = inputStream.nextLine();
             values = firstLine.split(csvSplitBy);
             nColumns = values.length;
         }catch(FileNotFoundException e){}
@@ -60,7 +60,6 @@ public class CSVReader {
     }
     
     //Read CVS and create a matrix with the complete information
-    // TODO: headers in data files may contain spaces. Separator is ";". Check new datafile.
     public String[][] loadMatrix() throws FileNotFoundException{
         int rows = this.numberRows();
         int columns = this.numberColumns();
@@ -73,7 +72,7 @@ public class CSVReader {
         try{
             inputStream = new Scanner(file);
             while(inputStream.hasNext()){
-                line = inputStream.next();
+                line = inputStream.nextLine();
                 values = line.split(csvSplitBy);
                 for (int i=0;i<values.length;i++){
                     matrix[j][i] = values[i];

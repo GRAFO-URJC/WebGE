@@ -50,7 +50,7 @@ public class ExperimentService {
         expDataType.setHeader(columnList);
 
         while(scanCsv.hasNext()){
-            String row = scanCsv.next();
+            String row = scanCsv.nextLine();
 
             ArrayList<String> rowColumnList = new ArrayList<>();
 
