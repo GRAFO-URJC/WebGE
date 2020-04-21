@@ -60,6 +60,7 @@ public class CSVReader {
     }
     
     //Read CVS and create a matrix with the complete information
+    // TODO: headers in data files may contain spaces. Separator is ";". Check new datafile.
     public String[][] loadMatrix() throws FileNotFoundException{
         int rows = this.numberRows();
         int columns = this.numberColumns();
