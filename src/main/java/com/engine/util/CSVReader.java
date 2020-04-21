@@ -35,7 +35,7 @@ public class CSVReader {
         Scanner inputStream;
         try{
             inputStream = new Scanner(file);
-            while(inputStream.hasNext()){
+            while(inputStream.hasNextLine()){
                 inputStream.nextLine();
                 nRows++;
             }
@@ -71,7 +71,7 @@ public class CSVReader {
         int j=0;
         try{
             inputStream = new Scanner(file);
-            while(inputStream.hasNext()){
+            while(inputStream.hasNextLine()){
                 line = inputStream.nextLine();
                 values = line.split(csvSplitBy);
                 for (int i=0;i<values.length;i++){
