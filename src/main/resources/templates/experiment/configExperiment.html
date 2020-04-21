@@ -224,8 +224,8 @@
                             </div>
                             <div class="row form-group center-block">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <select id="grammarId" name="grammarId" onchange="updateGrammarContent()">
-                                        <option value="grammarContentEmpty">Select a grammar ...</option>
+                                    <select id="grammarId" name="grammarId" onchange="updateGrammarContent()" required>
+                                        <option value="">Select a grammar ...</option>
                                         <option th:each="gr : ${grammarList}" th:value="${gr.getId()}"
                                                 th:text="${gr.getGrammarName() + ' - ' + gr.getGrammarDescription()}"
                                                 th:selected="(${(grammar !=null) && (grammar.getId() == gr.getId())})"/>
@@ -263,8 +263,8 @@
 
                             <div class="row form-group center-block">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <select id="datasetId" name="datasetId" onchange="updateDatasetContent()">
-                                        <option value=-1>Select a dataset ...</option>
+                                    <select id="datasetId" name="datasetId" onchange="updateDatasetContent()" required>
+                                        <option value="">Select a dataset ...</option>
                                         <option th:each="dataset,ite : ${datasetList}" th:value="${ite.index}"
                                                 th:text="${dataset.getDataTypeName() + ' - ' + dataset.getDataTypeDescription()}"
                                                 th:selected="(${(experimentDataType !=null) && (experimentDataType.getId() == dataset.getId())})"/>
@@ -579,26 +579,30 @@
         }
 
         function updateDatasetContent() {
-            let i = parseInt($('#datasetId').val());
-
-            if (i >= 0) {
+            if ($('#datasetId').val() != "") {
+                let i = parseInt($('#datasetId').val());
                 $('#dataTypeName').val(datasetListInfo[i].dataTypeName);
                 $('#dataTypeDescription').val(datasetListInfo[i].dataTypeDescription);
                 $('#info').val(datasetListInfo[i].info);
                 $('#experimentDataTypeId').val(datasetListInfo[i].idDataset);
+            }else{
+                $('#dataTypeName').val("");
+                $('#dataTypeDescription').val("");
+                $('#info').val("");
             }
-
         }
+
         let datasetListInfo = [];
-        let data ={};
-        function saveDatasetInfo(){
+        let data = {};
+
+        function saveDatasetInfo() {
             /*<![CDATA[*/
             /*[# th:each="dataset : ${datasetList}"]*/
-            data ={};
-            data.idDataset=/*[[${dataset.getId()}]]*/;
-            data.dataTypeName=/*[[${dataset.getDataTypeName()}]]*/;
-            data.dataTypeDescription=/*[[${dataset.getDataTypeDescription()}]]*/;
-            data.info=/*[[${dataset.getinfo()}]]*/;
+            data = {};
+            data.idDataset =/*[[${dataset.getId()}]]*/;
+            data.dataTypeName =/*[[${dataset.getDataTypeName()}]]*/;
+            data.dataTypeDescription =/*[[${dataset.getDataTypeDescription()}]]*/;
+            data.info =/*[[${dataset.getinfo()}]]*/;
             datasetListInfo.push(data);
             /*[/]*/
             /*]]>*/
