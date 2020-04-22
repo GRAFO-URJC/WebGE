@@ -63,12 +63,9 @@ public class ConfigExperimentDto {
     private String grammarDescription;
     @NotEmpty(message = "Grammar area text cannot be empty")
     private String fileText; // This is the text on the file - That's written in an areaText - So we can take it as a String
-    @NotEmpty(message = "Data type file name cannot be empty")
-    @Pattern(regexp = PATTERN, message = "Data type file name cannot contain strange characters")
     private String dataTypeName;
     @NotEmpty(message = "Grammar area text cannot be empty")
     private String info;
-    @Pattern(regexp = PATTERN, message = "Data type file description cannot contain strange characters")
     private String dataTypeDescription; // status
     @NotEmpty(message = "Choose one data type option")
     private String dataTypeType = "training";   // Validation, test, training
