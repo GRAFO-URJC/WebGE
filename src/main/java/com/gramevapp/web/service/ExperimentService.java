@@ -76,8 +76,14 @@ public class ExperimentService {
         ArrayList<String> columnList = new ArrayList<>();
 
         String[] columns = expDataType.getinfo().split("\r\n");
+        int index = 0;
         for(String column : columns[0].split(";")) {
-            columnList.add(column);
+            if(index==0){
+                columnList.add("#Y");
+            }else{
+                columnList.add("X"+index);
+            }
+            index++;
         }
 
         expDataType.setHeader(columnList);
