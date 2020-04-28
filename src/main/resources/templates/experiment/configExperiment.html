@@ -310,61 +310,6 @@
                                    th:value="${configuration.getDefaultExpDataTypeId()}"/>
                             <input class="hiddenRadio" type="radio" th:name="radioDataType" th:id="radioDataTypeHidden"
                                    checked="checked"/>
-                            <div th:if="${not #lists.isEmpty(dataTypeList)}">
-                                <h2>Data type files</h2>
-
-                                <table class="table table-hover" id="expTypeTable">
-                                    <thead>
-                                    <tr>
-                                        <th scope="col"></th>
-                                        <th scope="col">Id ExpDataType</th>
-                                        <th scope="col">File name</th>
-                                        <th scope="col">File description</th>
-                                        <th scope="col">File type</th>
-                                        <th scope="col">Creation date</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <th:block th:each="dataType, iterStat : ${dataTypeList}">
-                                        <!-- We are using model Experiment and not ExperimentDto -->
-                                        <tr th:id="'trDataType' + ${iterStat.index}">
-                                            <td scope="row"><input type="radio"
-                                                                   th:id="'radioDataType'+${iterStat.index}"
-                                                                   th:name="radioDataType"
-                                                                   th:value="${dataType.getId()}"
-                                                                   onclick="check(this.id)"/></td>
-                                            <td scope="row"><label th:text="${dataType.getId()}" th:id="dataTypeId"
-                                                                   th:name="dataTypeId"/></td>
-                                            <td scope="row"><label th:text="${dataType.getDataTypeName()}"
-                                                                   th:name="expDataTypeNameList"
-                                                                   th:id="expDataTypeNameList"/></td>
-                                            <td scope="row"><label th:text="${dataType.getDataTypeDescription()}"
-                                                                   th:name="expDataTypeDescriptionList"
-                                                                   th:id="expDataTypeDescriptionList"/></td>
-                                            <td scope="row"><label th:text="${dataType.getDataTypeType()}"
-                                                                   th:name="expDataTypeTypeList"
-                                                                   th:id="expDataTypeTypeList"/></td>
-                                            <td scope="row"><label th:text="${dataType.getCreationDate()}"
-                                                                   th:name="creationDate" th:id="creationDate"/></td>
-                                            <input type="hidden" th:value="${dataType.getId()}" th:name="dataTypeId"
-                                                   th:id="dataTypeId"/>
-                                            <input type="hidden" th:value="${dataType.getDataTypeType()}"
-                                                   th:name="dataTypeType" th:id="dataTypeType"/>
-                                            <td scope="row" th:id="'showDeleteDataType'+${iterStat.index}">
-                                                <button type="button" th:name="${dataType.id}"
-                                                        th:id="${'deleteDataType' + iterStat.index}"
-                                                        onclick="confirmDeleteDataType(this.id, this.name)"
-                                                        class="btn-default btn btn-sm"
-                                                        rel="tooltip"
-                                                        title="Delete run"
-                                                ><span
-                                                        class="glyphicon glyphicon-trash small"></span></button>
-                                            </td>
-                                        </tr>
-                                    </th:block>
-                                    </tbody>
-                                </table>
-                            </div>
                             <!-- END Data Type table to load -->
 
                             <div class="row form-group text-center">
@@ -731,11 +676,6 @@
                 deleteRow(iterStat, runId);
         }
 
-        function confirmDeleteDataType(iterStat, expDataTypeId) {
-            var result = confirm("Are you sure to delete this data type file ?");
-            if (result)
-                deleteRowDataType(iterStat, expDataTypeId);
-        }
 
         function deleteRowDataType(iterStat, expDataTypeId) {
             var cleanIterStat = iterStat.substring("deleteDataType".length, iterStat.length);
