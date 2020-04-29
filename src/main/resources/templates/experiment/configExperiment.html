@@ -676,26 +676,6 @@
                 deleteRow(iterStat, runId);
         }
 
-
-        function deleteRowDataType(iterStat, expDataTypeId) {
-            var cleanIterStat = iterStat.substring("deleteDataType".length, iterStat.length);
-
-            $.ajax({
-                url: encodeURI("/experiment/expRepoSelected"),
-                data: {
-                    'expDataTypeId': expDataTypeId,
-                    'deleteDataType': 'deleteDataType'
-                },
-                cache: false,
-                async: true,
-                type: "POST",
-                dataType: "json",
-                success: function (data) {
-                    $("#trDataType" + cleanIterStat).remove();
-                }
-            });
-        };
-
         function deleteRow(iterStat, runId) {
             var cleanIterStat = iterStat.substring("deleteRun".length, iterStat.length);
 

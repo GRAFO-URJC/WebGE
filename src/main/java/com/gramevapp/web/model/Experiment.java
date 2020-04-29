@@ -52,9 +52,8 @@ public class Experiment {
 
     @JsonBackReference
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToMany(fetch=FetchType.LAZY,
-            mappedBy = "experimentId",
-            orphanRemoval = true)
+    @ManyToMany(fetch=FetchType.LAZY,
+            mappedBy = "experimentList")
     private List<ExperimentDataType> idExpDataTypeList;
 
     @Column
@@ -194,7 +193,7 @@ public class Experiment {
 
         ExperimentDataType defaultExpDType= experimentService.findExperimentDataTypeById(defaultExpDataType);
         if(defaultExpDType != null)
-            defaultExpDType.setExperimentId(this);
+            defaultExpDType.addExperimentList(this);
     }
 
     public List<Run> getIdRunList() {
@@ -286,14 +285,14 @@ public class Experiment {
         if(this.idExpDataTypeList.contains(expData))
             return ;
         this.idExpDataTypeList.add(expData);
-        expData.setExperimentId(this);
+        expData.addExperimentList(this);
     }
 
     public void removeExperimentDataType(ExperimentDataType expData){
         if(!idExpDataTypeList.contains(expData))
             return ;
         idExpDataTypeList.remove(expData);
-        expData.setExperimentId(null);
+        expData.deleteExperimentInList(this);
     }
 
     public List<ExperimentDataType> getIdExpDataTypeList() {
