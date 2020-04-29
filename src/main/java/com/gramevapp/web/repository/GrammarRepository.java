@@ -11,7 +11,6 @@ import java.util.List;
 @Repository
 public interface GrammarRepository extends JpaRepository<Grammar, Long> {
     Grammar findGrammarById(Long grammarId);
-    List<Grammar> findAllByExperimentId(Experiment experimentId);
 
     List<Grammar> findByUserId(Long id);
 }
