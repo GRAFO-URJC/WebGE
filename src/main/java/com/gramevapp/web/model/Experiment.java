@@ -43,9 +43,8 @@ public class Experiment {
 
     @JsonBackReference
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToMany(fetch=FetchType.LAZY,
-            mappedBy = "experimentId",
-            orphanRemoval = true)
+    @ManyToMany(fetch=FetchType.LAZY,
+            mappedBy = "listExperiment")
     private List<Grammar> idGrammarList;
 
     @Column
@@ -181,7 +180,7 @@ public class Experiment {
 
         Grammar defaultGrammar= experimentService.findGrammarById(defaultGrammarId);
         if(defaultGrammar != null)
-            defaultGrammar.setExperimentId(this);
+            defaultGrammar.addExperimentId(this);
     }
 
     public Long getDefaultExpDataType() {
@@ -273,14 +272,14 @@ public class Experiment {
         if(this.idGrammarList.contains(grammar))
             return ;
         this.idGrammarList.add(grammar);
-        grammar.setExperimentId(this);
+        grammar.addExperimentId(this);
     }
 
     public void removeGrammar(Grammar grammar){
         if(!idGrammarList.contains(grammar))
             return ;
         idGrammarList.remove(grammar);
-        grammar.setExperimentId(null);
+        grammar.deleteExperimentId(this);
     }
 
     public void addExperimentDataType(ExperimentDataType expData) {

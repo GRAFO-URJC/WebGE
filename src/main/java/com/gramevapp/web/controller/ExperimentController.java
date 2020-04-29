@@ -501,7 +501,7 @@ public class ExperimentController {
         while (listGrammarIt.hasNext()) {
             Grammar grammarIt = listGrammarIt.next();
             listGrammarIt.remove();
-            grammarIt.setExperimentId(null);
+            grammarIt.deleteExperimentId(expConfig);
         }
 
         Iterator<ExperimentDataType> listDataTypeIt = expConfig.getIdExpDataTypeList().iterator();
@@ -932,7 +932,7 @@ public class ExperimentController {
         while (grammarIt.hasNext() && !found) {
             Grammar grammarAux = grammarIt.next();
             if (grammarAux.getId().longValue() == run.getDefaultGrammarId().longValue()) {
-                grammarAux.setExperimentId(null);
+                grammarAux.deleteExperimentId(experiment);
 
                 if (grammarAux.getId().longValue() == experiment.getDefaultGrammar().longValue())
                     experiment.setDefaultRunId(Long.parseLong("0"));

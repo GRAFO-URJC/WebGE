@@ -173,9 +173,6 @@ public class ExperimentService {
         return propertiesRepository.save(expProperties);
     }
 
-    public List<Grammar> findAllGrammarByExperimentId(Experiment experimentId){
-        return grammarRepository.findAllByExperimentId(experimentId);
-    }
 
     public List<ExperimentDataType> findAllExperimentDataTypeByExperimentId(Experiment experimentId){
         return experimentDataTypeRepository.findAllByExperimentId(experimentId);
