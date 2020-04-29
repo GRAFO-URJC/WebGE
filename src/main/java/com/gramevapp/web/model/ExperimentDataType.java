@@ -26,7 +26,7 @@ public class ExperimentDataType {
     @JoinTable(
             name = "exp_data_type_list",
             joinColumns = {
-                    @JoinColumn(name = "experiment_data_type_id")
+                    @JoinColumn(name = "experimentdatatype_id")
                 },
             inverseJoinColumns = {
                     @JoinColumn(name = "experiment_id", referencedColumnName = "experiment_id")
