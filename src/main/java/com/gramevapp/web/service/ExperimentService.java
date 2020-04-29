@@ -173,11 +173,6 @@ public class ExperimentService {
         return propertiesRepository.save(expProperties);
     }
 
-
-    public List<ExperimentDataType> findAllExperimentDataTypeByExperimentId(Experiment experimentId){
-        return experimentDataTypeRepository.findAllByExperimentId(experimentId);
-    }
-
     public List<ExperimentDataType> findAllExperimentDataTypeByUserId(Long userId){
         return experimentDataTypeRepository.findAllByUserIdUserId(userId);
     }

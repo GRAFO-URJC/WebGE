@@ -508,7 +508,7 @@ public class ExperimentController {
         while (listDataTypeIt.hasNext()) {
             ExperimentDataType expData = listDataTypeIt.next();
             listDataTypeIt.remove();
-            expData.setExperimentId(null);
+            expData.deleteExperimentInList(expConfig);
         }
 
         expConfig.setDefaultGrammar(null);
@@ -891,30 +891,6 @@ public class ExperimentController {
 
         model.addAttribute("expDetails", experimentDetailsDto);
         return "experiment/showDiagramPlot";
-    }
-
-    @RequestMapping(value = "/experiment/expRepoSelected", method = RequestMethod.POST, params = "deleteDataType")
-    public
-    @ResponseBody
-    Long deleteExpDataType(@RequestParam("expDataTypeId") String expDataTypeId) {
-        Boolean found = false;
-
-        Long longExpDataTypeId = Long.parseLong(expDataTypeId);
-        ExperimentDataType expDataType = experimentService.findExperimentDataTypeById(longExpDataTypeId);
-
-        List<ExperimentDataType> lExpDataType = expDataType.getExperimentId().getIdExpDataTypeList();
-        Iterator<ExperimentDataType> expDataIt = lExpDataType.iterator();
-        while (expDataIt.hasNext() && !found) {
-            ExperimentDataType expDataAux = expDataIt.next();
-            if (expDataAux.getId().longValue() == expDataType.getId().longValue()) {
-                if (expDataAux.getId().longValue() == expDataType.getExperimentId().getDefaultExpDataType().longValue())
-                    expDataType.getExperimentId().setDefaultExpDataType(Long.parseLong("0"));
-                expDataAux.setExperimentId(null);
-                found = true;
-            }
-        }
-
-        return longExpDataTypeId;
     }
 
     @RequestMapping(value = "/experiment/expRepoSelected", method = RequestMethod.POST, params = "deleteRun")
