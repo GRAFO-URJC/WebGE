@@ -102,6 +102,7 @@
                                                 class="btn-default btn btn-sm"
                                                 rel="tooltip"
                                                 title="Delete dataset"
+                                                th:disabled="${datasetListDisabled.get(iterStat.index)}"
                                         ><span
                                                 class="glyphicon glyphicon-trash small"></span></button>
                                     </td>
