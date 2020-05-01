@@ -520,7 +520,7 @@ public class ExperimentController {
     @RequestMapping(value = "/experiment/runList", method = RequestMethod.GET, params = "loadExperimentButton")
     public String loadExperiment(Model model,
                                  @RequestParam("runId") String runId) {
-
+        User user = userService.getLoggedInUser();
         Long longRunId = Long.parseLong(runId);
         Run run = runService.findByRunId(longRunId);
 
@@ -536,6 +536,13 @@ public class ExperimentController {
         ConfigExperimentDto configExpDto = new ConfigExperimentDto();
         configExpDto = fillConfigExpDto(configExpDto, run.getExperimentId(), run, grammar, expDataType);
 
+        experimentService.findExperimentDataTypeById(run.getDefaultExpDataTypeId());
+
+        modelAddData(model,
+                user,
+                grammar,
+                experimentService.findExperimentDataTypeById(run.getDefaultExpDataTypeId()),
+                null);
         model.addAttribute("configuration", configExpDto);
         model.addAttribute("configExp", configExpDto);
         model.addAttribute("runList", runList);
