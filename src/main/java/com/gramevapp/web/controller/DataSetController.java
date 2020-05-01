@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -30,11 +31,17 @@ public class DataSetController {
         User user = userService.getLoggedInUser();
         List<ExperimentDataType> datasetList =
                 experimentService.findAllExperimentDataTypeByUserId(user.getId());
+        List<Boolean> disabled = new ArrayList<>();
+
+        for (ExperimentDataType experimentDataType : datasetList) {
+            disabled.add(experimentDataType.getExperimentList().size() > 0);
+        }
 
         model.addAttribute("datasetList", datasetList);
-
+        model.addAttribute("datasetListDisabled", disabled);
         return "dataset/datasetRepository";
     }
+
 
     @RequestMapping(value = "/dataset/datasetDetail")
     public String createDataset(Model model) {
