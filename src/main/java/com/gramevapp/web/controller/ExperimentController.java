@@ -25,7 +25,7 @@ import static com.engine.util.Common.TRAINING_PATH_PROP;
 public class ExperimentController {
 
     private HashMap<Long, Thread> threadMap = new HashMap();
-    private HashMap<Long, RunnableExpGramEv> runnables = new HashMap();
+    private static HashMap<Long, RunnableExpGramEv> runnables = new HashMap();
 
     @Autowired
     private ExperimentService experimentService;
@@ -558,6 +558,8 @@ public class ExperimentController {
         User user = userService.getLoggedInUser();
         Long longRunId = Long.parseLong(runId);
         Run run = runService.findByRunId(longRunId);
+        // reset model
+        run.setModel("");
         DiagramData diagramData = diagramDataService.findByRunId(run);
 
         ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, diagramData);
@@ -994,5 +996,9 @@ public class ExperimentController {
         configExpDto.setNumberRuns(numberRuns);
         configExpDto.setObjective(objective);
         return configExpDto;
+    }
+
+    public static HashMap<Long, RunnableExpGramEv> getRunnables() {
+        return runnables;
     }
 }

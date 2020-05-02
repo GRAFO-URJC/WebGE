@@ -30,7 +30,7 @@ public class ExperimentDataType {
                     @JoinColumn(name = "experiment_id", referencedColumnName = "experiment_id")
             }
     )
-    private List<Experiment> experimentList;
+    private List<Experiment> experimentList= new ArrayList<>();
 
     @Column
     private Long runId;

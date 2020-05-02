@@ -96,6 +96,8 @@ public class Run {
     private Integer numCodons =10;
     @Column
     private Integer numberRuns = 1;
+    @Column
+    private String model = "";
 
     public Run(Run run){
         this(run.getExperimentId(), run.getDiagramData(), run.getBestIndividual(), run.getCurrentGeneration(), run.getIdProperties(), run.getStatus(), run.getIniDate(), run.getModificationDate(), run.getExperimentName(), run.getExperimentDescription(), run.getDefaultRunId(), run.getGenerations(), run.getPopulationSize(), run.getMaxWraps(), run.getTournament(), run.getCrossoverProb(), run.getMutationProb(), run.getInitialization(), run.getObjective(), run.getResults(), run.getNumCodons(), run.getNumberRuns());
@@ -387,5 +389,13 @@ public class Run {
         this.numberRuns = numberRuns;
         this.modificationDate = modificationDate;
         this.objective = objective;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
     }
 }

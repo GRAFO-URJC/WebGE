@@ -376,6 +376,7 @@
                                 <th scope="col">Status</th>
                                 <th scope="col">Creation date</th>
                                 <th scope="col">Last modification date</th>
+                                <th scope="col">Model</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -401,7 +402,8 @@
                                                                th:text="${run.getIniDate()}"/></td>
                                         <td scope="row"><label th:name="lastDate" th:id="lastDate"
                                                                th:text="${run.getModificationDate()}"/></td>
-
+                                        <td scope="row"><label th:name="model" th:id="model+${iterStat.index}"
+                                                               th:text="${run.getModel()}"/></td>
                                         <td scope="row">
                                             <a th:href="@{/experiment/runList(runId=${run.getId()}, loadExperimentButton='loadExperimentButton')}"
                                                th:id="${'loadExperimentButton' + iterStat.index}"
@@ -530,7 +532,7 @@
                 $('#dataTypeDescription').val(datasetListInfo[i].dataTypeDescription);
                 $('#info').val(datasetListInfo[i].info);
                 $('#experimentDataTypeId').val(datasetListInfo[i].idDataset);
-            }else{
+            } else {
                 $('#dataTypeName').val("");
                 $('#dataTypeDescription').val("");
                 $('#info').val("");
@@ -573,7 +575,7 @@
         }
 
         // <![CDATA[
-        function checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat) {
+        function checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat) {
             $.ajax({
                 url: encodeURI("/user/rest/runStatus/"),
                 data: {
@@ -585,13 +587,15 @@
                 type: "GET",
                 dataType: "json",
                 success: function (data) {
-                    var statusStr = data['status'];
-                    var bestIndividualStr = data['bestIndividual'];
-                    var currentGenerationStr = data['currentGeneration'];
+                    let statusStr = data['status'];
+                    let bestIndividualStr = data['bestIndividual'];
+                    let currentGenerationStr = data['currentGeneration'];
+                    let modelStr = data['model'] == "" ? "Waiting for finish" : data['model'];
 
                     $(status).text(statusStr);
                     $(bestIndividual).text(bestIndividualStr);
                     $(currentGeneration).text(currentGenerationStr);
+                    $(model).text(modelStr);
                 },
                 complete: function (data) {
                     var runId = $("#runId" + iterStat);
@@ -603,7 +607,7 @@
                         $("#runExperimentButton" + iterStat).addClass("hidden");
                         $("#showDelete" + iterStat).addClass("hidden");
                         setTimeout(function () {
-                            checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat);
+                            checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat);
                         }, 1000);
                     }
 
@@ -618,18 +622,19 @@
         // ]]>
 
         function showRunStatus(iterStat) {
-            var cleanIterStat = iterStat.substring("runExperimentButton".length, iterStat.length);
+            let cleanIterStat = iterStat.substring("runExperimentButton".length, iterStat.length);
 
-            var runId = $("#runId" + cleanIterStat);
-            var status = "#status" + cleanIterStat;
-            var currentGeneration = "#currentGeneration" + cleanIterStat;
-            var bestIndividual = "#bestIndividual" + cleanIterStat;
+            let runId = $("#runId" + cleanIterStat);
+            let status = "#status" + cleanIterStat;
+            let currentGeneration = "#currentGeneration" + cleanIterStat;
+            let bestIndividual = "#bestIndividual" + cleanIterStat;
+            let model = "#model" + cleanIterStat;
 
             if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED"))
                 $(status).text("INITIALIZING");
 
             setTimeout(function () {
-                checkRunStatus(runId, status, bestIndividual, currentGeneration, cleanIterStat)
+                checkRunStatus(runId, status, bestIndividual, currentGeneration, model, cleanIterStat)
             }, 1000);
         }
 
