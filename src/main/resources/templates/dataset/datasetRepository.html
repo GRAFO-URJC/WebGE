@@ -5,6 +5,24 @@
       layout:decorate="~{layouts/default}">
 <!--Add Style-->
 <style>
+
+    td.details-control {
+        background: url('/examples/resources/details_open.png') no-repeat center center;
+        cursor: pointer;
+    }
+
+    tr.shown td.details-control {
+        background: url('/examples/resources/details_close.png') no-repeat center center;
+    }
+
+    div.slider {
+        display: none;
+    }
+
+    table.dataTable tbody td.no-padding {
+        padding: 0;
+    }
+
     /* enable absolute positioning */
     .inner-addon {
         position: relative;
@@ -56,17 +74,19 @@
 
                 <section class="panel-body center-block">
                     <div th:if="${not #lists.isEmpty(datasetList)}">
-                        <table class="table table-hover" id="expRepository">
+                        <table class="table table-hover " id="datasetRepository">
                             <thead>
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Dataset name</th>
                                 <th scope="col">Dataset description</th>
                                 <th scope="col">Creation date</th>
-                                <th scope="col" colspan="4">Controls</th>
+                                <th scope="col" class="details-control">Controls</th>
+                                <th scope="col"></th>
+                                <th scope="col" style="display: none"></th>
                             </tr>
                             </thead>
-                            <tbody id="expTable">
+                            <tbody id="datasetTbody">
                             <th:block th:each="dataset, iterStat : ${datasetList}">
                                 <tr th:id="'tr' + ${iterStat.index}">
                                     <td scope="row"><label th:name="id" th:id="id" th:text="${dataset.getId()}"
@@ -80,12 +100,10 @@
                                     <td scope="row"><label th:name="creationDate" th:id="creationDate"
                                                            th:text="${dataset.getCreationDate()}" id="creationDate"/>
                                     </td>
-                                    <td scope="row">
-                                        <a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse"
-                                           class="accordion-toggle">Display dataset<span
-                                                class="glyphicon glyphicon-chevron-down"></span> </a>
+                                    <td scope="row" class="details-control">
+                                        <button type="button">Display dataset</button>
                                     </td>
-                                    <td scope="row">
+                                    <td>
                                         <button type="button" th:name="${dataset.getId()}"
                                                 th:id="${'downloadDataset' + dataset.getId()}"
                                                 th:attr="onclick=|downloadDataset('fileText${dataset.getId()}')|"
@@ -94,8 +112,6 @@
                                                 title="Download dataset"
                                         ><span
                                                 class="glyphicon glyphicon-download"></span></button>
-                                    </td>
-                                    <td scope="row">
                                         <button type="button" th:name="${dataset.getId()}"
                                                 th:id="${'deleteDataset' + iterStat.index}"
                                                 onclick="confirmDelete(this.id, this.name)"
@@ -105,17 +121,15 @@
                                                 th:disabled="${datasetListDisabled.get(iterStat.index)}"
                                         ><span
                                                 class="glyphicon glyphicon-trash small"></span></button>
+
                                     </td>
-                                </tr>
-                                <tr th:id="'trAux' + ${iterStat.index}">
-                                    <td colspan="6">
-                                        <div th:id="'collapse'+${iterStat.index}" class="panel-collapse collapse">
-                                            <textarea disabled rows="8" class="form-control"
-                                                      th:text="${dataset.getinfo()}"
-                                                      placeholder="Dataset content" name="fileText"
-                                                      th:id="fileText + ${dataset.getId()}" th:inline="text"
-                                                      style="resize: none;"/>
-                                        </div>
+                                    <!--dataset information-->
+                                    <td style="display: none;">
+                                        <textarea disabled rows="8" class="form-control"
+                                                  th:text="${dataset.getinfo()}"
+                                                  placeholder="Dataset content" name="fileText"
+                                                  th:id="fileText + ${dataset.getId()}" th:inline="text"
+                                                  style="resize: none;"/>
                                     </td>
                                 </tr>
                             </th:block>
@@ -152,6 +166,20 @@
     <!-- END Modal -->
 
     <script>
+        let table;
+        $(document).ready(function () {
+            //table pagination
+            table = $('#datasetRepository').DataTable({
+                "paging": true,
+                "searching": false,
+                "columnDefs": [ {
+                    "targets": [4,5],
+                    "orderable": false
+                } ]
+            });
+            $('.dataTables_length').addClass('bs-select');
+        })
+
         function downloadDataset(elemName) {
             let textToWrite = document.getElementById(elemName).value.split(/[\r\n]/);
             const rows = [];
@@ -184,6 +212,30 @@
 
             downloadLink.click();
         }
+
+        function format(d) {
+            // `d` is the original data object for the row
+            return '<div class="slider" style="display: none;">'+
+                d[6] +
+                '</div>';
+        }
+
+        $('#datasetRepository tbody').on('click', 'td.details-control', function () {
+            let tr = $(this).closest('tr');
+            let row = table.row(tr);
+            if (row.child.isShown()) {
+                // This row is already open - close it
+                $('div.slider', row.child()).slideUp(function () {
+                    row.child.hide();
+                    //tr.removeClass('shown');
+                });
+            } else {
+                // Open this row
+                row.child(format(row.data())).show();
+                tr.addClass('shown');
+                $('div.slider', row.child()).slideDown();
+            }
+        });
 
         function confirmDelete(iterStat, expId) {
             if (confirm("Delete the selected dataset?")) {
