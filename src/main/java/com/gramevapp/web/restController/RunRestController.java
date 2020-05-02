@@ -1,5 +1,7 @@
 package com.gramevapp.web.restController;
 
+import com.gramevapp.web.controller.ExperimentController;
+import com.gramevapp.web.model.Experiment;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.model.User;
 import com.gramevapp.web.service.RunService;
@@ -38,6 +40,7 @@ public class RunRestController {
             if (run.getDiagramData().getBestIndividual() <= 0.0) {
                 run.setBestIndividual(0.0);
             }
+            run.setModel(ExperimentController.getRunnables().get(run.getThreaId()).getModel());
             this.setStatus(run, Run.Status.FINISHED);
         }
 
