@@ -61,81 +61,72 @@
                                    placeholder="Search experiment ..."/>
                         </div>
                         <br/>
-                        <table class="table table-hover" id="expRepository">
+                        <table class="table table-hover display" id="expRepository">
                             <thead>
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Experiment name</th>
                                 <th scope="col">Experiment description</th>
                                 <th scope="col">Creation date</th>
+                                <th scope="col"></th>
+                                <th scope="col"></th>
+                                <th scope="col">Experiment information</th>
                             </tr>
                             </thead>
                             <tbody id="expTable">
                             <th:block th:each="exp, iterStat : ${experimentList}">
                                 <tr th:id="'tr' + ${iterStat.index}">
-                                    <form th:action="@{/experiment/expRepoSelected}" th:object="${expRepository}"
-                                          method="GET">
-                                        <input type="text" class="hiddenInput" th:name="id" th:id="id"
-                                               th:value="${exp.getId()}"/>
-                                        <td scope="row"><label th:name="id" th:id="id" th:text="${exp.id}" id="id"/>
-                                        </td>
-                                        <td scope="row"><label th:name="name" th:id="name"
-                                                               th:text="${exp.experimentName}" id="name"/></td>
-                                        <td scope="row"><label th:name="description" th:id="description"
-                                                               th:text="${exp.experimentDescription}" id="description"/>
-                                        </td>
-                                        <td scope="row"><label th:name="creationDate" th:id="creationDate"
-                                                               th:text="${exp.getCreationDate()}" id="creationDate"/>
-                                        </td>
-                                        <td scope="row">
+                                    <td scope="row"><label th:name="id" th:id="id" th:text="${exp.id}" id="id"/>
+                                    </td>
+                                    <td scope="row"><label th:name="name" th:id="name"
+                                                           th:text="${exp.experimentName}" id="name"/></td>
+                                    <td scope="row"><label th:name="description" th:id="description"
+                                                           th:text="${exp.experimentDescription}" id="description"/>
+                                    </td>
+                                    <td scope="row"><label th:name="creationDate" th:id="creationDate"
+                                                           th:text="${exp.getCreationDate()}" id="creationDate"/>
+                                    </td>
+                                    <td scope="row">
+                                        <button type="button">More information</button>
+                                    </td>
+                                    <td scope="row">
+                                        <form th:action="@{/experiment/expRepoSelected}" th:object="${expRepository}"
+                                              method="GET">
+                                            <input type="text" class="hiddenInput" th:name="id" th:id="id"
+                                                   th:value="${exp.getId()}"/>
                                             <button type="submit" th:id="loadExperimentButton"
                                                     th:name="loadExperimentButton" class="btn-default btn btn-sm">Load
                                                 experiment
                                             </button>
-                                        </td>
-                                        <td scope="row">
-                                            <a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse"
-                                               class="accordion-toggle">More details <span
-                                                    class="glyphicon glyphicon-chevron-down"></span> </a>
-                                        </td>
-                                        <td scope="row">
                                             <button type="button" th:name="${exp.id}"
                                                     th:id="${'deleteExperiment' + iterStat.index}"
                                                     onclick="confirmDelete(this.id, this.name)"
                                                     class="btn-default btn btn-sm"
                                                     rel="tooltip"
                                                     title="Delete experiment"
-                                            ><span
-                                                    class="glyphicon glyphicon-trash small"></span></button>
-                                        </td>
-                                    </form>
-                                </tr>
-                                <tr th:id="'trAux' + ${iterStat.index}">
-                                    <td colspan="6">
-                                        <div class="panel-collapse collapse" th:id="'collapse'+${iterStat.index}">
-                                            <h4><b>Experiment information </b></h4>
-                                            <br/>
-                                            <ul class="list-inline">
-                                                <li>
-                                                    <p>
-                                                                <span class="glyphicon glyphicon-chevron-right"> The experiment has
-                                                                <label th:text="${exp.getIdRunList().size()}"></label>
-                                                                    <i>runs</i>
-                                                                </span>
-                                                    </p>
-                                                </li>
-                                                <li>
-                                                    <p>
-                                                                <span class="glyphicon glyphicon-chevron-right"> The experiment has
-                                                                <label th:text="${exp.getIdExpDataTypeList().size()}"></label>
-                                                                    <i>data type file/s</i>
-                                                                </span>
-                                                    </p>
-                                                </li>
-                                            </ul>
-                                        </div>
+                                            ><span class="glyphicon glyphicon-trash small"></span></button>
+                                        </form>
+                                    </td>
+                                    <!--with extra information-->
+                                    <td scope="control">
+
+                                        <p>
+                                            <span class="glyphicon glyphicon-chevron-right"> The experiment has
+                                            <label th:text="${exp.getIdRunList().size()}"></label>
+                                                <i>runs</i>
+                                            </span>
+                                        </p>
+
+                                        <p>
+                                            <span class="glyphicon glyphicon-chevron-right"> The experiment has
+                                            <label th:text="${exp.getIdExpDataTypeList().size()}"></label>
+                                                <i>data type file/s</i>
+                                            </span>
+                                        </p>
+
                                     </td>
                                 </tr>
+
                             </th:block>
                             </tbody>
                         </table>
@@ -183,6 +174,24 @@
                     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
                 });
             });
+            //table pagination
+            $('#expRepository').DataTable({
+                "paging": true,
+                "searching": false,
+                responsive: {
+                    details: {
+                        type: 'column',
+                        target: 4
+                    }
+                },
+                columnDefs: [{
+                    className: 'control',
+                    orderable: false,
+                    targets: 4
+                }],
+            });
+            $('.dataTables_length').addClass('bs-select');
+
         });
     </script>
     <script>
