@@ -68,9 +68,9 @@
                                 <th scope="col">Experiment name</th>
                                 <th scope="col">Experiment description</th>
                                 <th scope="col">Creation date</th>
+                                <th scope="col">Controls</th>
                                 <th scope="col"></th>
-                                <th scope="col"></th>
-                                <th scope="col">Experiment information</th>
+                                <th scope="col" style="display:none;">Experiment information</th>
                             </tr>
                             </thead>
                             <tbody id="expTable">
@@ -86,7 +86,7 @@
                                     <td scope="row"><label th:name="creationDate" th:id="creationDate"
                                                            th:text="${exp.getCreationDate()}" id="creationDate"/>
                                     </td>
-                                    <td scope="row">
+                                    <td scope="row" class="details-control">
                                         <button type="button">More information</button>
                                     </td>
                                     <td scope="row">
@@ -108,7 +108,7 @@
                                         </form>
                                     </td>
                                     <!--with extra information-->
-                                    <td scope="control">
+                                    <td scope="control" style="display:none;">
 
                                         <p>
                                             <span class="glyphicon glyphicon-chevron-right"> The experiment has
@@ -167,6 +167,7 @@
     </script>
 
     <script>
+        let table;
         $(document).ready(function () {
             $("#searchExperiment").on("keyup", function () {
                 var value = $(this).val().toLowerCase();
@@ -175,26 +176,43 @@
                 });
             });
             //table pagination
-            $('#expRepository').DataTable({
+            table =$('#expRepository').DataTable({
                 "paging": true,
                 "searching": false,
-                responsive: {
-                    details: {
-                        type: 'column',
-                        target: 4
-                    }
-                },
-                columnDefs: [{
-                    className: 'control',
-                    orderable: false,
-                    targets: 4
-                }],
+                "columnDefs": [ {
+                    "targets": [4,5],
+                    "orderable": false
+                } ]
             });
             $('.dataTables_length').addClass('bs-select');
 
         });
-    </script>
-    <script>
+
+        function format(d) {
+            // `d` is the original data object for the row
+            return '<div class="slider" style="display: none;">'+
+                d[6] +
+                '</div>';
+        }
+
+        $('#expRepository tbody').on('click', 'td.details-control', function () {
+            let tr = $(this).closest('tr');
+            let row = table.row(tr);
+
+            if (row.child.isShown()) {
+                // This row is already open - close it
+                $('div.slider', row.child()).slideUp(function () {
+                    row.child.hide();
+                    //tr.removeClass('shown');
+                });
+            } else {
+                // Open this row
+                row.child(format(row.data())).show();
+                tr.addClass('shown');
+                $('div.slider', row.child()).slideDown();
+            }
+        });
+
         function confirmDelete(iterStat, expId) {
             var result = confirm("Are you sure to delete this experiment ?");
             if (result)
