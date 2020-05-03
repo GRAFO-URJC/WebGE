@@ -73,7 +73,7 @@
                                 <th scope="col" style="display:none;">Experiment information</th>
                             </tr>
                             </thead>
-                            <tbody id="expTable">
+                            <tbody id="expTableBody">
                             <th:block th:each="exp, iterStat : ${experimentList}">
                                 <tr th:id="'tr' + ${iterStat.index}">
                                     <td scope="row"><label th:name="id" th:id="id" th:text="${exp.id}" id="id"/>
@@ -167,50 +167,16 @@
     </script>
 
     <script>
-        let table;
         $(document).ready(function () {
             $("#searchExperiment").on("keyup", function () {
                 var value = $(this).val().toLowerCase();
-                $("#expTable tr").filter(function () {
+                $("#expTableBody tr").filter(function () {
                     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
                 });
             });
-            //table pagination
-            table =$('#expRepository').DataTable({
-                "paging": true,
-                "searching": false,
-                "columnDefs": [ {
-                    "targets": [4,5],
-                    "orderable": false
-                } ]
-            });
-            $('.dataTables_length').addClass('bs-select');
 
-        });
+            tableDefinition('#expRepository',"#expTableBody");
 
-        function format(d) {
-            // `d` is the original data object for the row
-            return '<div class="slider" style="display: none;">'+
-                d[6] +
-                '</div>';
-        }
-
-        $('#expRepository tbody').on('click', 'td.details-control', function () {
-            let tr = $(this).closest('tr');
-            let row = table.row(tr);
-
-            if (row.child.isShown()) {
-                // This row is already open - close it
-                $('div.slider', row.child()).slideUp(function () {
-                    row.child.hide();
-                    //tr.removeClass('shown');
-                });
-            } else {
-                // Open this row
-                row.child(format(row.data())).show();
-                tr.addClass('shown');
-                $('div.slider', row.child()).slideDown();
-            }
         });
 
         function confirmDelete(iterStat, expId) {

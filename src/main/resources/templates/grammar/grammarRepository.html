@@ -69,7 +69,7 @@
                                 <th scope="col" style="display: none"></th>
                             </tr>
                             </thead>
-                            <tbody id="expTable">
+                            <tbody id="grammarTableBody">
                             <th:block th:each="gr, iterStat : ${grammarList}">
                                 <tr th:id="'tr' + ${iterStat.index}">
                                     <td scope="row"><label th:name="id" th:id="id" th:text="${gr.id}" id="id"/></td>
@@ -84,7 +84,7 @@
                                     </td>
                                     <td scope="row">
                                         <form th:action="@{/grammar/grammarDetail}" method="POST">
-                                            <button type="submit" th:id="duplicateGrammar" th:name="duplicateGrammar"
+                                            <button type="submit"
                                                     class="btn-default btn btn-sm">Duplicate grammar
                                             </button>
                                             <input type="hidden" name="grammarId" th:value="${gr.getId()}"/>
@@ -150,7 +150,6 @@
 
 
     <script>
-        let table;
         $("#expTypeTable tr").attr({"id": "selected"}).siblings().removeAttr('id');
         $("#moreDetails").attr("")
 
@@ -161,39 +160,8 @@
                     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
                 });
             });
-            table = $('#grammarRepositoryTable').DataTable({
-                "paging": true,
-                "searching": false,
-                "columnDefs": [{
-                    "targets": [4, 5],
-                    "orderable": false
-                }]
-            });
-            $('.dataTables_length').addClass('bs-select');
-        });
+            tableDefinition('#grammarRepositoryTable',"#grammarTableBody");
 
-        function format(d) {
-            // `d` is the original data object for the row
-            return '<div class="slider" style="display: none;">' +
-                d[6] +
-                '</div>';
-        }
-
-        $('#grammarRepositoryTable tbody').on('click', 'td.details-control', function () {
-            let tr = $(this).closest('tr');
-            let row = table.row(tr);
-            if (row.child.isShown()) {
-                // This row is already open - close it
-                $('div.slider', row.child()).slideUp(function () {
-                    row.child.hide();
-                    //tr.removeClass('shown');
-                });
-            } else {
-                // Open this row
-                row.child(format(row.data())).show();
-                tr.addClass('shown');
-                $('div.slider', row.child()).slideDown();
-            }
         });
 
         function confirmDelete(iterStat, expId) {
