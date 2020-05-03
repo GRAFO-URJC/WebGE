@@ -3,38 +3,38 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/default}">
-    <!--Add Style-->
-    <style>
-        /* enable absolute positioning */
-        .inner-addon {
-            position: relative;
-        }
+<!--Add Style-->
+<style>
+    /* enable absolute positioning */
+    .inner-addon {
+        position: relative;
+    }
 
-        /* style icon */
-        .inner-addon .glyphicon {
-            position: absolute;
-            padding: 5px;
-            pointer-events: none;
-        }
+    /* style icon */
+    .inner-addon .glyphicon {
+        position: absolute;
+        padding: 5px;
+        pointer-events: none;
+    }
 
-        /* align icon */
-        .left-addon .glyphicon {
-            left: 0px;
-        }
+    /* align icon */
+    .left-addon .glyphicon {
+        left: 0px;
+    }
 
-        .right-addon .glyphicon {
-            right: 0px;
-        }
+    .right-addon .glyphicon {
+        right: 0px;
+    }
 
-        /* add padding  */
-        .left-addon input {
-            padding-left: 30px;
-        }
+    /* add padding  */
+    .left-addon input {
+        padding-left: 30px;
+    }
 
-        .right-addon input {
-            padding-right: 30px;
-        }
-    </style>
+    .right-addon input {
+        padding-right: 30px;
+    }
+</style>
 </head>
 <body>
 <div id="page" layout:fragment="content" message=${errorMessage}>
@@ -57,14 +57,16 @@
 
                 <section class="panel-body center-block">
                     <div th:if="${not #lists.isEmpty(grammarList)}">
-                        <table class="table table-hover" id="expRepository">
+                        <table class="table table-hover" id="grammarRepositoryTable">
                             <thead>
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Grammar name</th>
                                 <th scope="col">Grammar description</th>
                                 <th scope="col">Creation date</th>
-                                <th scope="col" colspan="4">Controls</th>
+                                <th scope="col">Controls</th>
+                                <th scope="col"></th>
+                                <th scope="col" style="display: none"></th>
                             </tr>
                             </thead>
                             <tbody id="expTable">
@@ -77,10 +79,8 @@
                                                            th:text="${gr.grammarDescription}" id="description"/></td>
                                     <td scope="row"><label th:name="creationDate" th:id="creationDate"
                                                            th:text="${gr.creationDate}" id="creationDate"/></td>
-                                    <td scope="row">
-                                        <a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse"
-                                           class="accordion-toggle">Display grammar <span
-                                                class="glyphicon glyphicon-chevron-down"></span> </a>
+                                    <td scope="row" class="details-control">
+                                        <button type="button">Display grammar</button>
                                     </td>
                                     <td scope="row">
                                         <form th:action="@{/grammar/grammarDetail}" method="POST">
@@ -88,39 +88,31 @@
                                                     class="btn-default btn btn-sm">Duplicate grammar
                                             </button>
                                             <input type="hidden" name="grammarId" th:value="${gr.getId()}"/>
+                                            <button type="button" th:name="${gr.id}"
+                                                    th:id="${'downloadGrammar' + gr.getId()}"
+                                                    th:attr="onclick=|downloadGrammar('fileText${gr.getId()}')|"
+                                                    class="btn-default btn btn-sm"
+                                                    rel="tooltip"
+                                                    title="Download grammar"
+                                            ><span
+                                                    class="glyphicon glyphicon-download"></span></button>
+                                            <button type="button" th:name="${gr.id}"
+                                                    th:id="${'deleteGrammar' + iterStat.index}"
+                                                    onclick="confirmDelete(this.id, this.name)"
+                                                    class="btn-default btn btn-sm"
+                                                    rel="tooltip"
+                                                    title="Delete grammar"
+                                                    th:disabled="${grammarListDisabled.get(iterStat.index)}"
+                                            ><span
+                                                    class="glyphicon glyphicon-trash small"></span></button>
                                         </form>
                                     </td>
-                                    <td scope="row">
-                                        <button type="button" th:name="${gr.id}"
-                                                th:id="${'downloadGrammar' + gr.getId()}"
-                                                th:attr="onclick=|downloadGrammar('fileText${gr.getId()}')|"
-                                                class="btn-default btn btn-sm"
-                                                rel="tooltip"
-                                                title="Download grammar"
-                                        ><span
-                                                class="glyphicon glyphicon-download"></span></button>
-                                    </td>
-                                    <td scope="row">
-                                        <button type="button" th:name="${gr.id}"
-                                                th:id="${'deleteGrammar' + iterStat.index}"
-                                                onclick="confirmDelete(this.id, this.name)"
-                                                class="btn-default btn btn-sm"
-                                                rel="tooltip"
-                                                title="Delete grammar"
-                                                th:disabled="${grammarListDisabled.get(iterStat.index)}"
-                                        ><span
-                                                class="glyphicon glyphicon-trash small"></span></button>
-                                    </td>
-                                </tr>
-                                <tr th:id="'trAux' + ${iterStat.index}">
-                                    <td></td>
-                                    <td colspan="6">
-                                        <div class="panel-collapse collapse" th:id="'collapse'+${iterStat.index}">
+                                    <td style="display:none;" colspan="6">
                                             <textarea disabled rows="8" class="form-control" th:text="${gr.fileText}"
                                                       placeholder="Grammar content" name="fileText"
                                                       th:id="fileText + ${gr.getId()}" th:inline="text"
                                                       style="resize: none;"/>
-                                        </div>
+
                                     </td>
                                 </tr>
                             </th:block>
@@ -158,11 +150,10 @@
 
 
     <script>
+        let table;
         $("#expTypeTable tr").attr({"id": "selected"}).siblings().removeAttr('id');
         $("#moreDetails").attr("")
-    </script>
 
-    <script>
         $(document).ready(function () {
             $("#searchExperiment").on("keyup", function () {
                 var value = $(this).val().toLowerCase();
@@ -170,6 +161,39 @@
                     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
                 });
             });
+            table = $('#grammarRepositoryTable').DataTable({
+                "paging": true,
+                "searching": false,
+                "columnDefs": [{
+                    "targets": [4, 5],
+                    "orderable": false
+                }]
+            });
+            $('.dataTables_length').addClass('bs-select');
+        });
+
+        function format(d) {
+            // `d` is the original data object for the row
+            return '<div class="slider" style="display: none;">' +
+                d[6] +
+                '</div>';
+        }
+
+        $('#grammarRepositoryTable tbody').on('click', 'td.details-control', function () {
+            let tr = $(this).closest('tr');
+            let row = table.row(tr);
+            if (row.child.isShown()) {
+                // This row is already open - close it
+                $('div.slider', row.child()).slideUp(function () {
+                    row.child.hide();
+                    //tr.removeClass('shown');
+                });
+            } else {
+                // Open this row
+                row.child(format(row.data())).show();
+                tr.addClass('shown');
+                $('div.slider', row.child()).slideDown();
+            }
         });
 
         function confirmDelete(iterStat, expId) {
