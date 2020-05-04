@@ -369,6 +369,9 @@
                                 <th scope="col">Creation date</th>
                                 <th scope="col">Last modification date</th>
                                 <th scope="col">Model</th>
+                                <th scope="col"></th>
+                                <th scope="col"></th>
+                                <th scope="col"></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -396,19 +399,15 @@
                                                                th:text="${run.getModificationDate()}"/></td>
                                         <td scope="row"><label th:name="model" th:id="model+${iterStat.index}"
                                                                th:text="${run.getModel()}"/></td>
-                                        <td scope="row">
+                                        <td scope="row" th:id="'showPlot'+${iterStat.index}" class="">
                                             <a th:href="@{/experiment/runList(runId=${run.getId()}, loadExperimentButton='loadExperimentButton')}"
                                                th:id="${'loadExperimentButton' + iterStat.index}"
                                                class="btn-default btn-sm btn loadButton">Load experiment</a>
-                                        </td>
-                                        <td scope="row">
                                             <!-- https://stackoverflow.com/questions/14938344/thymeleaf-construct-url-with-variable -->
                                             <a th:href="@{/experiment/runList(runId=${run.getId()}, runExperimentButton='runExperimentButton')}"
                                                target="_blank" th:id="${'runExperimentButton' + iterStat.index}"
                                                onclick="return showRunStatus(this.id);"
                                                class="btn-default btn-sm btn loadButton hidden">Re-run experiment</a>
-                                        </td>
-                                        <td scope="row" th:id="'showPlot'+${iterStat.index}" class="">
                                             <a th:href="@{/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}"
                                                target="_blank" class="btn-default btn-sm btn loadButton">Show plot
                                                 execution</a>
