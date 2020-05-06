@@ -35,8 +35,8 @@ public class CSVReader {
         Scanner inputStream;
         try{
             inputStream = new Scanner(file);
-            while(inputStream.hasNext()){
-                inputStream.next();
+            while(inputStream.hasNextLine()){
+                inputStream.nextLine();
                 nRows++;
             }
             inputStream.close();
@@ -52,7 +52,7 @@ public class CSVReader {
         String[] values;
         try{
             inputStream = new Scanner(file);
-            firstLine = inputStream.next();
+            firstLine = inputStream.nextLine();
             values = firstLine.split(csvSplitBy);
             nColumns = values.length;
         }catch(FileNotFoundException e){}
@@ -71,8 +71,8 @@ public class CSVReader {
         int j=0;
         try{
             inputStream = new Scanner(file);
-            while(inputStream.hasNext()){
-                line = inputStream.next();
+            while(inputStream.hasNextLine()){
+                line = inputStream.nextLine();
                 values = line.split(csvSplitBy);
                 for (int i=0;i<values.length;i++){
                     matrix[j][i] = values[i];

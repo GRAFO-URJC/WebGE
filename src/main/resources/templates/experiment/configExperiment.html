@@ -5,14 +5,6 @@
       layout:decorate="~{layouts/default}"
       lang="en">
 <head>
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"/>
-    <!-- For the profile template -->
-    <link th:href="@{/assets/dist/css/configExperiment.css}" rel="stylesheet" id="configExperiment-css"/>
-
-    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
-    <!-- Without this, the bootsrap modals, collapses, etc won't work -->
-    <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-
     <style>
         /* enable absolute positioning */
         .inner-addon {
@@ -224,8 +216,8 @@
                             </div>
                             <div class="row form-group center-block">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <select id="grammarId" name="grammarId" onchange="updateGrammarContent()">
-                                        <option value="grammarContentEmpty">Select a grammar ...</option>
+                                    <select id="grammarId" name="grammarId" onchange="updateGrammarContent()" required>
+                                        <option value="">Select a grammar ...</option>
                                         <option th:each="gr : ${grammarList}" th:value="${gr.getId()}"
                                                 th:text="${gr.getGrammarName() + ' - ' + gr.getGrammarDescription()}"
                                                 th:selected="(${(grammar !=null) && (grammar.getId() == gr.getId())})"/>
@@ -263,8 +255,8 @@
 
                             <div class="row form-group center-block">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <select id="datasetId" name="datasetId" onchange="updateDatasetContent()">
-                                        <option value=-1>Select a dataset ...</option>
+                                    <select id="datasetId" name="datasetId" onchange="updateDatasetContent()" required>
+                                        <option value="">Select a dataset ...</option>
                                         <option th:each="dataset,ite : ${datasetList}" th:value="${ite.index}"
                                                 th:text="${dataset.getDataTypeName() + ' - ' + dataset.getDataTypeDescription()}"
                                                 th:selected="(${(experimentDataType !=null) && (experimentDataType.getId() == dataset.getId())})"/>
@@ -306,64 +298,12 @@
                             </div>
 
                             <!-- Data Type table to load -->
-                            <input type="hidden" th:name="defaultExpDataTypeId" th:id="defaultExpDataTypeId"
-                                   th:value="${configuration.getDefaultExpDataTypeId()}"/>
-                            <input class="hiddenRadio" type="radio" th:name="radioDataType" th:id="radioDataTypeHidden"
-                                   checked="checked"/>
-                            <div th:if="${not #lists.isEmpty(dataTypeList)}">
-                                <h2>Data type files</h2>
-
-                                <table class="table table-hover" id="expTypeTable">
-                                    <thead>
-                                    <tr>
-                                        <th scope="col"></th>
-                                        <th scope="col">Id ExpDataType</th>
-                                        <th scope="col">File name</th>
-                                        <th scope="col">File description</th>
-                                        <th scope="col">File type</th>
-                                        <th scope="col">Creation date</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <th:block th:each="dataType, iterStat : ${dataTypeList}">
-                                        <!-- We are using model Experiment and not ExperimentDto -->
-                                        <tr th:id="'trDataType' + ${iterStat.index}">
-                                            <td scope="row"><input type="radio"
-                                                                   th:id="'radioDataType'+${iterStat.index}"
-                                                                   th:name="radioDataType"
-                                                                   th:value="${dataType.getId()}"
-                                                                   onclick="check(this.id)"/></td>
-                                            <td scope="row"><label th:text="${dataType.getId()}" th:id="dataTypeId"
-                                                                   th:name="dataTypeId"/></td>
-                                            <td scope="row"><label th:text="${dataType.getDataTypeName()}"
-                                                                   th:name="expDataTypeNameList"
-                                                                   th:id="expDataTypeNameList"/></td>
-                                            <td scope="row"><label th:text="${dataType.getDataTypeDescription()}"
-                                                                   th:name="expDataTypeDescriptionList"
-                                                                   th:id="expDataTypeDescriptionList"/></td>
-                                            <td scope="row"><label th:text="${dataType.getDataTypeType()}"
-                                                                   th:name="expDataTypeTypeList"
-                                                                   th:id="expDataTypeTypeList"/></td>
-                                            <td scope="row"><label th:text="${dataType.getCreationDate()}"
-                                                                   th:name="creationDate" th:id="creationDate"/></td>
-                                            <input type="hidden" th:value="${dataType.getId()}" th:name="dataTypeId"
-                                                   th:id="dataTypeId"/>
-                                            <input type="hidden" th:value="${dataType.getDataTypeType()}"
-                                                   th:name="dataTypeType" th:id="dataTypeType"/>
-                                            <td scope="row" th:id="'showDeleteDataType'+${iterStat.index}">
-                                                <button type="button" th:name="${dataType.id}"
-                                                        th:id="${'deleteDataType' + iterStat.index}"
-                                                        onclick="confirmDeleteDataType(this.id, this.name)"
-                                                        class="btn-default btn btn-sm"
-                                                        rel="tooltip"
-                                                        title="Delete run"
-                                                ><span
-                                                        class="glyphicon glyphicon-trash small"></span></button>
-                                            </td>
-                                        </tr>
-                                    </th:block>
-                                    </tbody>
-                                </table>
+                            <div style="display: none">
+                                <input type="hidden" th:name="defaultExpDataTypeId" th:id="defaultExpDataTypeId"
+                                       th:value="${configuration.getDefaultExpDataTypeId()}"/>
+                                <input class="hiddenRadio" type="radio" th:name="radioDataType"
+                                       th:id="radioDataTypeHidden"
+                                       checked="checked"/>
                             </div>
                             <!-- END Data Type table to load -->
 
@@ -390,7 +330,7 @@
                             </div>
                             <div class="col-sm-12 col-md-6 col-lg-6">
                                 <button type="submit" id="runExperimentButton" name="runExperimentButton"
-                                        class="btn-primary btn-lg btn">Run experiment
+                                        class="btn-primary btn-lg btn">Save and run experiment
                                 </button>
                             </div>
                         </div>
@@ -431,6 +371,10 @@
                                 <th scope="col">Status</th>
                                 <th scope="col">Creation date</th>
                                 <th scope="col">Last modification date</th>
+                                <th scope="col">Model</th>
+                                <th scope="col"></th>
+                                <th scope="col"></th>
+                                <th scope="col"></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -456,20 +400,17 @@
                                                                th:text="${run.getIniDate()}"/></td>
                                         <td scope="row"><label th:name="lastDate" th:id="lastDate"
                                                                th:text="${run.getModificationDate()}"/></td>
-
-                                        <td scope="row">
+                                        <td scope="row"><label th:name="model" th:id="model+${iterStat.index}"
+                                                               th:text="${run.getModel()}"/></td>
+                                        <td scope="row" th:id="'showPlot'+${iterStat.index}" class="">
                                             <a th:href="@{/experiment/runList(runId=${run.getId()}, loadExperimentButton='loadExperimentButton')}"
                                                th:id="${'loadExperimentButton' + iterStat.index}"
                                                class="btn-default btn-sm btn loadButton">Load experiment</a>
-                                        </td>
-                                        <td scope="row">
                                             <!-- https://stackoverflow.com/questions/14938344/thymeleaf-construct-url-with-variable -->
                                             <a th:href="@{/experiment/runList(runId=${run.getId()}, runExperimentButton='runExperimentButton')}"
                                                target="_blank" th:id="${'runExperimentButton' + iterStat.index}"
-                                               onclick="showRunStatus(this.id)"
+                                               onclick="return reRunExperiment(this.id);"
                                                class="btn-default btn-sm btn loadButton hidden">Re-run experiment</a>
-                                        </td>
-                                        <td scope="row" th:id="'showPlot'+${iterStat.index}" class="">
                                             <a th:href="@{/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}"
                                                target="_blank" class="btn-default btn-sm btn loadButton">Show plot
                                                 execution</a>
@@ -579,26 +520,30 @@
         }
 
         function updateDatasetContent() {
-            let i = parseInt($('#datasetId').val());
-
-            if (i >= 0) {
+            if ($('#datasetId').val() != "") {
+                let i = parseInt($('#datasetId').val());
                 $('#dataTypeName').val(datasetListInfo[i].dataTypeName);
                 $('#dataTypeDescription').val(datasetListInfo[i].dataTypeDescription);
                 $('#info').val(datasetListInfo[i].info);
                 $('#experimentDataTypeId').val(datasetListInfo[i].idDataset);
+            } else {
+                $('#dataTypeName').val("");
+                $('#dataTypeDescription').val("");
+                $('#info').val("");
             }
-
         }
+
         let datasetListInfo = [];
-        let data ={};
-        function saveDatasetInfo(){
+        let data = {};
+
+        function saveDatasetInfo() {
             /*<![CDATA[*/
             /*[# th:each="dataset : ${datasetList}"]*/
-            data ={};
-            data.idDataset=/*[[${dataset.getId()}]]*/;
-            data.dataTypeName=/*[[${dataset.getDataTypeName()}]]*/;
-            data.dataTypeDescription=/*[[${dataset.getDataTypeDescription()}]]*/;
-            data.info=/*[[${dataset.getinfo()}]]*/;
+            data = {};
+            data.idDataset =/*[[${dataset.getId()}]]*/;
+            data.dataTypeName =/*[[${dataset.getDataTypeName()}]]*/;
+            data.dataTypeDescription =/*[[${dataset.getDataTypeDescription()}]]*/;
+            data.info =/*[[${dataset.getinfo()}]]*/;
             datasetListInfo.push(data);
             /*[/]*/
             /*]]>*/
@@ -624,7 +569,7 @@
         }
 
         // <![CDATA[
-        function checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat) {
+        function checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat) {
             $.ajax({
                 url: encodeURI("/user/rest/runStatus/"),
                 data: {
@@ -636,13 +581,15 @@
                 type: "GET",
                 dataType: "json",
                 success: function (data) {
-                    var statusStr = data['status'];
-                    var bestIndividualStr = data['bestIndividual'];
-                    var currentGenerationStr = data['currentGeneration'];
+                    let statusStr = data['status'];
+                    let bestIndividualStr = data['bestIndividual'];
+                    let currentGenerationStr = data['currentGeneration'];
+                    let modelStr = data['model'] == "" ? "Waiting for finish" : data['model'];
 
                     $(status).text(statusStr);
                     $(bestIndividual).text(bestIndividualStr);
                     $(currentGeneration).text(currentGenerationStr);
+                    $(model).text(modelStr);
                 },
                 complete: function (data) {
                     var runId = $("#runId" + iterStat);
@@ -654,7 +601,7 @@
                         $("#runExperimentButton" + iterStat).addClass("hidden");
                         $("#showDelete" + iterStat).addClass("hidden");
                         setTimeout(function () {
-                            checkRunStatus(runId, status, bestIndividual, currentGeneration, iterStat);
+                            checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat);
                         }, 1000);
                     }
 
@@ -668,19 +615,29 @@
 
         // ]]>
 
-        function showRunStatus(iterStat) {
-            var cleanIterStat = iterStat.substring("runExperimentButton".length, iterStat.length);
+        function reRunExperiment(iterStat) {
+            if (confirm("Re-run experiment will delete previous run experiment data, " +
+                "are you sure to do that?") == true) {
+                showRunStatus(iterStat);
+                return true;
+            }
+            return false;
+        }
 
-            var runId = $("#runId" + cleanIterStat);
-            var status = "#status" + cleanIterStat;
-            var currentGeneration = "#currentGeneration" + cleanIterStat;
-            var bestIndividual = "#bestIndividual" + cleanIterStat;
+        function showRunStatus(iterStat) {
+            let cleanIterStat = iterStat.substring("runExperimentButton".length, iterStat.length);
+
+            let runId = $("#runId" + cleanIterStat);
+            let status = "#status" + cleanIterStat;
+            let currentGeneration = "#currentGeneration" + cleanIterStat;
+            let bestIndividual = "#bestIndividual" + cleanIterStat;
+            let model = "#model" + cleanIterStat;
 
             if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED"))
                 $(status).text("INITIALIZING");
 
             setTimeout(function () {
-                checkRunStatus(runId, status, bestIndividual, currentGeneration, cleanIterStat)
+                checkRunStatus(runId, status, bestIndividual, currentGeneration, model, cleanIterStat)
             }, 1000);
         }
 
@@ -726,31 +683,6 @@
             if (result)
                 deleteRow(iterStat, runId);
         }
-
-        function confirmDeleteDataType(iterStat, expDataTypeId) {
-            var result = confirm("Are you sure to delete this data type file ?");
-            if (result)
-                deleteRowDataType(iterStat, expDataTypeId);
-        }
-
-        function deleteRowDataType(iterStat, expDataTypeId) {
-            var cleanIterStat = iterStat.substring("deleteDataType".length, iterStat.length);
-
-            $.ajax({
-                url: encodeURI("/experiment/expRepoSelected"),
-                data: {
-                    'expDataTypeId': expDataTypeId,
-                    'deleteDataType': 'deleteDataType'
-                },
-                cache: false,
-                async: true,
-                type: "POST",
-                dataType: "json",
-                success: function (data) {
-                    $("#trDataType" + cleanIterStat).remove();
-                }
-            });
-        };
 
         function deleteRow(iterStat, runId) {
             var cleanIterStat = iterStat.substring("deleteRun".length, iterStat.length);

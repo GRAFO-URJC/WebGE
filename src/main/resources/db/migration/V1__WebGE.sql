@@ -134,6 +134,7 @@ create table webge.run
     results                  varchar(255) null,
     threa_id                 bigint       null,
     tournament               int          null,
+    model                    varchar(255) null,
     constraint FKd3qi7xda0bi67jpf9st7fycsp
         foreign key (user_id_user_id) references webge.user (user_id)
 );

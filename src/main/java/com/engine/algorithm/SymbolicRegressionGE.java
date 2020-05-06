@@ -42,6 +42,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     private static HashMap<String, Integer> vars = new HashMap<String, Integer>();
 
     protected Properties properties;
+    private static Solutions<Variable<Integer>> solutions;
     private static int logPopulation = 0;
     private static String logPopulationOutputFile;
     private static int gen;
@@ -240,7 +241,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
             double startTime = System.currentTimeMillis();
             algorithm.initialize();
-            Solutions<Variable<Integer>> solutions = algorithm.execute();
+            solutions = algorithm.execute();
             double time = (System.currentTimeMillis() - startTime) / 1000;
             System.out.println("\nExecution time: " + time + " seconds.\n");
 
@@ -317,5 +318,9 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
     public Boolean getStop(){
         return stop;
+    }
+
+    public String getModel(){
+        return this.generatePhenotype(solutions.get(0)).toString();
     }
 }

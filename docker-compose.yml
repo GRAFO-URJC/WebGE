@@ -1,5 +1,5 @@
 # https://docs.docker.com/compose/compose-file/
-version: '3.7'
+version: '3.3'
 services:
 
   db:
@@ -12,13 +12,15 @@ services:
       POSTGRES_PASSWORD: "01234"
       POSTGRES_DB: "webge"
     volumes:
-      - ./src/main/resources/db/migration/V1__WebGE.sql:/docker-entrypoint-initdb.d/init.sql
+      - pgdata:/var/lib/postgresql/data
     networks:
       - backend
 
   gramev:
-    image: leichen0710/webge:develop
-    #image: leichen0710/webge:master
+    #image: leichen0710/webge:develop
+    image: leichen0710/webge:master
+    #local develop
+    #image: leichen0710/aux:aux
     links:
       - db
     depends_on:
@@ -31,7 +33,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: "01234"
     networks:
       - backend
-
+volumes:
+  pgdata:
 
 networks:
   backend:

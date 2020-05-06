@@ -9,14 +9,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 public class ConfigExperimentDto {
-    private static final String PATTERN = "^[\\p{L} \\d .'-]*$";;  // https://stackoverflow.com/questions/15805555/java-regex-to-validate-full-name-allow-only-spaces-and-letters
-
     private Long id;
 
-    @Pattern(regexp = PATTERN, message = "Experiment name cannot contain strange characters")
-    @NotEmpty(message = "Enter experiment name")
     private String experimentName;
-    @Pattern(regexp = PATTERN, message = "Experiment description cannot contain strange characters")
     private String experimentDescription;
     @Min(value=100)
     @Max(value=100000)
@@ -56,19 +51,13 @@ public class ConfigExperimentDto {
     private Integer numberRuns = 1;
     private Long defaultGrammarId;
     private Long defaultExpDataTypeId;
-    @Pattern(regexp = PATTERN, message = "Grammar file name cannot contain strange characters")
-    @NotEmpty(message = "Grammar file description cannot be empty")
     private String grammarName;
-    @Pattern(regexp = PATTERN, message = "Experiment name cannot contain strange characters")
     private String grammarDescription;
     @NotEmpty(message = "Grammar area text cannot be empty")
     private String fileText; // This is the text on the file - That's written in an areaText - So we can take it as a String
-    @NotEmpty(message = "Data type file name cannot be empty")
-    @Pattern(regexp = PATTERN, message = "Data type file name cannot contain strange characters")
     private String dataTypeName;
     @NotEmpty(message = "Grammar area text cannot be empty")
     private String info;
-    @Pattern(regexp = PATTERN, message = "Data type file description cannot contain strange characters")
     private String dataTypeDescription; // status
     @NotEmpty(message = "Choose one data type option")
     private String dataTypeType = "training";   // Validation, test, training

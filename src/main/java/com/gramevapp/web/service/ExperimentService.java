@@ -49,8 +49,8 @@ public class ExperimentService {
 
         expDataType.setHeader(columnList);
 
-        while(scanCsv.hasNext()){
-            String row = scanCsv.next();
+        while(scanCsv.hasNextLine()){
+            String row = scanCsv.nextLine();
 
             ArrayList<String> rowColumnList = new ArrayList<>();
 
@@ -76,8 +76,14 @@ public class ExperimentService {
         ArrayList<String> columnList = new ArrayList<>();
 
         String[] columns = expDataType.getinfo().split("\r\n");
+        int index = 0;
         for(String column : columns[0].split(";")) {
-            columnList.add(column);
+            if(index==0){
+                columnList.add("#Y");
+            }else{
+                columnList.add("X"+index);
+            }
+            index++;
         }
 
         expDataType.setHeader(columnList);
@@ -165,14 +171,6 @@ public class ExperimentService {
 
     public ExpProperties saveExpProperties(ExpProperties expProperties){
         return propertiesRepository.save(expProperties);
-    }
-
-    public List<Grammar> findAllGrammarByExperimentId(Experiment experimentId){
-        return grammarRepository.findAllByExperimentId(experimentId);
-    }
-
-    public List<ExperimentDataType> findAllExperimentDataTypeByExperimentId(Experiment experimentId){
-        return experimentDataTypeRepository.findAllByExperimentId(experimentId);
     }
 
     public List<ExperimentDataType> findAllExperimentDataTypeByUserId(Long userId){

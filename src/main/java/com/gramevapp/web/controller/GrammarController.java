@@ -1,6 +1,7 @@
 package com.gramevapp.web.controller;
 
 import com.gramevapp.web.model.Experiment;
+import com.gramevapp.web.model.ExperimentDataType;
 import com.gramevapp.web.model.Grammar;
 import com.gramevapp.web.model.User;
 import com.gramevapp.web.repository.GrammarRepository;
@@ -16,6 +17,7 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -35,9 +37,15 @@ public class GrammarController {
 
         User user = userService.getLoggedInUser();
         List<Grammar> grammarList = grammarRepository.findByUserId(user.getId());
+        List<Boolean> disabled = new ArrayList<>();
+
+        for (Grammar grammar : grammarList) {
+            disabled.add(grammar.getListExperiment().size() > 0);
+        }
 
         model.addAttribute("grammarList", grammarList);
         model.addAttribute("user", user);
+        model.addAttribute("grammarListDisabled", disabled);
 
         return "grammar/grammarRepository";
     }

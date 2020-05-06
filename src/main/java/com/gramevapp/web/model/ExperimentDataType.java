@@ -2,8 +2,6 @@ package com.gramevapp.web.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -12,27 +10,27 @@ import java.util.Iterator;
 import java.util.List;
 
 @Entity
-@Table(name="experiment_data_type")
+@Table(name = "experiment_data_type")
 @DynamicUpdate
 public class ExperimentDataType {
 
     @Id
-    @Column(name = "experimentdatatype_id", nullable = false, updatable= false)
+    @Column(name = "experimentdatatype_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @JsonManagedReference
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "exp_data_type_list",
             joinColumns = {
-                    @JoinColumn(name = "experiment_data_type_id")
-                },
+                    @JoinColumn(name = "experimentdatatype_id")
+            },
             inverseJoinColumns = {
                     @JoinColumn(name = "experiment_id", referencedColumnName = "experiment_id")
             }
     )
-    private Experiment experimentId;
+    private List<Experiment> experimentList= new ArrayList<>();
 
     @Column
     private Long runId;
@@ -53,11 +51,11 @@ public class ExperimentDataType {
     private Long userIdUserId;
 
     // https://softwareyotrasdesvirtudes.com/2012/09/20/anotaciones-en-jpa-para-sobrevivir-a-una-primera-persistenica/
-    @Column(name="creationDate")
+    @Column(name = "creationDate")
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationDate = null;
 
-    @Column(name="updateDate")
+    @Column(name = "updateDate")
     @Temporal(TemporalType.TIMESTAMP)
     private Date modificationDate = null;
 
@@ -66,29 +64,30 @@ public class ExperimentDataType {
 
     // https://www.thoughts-on-java.org/hibernate-tips-map-bidirectional-many-one-association/
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToMany(cascade= CascadeType.ALL,
-            fetch=FetchType.LAZY,
-            mappedBy ="expDataTypeId")
+    @OneToMany(cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY,
+            mappedBy = "expDataTypeId")
     private List<ExperimentRowType> listRowsFile;
 
-    public ExperimentDataType(Experiment exp){
+    public ExperimentDataType(Experiment exp) {
         listRowsFile = new ArrayList<>();
-        this.experimentId = exp;
+        this.experimentList = new ArrayList<>();
+        experimentList.add(exp);
     }
 
     /**
      * Copy constructor.
      */
     public ExperimentDataType(ExperimentDataType eDType) {
-        this(eDType.getExperimentId(), eDType.getRunId(), eDType.getDataTypeName(), eDType.getinfo(), eDType.getDataTypeDescription(), eDType.getDataTypeType(), eDType.getCreationDate(), eDType.getModificationDate(), eDType.getHeader(), eDType.getListRowsFile());
+        this(eDType.getExperimentList(), eDType.getRunId(), eDType.getDataTypeName(), eDType.getinfo(), eDType.getDataTypeDescription(), eDType.getDataTypeType(), eDType.getCreationDate(), eDType.getModificationDate(), eDType.getHeader(), eDType.getListRowsFile());
     }
 
-    public ExperimentDataType(){
+    public ExperimentDataType() {
         this.listRowsFile = new ArrayList<>();
     }
 
-    public ExperimentDataType(Experiment experimentId, Long runId, String dataTypeName, String info, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, List<String> header, List<ExperimentRowType> listRowsFile) {
-        this.experimentId = experimentId;
+    public ExperimentDataType(List<Experiment> experimentId, Long runId, String dataTypeName, String info, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, List<String> header, List<ExperimentRowType> listRowsFile) {
+        this.experimentList = experimentId;
         this.runId = runId;
         this.dataTypeName = dataTypeName;
         this.info = info;
@@ -100,7 +99,7 @@ public class ExperimentDataType {
         this.listRowsFile = listRowsFile;
     }
 
-    public ExperimentDataType(Experiment exp, String dataTypeName, String info, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate) {
+    public ExperimentDataType(List<Experiment> exp, String dataTypeName, String info, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate) {
         this.dataTypeName = dataTypeName;
         this.info = info;
         this.dataTypeDescription = dataTypeDescription;
@@ -108,7 +107,7 @@ public class ExperimentDataType {
         this.creationDate = creationDate;
         this.modificationDate = modificationDate;
         this.listRowsFile = new ArrayList<>();
-        this.experimentId = exp;
+        this.experimentList = exp;
     }
 
     public ExperimentDataType(String dataTypeName, String info, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, ArrayList<ExperimentRowType> listRowsFile) {
@@ -137,26 +136,33 @@ public class ExperimentDataType {
         this.header = header;
     }
 
-    public Experiment getExperimentId() {
-        return experimentId;
+    public Experiment getExperiment(Experiment experiment) {
+        return experimentList.contains(experiment) ?
+                experimentList.get(experimentList.indexOf(experiment)) : null;
     }
 
-    public void setExperimentId(Experiment experimentId) {
-        if(sameAs(experimentId))
-            return ;
-        Experiment oldExperimentId = this.experimentId;
-        this.experimentId = experimentId;
+    public List<Experiment> getExperimentList() {
+        return experimentList;
+    }
 
-        if(oldExperimentId!=null)
-            oldExperimentId.removeExperimentDataType(this);
-        if(experimentId!=null)
-            experimentId.addExperimentDataType(this);
+    public void deleteExperimentInList(Experiment experimentId) {
+        if(experimentList.contains(experimentId)){
+            experimentList.remove(experimentId);
+        }
+    }
 
-        this.experimentId = experimentId;
+    public void deleteExperimentList() {
+        this.experimentList = new ArrayList<>();
+    }
+
+    public void addExperimentList(Experiment experimentId) {
+        if(!experimentList.contains(experimentId)){
+            experimentList.add(experimentId);
+        }
     }
 
     private boolean sameAs(Experiment newExperiment) {
-        return this.experimentId==null? newExperiment == null : experimentId.equals(newExperiment);
+        return this.experimentList == null ? newExperiment == null : experimentList.contains(newExperiment);
     }
 
     public String getDataTypeType() {
@@ -225,15 +231,15 @@ public class ExperimentDataType {
 
     // https://github.com/SomMeri/org.meri.jpa.tutorial/blob/master/src/main/java/org/meri/jpa/relationships/entities/bestpractice/SafePerson.java
     public void addExperimentRowType(ExperimentRowType expRowType) {
-        if(this.listRowsFile.contains(expRowType))
-            return ;
+        if (this.listRowsFile.contains(expRowType))
+            return;
         this.listRowsFile.add(expRowType);
         expRowType.setExpDataTypeId(this);
     }
 
-    public void removeExperimentRowType(ExperimentRowType expRowType){
-        if(!listRowsFile.contains(expRowType))
-            return ;
+    public void removeExperimentRowType(ExperimentRowType expRowType) {
+        if (!listRowsFile.contains(expRowType))
+            return;
         listRowsFile.remove(expRowType);
         expRowType.setExpDataTypeId(null);
     }
@@ -243,9 +249,9 @@ public class ExperimentDataType {
 
         Iterator<String> it = this.header.iterator();
 
-        while(it.hasNext()){
+        while (it.hasNext()) {
             String column = it.next();
-            if(!it.hasNext())
+            if (!it.hasNext())
                 stringBuilder.append(column + "\n");
             else
                 stringBuilder.append(column + ";");
