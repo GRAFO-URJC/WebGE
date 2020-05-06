@@ -1,5 +1,5 @@
 # https://docs.docker.com/compose/compose-file/
-version: '3.7'
+version: '3.3'
 services:
 
   db:
@@ -17,8 +17,8 @@ services:
       - backend
 
   gramev:
-    image: leichen0710/webge:develop
-    #image: leichen0710/webge:master
+    #image: leichen0710/webge:develop
+    image: leichen0710/webge:master
     #local develop
     #image: leichen0710/aux:aux
     links:
