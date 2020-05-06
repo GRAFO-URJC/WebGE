@@ -13,8 +13,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Controller
 public class DataSetController {
@@ -30,11 +34,44 @@ public class DataSetController {
         User user = userService.getLoggedInUser();
         List<ExperimentDataType> datasetList =
                 experimentService.findAllExperimentDataTypeByUserId(user.getId());
+        List<Boolean> disabled = new ArrayList<>();
+        List<List<String>> datasetInformation = new ArrayList<>();
+
+        for (ExperimentDataType experimentDataType : datasetList) {
+            disabled.add(experimentDataType.getExperimentList().size() > 0);
+            StringBuilder stringBuilder = new StringBuilder();
+            String info = experimentDataType.getinfo();
+            List<String> currentDataset = new ArrayList<>();
+            int maxSize = info.split("\\n").length / 35;
+            if (maxSize == 0) {
+                maxSize = 12;
+            }
+            int count = 0;
+            for (int i = 0; i < info.length(); i++) {
+                if (info.charAt(i) == '\n') {
+                    count++;
+                } else {
+                    stringBuilder.append(info.charAt(i));
+                }
+                if (count == maxSize) {
+                    currentDataset.add(stringBuilder.toString());
+                    count = 0;
+                    stringBuilder = new StringBuilder();
+                }
+            }
+            if (count != 0 && !stringBuilder.toString().equals("\r") && !stringBuilder.toString().equals("\n")) {
+                currentDataset.add(stringBuilder.toString());
+            }
+            datasetInformation.add(currentDataset);
+        }
 
         model.addAttribute("datasetList", datasetList);
+        model.addAttribute("datasetListDisabled", disabled);
+        model.addAttribute("datasetInformationList", datasetInformation);
 
         return "dataset/datasetRepository";
     }
+
 
     @RequestMapping(value = "/dataset/datasetDetail")
     public String createDataset(Model model) {

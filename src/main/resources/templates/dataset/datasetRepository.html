@@ -5,6 +5,7 @@
       layout:decorate="~{layouts/default}">
 <!--Add Style-->
 <style>
+
     /* enable absolute positioning */
     .inner-addon {
         position: relative;
@@ -56,17 +57,19 @@
 
                 <section class="panel-body center-block">
                     <div th:if="${not #lists.isEmpty(datasetList)}">
-                        <table class="table table-hover" id="expRepository">
+                        <table class="table table-hover " id="datasetRepository">
                             <thead>
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Dataset name</th>
                                 <th scope="col">Dataset description</th>
                                 <th scope="col">Creation date</th>
-                                <th scope="col" colspan="4">Controls</th>
+                                <th scope="col" class="details-control">Controls</th>
+                                <th scope="col"></th>
+                                <th scope="col" style="display: none"></th>
                             </tr>
                             </thead>
-                            <tbody id="expTable">
+                            <tbody id="datasetTbody">
                             <th:block th:each="dataset, iterStat : ${datasetList}">
                                 <tr th:id="'tr' + ${iterStat.index}">
                                     <td scope="row"><label th:name="id" th:id="id" th:text="${dataset.getId()}"
@@ -80,12 +83,10 @@
                                     <td scope="row"><label th:name="creationDate" th:id="creationDate"
                                                            th:text="${dataset.getCreationDate()}" id="creationDate"/>
                                     </td>
-                                    <td scope="row">
-                                        <a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse"
-                                           class="accordion-toggle">Display dataset<span
-                                                class="glyphicon glyphicon-chevron-down"></span> </a>
+                                    <td scope="row" class="details-control">
+                                        <button type="button">Display dataset</button>
                                     </td>
-                                    <td scope="row">
+                                    <td>
                                         <button type="button" th:name="${dataset.getId()}"
                                                 th:id="${'downloadDataset' + dataset.getId()}"
                                                 th:attr="onclick=|downloadDataset('fileText${dataset.getId()}')|"
@@ -94,27 +95,45 @@
                                                 title="Download dataset"
                                         ><span
                                                 class="glyphicon glyphicon-download"></span></button>
-                                    </td>
-                                    <td scope="row">
                                         <button type="button" th:name="${dataset.getId()}"
                                                 th:id="${'deleteDataset' + iterStat.index}"
                                                 onclick="confirmDelete(this.id, this.name)"
                                                 class="btn-default btn btn-sm"
                                                 rel="tooltip"
                                                 title="Delete dataset"
+                                                th:disabled="${datasetListDisabled.get(iterStat.index)}"
                                         ><span
                                                 class="glyphicon glyphicon-trash small"></span></button>
+
                                     </td>
-                                </tr>
-                                <tr th:id="'trAux' + ${iterStat.index}">
-                                    <td colspan="6">
-                                        <div th:id="'collapse'+${iterStat.index}" class="panel-collapse collapse">
-                                            <textarea disabled rows="8" class="form-control"
-                                                      th:text="${dataset.getinfo()}"
-                                                      placeholder="Dataset content" name="fileText"
-                                                      th:id="fileText + ${dataset.getId()}" th:inline="text"
-                                                      style="resize: none;"/>
+                                    <!--dataset information-->
+                                    <!-- https://stackoverflow.com/questions/26459838/splitting-a-string-every-n-lines-using-regex -->
+                                    <td style="display: none;">
+
+                                        <div th:if="${datasetInformationList.get(iterStat.index).size()>1}">
+                                            <nav aria-label="Page navigation example">
+                                                <ul class="pagination">
+                                                    </li>
+                                                    <th:block
+                                                            th:each="datasetInfo, iter : ${datasetInformationList.get(iterStat.index)}">
+                                                        <li class="page-item"><a class="page-link"
+                                                                                 href="#"
+                                                                                 th:value="${datasetInfo}"
+                                                                                 th:text="${iter.index+1}"
+                                                                                 th:name="${iterStat.index}"
+                                                                                 onclick="changeTextareInfo(this)">
+                                                        </a></li>
+                                                    </th:block>
+                                                </ul>
+                                            </nav>
                                         </div>
+
+                                        <textarea readonly rows="8" class="form-control"
+                                                  th:text="${datasetInformationList.get(iterStat.index).get(0)}"
+                                                  placeholder="Dataset content" name="fileText"
+                                                  th:id="fileText + ${dataset.getId()}" th:inline="text"
+                                                  style="resize: none;"/>
+
                                     </td>
                                 </tr>
                             </th:block>
@@ -151,6 +170,10 @@
     <!-- END Modal -->
 
     <script>
+        $(document).ready(function () {
+            tableDefinition('#datasetRepository', "#datasetTbody");
+        })
+
         function downloadDataset(elemName) {
             let textToWrite = document.getElementById(elemName).value.split(/[\r\n]/);
             const rows = [];
@@ -182,6 +205,10 @@
             }
 
             downloadLink.click();
+        }
+
+        function changeTextareInfo(buttonInfo) {
+            $(buttonInfo).closest(".slider").find('textarea').text(buttonInfo.getAttribute("value"));
         }
 
         function confirmDelete(iterStat, expId) {

@@ -48,4 +48,8 @@ public class RunnableExpGramEv implements Runnable {
     public void stopExecution() {
         ge.stopExecution();
     }
+
+    public String getModel(){
+        return this.ge.getModel();
+    }
 }

@@ -4,20 +4,22 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
-@Table(name="grammar")
+@Table(name = "grammar")
 @DynamicUpdate
 public class Grammar {
 
     @Id
-    @Column(name = "GRAMMAR_ID", nullable = false, updatable= false)
+    @Column(name = "GRAMMAR_ID", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @JsonManagedReference
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "grammar_list",
             joinColumns = {
@@ -27,7 +29,7 @@ public class Grammar {
                     @JoinColumn(name = "EXPERIMENT_ID", referencedColumnName = "EXPERIMENT_ID")
             }
     )
-    private Experiment experimentId;
+    private List<Experiment> listExperiment=new ArrayList<>();
 
     @Column
     private Long runId;
@@ -38,35 +40,39 @@ public class Grammar {
     @Column
     private String grammarDescription;
 
-    @Column(name="creationDate")
+    @Column(name = "creationDate")
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationDate = null;
 
-    @Column(columnDefinition = "TEXT") // https://stackoverflow.com/questions/31833337/hibernate-could-not-execute-statement-sql-n-a-saving-nested-object
+    @Column(columnDefinition = "TEXT")
+    // https://stackoverflow.com/questions/31833337/hibernate-could-not-execute-statement-sql-n-a-saving-nested-object
     private String fileText; // This is the text on the file - That's written in a areaText - So we can take it as a String
 
-    @Column(name="user_id")
+    @Column(name = "user_id")
     private Long userId;
 
-    public Grammar(Experiment exp){
-        this.experimentId = exp;
+    public Grammar(List<Experiment> exp) {
+        this.listExperiment = exp;
     }
+
     /**
      * Copy constructor.
      */
     public Grammar(Grammar grammar) {
-        this(grammar.getExperimentId(), grammar.getRunId(), grammar.getGrammarName(), grammar.getGrammarDescription(), grammar.getFileText(), grammar.getCreationDate());
+        this(grammar.getListExperiment(), grammar.getRunId(), grammar.getGrammarName(), grammar.getGrammarDescription(), grammar.getFileText(), grammar.getCreationDate());
         //no defensive copies are created here, since
         //there are no mutable object fields (String is immutable)
     }
 
-    public Date getCreationDate() { return creationDate; }
-
-    public Grammar(){
+    public Date getCreationDate() {
+        return creationDate;
     }
 
-    public Grammar(Experiment experimentId, Long runId, String grammarName, String grammarDescription, String fileText, Date creationDate) {
-        this.experimentId = experimentId;
+    public Grammar() {
+    }
+
+    public Grammar(List<Experiment> experimentId, Long runId, String grammarName, String grammarDescription, String fileText, Date creationDate) {
+        this.listExperiment = experimentId;
         this.runId = runId;
         this.grammarName = grammarName;
         this.grammarDescription = grammarDescription;
@@ -74,12 +80,12 @@ public class Grammar {
         this.creationDate = creationDate;
     }
 
-    public Grammar(Experiment exp, String grammarName, String grammarDescription, String fileText) {
+    public Grammar(List<Experiment> exp, String grammarName, String grammarDescription, String fileText) {
         this.grammarName = grammarName;
         this.grammarDescription = grammarDescription;
         this.fileText = fileText;
 
-        this.experimentId = exp;
+        this.listExperiment = exp;
     }
 
     public Long getId() {
@@ -90,26 +96,22 @@ public class Grammar {
         this.id = id;
     }
 
-    public Experiment getExperimentId() {
-        return experimentId;
+    public List<Experiment> getListExperiment() {
+        return listExperiment;
     }
 
-    public void setExperimentId(Experiment experimentId) {
-        if(sameAs(experimentId))
-            return ;
-        Experiment oldExperimentId = this.experimentId;
-        this.experimentId = experimentId;
+    public void deleteExperimentId(Experiment experimentId) {
+        if (listExperiment.contains(experimentId))
+            this.listExperiment.remove(experimentId);
+    }
 
-        if(oldExperimentId!=null)
-            oldExperimentId.removeGrammar(this);
-        if(experimentId!=null)
-            experimentId.addGrammar(this);
-
-        this.experimentId = experimentId;
+    public void addExperimentId(Experiment experimentId) {
+        if (!listExperiment.contains(experimentId))
+            this.listExperiment.add(experimentId);
     }
 
     private boolean sameAs(Experiment newExperiment) {
-        return this.experimentId==null? newExperiment == null : experimentId.equals(newExperiment);
+        return this.listExperiment == null ? newExperiment == null : listExperiment.contains(newExperiment);
     }
 
     public String getGrammarName() {
@@ -144,7 +146,9 @@ public class Grammar {
         this.runId = runId;
     }
 
-    public void setCreationDate(Date creationDate) { this.creationDate = creationDate;}
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
 
     public Long getUserId() {
         return userId;
