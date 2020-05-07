@@ -12,6 +12,7 @@ Other nice implementations of GE, but based in Python:
  
 
 ## Former contributors to this project
+ * Lei Chen Xu (@leichenxu) - Degree final work.
  * Gonçalo Silveira (@gonkyprojects) - Internship 2019.
  * Victor Oliveira (@victorOliveira1997) - Internship 2019.
  * Carlos García Moreno (@garciamorenc) - By means of https://github.com/jmcolmenar/tfg-evaluacion-ge-2016-2017 .
