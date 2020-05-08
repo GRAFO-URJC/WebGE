@@ -20,8 +20,12 @@ public class AdminController {
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @GetMapping("/admin")
-    public String adminPage(Model model) {
+    public String adminPage(Model model,
+                            @RequestParam(value="messageUserCreated", required=false) String message) {
         User user = userService.getLoggedInUser();
+        if(message!=null){
+            model.addAttribute("messageUserCreated",message);
+        }
         if(user.getPassword().equals("$2a$11$hwnvHO4u./7PBsClAXe1fuPIat1sqitn7EYvti9ajWpONIqx7pYB2")){
             model.addAttribute("message","Please change the password, now is the default password.");
         }
@@ -39,7 +43,8 @@ public class AdminController {
     @PostMapping("/admin/registrationPage")
     public String registerUserAccount(Model model,
                                       @ModelAttribute("user") @Valid UserRegistrationDto userDto,
-                                      BindingResult result) {
+                                      BindingResult result,
+                                      RedirectAttributes redirectAttrs) {
 
         User existingEmail = userService.findByEmail(userDto.getEmail());
         User existingUsername = userService.findByUsername(userDto.getUsername());
@@ -58,6 +63,7 @@ public class AdminController {
 
         userService.saveUser(userDto);
 
+        redirectAttrs.addAttribute("messageUserCreated","User created");
         model.addAttribute("message", "User registered successfully");
 
         return "redirect:/admin";
