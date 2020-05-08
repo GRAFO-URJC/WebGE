@@ -3,7 +3,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.w3.org/1999/xhtml"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/default}"
+      layout:decorate="~{layouts/defaultAdmin}"
       lang="en">
 <head>
     <link rel="stylesheet" th:href="@{/assets/dist/css/index.css}"/>
@@ -21,12 +21,26 @@
             </header>
 
             <section class="panel-body form-horizontal center-block text-center">
-
+                <div th:if="${message}" class="alert alert-info">
+                    <label th:text="${message}"></label>
+                </div>
                 <div class="row">
-                    <a href="/user/profile" th:href="@{/admin/registrationPage}">
+                    <a th:href="@{/admin/registrationPage}">
                         <div class="col-sm-6 col-md-4 col-lg-4 mt-4 form-group">
                             <div class="card center-block">
-                                <img class="card-img-top" th:src="@{/images/index/profile_adn.jpg}"/>
+                                <div class="card-block">
+                                    <h4 class="card-title mt-3">User registration</h4>
+                                    <div class="card-text">
+                                        Register new user
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a th:href="@{/admin/profile}">
+                        <div class="col-sm-6 col-md-4 col-lg-4 mt-4 form-group">
+                            <div class="card center-block">
                                 <div class="card-block">
                                     <h4 class="card-title mt-3">Profile</h4>
                                     <div class="card-text">
