@@ -4,9 +4,6 @@
     <div th:include="fragments/header :: head" th:remove="tag"></div>
     <script>
         let table;
-        $(document).ready(function () {
-            $("[rel=tooltip]").tooltip({placement: 'right'});
-        });
 
         function tableDefinition(id,idTableBody) {
             table = $(id).DataTable({
