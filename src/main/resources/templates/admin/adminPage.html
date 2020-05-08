@@ -1,10 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.w3.org/1999/xhtml"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}"
+      lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
+    <link rel="stylesheet" th:href="@{/assets/dist/css/index.css}"/>
+    <title>Admin page</title>
 </head>
+
 <body>
-$END$
+<div id="page" layout:fragment="content" message=${errorMessage}>
+    <!-- Header -->
+    <!-- Main -->
+    <div class="container">
+        <div id="forms" class="panel panel-default">
+            <header class="panel-heading">
+                <h2>Home </h2>
+            </header>
+
+            <section class="panel-body form-horizontal center-block text-center">
+
+                <div class="row">
+                    <a href="/user/profile" th:href="@{/admin/registrationPage}">
+                        <div class="col-sm-6 col-md-4 col-lg-4 mt-4 form-group">
+                            <div class="card center-block">
+                                <img class="card-img-top" th:src="@{/images/index/profile_adn.jpg}"/>
+                                <div class="card-block">
+                                    <h4 class="card-title mt-3">Profile</h4>
+                                    <div class="card-text">
+                                        See your personal information and update new one
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </section>
+        </div>
+        <!-- END Main -->
+    </div>
+</div>
 </body>
 </html>
