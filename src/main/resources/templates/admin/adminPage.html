@@ -24,6 +24,9 @@
                 <div th:if="${message}" class="alert alert-info">
                     <label th:text="${message}"></label>
                 </div>
+                <div th:if="${messageUserCreated}" class="alert alert-info">
+                    <label th:text="${messageUserCreated}"></label>
+                </div>
                 <div class="row">
                     <a th:href="@{/admin/registrationPage}">
                         <div class="col-sm-6 col-md-4 col-lg-4 mt-4 form-group">
