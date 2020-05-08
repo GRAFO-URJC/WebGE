@@ -2,18 +2,30 @@ package com.gramevapp.web.controller;
 
 import com.gramevapp.web.model.*;
 import com.gramevapp.web.service.UserService;
+import org.imgscalr.Scalr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.imageio.ImageIO;
 import javax.validation.Valid;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 @Controller
 public class AdminController {
+
+    private final String PROFILE_PICTURE_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "profilePicture" + File.separator + "";
+
     @Autowired
     private UserService userService;
 
@@ -142,6 +154,82 @@ public class AdminController {
 
         redirectAttrs.addAttribute("message", "Password saved").addFlashAttribute("password", "Password info area");
         redirectAttrs.addAttribute("areaActive", "passwordActive").addFlashAttribute("passwordActive", "Activate password area");
+        return "redirect:/admin/profile";
+    }
+
+    @RequestMapping(value="/admin/updateAdminBasicInfo", method=RequestMethod.POST)
+    public String updateAdminInformation(Model model,
+                                        @ModelAttribute("userBasicInfo") @Valid UserUpdateBasicInfoDto userUpDto,
+                                        BindingResult result,
+                                        RedirectAttributes redirectAttrs){
+
+        User user = userService.getLoggedInUser();
+
+        if(result.hasErrors()){
+            user.getUserDetails().setProfilePicture(null);
+
+            UserUpdateAboutDto upAboutDto = new UserUpdateAboutDto();
+            upAboutDto.setAboutMe(user.getUserDetails().getAboutMe());
+
+            UserUpdatePasswordDto upPassDto = new UserUpdatePasswordDto();
+            upPassDto.setPassword("");
+
+            UserUpdateStudyDto upStudyDto = new UserUpdateStudyDto();
+            upStudyDto.setWorkInformation(user.getUserDetails().getWorkInformation());
+            upStudyDto.setStudyInformation(user.getUserDetails().getStudyInformation());
+
+            model.addAttribute("userAboutMe", upAboutDto);
+            model.addAttribute("userPassword", upPassDto);
+            model.addAttribute("userStudy", upStudyDto);
+            model.addAttribute("userLogged", user);
+            model.addAttribute("areaActive", "basicActive");
+            return "admin/profile";
+        }
+
+        user.getUserDetails().setFirstName(userUpDto.getFirstName());
+        user.getUserDetails().setLastName(userUpDto.getLastName());
+        user.getUserDetails().setPhone(userUpDto.getPhone());
+        user.getUserDetails().setAddressDirection(userUpDto.getAddressDirection());
+        user.getUserDetails().setState(userUpDto.getState());
+        user.getUserDetails().setCity(userUpDto.getCity());
+        user.getUserDetails().setZipcode(userUpDto.getZipcode());
+        user.setEmail(userUpDto.getEmail());
+
+        if(!userUpDto.getProfilePicture().isEmpty()) {
+            // Profile photo update
+            Format formatter = new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss");
+            String fileName = formatter.format(Calendar.getInstance().getTime()) + "_thumbnail.jpg";
+
+            MultipartFile pictureFile = userUpDto.getProfilePicture();
+            if (!pictureFile.isEmpty()) {
+                try {
+                    File dir = new File(PROFILE_PICTURE_PATH + user.getId());   // Create the directory to save datatype files
+                    if (!dir.exists())
+                        dir.mkdirs();
+
+                    byte[] bytes = pictureFile.getBytes();
+
+                    ByteArrayInputStream imageInputStream = new ByteArrayInputStream(bytes);
+                    BufferedImage image = ImageIO.read(imageInputStream);
+                    BufferedImage thumbnail = Scalr.resize(image, 200);
+
+                    File thumbnailOut = new File(dir.getAbsolutePath() + File.separator + fileName);
+                    ImageIO.write(thumbnail, "png", thumbnailOut);
+
+                    UploadFile uploadFile = new UploadFile();
+                    uploadFile.setFilePath(fileName);
+
+                    user.getUserDetails().setProfilePicture(uploadFile);
+                    System.out.println("Image Saved::: " + fileName);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        userService.save(user);
+
+        redirectAttrs.addAttribute("message","Basic information updated").addFlashAttribute("aboutMe", "Basic information area");
+        redirectAttrs.addAttribute("areaActive","basicActive").addFlashAttribute("basicActive", "Basic information area");
         return "redirect:/admin/profile";
     }
 

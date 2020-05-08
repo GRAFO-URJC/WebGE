@@ -191,6 +191,7 @@ public class UserController {
             model.addAttribute("userPassword", upPassDto);
             model.addAttribute("userStudy", upStudyDto);
             model.addAttribute("userLogged", user);
+            model.addAttribute("areaActive", "basicActive");
             return "user/profile";
         }
 

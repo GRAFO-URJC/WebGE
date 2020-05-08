@@ -111,7 +111,7 @@
                     <section class="tab-pane fade in" id="tab1"
                              th:classappend="${areaActive}=='basicActive' ? active : '' ">
                         <p class="col-lg-12" th:if="${'userLogged.isBasicInformation'} == true">hola</p>
-                        <form th:action="@{/user/updateUserBasicInfo}" th:object="${userBasicInfo}"
+                        <form th:action="@{/admin/updateAdminBasicInfo}" th:object="${userBasicInfo}"
                               enctype="multipart/form-data" class="form-horizontal" role="form" method="post">
                             <!-- Error handling -->
                             <p th:if="${#fields.hasErrors('firstName')}" class="text-warning"
