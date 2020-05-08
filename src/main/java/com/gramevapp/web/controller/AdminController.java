@@ -134,6 +134,7 @@ public class AdminController {
             model.addAttribute("userStudy", upStudyDto);
             model.addAttribute("userBasicInfo", upBasicDto);
             model.addAttribute("userLogged", user);
+            model.addAttribute("areaActive", "basicActive");
             return "admin/profile";
         }
         user.setPassword(passwordEncoder.encode(userUpDto.getPassword()));
