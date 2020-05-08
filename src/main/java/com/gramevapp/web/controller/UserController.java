@@ -315,45 +315,6 @@ public class UserController {
         return new UserRegistrationDto();
     }
 
-    @GetMapping("/registration")
-    public String showRegistrationForm() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        // https://stackoverflow.com/questions/26101738/why-is-the-anonymoususer-authenticated-in-spring-security
-        if (!(auth instanceof AnonymousAuthenticationToken)) {
-            return "redirect:/user";
-        }
-
-        return "userRegistration";
-    }
-
-    @PostMapping("/registration")
-    public String registerUserAccount(  Model model,
-                                        @ModelAttribute("user") @Valid UserRegistrationDto userDto,
-                                        BindingResult result){
-
-        User existingEmail = userService.findByEmail(userDto.getEmail());
-        User existingUsername = userService.findByUsername(userDto.getUsername());
-
-        if(existingEmail != null){
-            result.rejectValue("email", null, "There is already an account registered with that email");
-        }
-
-        if(existingUsername != null){
-            result.rejectValue("username", null, "There is already an account registered with that username");
-        }
-
-        if (result.hasErrors()){
-            return "userRegistration";
-        }
-
-        userService.saveUser(userDto);
-
-        model.addAttribute("message", "User registered successfully");
-
-        return "login";
-    }
-
     @RequestMapping(value="/user/profile_picture", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
     public @ResponseBody byte[] profilePicture() throws IOException {
         User user = userService.getLoggedInUser();

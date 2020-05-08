@@ -52,7 +52,6 @@ public class WebSecurityConfig
         http
             .authorizeRequests()
                 .antMatchers(
-                        "/registration",
                         "/",
                         "/images/**",
                         "/assets/**",
