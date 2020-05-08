@@ -84,10 +84,6 @@ public class UserController {
                                      BindingResult result,
                                      RedirectAttributes redirectAttrs){
         User user = userService.getLoggedInUser();
-        if(user == null){
-            System.out.println("User not authenticated");
-            return "redirect:/login";
-        }
 
         if(result.hasErrors()) {
             UserUpdateAboutDto updAboutDto = new UserUpdateAboutDto();
@@ -111,6 +107,7 @@ public class UserController {
             model.addAttribute("userStudy", upStudyDto);
             model.addAttribute("userBasicInfo", upBasicDto);
             model.addAttribute("userLogged", user);
+            model.addAttribute("areaActive", "passwordActive");
             return "user/profile";
         }
         user.setPassword(passwordEncoder.encode(userUpDto.getPassword()));
