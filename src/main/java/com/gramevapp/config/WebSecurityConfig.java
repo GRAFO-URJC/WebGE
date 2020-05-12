@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 
@@ -51,16 +52,15 @@ public class WebSecurityConfig
         http
             .authorizeRequests()
                 .antMatchers(
-                        "/registration",
                         "/",
                         "/images/**",
                         "/assets/**",
                         "/webjars/**").permitAll()
                 .antMatchers("/user/**").hasRole("USER")    // Only users can access to /user/whatever
-                .antMatchers("/admin/**").access("hasAnyAuthority('ADMIN')")
+                .antMatchers("/admin/**").hasRole("ADMIN")    // Only admin can access to /admin/whatever
                 .anyRequest().authenticated()
             .and()
-                .formLogin().loginPage("/login")
+                .formLogin().loginPage("/login").successHandler(myAuthenticationSuccessHandler())
                 .permitAll()
             .and()
             .logout()
@@ -92,5 +92,10 @@ public class WebSecurityConfig
         authProvider.setUserDetailsService(myUserDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
+    }
+
+    @Bean
+    public AuthenticationSuccessHandler myAuthenticationSuccessHandler(){
+        return new UrlAuthenticationSuccessHandler();
     }
 }
