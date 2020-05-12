@@ -84,10 +84,6 @@ public class UserController {
                                      BindingResult result,
                                      RedirectAttributes redirectAttrs){
         User user = userService.getLoggedInUser();
-        if(user == null){
-            System.out.println("User not authenticated");
-            return "redirect:/login";
-        }
 
         if(result.hasErrors()) {
             UserUpdateAboutDto updAboutDto = new UserUpdateAboutDto();
@@ -111,6 +107,7 @@ public class UserController {
             model.addAttribute("userStudy", upStudyDto);
             model.addAttribute("userBasicInfo", upBasicDto);
             model.addAttribute("userLogged", user);
+            model.addAttribute("areaActive", "passwordActive");
             return "user/profile";
         }
         user.setPassword(passwordEncoder.encode(userUpDto.getPassword()));
@@ -194,6 +191,7 @@ public class UserController {
             model.addAttribute("userPassword", upPassDto);
             model.addAttribute("userStudy", upStudyDto);
             model.addAttribute("userLogged", user);
+            model.addAttribute("areaActive", "basicActive");
             return "user/profile";
         }
 
@@ -313,45 +311,6 @@ public class UserController {
     @ModelAttribute("user") // Without this. The registration won't work
     public UserRegistrationDto userRegistrationDto() {
         return new UserRegistrationDto();
-    }
-
-    @GetMapping("/registration")
-    public String showRegistrationForm() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        // https://stackoverflow.com/questions/26101738/why-is-the-anonymoususer-authenticated-in-spring-security
-        if (!(auth instanceof AnonymousAuthenticationToken)) {
-            return "redirect:/user";
-        }
-
-        return "userRegistration";
-    }
-
-    @PostMapping("/registration")
-    public String registerUserAccount(  Model model,
-                                        @ModelAttribute("user") @Valid UserRegistrationDto userDto,
-                                        BindingResult result){
-
-        User existingEmail = userService.findByEmail(userDto.getEmail());
-        User existingUsername = userService.findByUsername(userDto.getUsername());
-
-        if(existingEmail != null){
-            result.rejectValue("email", null, "There is already an account registered with that email");
-        }
-
-        if(existingUsername != null){
-            result.rejectValue("username", null, "There is already an account registered with that username");
-        }
-
-        if (result.hasErrors()){
-            return "userRegistration";
-        }
-
-        userService.saveUser(userDto);
-
-        model.addAttribute("message", "User registered successfully");
-
-        return "login";
     }
 
     @RequestMapping(value="/user/profile_picture", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)

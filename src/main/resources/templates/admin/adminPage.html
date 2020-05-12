@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.w3.org/1999/xhtml"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/defaultAdmin}"
+      lang="en">
+<head>
+    <link rel="stylesheet" th:href="@{/assets/dist/css/index.css}"/>
+    <title>Admin page</title>
+</head>
+
+<body>
+<div id="page" layout:fragment="content" message=${errorMessage}>
+    <!-- Header -->
+    <!-- Main -->
+    <div class="container">
+        <div id="forms" class="panel panel-default">
+            <header class="panel-heading">
+                <h2>Home </h2>
+            </header>
+
+            <section class="panel-body form-horizontal center-block text-center">
+                <div th:if="${message}" class="alert alert-info">
+                    <label th:text="${message}"></label>
+                </div>
+                <div th:if="${messageUserCreated}" class="alert alert-info">
+                    <label th:text="${messageUserCreated}"></label>
+                </div>
+                <div class="row">
+                    <a th:href="@{/admin/registrationPage}">
+                        <div class="col-sm-6 col-md-4 col-lg-4 mt-4 form-group">
+                            <div class="card center-block">
+                                <div class="card-block">
+                                    <h4 class="card-title mt-3">User registration</h4>
+                                    <div class="card-text">
+                                        Register new user
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a th:href="@{/admin/profile}">
+                        <div class="col-sm-6 col-md-4 col-lg-4 mt-4 form-group">
+                            <div class="card center-block">
+                                <div class="card-block">
+                                    <h4 class="card-title mt-3">Profile</h4>
+                                    <div class="card-text">
+                                        See your personal information and update new one
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </section>
+        </div>
+        <!-- END Main -->
+    </div>
+</div>
+</body>
+</html>
