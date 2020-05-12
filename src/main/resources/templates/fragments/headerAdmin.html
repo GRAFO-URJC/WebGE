@@ -20,5 +20,24 @@
         table.dataTable tbody td.no-padding {
             padding: 0;
         }
+
+        /* idea come fromm http://jsfiddle.net/ozr54xfu/*/
+
+        .icon-combine {
+            position: relative;
+            display: block;
+        }
+        .icon-combine .glyphicon {
+            color: gray;
+        }
+        .icon-combine .glyphicon:first-child {
+            font-size: 1rem;
+            color: gray;
+            z-index: 1;
+            position: absolute;
+            top: -1px;
+            left: -4px;
+        }
+
     </style>
 </head>
