@@ -47,10 +47,10 @@ public class UserController {
 
     @GetMapping("/user/profile")
     public String userProfile(Model model,
-                              @RequestParam(value="message", required=false) String message,
-                              @RequestParam(value="areaActive", required=false) String areaActive){
+                              @RequestParam(value = "message", required = false) String message,
+                              @RequestParam(value = "areaActive", required = false) String areaActive) {
         User user = userService.getLoggedInUser();
-        if(user == null){
+        if (user == null) {
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
@@ -60,11 +60,11 @@ public class UserController {
         UserUpdateAboutDto updAboutDto = new UserUpdateAboutDto();
         UserUpdateStudyDto upStudyDto = new UserUpdateStudyDto();
 
-        if(message != null) {
+        if (message != null) {
             model.addAttribute("message", message);
         }
 
-        if(areaActive != null)
+        if (areaActive != null)
             model.addAttribute("areaActive", areaActive);
         else
             model.addAttribute("areaActive", "basicActive");
@@ -78,14 +78,15 @@ public class UserController {
         return "user/profile";
     }
 
-    @RequestMapping(value="/user/updateUserPassword", method=RequestMethod.POST)
+    @RequestMapping(value = "/user/updateUserPassword", method = RequestMethod.POST)
     public String updateUserPassword(Model model,
                                      @ModelAttribute("userPassword") @Valid UserUpdatePasswordDto userUpDto,
                                      BindingResult result,
-                                     RedirectAttributes redirectAttrs){
+                                     RedirectAttributes redirectAttrs) {
         User user = userService.getLoggedInUser();
+        boolean checkPassword = passwordEncoder.matches(userUpDto.getOldPassword(), user.getPassword());
 
-        if(result.hasErrors()) {
+        if (result.hasErrors() || !checkPassword) {
             UserUpdateAboutDto updAboutDto = new UserUpdateAboutDto();
             updAboutDto.setAboutMe(user.getUserDetails().getAboutMe());
 
@@ -108,28 +109,29 @@ public class UserController {
             model.addAttribute("userBasicInfo", upBasicDto);
             model.addAttribute("userLogged", user);
             model.addAttribute("areaActive", "passwordActive");
+            model.addAttribute("oldPasswordCheck", !checkPassword);
             return "user/profile";
         }
         user.setPassword(passwordEncoder.encode(userUpDto.getPassword()));
         userService.save(user);
 
-        redirectAttrs.addAttribute("message","Password saved").addFlashAttribute("password", "Password info area");
-        redirectAttrs.addAttribute("areaActive","passwordActive").addFlashAttribute("passwordActive", "Activate password area");
+        redirectAttrs.addAttribute("message", "Password saved").addFlashAttribute("password", "Password info area");
+        redirectAttrs.addAttribute("areaActive", "passwordActive").addFlashAttribute("passwordActive", "Activate password area");
         return "redirect:/user/profile";
     }
 
-    @RequestMapping(value="/user/updateStudy", method=RequestMethod.POST)
+    @RequestMapping(value = "/user/updateStudy", method = RequestMethod.POST)
     public String updateUserStudy(Model model,
                                   @ModelAttribute("userStudy") @Valid UserUpdateStudyDto userUpDto,
                                   BindingResult result,
                                   RedirectAttributes redirectAttrs) {
         User user = userService.getLoggedInUser();
-        if(user == null){
+        if (user == null) {
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
 
-        if(result.hasErrors()) {
+        if (result.hasErrors()) {
             UserUpdateAboutDto updAboutDto = new UserUpdateAboutDto();
             updAboutDto.setAboutMe(user.getUserDetails().getAboutMe());
 
@@ -157,24 +159,24 @@ public class UserController {
         user.getUserDetails().setWorkInformation(userUpDto.getWorkInformation());
 
         userService.save(user);
-        redirectAttrs.addAttribute("message","Study/Work area information updated").addFlashAttribute("Study/Work", "Study/Work area");
-        redirectAttrs.addAttribute("areaActive","studyActive").addFlashAttribute("studyActive", "Activate Study/Work area");
+        redirectAttrs.addAttribute("message", "Study/Work area information updated").addFlashAttribute("Study/Work", "Study/Work area");
+        redirectAttrs.addAttribute("areaActive", "studyActive").addFlashAttribute("studyActive", "Activate Study/Work area");
         return "redirect:/user/profile";
     }
 
-    @RequestMapping(value="/user/updateUserBasicInfo", method=RequestMethod.POST)
+    @RequestMapping(value = "/user/updateUserBasicInfo", method = RequestMethod.POST)
     public String updateUserInformation(Model model,
                                         @ModelAttribute("userBasicInfo") @Valid UserUpdateBasicInfoDto userUpDto,
                                         BindingResult result,
-                                        RedirectAttributes redirectAttrs){
+                                        RedirectAttributes redirectAttrs) {
 
         User user = userService.getLoggedInUser();
-        if(user == null){
+        if (user == null) {
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
 
-        if(result.hasErrors()){
+        if (result.hasErrors()) {
             user.getUserDetails().setProfilePicture(null);
 
             UserUpdateAboutDto upAboutDto = new UserUpdateAboutDto();
@@ -204,7 +206,7 @@ public class UserController {
         user.getUserDetails().setZipcode(userUpDto.getZipcode());
         user.setEmail(userUpDto.getEmail());
 
-        if(!userUpDto.getProfilePicture().isEmpty()) {
+        if (!userUpDto.getProfilePicture().isEmpty()) {
             // Profile photo update
             Format formatter = new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss");
             String fileName = formatter.format(Calendar.getInstance().getTime()) + "_thumbnail.jpg";
@@ -237,24 +239,24 @@ public class UserController {
         }
         userService.save(user);
 
-        redirectAttrs.addAttribute("message","Basic information updated").addFlashAttribute("aboutMe", "Basic information area");
-        redirectAttrs.addAttribute("areaActive","basicActive").addFlashAttribute("basicActive", "Basic information area");
+        redirectAttrs.addAttribute("message", "Basic information updated").addFlashAttribute("aboutMe", "Basic information area");
+        redirectAttrs.addAttribute("areaActive", "basicActive").addFlashAttribute("basicActive", "Basic information area");
         return "redirect:/user/profile";
     }
 
-    @RequestMapping(value="/user/updateAboutMe", method= RequestMethod.POST)
+    @RequestMapping(value = "/user/updateAboutMe", method = RequestMethod.POST)
     public String updateAboutMe(Model model,
                                 @ModelAttribute("userAboutMe") @Valid UserUpdateAboutDto userUpDto,
                                 BindingResult result,
-                                RedirectAttributes redirectAttrs){
+                                RedirectAttributes redirectAttrs) {
 
         User user = userService.getLoggedInUser();
-        if(user == null){
+        if (user == null) {
             System.out.println("User not authenticated");
             return "redirect:/login";
         }
 
-        if(result.hasErrors()){
+        if (result.hasErrors()) {
             UserUpdateStudyDto upStudyDto = new UserUpdateStudyDto();
             upStudyDto.setWorkInformation(user.getUserDetails().getWorkInformation());
             upStudyDto.setStudyInformation(user.getUserDetails().getStudyInformation());
@@ -281,8 +283,8 @@ public class UserController {
         user.getUserDetails().setAboutMe(userUpDto.getAboutMe());
         userService.save(user);
 
-        redirectAttrs.addAttribute("message","About me information area updated").addFlashAttribute("aboutMe", "About me area");
-        redirectAttrs.addAttribute("areaActive","aboutMeActive").addFlashAttribute("aboutMeActive", "Activate About me area");
+        redirectAttrs.addAttribute("message", "About me information area updated").addFlashAttribute("aboutMe", "About me area");
+        redirectAttrs.addAttribute("areaActive", "aboutMeActive").addFlashAttribute("aboutMeActive", "Activate About me area");
         return "redirect:/user/profile";
     }
 
@@ -313,8 +315,9 @@ public class UserController {
         return new UserRegistrationDto();
     }
 
-    @RequestMapping(value="/user/profile_picture", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
-    public @ResponseBody byte[] profilePicture() throws IOException {
+    @RequestMapping(value = "/user/profile_picture", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
+    public @ResponseBody
+    byte[] profilePicture() throws IOException {
         User user = userService.getLoggedInUser();
 
         File dir = new File(PROFILE_PICTURE_PATH + user.getId());
@@ -323,7 +326,7 @@ public class UserController {
 
         String profilePicture = PROFILE_PICTURE_PATH + user.getId() + File.separator + user.getUserDetails().getProfilePicture().getFilePath();
 
-        if(new File(profilePicture).exists()) {
+        if (new File(profilePicture).exists()) {
             return IOUtils.toByteArray(new FileInputStream(profilePicture));
         } else {
             return null;
