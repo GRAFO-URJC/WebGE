@@ -219,54 +219,6 @@
                         </form>
                     </section>
 
-                    <section class="tab-pane fade in" id="tab2"
-                             th:classappend="${areaActive}=='studyActive' ? active : '' ">
-                        <div class="box">
-                            <form th:action="@{/user/updateStudy}" th:object="${userStudy}" class="form-horizontal"
-                                  role="form" method="post">
-                                <!-- Error handling -->
-                                <p th:if="${#fields.hasErrors('workInformation')}" class="text-warning"
-                                   th:each="error: ${#fields.errors('workInformation')}"
-                                   th:text="${error}">Validation error
-                                </p>
-                                <!-- Success update -->
-                                <div th:id="messageStudy" th:if="${message}" class="alert alert-info">
-                                    <label th:text="${message}"></label>
-                                </div>
-
-                                <p th:if="${#fields.hasErrors('studyInformation')}" class="text-warning"
-                                   th:each="error: ${#fields.errors('studyInformation')}"
-                                   th:text="${error}">Validation error
-                                </p>
-                                <div class="row">
-                                    <div class="form-group col-lg-12 col-sm-12">
-                                        <label class="control-label" for="studyInformation">Study:</label>
-                                        <div th:classappend="${#fields.hasErrors('studyInformation')}? 'has-error':'studyInformation error'">
-                                            <input class="form-control" type="text" th:name="studyInformation"
-                                                   id="studyInformation"
-                                                   th:value="${userLogged.getUserDetails().getStudyInformation()}"/>
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-lg-12 col-sm-12">
-                                        <label class="control-label" for="workInformation">Work:</label>
-                                        <div th:classappend="${#fields.hasErrors('workInformation')}? 'has-error':'workInformation error'">
-                                            <input class="form-control" type="text" th:name="workInformation"
-                                                   id="workInformation"
-                                                   th:value="${userLogged.getUserDetails().getWorkInformation()}"/>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <br/>
-
-                                <div class="row">
-                                    <div class="form-group col-lg-12 col-sm-12">
-                                        <button type="submit" class="btn-primary btn-lg center-block">Update</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </section>
 
                     <section class="tab-pane fade in" id="tab3"
                              th:classappend="${areaActive}== 'passwordActive' ? active : '' ">
@@ -278,20 +230,30 @@
                                    th:each="error: ${#fields.errors('password')}"
                                    th:text="${error}">Validation error
                                 </p>
+                                <p th:if="${oldPasswordCheck}" class="text-warning">
+                                    Old password incorrect
+                                </p>
                                 <!-- Success update -->
                                 <div th:if="${message}" th:id="messagePassword" class="alert alert-info">
                                     <label th:text="${message}"></label>
                                 </div>
 
                                 <div class="row">
-                                    <div class="form-group col-lg-6 col-sm-6">
+                                    <div class="form-group col-lg-4 col-sm-4">
+                                        <label class="control-label" for="oldPassword">Password:</label>
+                                        <div th:classappend="${#fields.hasErrors('oldPassword')}? 'has-error':'old password error'">
+                                            <input class="form-control" type="password" th:name="oldPassword"
+                                                   id="oldPassword"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-lg-4 col-sm-4">
                                         <label class="control-label" for="password">Password:</label>
                                         <div th:classappend="${#fields.hasErrors('password')}? 'has-error':'password error'">
                                             <input class="form-control" type="password" th:name="password"
                                                    id="password"/>
                                         </div>
                                     </div>
-                                    <div class="form-group col-lg-6 col-sm-6">
+                                    <div class="form-group col-lg-4 col-sm-4">
                                         <label class="control-label" for="confirmPassword">Confirm:</label>
                                         <input class="form-control" type="password" th:name="confirmPassword"
                                                id="confirmPassword"/>
@@ -309,38 +271,6 @@
                         </div>
                     </section>
 
-                    <section class="tab-pane fade in" id="tab4"
-                             th:classappend="${areaActive}== 'aboutMeActive' ? active : '' ">
-                        <div class="box">
-                            <form th:action="@{/user/updateAboutMe}" th:object="${userAboutMe}" class="form-horizontal"
-                                  role="form" method="post">
-                                <!-- Error handling -->
-                                <p th:if="${#fields.hasErrors('aboutMe')}" class="text-warning"
-                                   th:each="error: ${#fields.errors('aboutMe')}"
-                                   th:text="${error}">Validation error
-                                </p>
-                                <!-- Success update -->
-                                <div th:if="${message}" th:id="messageAboutMe" class="alert alert-info">
-                                    <label th:text="${message}"></label>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group col-lg-12 col-sm-12">
-                                        <label class="control-label" for="aboutMe">About Me:</label>
-                                        <div th:classappend="${#fields.hasErrors('aboutMe')}? 'has-error':'aboutMe error'">
-                                            <textarea class="form-control" style="resize: none;" rows="7"
-                                                      th:name="aboutMe" id="aboutMe" th:inline="text">[[${userLogged.getUserDetails().getAboutMe()}]]</textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                                <br/>
-                                <div class="row">
-                                    <div class="form-group col-lg-12 col-sm-12">
-                                        <button type="submit" class="btn-primary btn-lg center-block">Update</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </section>
                 </div>
             </div>
         </div>

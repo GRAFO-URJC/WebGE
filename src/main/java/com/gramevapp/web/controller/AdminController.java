@@ -33,13 +33,13 @@ public class AdminController {
 
     @GetMapping("/admin")
     public String adminPage(Model model,
-                            @RequestParam(value="messageUserCreated", required=false) String message) {
+                            @RequestParam(value = "messageUserCreated", required = false) String message) {
         User user = userService.getLoggedInUser();
-        if(message!=null){
-            model.addAttribute("messageUserCreated",message);
+        if (message != null) {
+            model.addAttribute("messageUserCreated", message);
         }
-        if(user.getPassword().equals("$2a$11$hwnvHO4u./7PBsClAXe1fuPIat1sqitn7EYvti9ajWpONIqx7pYB2")){
-            model.addAttribute("message","Please change the password, now is the default password.");
+        if (user.getPassword().equals("$2a$11$hwnvHO4u./7PBsClAXe1fuPIat1sqitn7EYvti9ajWpONIqx7pYB2")) {
+            model.addAttribute("message", "Please change the password, now is the default password.");
         }
         return "admin/adminPage";
     }
@@ -75,7 +75,7 @@ public class AdminController {
 
         userService.saveUser(userDto);
 
-        redirectAttrs.addAttribute("messageUserCreated","User created");
+        redirectAttrs.addAttribute("messageUserCreated", "User created");
         model.addAttribute("message", "User registered successfully");
 
         return "redirect:/admin";
@@ -88,7 +88,7 @@ public class AdminController {
         User user = userService.getLoggedInUser();
 
         if (user.getUserDetails() == null) {
-            UserDetails userDetails=new UserDetails();
+            UserDetails userDetails = new UserDetails();
             userDetails.setUser(user);
             user.setUserDetails(userDetails);
             userService.updateUser();
@@ -123,8 +123,9 @@ public class AdminController {
                                       BindingResult result,
                                       RedirectAttributes redirectAttrs) {
         User user = userService.getLoggedInUser();
+        boolean checkPassword = passwordEncoder.matches(userUpDto.getOldPassword(), user.getPassword());
 
-        if (result.hasErrors()) {
+        if (result.hasErrors() || !checkPassword) {
             UserUpdateAboutDto updAboutDto = new UserUpdateAboutDto();
             updAboutDto.setAboutMe(user.getUserDetails().getAboutMe());
 
@@ -146,7 +147,8 @@ public class AdminController {
             model.addAttribute("userStudy", upStudyDto);
             model.addAttribute("userBasicInfo", upBasicDto);
             model.addAttribute("userLogged", user);
-            model.addAttribute("areaActive", "basicActive");
+            model.addAttribute("areaActive", "passwordActive");
+            model.addAttribute("oldPasswordCheck", !checkPassword);
             return "admin/profile";
         }
         user.setPassword(passwordEncoder.encode(userUpDto.getPassword()));
@@ -157,15 +159,15 @@ public class AdminController {
         return "redirect:/admin/profile";
     }
 
-    @RequestMapping(value="/admin/updateAdminBasicInfo", method=RequestMethod.POST)
+    @RequestMapping(value = "/admin/updateAdminBasicInfo", method = RequestMethod.POST)
     public String updateAdminInformation(Model model,
-                                        @ModelAttribute("userBasicInfo") @Valid UserUpdateBasicInfoDto userUpDto,
-                                        BindingResult result,
-                                        RedirectAttributes redirectAttrs){
+                                         @ModelAttribute("userBasicInfo") @Valid UserUpdateBasicInfoDto userUpDto,
+                                         BindingResult result,
+                                         RedirectAttributes redirectAttrs) {
 
         User user = userService.getLoggedInUser();
 
-        if(result.hasErrors()){
+        if (result.hasErrors()) {
             user.getUserDetails().setProfilePicture(null);
 
             UserUpdateAboutDto upAboutDto = new UserUpdateAboutDto();
@@ -195,7 +197,7 @@ public class AdminController {
         user.getUserDetails().setZipcode(userUpDto.getZipcode());
         user.setEmail(userUpDto.getEmail());
 
-        if(!userUpDto.getProfilePicture().isEmpty()) {
+        if (!userUpDto.getProfilePicture().isEmpty()) {
             // Profile photo update
             Format formatter = new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss");
             String fileName = formatter.format(Calendar.getInstance().getTime()) + "_thumbnail.jpg";
@@ -228,8 +230,8 @@ public class AdminController {
         }
         userService.save(user);
 
-        redirectAttrs.addAttribute("message","Basic information updated").addFlashAttribute("aboutMe", "Basic information area");
-        redirectAttrs.addAttribute("areaActive","basicActive").addFlashAttribute("basicActive", "Basic information area");
+        redirectAttrs.addAttribute("message", "Basic information updated").addFlashAttribute("aboutMe", "Basic information area");
+        redirectAttrs.addAttribute("areaActive", "basicActive").addFlashAttribute("basicActive", "Basic information area");
         return "redirect:/admin/profile";
     }
 
