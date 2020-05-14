@@ -28,6 +28,8 @@ public class User implements Serializable {
     private Boolean enabled = true;
     @Column
     private Integer failedLoginAttempts = 0;
+    @Column
+    private String institution;
 
     @JsonIgnore
     @OneToOne(cascade =  CascadeType.ALL,
@@ -162,5 +164,11 @@ public class User implements Serializable {
         return experiment;
     }
 
+    public String getInstitution() {
+        return institution;
+    }
 
+    public void setInstitution(String institution) {
+        this.institution = institution;
+    }
 }
