@@ -39,7 +39,8 @@ public class AdminController {
             model.addAttribute("messageUserCreated", message);
         }
         if (user.getPassword().equals("$2a$11$hwnvHO4u./7PBsClAXe1fuPIat1sqitn7EYvti9ajWpONIqx7pYB2")) {
-            model.addAttribute("message", "Please change the password, now is the default password.");
+            model.addAttribute("message", "Please change the password, now is the default password, you can click" +
+                    " the message.");
         }
         return "admin/adminPage";
     }
