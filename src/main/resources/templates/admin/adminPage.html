@@ -2,7 +2,7 @@
 
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.w3.org/1999/xhtml"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns="http://www.w3.org/1999/html"
       layout:decorate="~{layouts/defaultAdmin}"
       lang="en">
 <head>
@@ -22,7 +22,10 @@
 
             <section class="panel-body form-horizontal center-block text-center">
                 <div th:if="${message}" class="alert alert-info">
-                    <label th:text="${message}"></label>
+                    <form action="/admin/profile" onclick="">
+                        <input type="text" id="areaActive" name="areaActive" value="passwordActive" hidden/>
+                        <button class="btn btn-link" type="submit" th:text="${message}"/>
+                    </form>
                 </div>
                 <div th:if="${messageUserCreated}" class="alert alert-info">
                     <label th:text="${messageUserCreated}"></label>
