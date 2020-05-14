@@ -42,6 +42,9 @@ public class UserRegistrationDto {
     @NotEmpty(message = "Email confirmation cannot be empty")
     private String confirmEmail;
 
+    @NotEmpty(message = "Institution cannot be empty")
+    private String institution;
+
     //  Direction
     private String address;
     private String city;
@@ -178,4 +181,12 @@ public class UserRegistrationDto {
         this.terms = terms;
     }
 
+
+    public String getInstitution() {
+        return institution;
+    }
+
+    public void setInstitution(String institution) {
+        this.institution = institution;
+    }
 }
