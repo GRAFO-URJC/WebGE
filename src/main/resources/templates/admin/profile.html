@@ -88,7 +88,7 @@
                 <div class="btn-pref btn-group btn-group-justified btn-group-lg" role="group" aria-label="...">
                     <div class="btn-group" role="group">
                         <button type="button" id="userInformation" class="btn btn-default" href="#tab1"
-                                data-toggle="tab" th:classappend="${areaActive}=='basicActive' ? btn-primary"
+                                data-toggle="tab" th:classappend="${areaActive}=='basicActive' ? 'btn-primary':''"
                                 onclick="deleteMessage()"><span class="glyphicon glyphicon-user"
                                                                 aria-hidden="true"></span>
                             User information
@@ -96,7 +96,7 @@
                     </div>
                     <div class="btn-group" role="group">
                         <button type="button" id="updatePassword" class="btn btn-default" href="#tab3" data-toggle="tab"
-                                th:classappend="${areaActive}=='passwordActive' ? btn-primary"
+                                th:classappend="${areaActive}=='passwordActive' ? 'btn-primary':''"
                                 onclick="deleteMessage()"><span class="glyphicon glyphicon-lock"
                                                                 aria-hidden="true"></span>
                             Update password
@@ -109,27 +109,16 @@
             <div class="well">
                 <div class="tab-content">
                     <section class="tab-pane fade in" id="tab1"
-                             th:classappend="${areaActive}=='basicActive' ? active : '' ">
+                             th:classappend="${areaActive}=='basicActive' ? 'active' : '' ">
                         <p class="col-lg-12" th:if="${'userLogged.isBasicInformation'} == true">hola</p>
                         <form th:action="@{/admin/updateAdminBasicInfo}" th:object="${userBasicInfo}"
                               enctype="multipart/form-data" class="form-horizontal" role="form" method="post">
                             <!-- Error handling -->
-                            <p th:if="${#fields.hasErrors('firstName')}" class="text-warning"
-                               th:each="error: ${#fields.errors('firstName')}"
+
+                            <p th:if="${#fields.hasErrors()}" class="text-warning"
+                               th:each="error: ${#fields.errors()}"
                                th:text="${error}">Validation error
                             </p>
-
-                            <p th:if="${#fields.hasErrors('lastName')}" class="text-warning"
-                               th:each="error : ${#fields.errors('lastName')}"
-                               th:text="${error}">Validation error</p>
-
-                            <p th:if="${#fields.hasErrors('email')}" class="text-warning"
-                               th:each="error : ${#fields.errors('email')}"
-                               th:text="${error}">Validation error</p>
-
-                            <p th:if="${#fields.hasErrors('phone')}" class="text-warning"
-                               th:each="error : ${#fields.errors('phone')}"
-                               th:text="${error}">Validation error</p>
 
                             <!-- Success update -->
                             <div th:if="${message}" th:id="messageBasic" class="alert alert-info">
@@ -187,6 +176,7 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="row">
                                 <div class="form-group col-lg-4 col-sm-4">
                                     <label class="control-label" for="city">City:</label>
@@ -209,6 +199,17 @@
                                 </div>
                             </div>
 
+                            <div class="row">
+                                <div class="form-group col-lg-12 col-sm-12">
+                                    <label class="control-label" for="institution">Institution:</label>
+                                    <div th:classappend="${#fields.hasErrors('institution')}? 'has-error':'institution error'">
+                                        <input type="text" class="form-control" th:name="institution"
+                                               id="institution"
+                                               th:value="${userLogged.getInstitution()}"/>
+                                    </div>
+                                </div>
+                            </div>
+
                             <br/>
 
                             <div class="row">
@@ -216,18 +217,18 @@
                                     <button type="submit" class="btn-primary btn-lg center-block">Update</button>
                                 </div>
                             </div>
+
                         </form>
                     </section>
 
-
                     <section class="tab-pane fade in" id="tab3"
-                             th:classappend="${areaActive}== 'passwordActive' ? active : '' ">
+                             th:classappend="${areaActive}== 'passwordActive' ? 'active' : '' ">
                         <div class="box">
                             <form th:action="@{/admin/updateAdminPassword}" th:object="${userPassword}"
                                   class="form-horizontal" role="form" method="post">
                                 <!-- Error handling -->
-                                <p th:if="${#fields.hasErrors('password')}" class="text-warning"
-                                   th:each="error: ${#fields.errors('password')}"
+                                <p th:if="${#fields.hasErrors()}" class="text-warning"
+                                   th:each="error: ${#fields.errors()}"
                                    th:text="${error}">Validation error
                                 </p>
                                 <p th:if="${oldPasswordCheck}" class="text-warning">
@@ -270,7 +271,6 @@
                             </form>
                         </div>
                     </section>
-
                 </div>
             </div>
         </div>

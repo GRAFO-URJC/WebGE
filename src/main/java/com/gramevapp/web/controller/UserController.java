@@ -205,6 +205,7 @@ public class UserController {
         user.getUserDetails().setCity(userUpDto.getCity());
         user.getUserDetails().setZipcode(userUpDto.getZipcode());
         user.setEmail(userUpDto.getEmail());
+        user.setInstitution(userUpDto.getInstitution());
 
         if (!userUpDto.getProfilePicture().isEmpty()) {
             // Profile photo update

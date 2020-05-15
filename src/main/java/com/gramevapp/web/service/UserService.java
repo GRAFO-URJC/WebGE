@@ -70,6 +70,7 @@ public class UserService {
         user.setEmail(registration.getEmail());
         user.setPassword(passwordEncoder.encode(registration.getPassword()));
         user.setUsername(registration.getUsername().toLowerCase());
+        user.setInstitution(registration.getInstitution());
 
         user.setRoles(Arrays.asList(new Role("ROLE_USER")));    // Later we can change the role of the user
 
