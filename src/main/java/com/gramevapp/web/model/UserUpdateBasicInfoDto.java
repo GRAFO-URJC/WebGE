@@ -34,6 +34,9 @@ public class UserUpdateBasicInfoDto {
 
     private MultipartFile profilePicture;
 
+    @NotEmpty(message = "Institution cannot be empty")
+    private String institution;
+
     public MultipartFile getProfilePicture() {
         return profilePicture;
     }
@@ -104,5 +107,13 @@ public class UserUpdateBasicInfoDto {
 
     public void setPhone(Integer phone) {
         this.phone = phone;
+    }
+
+    public String getInstitution() {
+        return institution;
+    }
+
+    public void setInstitution(String institution) {
+        this.institution = institution;
     }
 }
