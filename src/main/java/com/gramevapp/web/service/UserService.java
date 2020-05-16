@@ -146,4 +146,15 @@ public class UserService {
     public void updateUser(){
         this.userRepository.flush();
     }
+
+    public List<User> findAllUserWithoutAdmin(){
+        User admin = this.getLoggedInUser();
+        List<User> userList=userRepository.findAll();
+        userList.remove(userList.indexOf(admin));
+        return userList;
+    }
+
+    public void deleteUserById(Long id){
+        userRepository.deleteById(id);
+    }
 }
