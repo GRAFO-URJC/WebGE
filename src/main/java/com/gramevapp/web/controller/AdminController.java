@@ -4,6 +4,7 @@ import com.gramevapp.web.model.*;
 import com.gramevapp.web.service.UserService;
 import org.imgscalr.Scalr;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -237,4 +238,35 @@ public class AdminController {
         return "redirect:/admin/profile";
     }
 
+    @GetMapping("/admin/userList")
+    public String adminUserList(Model model) {
+        model.addAttribute("userList",userService.findAllUserWithoutAdmin());
+        return "admin/userList";
+    }
+
+    @RequestMapping(value = "/admin/deleteUser", method = RequestMethod.POST, params = "deleteUser")
+    public
+    @ResponseBody
+    Long deleteUser(@RequestParam("userId") String userId) {
+        Long id = Long.parseLong(userId);
+
+        try {
+            userService.deleteUserById(id);
+        } catch (DataIntegrityViolationException e) {
+            System.out.println(e.getCause() instanceof org.hibernate.exception.ConstraintViolationException);
+            if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
+                return Long.valueOf(-1);
+            }
+        }
+
+        return id;
+    }
+
+    @RequestMapping(value = "/admin/changePassword", method = RequestMethod.POST)
+    @ResponseBody
+    public void changePassword(@RequestParam("userId") String userId,@RequestParam("password") String password) {
+        User user = userService.getById(Long.parseLong(userId));
+        user.setPassword(passwordEncoder.encode(password));
+        userService.save(user);
+    }
 }
