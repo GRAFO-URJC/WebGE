@@ -1,7 +1,10 @@
 package com.gramevapp.web.controller;
 
 import com.gramevapp.web.model.*;
+import com.gramevapp.web.service.ExperimentService;
+import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;
+import net.sourceforge.jeval.function.math.Exp;
 import org.imgscalr.Scalr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,13 +23,17 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.*;
 
 @Controller
 public class AdminController {
 
     private final String PROFILE_PICTURE_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "profilePicture" + File.separator + "";
 
+    @Autowired
+    private RunService runService;
+    @Autowired
+    private ExperimentService experimentService;
     @Autowired
     private UserService userService;
 
@@ -43,7 +50,35 @@ public class AdminController {
             model.addAttribute("message", "Please change the password, now is the default password, you can click" +
                     " the message.");
         }
+        HashMap<User, Run> summaryExperiment = new HashMap<>();
+        List<Experiment> experimentList = experimentService.findAll();
+        for (Experiment experiment : experimentList) {
+            User u = experiment.getUserId();
+            Run newRunCompare = runService.findByRunId(experiment.getDefaultRunId());
+            Run run = summaryExperiment.get(u);
+            if (run == null) {
+                summaryExperiment.put(u, newRunCompare);
+            } else {
+                summaryExperiment.put(u, compareRun(run, newRunCompare));
+            }
+        }
+        model.addAttribute("summaryExperiment", summaryExperiment);
+        model.addAttribute("userList", new ArrayList<>(summaryExperiment.keySet()));
+        model.addAttribute("running", Run.Status.RUNNING);
         return "admin/adminPage";
+    }
+
+    private Run compareRun(Run run1, Run run2) {
+        // if runnning use ini date
+        if (run1.getStatus().equals(Run.Status.RUNNING) && run2.getStatus().equals(Run.Status.RUNNING)) {
+            return run1.getIniDate().compareTo(run2.getIniDate()) >= 0 ? run1 : run2;
+        } else if (run1.getStatus().equals(Run.Status.RUNNING) && !run2.getStatus().equals(Run.Status.RUNNING)) {
+            return run1.getIniDate().compareTo(run2.getModificationDate()) >= 0 ? run1 : run2;
+        } else if (!run1.getStatus().equals(Run.Status.RUNNING) && run2.getStatus().equals(Run.Status.RUNNING)) {
+            return run1.getModificationDate().compareTo(run2.getIniDate()) >= 0 ? run1 : run2;
+        }
+        return run1.getModificationDate().compareTo(run2.getModificationDate()) >= 0 ? run1 : run2;
+
     }
 
     @GetMapping("/admin/registrationPage")
@@ -240,7 +275,7 @@ public class AdminController {
 
     @GetMapping("/admin/userList")
     public String adminUserList(Model model) {
-        model.addAttribute("userList",userService.findAllUserWithoutAdmin());
+        model.addAttribute("userList", userService.findAllUserWithoutAdmin());
         return "admin/userList";
     }
 
@@ -264,7 +299,7 @@ public class AdminController {
 
     @RequestMapping(value = "/admin/changePassword", method = RequestMethod.POST)
     @ResponseBody
-    public void changePassword(@RequestParam("userId") String userId,@RequestParam("password") String password) {
+    public void changePassword(@RequestParam("userId") String userId, @RequestParam("password") String password) {
         User user = userService.getById(Long.parseLong(userId));
         user.setPassword(passwordEncoder.encode(password));
         userService.save(user);

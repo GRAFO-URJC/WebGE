@@ -70,7 +70,43 @@
                         </div>
                     </a>
                 </div>
+                <div th:if="${not #lists.isEmpty(userList)}">
+                    <table class="table table-hover" id="lastRunsSummaryTable">
+                        <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Surname</th>
+                            <th scope="col">Institution</th>
+                            <th scope="col">Experiment name</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Timestamp</th>
+                        </tr>
+                        </thead>
+                        <tbody id="lastRunsSummaryTbody">
+                        <th:block th:each="user : ${userList}">
+                            <tr th:with="run=${summaryExperiment.get(user)}">
+                                <td scope="row"><label th:text="${user.getUserDetails().getFirstName()}"/></td>
+                                <td scope="row"><label th:text="${user.getUserDetails().getLastName()}"/></td>
+                                <td scope="row"><label th:text="${user.getInstitution()}"/></td>
+                                <td scope="row"><label th:text="${run.getExperimentId().getExperimentName()}"/></td>
+                                <td scope="row"><label th:text="${run.getStatus()}"/></td>
+                                <td scope="row"><label th:text="${run.getStatus().equals(running)?run.getIniDate():
+                                                    run.getModificationDate()}"/></td>
+                            </tr>
+                        </th:block>
+                        </tbody>
+                    </table>
+                </div>
+
             </section>
+            <script>
+                $(document).ready(function () {
+                    $("#lastRunsSummaryTable").DataTable({
+                        "paging": true,
+                    });
+                    $('.dataTables_length').addClass('bs-select');
+                });
+            </script>
         </div>
         <!-- END Main -->
     </div>
