@@ -192,4 +192,8 @@ public class ExperimentService {
     public void deleteGrammar(Grammar grammar){
         grammarRepository.delete(grammar);
     }
+
+    public List<Experiment> findAll(){
+        return experimentRepository.findAll();
+    }
 }
