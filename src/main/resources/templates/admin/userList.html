@@ -2,7 +2,7 @@
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/defaultAdmin}">
+      layout:decorate="~{layouts/default}">
 </head>
 <body>
 <div id="page" layout:fragment="content" message=${errorMessage}>
@@ -107,7 +107,7 @@
     <!-- END Main -->
     <script>
         $(document).ready(function () {
-            tableDefinition('#userListTable', "#userListBody", 5, 6);
+            tableDefinition('#userListTable', "#userListBody", 5, 6, 7);
         })
 
         function confirmDelete(iterStat, userId) {

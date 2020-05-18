@@ -5,12 +5,11 @@
     <script>
         let table;
 
-        function tableDefinition(id,idTableBody) {
+        function tableDefinition(id, idTableBody, target1, target2, targetChill) {
             table = $(id).DataTable({
                 "paging": true,
-                "searching": false,
                 "columnDefs": [{
-                    "targets": [4, 5],
+                    "targets": [target1, target2],
                     "orderable": false
                 }]
             });
@@ -28,17 +27,17 @@
                     });
                 } else {
                     // Open this row
-                    row.child(format(row.data())).show();
+                    row.child(format(row.data(), targetChill)).show();
                     tr.addClass('shown');
                     $('div.slider', row.child()).slideDown();
                 }
             });
         }
 
-        function format(d) {
-            // `d` is the original data object for the row
+        function format(d, target) {
+            // `d` is the original data object for the row 7
             return '<div class="slider" style="display: none;">' +
-                d[6] +
+                d[target] +
                 '</div>';
         }
     </script>
@@ -53,11 +52,15 @@
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" th:href="@{/}">WebGE <i>by URJC</i></a>
+                <!-- user redirect-->
+                <a class="navbar-brand" sec:authorize="hasRole('ROLE_USER')" th:href="@{/}">WebGE <i>by URJC</i></a>
+                <!-- admin redirect-->
+                <a class="navbar-brand" sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{/admin}">WebGE <i>by URJC</i></a>
             </div>
 
             <div class="collapse navbar-collapse header-collapse">
-                <ul sec:authorize="isAuthenticated()" class="nav navbar-nav">
+                <!-- USER HEADER -->
+                <ul sec:authorize="hasRole('ROLE_USER')" class="nav navbar-nav">
                     <li><a th:href="@{/}"><span class="glyphicon glyphicon-home" rel="tooltip" title="Home page"></span></a>
                     </li>
                     <li><a th:href="@{/experiment/configExperiment}" rel="tooltip" title="New experiment"><span
@@ -65,6 +68,23 @@
                     <li><a th:href="@{/experiment/experimentRepository}" rel="tooltip" title="List of experiments"><span
                             class="glyphicon glyphicon-th-list"></span></a></li>
                     <li><a th:href="@{/user/profile}" rel="tooltip" title="User profile"><span
+                            class="glyphicon glyphicon-user"></span></a></li>
+                </ul>
+
+                <!-- ADMIN HEADER-->
+                <ul sec:authorize="hasRole('ROLE_ADMIN')" class="nav navbar-nav">
+                    <li><a th:href="@{/admin}"><span class="glyphicon glyphicon-home" rel="tooltip"
+                                                     title="Home page"></span></a>
+                    </li>
+                    <li><a th:href="@{/admin/registrationPage}" rel="tooltip" title="Register user">
+                        <span class="icon-combine">
+                            <span class="glyphicon glyphicon-plus-sign"></span>
+                            <span class="glyphicon glyphicon-user"></span>
+                        </span>
+                    </a></li>
+                    <li><a th:href="@{/admin/userList}" rel="tooltip" title="List of users"><span
+                            class="glyphicon glyphicon-th-list"></span></a></li>
+                    <li><a th:href="@{/admin/profile}" rel="tooltip" title="User profile"><span
                             class="glyphicon glyphicon-user"></span></a></li>
                 </ul>
 
