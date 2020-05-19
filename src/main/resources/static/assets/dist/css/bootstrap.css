@@ -4494,8 +4494,8 @@ a.list-group-item.active > .badge,
 }
 @media screen and (min-width: 768px) {
   .jumbotron {
-    padding-top: 48px;
-    padding-bottom: 48px;
+    /*padding-top: 0px;
+    padding-bottom: 0px;*/
   }
   .container .jumbotron {
     padding-left: 60px;
@@ -4872,7 +4872,7 @@ a.list-group-item-danger.active:focus {
   padding: 15px;
 }
 .panel-heading {
-  padding: 10px 15px;
+  padding: 2.5px 15px;
   border-bottom: 1px solid transparent;
   border-top-right-radius: 2px;
   border-top-left-radius: 2px;
