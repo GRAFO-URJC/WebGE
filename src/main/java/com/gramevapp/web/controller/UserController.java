@@ -71,7 +71,7 @@ public class UserController extends UserCommon {
                                      @ModelAttribute("userPassword") @Valid UserUpdatePasswordDto userUpDto,
                                      BindingResult result,
                                      RedirectAttributes redirectAttrs) {
-        return updatePassword(model, userUpDto, result, redirectAttrs,"/user/profile");
+        return updatePassword(model, userUpDto, result, redirectAttrs, "/user/profile");
     }
 
     @RequestMapping(value = "/user/updateStudy", method = RequestMethod.POST)
@@ -85,15 +85,7 @@ public class UserController extends UserCommon {
             UserUpdateAboutDto updAboutDto = new UserUpdateAboutDto();
             updAboutDto.setAboutMe(user.getUserDetails().getAboutMe());
 
-            UserUpdateBasicInfoDto upBasicDto = new UserUpdateBasicInfoDto();
-            upBasicDto.setFirstName(user.getUserDetails().getFirstName());
-            upBasicDto.setLastName(user.getUserDetails().getLastName());
-            upBasicDto.setEmail(user.getEmail());
-            upBasicDto.setPhone(user.getUserDetails().getPhone());
-            upBasicDto.setAddressDirection(user.getUserDetails().getAddressDirection());
-            upBasicDto.setCity(user.getUserDetails().getCity());
-            upBasicDto.setState(user.getUserDetails().getState());
-            upBasicDto.setZipcode(user.getUserDetails().getZipcode());
+            UserUpdateBasicInfoDto upBasicDto = userSet(user);
 
             UserUpdatePasswordDto upPassDto = new UserUpdatePasswordDto();
             upPassDto.setPassword("");
@@ -143,15 +135,7 @@ public class UserController extends UserCommon {
             UserUpdatePasswordDto upPassDto = new UserUpdatePasswordDto();
             upPassDto.setPassword("");
 
-            UserUpdateBasicInfoDto upBasicDto = new UserUpdateBasicInfoDto();
-            upBasicDto.setFirstName(user.getUserDetails().getFirstName());
-            upBasicDto.setLastName(user.getUserDetails().getLastName());
-            upBasicDto.setEmail(user.getEmail());
-            upBasicDto.setPhone(user.getUserDetails().getPhone());
-            upBasicDto.setAddressDirection(user.getUserDetails().getAddressDirection());
-            upBasicDto.setCity(user.getUserDetails().getCity());
-            upBasicDto.setState(user.getUserDetails().getState());
-            upBasicDto.setZipcode(user.getUserDetails().getZipcode());
+            UserUpdateBasicInfoDto upBasicDto = userSet(user);
 
             model.addAttribute("userPassword", upPassDto);
             model.addAttribute("userStudy", upStudyDto);

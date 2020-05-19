@@ -53,15 +53,7 @@ public class UserCommon {
             upStudyDto.setWorkInformation(user.getUserDetails().getWorkInformation());
             upStudyDto.setStudyInformation(user.getUserDetails().getStudyInformation());
 
-            UserUpdateBasicInfoDto upBasicDto = new UserUpdateBasicInfoDto();
-            upBasicDto.setFirstName(user.getUserDetails().getFirstName());
-            upBasicDto.setLastName(user.getUserDetails().getLastName());
-            upBasicDto.setEmail(user.getEmail());
-            upBasicDto.setPhone(user.getUserDetails().getPhone());
-            upBasicDto.setAddressDirection(user.getUserDetails().getAddressDirection());
-            upBasicDto.setCity(user.getUserDetails().getCity());
-            upBasicDto.setState(user.getUserDetails().getState());
-            upBasicDto.setZipcode(user.getUserDetails().getZipcode());
+            UserUpdateBasicInfoDto upBasicDto = userSet(user);
 
             model.addAttribute("userAboutMe", updAboutDto);
             model.addAttribute("userStudy", upStudyDto);
@@ -154,5 +146,18 @@ public class UserCommon {
         redirectAttrs.addAttribute("message", "Basic information updated").addFlashAttribute("aboutMe", "Basic information area");
         redirectAttrs.addAttribute("areaActive", "basicActive").addFlashAttribute("basicActive", "Basic information area");
         return "redirect:"+link;
+    }
+
+    protected UserUpdateBasicInfoDto userSet(User user) {
+        UserUpdateBasicInfoDto upBasicDto = new UserUpdateBasicInfoDto();
+        upBasicDto.setFirstName(user.getUserDetails().getFirstName());
+        upBasicDto.setLastName(user.getUserDetails().getLastName());
+        upBasicDto.setEmail(user.getEmail());
+        upBasicDto.setPhone(user.getUserDetails().getPhone());
+        upBasicDto.setAddressDirection(user.getUserDetails().getAddressDirection());
+        upBasicDto.setCity(user.getUserDetails().getCity());
+        upBasicDto.setState(user.getUserDetails().getState());
+        upBasicDto.setZipcode(user.getUserDetails().getZipcode());
+        return upBasicDto;
     }
 }
