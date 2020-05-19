@@ -13,17 +13,17 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name="experiment")
+@Table(name = "experiment")
 @DynamicUpdate
 public class Experiment {
 
     @Id
-    @Column(name = "experiment_id", nullable = false, updatable= false)
+    @Column(name = "experiment_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @JsonManagedReference
-    @ManyToOne(targetEntity=User.class,fetch=FetchType.EAGER)
+    @ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER)
     @JoinTable(
             name = "users_experiments",
             joinColumns = {
@@ -35,15 +35,15 @@ public class Experiment {
     )
     private User userId;
 
-    @Column(name="EXPERIMENT_NAME") // Reference for user relation and ExpDataType and Grammar
+    @Column(name = "EXPERIMENT_NAME") // Reference for user relation and ExpDataType and Grammar
     private String experimentName;
 
-    @Column(name="EXPERIMENT_DESCRIPTION") // Reference for user relation and ExpDataType and Grammar
+    @Column(name = "EXPERIMENT_DESCRIPTION") // Reference for user relation and ExpDataType and Grammar
     private String experimentDescription;
 
     @JsonBackReference
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @ManyToMany(fetch=FetchType.LAZY,
+    @ManyToMany(fetch = FetchType.LAZY,
             mappedBy = "listExperiment")
     private List<Grammar> idGrammarList;
 
@@ -52,7 +52,7 @@ public class Experiment {
 
     @JsonBackReference
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @ManyToMany(fetch=FetchType.LAZY,
+    @ManyToMany(fetch = FetchType.LAZY,
             mappedBy = "experimentList")
     private List<ExperimentDataType> idExpDataTypeList;
 
@@ -60,8 +60,8 @@ public class Experiment {
     private Long defaultExpDataType;
 
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToMany(fetch=FetchType.LAZY,
-            cascade=CascadeType.ALL,
+    @OneToMany(fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
             mappedBy = "experimentId",
             orphanRemoval = true)
     private List<Run> idRunList;
@@ -88,15 +88,15 @@ public class Experiment {
     @Column
     private String results = "";             // Text file with the results of the experiments
     @Column
-    private Integer numCodons =10;
+    private Integer numCodons = 10;
     @Column
     private Integer numberRuns = 1;
 
-    @Column(name="creationDate")
+    @Column(name = "creationDate")
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationDate = null;
 
-    @Column(name="updateDate")
+    @Column(name = "updateDate")
     @Temporal(TemporalType.TIMESTAMP)
     private Date modificationDate = null;
 
@@ -177,8 +177,8 @@ public class Experiment {
         ApplicationContext context = BeanUtil.getAppContext();
         ExperimentService experimentService = (ExperimentService) context.getBean("experimentService");
 
-        Grammar defaultGrammar= experimentService.findGrammarById(defaultGrammarId);
-        if(defaultGrammar != null)
+        Grammar defaultGrammar = experimentService.findGrammarById(defaultGrammarId);
+        if (defaultGrammar != null)
             defaultGrammar.addExperimentId(this);
     }
 
@@ -191,8 +191,8 @@ public class Experiment {
         ApplicationContext context = BeanUtil.getAppContext();
         ExperimentService experimentService = (ExperimentService) context.getBean("experimentService");
 
-        ExperimentDataType defaultExpDType= experimentService.findExperimentDataTypeById(defaultExpDataType);
-        if(defaultExpDType != null)
+        ExperimentDataType defaultExpDType = experimentService.findExperimentDataTypeById(defaultExpDataType);
+        if (defaultExpDType != null)
             defaultExpDType.addExperimentList(this);
     }
 
@@ -254,43 +254,43 @@ public class Experiment {
 
     //https://github.com/SomMeri/org.meri.jpa.tutorial/blob/master/src/main/java/org/meri/jpa/relationships/entities/bestpractice/SafePerson.java
     public void addRun(Run run) {
-        if(this.idRunList.contains(run))
-            return ;
+        if (this.idRunList.contains(run))
+            return;
         this.idRunList.add(run);
         run.setExperimentId(this);
     }
 
-    public void removeRun(Run run){
-        if(!idRunList.contains(run))
-            return ;
+    public void removeRun(Run run) {
+        if (!idRunList.contains(run))
+            return;
         idRunList.remove(run);
         run.setExperimentId(null);
     }
 
     public void addGrammar(Grammar grammar) {
-        if(this.idGrammarList.contains(grammar))
-            return ;
+        if (this.idGrammarList.contains(grammar))
+            return;
         this.idGrammarList.add(grammar);
         grammar.addExperimentId(this);
     }
 
-    public void removeGrammar(Grammar grammar){
-        if(!idGrammarList.contains(grammar))
-            return ;
+    public void removeGrammar(Grammar grammar) {
+        if (!idGrammarList.contains(grammar))
+            return;
         idGrammarList.remove(grammar);
         grammar.deleteExperimentId(this);
     }
 
     public void addExperimentDataType(ExperimentDataType expData) {
-        if(this.idExpDataTypeList.contains(expData))
-            return ;
+        if (this.idExpDataTypeList.contains(expData))
+            return;
         this.idExpDataTypeList.add(expData);
         expData.addExperimentList(this);
     }
 
-    public void removeExperimentDataType(ExperimentDataType expData){
-        if(!idExpDataTypeList.contains(expData))
-            return ;
+    public void removeExperimentDataType(ExperimentDataType expData) {
+        if (!idExpDataTypeList.contains(expData))
+            return;
         idExpDataTypeList.remove(expData);
         expData.deleteExperimentInList(this);
     }
@@ -399,7 +399,7 @@ public class Experiment {
         this.defaultRunId = defaultRunId;
     }
 
-    public void updateExperiment(Long grammar, Long expDataType, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date modificationDate){
+    public void updateExperiment(Long grammar, Long expDataType, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date modificationDate) {
         this.defaultExpDataType = expDataType;
         this.defaultGrammar = grammar;
         this.experimentName = experimentName;
@@ -419,7 +419,29 @@ public class Experiment {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return String.valueOf(this.id);
+    }
+
+    public Experiment clone() {
+        Experiment experiment = new Experiment();
+        experiment.userId = this.userId;
+        experiment.experimentName = this.experimentName;
+        experiment.experimentDescription = this.experimentDescription;
+        experiment.defaultGrammar = this.defaultGrammar;
+        experiment.defaultExpDataType = this.defaultExpDataType;
+        experiment.generations = this.generations;
+        experiment.populationSize = this.populationSize;
+        experiment.maxWraps = this.maxWraps;
+        experiment.tournament = this.tournament;
+        experiment.crossoverProb = this.crossoverProb;
+        experiment.mutationProb = this.mutationProb;
+        experiment.initialization = this.initialization;
+        experiment.objective = this.objective;
+        experiment.results = this.results;
+        experiment.numCodons = this.numCodons;
+        experiment.numberRuns = this.numberRuns;
+
+        return experiment;
     }
 }

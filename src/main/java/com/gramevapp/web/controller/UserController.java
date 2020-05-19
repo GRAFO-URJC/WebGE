@@ -1,34 +1,21 @@
 package com.gramevapp.web.controller;
 
 import com.gramevapp.web.model.*;
-import com.gramevapp.web.service.RunService;
-import com.gramevapp.web.service.UploadFileService;
-import com.gramevapp.web.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.io.IOUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.imgscalr.Scalr;
-import org.apache.commons.io.IOUtils;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.imageio.ImageIO;
 import javax.validation.Valid;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 @Controller
 public class UserController extends UserCommon {

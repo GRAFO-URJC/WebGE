@@ -117,4 +117,7 @@ h5 {
 .row {
     padding: 8px;
 }
+.panel-heading{
+    padding: 5px 5px;
+}
 

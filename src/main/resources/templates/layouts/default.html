@@ -52,10 +52,9 @@
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                 </button>
-                <!-- user redirect-->
-                <a class="navbar-brand" sec:authorize="hasRole('ROLE_USER')" th:href="@{/}">WebGE <i>by URJC</i></a>
-                <!-- admin redirect-->
-                <a class="navbar-brand" sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{/admin}">WebGE <i>by URJC</i></a>
+                <a class="navbar-brand" th:href="${#authentication.getAuthorities().toArray()[0].getAuthority().equals('ROLE_ADMIN')}
+                            ?'/admin':'/'">
+                    <img style="height: 30px;padding-bottom: 5px" th:src="@{/images/index/Logo_URJC.svg.png}"/>WebGE</a>
             </div>
 
             <div class="collapse navbar-collapse header-collapse">

@@ -250,7 +250,7 @@
                         <!-- Training Test Validation files -->
                         <div class="col-sm-12 col-md-12 col-lg-12 center-block">
                             <div class="jumbotron row form-group">
-                                <h3>Data type information</h3>
+                                <h3>Training Dataset</h3>
                             </div>
 
                             <div class="row form-group center-block">
@@ -307,11 +307,13 @@
                             </div>
                             <!-- END Data Type table to load -->
 
-                            <div class="row form-group text-center">
+                            <div class="row form-group">
+                                <div class="col-sm-12 col-md-12 col-lg-12">
 
                                 <textarea rows="5" class="form-control" th:text="${configuration.getinfo()}" name="info"
                                           id="info" readonly/>
 
+                                </div>
                             </div>
                         </div>
                         <!-- END Training Test Validation files -->
@@ -322,13 +324,18 @@
 
                         <!--  Save Clone and Run -->
                         <div class="row text-center">
-                            <div class="col-sm-12 col-md-6 col-lg-6" style="margin-bottom:2px">
+                            <div class="col-sm-12 col-md-4 col-lg-4" style="margin-bottom:2px">
                                 <button type="submit" id="saveExperimentButton" name="saveExperimentButton"
                                         onclick="document.querySelector('#typeFile').required = false;"
                                         class="btn-primary btn-lg btn">Save experiment
                                 </button>
                             </div>
-                            <div class="col-sm-12 col-md-6 col-lg-6">
+                            <div class="col-sm-12 col-md-4 col-lg-4">
+                                <button type="submit" id="cloneExperimentButton" name="cloneExperimentButton"
+                                        class="btn-primary btn-lg btn" >Clone experiment
+                                </button>
+                            </div>
+                            <div class="col-sm-12 col-md-4 col-lg-4">
                                 <button type="submit" id="runExperimentButton" name="runExperimentButton"
                                         class="btn-primary btn-lg btn">Save and run experiment
                                 </button>
@@ -342,175 +349,79 @@
         </div>
 
         <!-- END Main -->
-
-        <!-- RUN SECTION -->
-        <div class="container" th:if="${not #lists.isEmpty(runList)}">
-            <div id="runForms" class="panel panel-default">
-                <header class="panel-heading">
-                    <h2>Experiment runs area information</h2>
-                </header>
-
-                <section class="panel-body">
-                    <div>
-                        <h2>List of runs</h2>
-                        <table class="table table-hover" id="expTypeTable">
-
-                            <div class="inner-addon left-addon">
-                                <i class="glyphicon glyphicon-search "></i>
-                                <input class="form-control" id="searchExperiment" type="text"
-                                       placeholder="Search experiment ..."/>
-                            </div>
-                            <br/>
-
-                            <thead>
-                            <tr>
-                                <th scope="col"># Run</th>
-                                <th scope="col">Run name</th>
-                                <th scope="col">Best solution</th>
-                                <th scope="col">Current generation</th>
-                                <th scope="col">Status</th>
-                                <th scope="col">Creation date</th>
-                                <th scope="col">Last modification date</th>
-                                <th scope="col">Model</th>
-                                <th scope="col"></th>
-                                <th scope="col"></th>
-                                <th scope="col"></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-
-                            <th:block th:each="run, iterStat : ${runList}">
-                                <tr th:id="'tr' + ${iterStat.index}">
-                                    <form th:action="@{/experiment/runList}" th:object="${expDetailsDto}" method="GET"
-                                          class="form-horizontal">
-                                        <td scope="row"><label th:text="${run.getId()}"
-                                                               th:id="'runId'+${iterStat.index}"/></td>
-                                        <td scope="row"><label th:name="runName" th:id="runName"
-                                                               th:text="${run.getExperimentName()}"/></td>
-                                        <td scope="row"><label th:name="bestIndividual"
-                                                               th:id="'bestIndividual'+${iterStat.index}"
-                                                               th:text="${run.getDiagramData().bestIndividual}"/></td>
-                                        <td scope="row"><label th:name="currentGeneration"
-                                                               th:id="'currentGeneration'+${iterStat.index}"
-                                                               th:text="${run.getDiagramData().currentGeneration}"/>
-                                        </td>
-                                        <td scope="row"><label th:name="status" th:id="'status'+${iterStat.index}"
-                                                               th:text="${run.getStatus()}"/></td>
-                                        <td scope="row"><label th:name="iniDate" th:id="iniDate"
-                                                               th:text="${run.getIniDate()}"/></td>
-                                        <td scope="row"><label th:name="lastDate" th:id="lastDate"
-                                                               th:text="${run.getModificationDate()}"/></td>
-                                        <td scope="row"><label th:name="model" th:id="model+${iterStat.index}"
-                                                               th:text="${run.getModel()}"/></td>
-                                        <td scope="row" th:id="'showPlot'+${iterStat.index}" class="">
-                                            <a th:href="@{/experiment/runList(runId=${run.getId()}, loadExperimentButton='loadExperimentButton')}"
-                                               th:id="${'loadExperimentButton' + iterStat.index}"
-                                               class="btn-default btn-sm btn loadButton">Load experiment</a>
-                                            <!-- https://stackoverflow.com/questions/14938344/thymeleaf-construct-url-with-variable -->
-                                            <a th:href="@{/experiment/runList(runId=${run.getId()}, runExperimentButton='runExperimentButton')}"
-                                               target="_blank" th:id="${'runExperimentButton' + iterStat.index}"
-                                               onclick="return reRunExperiment(this.id);"
-                                               class="btn-default btn-sm btn loadButton hidden">Re-run experiment</a>
-                                            <a th:href="@{/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}"
-                                               target="_blank" class="btn-default btn-sm btn loadButton">Show plot
-                                                execution</a>
-                                        </td>
-                                        <td scope="row">
-                                            <a th:href="'#collapse'+${iterStat.index}" data-toggle="collapse"
-                                               class="accordion-toggle">More details <span
-                                                    class="glyphicon glyphicon-chevron-down"></span></a>
-                                        </td>
-                                        <td scope="row" th:id="'showDelete'+${iterStat.index}">
-                                            <button type="button" th:name="${run.id}"
-                                                    th:id="${'deleteRun' + iterStat.index}"
-                                                    onclick="confirmDelete(this.id, this.name)"
-                                                    class="btn-default btn btn-sm"
-                                                    rel="tooltip"
-                                                    title="Delete run"
-                                            ><span
-                                                    class="glyphicon glyphicon-trash small"></span></button>
-                                        </td>
-                                    </form>
-                                </tr>
-
-                                <tr th:id="'trAux' + ${iterStat.index}">
-                                    <td colspan="12">
-                                        <div class="panel-collapse collapse" th:id="'collapse'+${iterStat.index}">
-                                            <h4><b>Run details </b></h4>
-                                            <br/>
-                                            <ul class="list-inline">
-                                                <li>
-                                                    <span class="glyphicon glyphicon-chevron-right">
-                                                        Run name:
-                                                        <label th:text="${run.getExperimentName()}"></label>
-                                                    </span>
-                                                    <span class="glyphicon glyphicon-chevron-right">
-                                                        Run description:
-                                                        <label th:text="${run.getExperimentDescription()}"></label>
-                                                    </span>
-                                                </li>
-                                                <li>
-                                                    <span class="glyphicon glyphicon-chevron-right">
-                                                        Generations:
-                                                        <label th:text="${run.getGenerations()}"></label>
-                                                    </span>
-                                                </li>
-                                                <li>
-                                                    <span class="glyphicon glyphicon-chevron-right">
-                                                        Population size:
-                                                        <label th:text="${run.getPopulationSize()}"></label>
-                                                    </span>
-                                                </li>
-                                                <li>
-                                                    <span class="glyphicon glyphicon-chevron-right">
-                                                         Max wraps:
-                                                        <label th:text="${run.getMaxWraps()}"></label>
-                                                    </span>
-                                                </li>
-                                                <li>
-                                                    <span class="glyphicon glyphicon-chevron-right">
-                                                        Tournamente:
-                                                        <label th:text="${run.getTournament()}"></label>
-                                                    </span>
-                                                </li>
-                                                <li>
-                                                    <span class="glyphicon glyphicon-chevron-right">
-                                                        Crossover Probability:
-                                                        <label th:text="${run.getCrossoverProb()}"></label>
-                                                    </span>
-                                                </li>
-                                                <li>
-                                                    <span class="glyphicon glyphicon-chevron-right">
-                                                        Mutation probability:
-                                                        <label th:text="${run.getMutationProb()}"></label>
-                                                    </span>
-                                                </li>
-                                                <li>
-                                                    <span class="glyphicon glyphicon-chevron-right">
-                                                        Number of codons:
-                                                        <label th:text="${run.getNumCodons()}"></label>
-                                                    </span>
-                                                </li>
-                                                <li>
-                                                    <span class="glyphicon glyphicon-chevron-right">
-                                                        Number of runs:
-                                                        <label th:text="${run.getNumberRuns()}"></label>
-                                                    </span>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </th:block>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-            </div>
-        </div>
-        <!-- END RUN SECTION -->
-
     </div>
+
+    <!-- RUN SECTION -->
+    <div class="container" th:if="${not #lists.isEmpty(runList)}">
+        <div id="runForms" class="panel panel-default">
+            <header class="panel-heading">
+                <h2>List of runs</h2>
+            </header>
+
+            <section class="panel-body">
+                <div>
+                    <table class="table table-hover" id="expTypeTable">
+                        <thead>
+                        <tr>
+                            <th scope="col"># Run</th>
+                            <th scope="col">Best solution</th>
+                            <th scope="col">Current generation</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Creation date</th>
+                            <th scope="col">Last modification date</th>
+                            <th scope="col">Model</th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        <th:block th:each="run, iterStat : ${runList}">
+                            <tr th:id="'tr' + ${iterStat.index}">
+                                <form th:action="@{/experiment/runList}" th:object="${expDetailsDto}" method="GET"
+                                      class="form-horizontal">
+                                    <td scope="row"><label th:text="${iterStat.index+1}"
+                                                           th:id="'runId'+${iterStat.index}"/></td>
+                                    <td scope="row"><label th:name="bestIndividual"
+                                                           th:id="'bestIndividual'+${iterStat.index}"
+                                                           th:text="${run.getDiagramData().bestIndividual}"/></td>
+                                    <td scope="row"><label th:name="currentGeneration"
+                                                           th:id="'currentGeneration'+${iterStat.index}"
+                                                           th:text="${run.getDiagramData().currentGeneration}"/>
+                                    </td>
+                                    <td scope="row"><label th:name="status" th:id="'status'+${iterStat.index}"
+                                                           th:text="${run.getStatus()}"/></td>
+                                    <td scope="row"><label th:name="iniDate"
+                                                           th:text="${run.getIniDate()}"/></td>
+                                    <td scope="row"><label th:name="lastDate"
+                                                           th:text="${run.getModificationDate()}"/></td>
+                                    <td scope="row"><label th:name="model" th:id="model+${iterStat.index}"
+                                                           th:text="${run.getModel()}"/></td>
+                                    <td scope="row" th:id="'showPlot'+${iterStat.index}" class="">
+                                        <a th:href="@{/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}"
+                                           target="_blank" class="btn-default btn-sm btn loadButton">Show plot
+                                            execution</a>
+                                    </td>
+                                    <td scope="row" th:id="'showDelete'+${iterStat.index}">
+                                        <button type="button" th:name="${run.id}"
+                                                th:id="${'deleteRun' + iterStat.index}"
+                                                onclick="confirmDelete(this.id, this.name)"
+                                                class="btn-default btn btn-sm"
+                                                rel="tooltip"
+                                                title="Delete run"
+                                        ><span
+                                                class="glyphicon glyphicon-trash small"></span></button>
+                                    </td>
+                                </form>
+                            </tr>
+                        </th:block>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+    <!-- END RUN SECTION -->
 
 
     <script th:inline="javascript">
@@ -566,6 +477,25 @@
                 $("#radioDataTypeHidden").remove();
                 document.querySelector('#typeFile').required = false;
             }
+        }
+
+        function cloneExperiment() {
+            $.ajax({
+                url: encodeURI("/user/rest/runStatus/"),
+                data: {
+                    'expId': $("#id").val(),
+                },
+                cache: false,
+                async: true,
+                type: "POST",
+                dataType: "json",
+                success: function () {
+                    alert("Clone successfully")
+                },
+                error:function () {
+                    alert("Error clone")
+                }
+            });
         }
 
         // <![CDATA[
@@ -645,13 +575,6 @@
         var indexesHide = [];
 
         $(document).ready(function () {
-
-            $("#searchExperiment").on("keyup", function () {
-                var value = $(this).val().toLowerCase();
-                $("#runTable tr").filter(function () {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-                });
-            });
 
             saveDatasetInfo();
             updateGrammarContent();
