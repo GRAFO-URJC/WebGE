@@ -151,7 +151,7 @@ public class AdminController {
         model.addAttribute("userStudy", upStudyDto);
         model.addAttribute("userAboutMe", updAboutDto);
 
-        return "admin/profile";
+        return "user/profile";
     }
 
     @RequestMapping(value = "/admin/updateAdminPassword", method = RequestMethod.POST)
@@ -186,7 +186,7 @@ public class AdminController {
             model.addAttribute("userLogged", user);
             model.addAttribute("areaActive", "passwordActive");
             model.addAttribute("oldPasswordCheck", !checkPassword);
-            return "admin/profile";
+            return "user/profile";
         }
         user.setPassword(passwordEncoder.encode(userUpDto.getPassword()));
         userService.save(user);
@@ -222,7 +222,7 @@ public class AdminController {
             model.addAttribute("userStudy", upStudyDto);
             model.addAttribute("userLogged", user);
             model.addAttribute("areaActive", "basicActive");
-            return "admin/profile";
+            return "user/profile";
         }
 
         user.getUserDetails().setFirstName(userUpDto.getFirstName());
