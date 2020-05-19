@@ -26,19 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Controller
-public class AdminController {
-
-    private final String PROFILE_PICTURE_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "profilePicture" + File.separator + "";
-
-    @Autowired
-    private RunService runService;
-    @Autowired
-    private ExperimentService experimentService;
-    @Autowired
-    private UserService userService;
-
-    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
+public class AdminController extends UserCommon {
     @GetMapping("/admin")
     public String adminPage(Model model,
                             @RequestParam(value = "messageUserCreated", required = false) String message) {
@@ -85,7 +73,6 @@ public class AdminController {
     public String showRegistrationForm(Model model,
                                        @ModelAttribute("user") UserRegistrationDto userDto) {
         model.addAttribute("user", userDto);
-
         return "admin/registrationPage";
     }
 
@@ -159,41 +146,7 @@ public class AdminController {
                                       @ModelAttribute("userPassword") @Valid UserUpdatePasswordDto userUpDto,
                                       BindingResult result,
                                       RedirectAttributes redirectAttrs) {
-        User user = userService.getLoggedInUser();
-        boolean checkPassword = passwordEncoder.matches(userUpDto.getOldPassword(), user.getPassword());
-
-        if (result.hasErrors() || !checkPassword) {
-            UserUpdateAboutDto updAboutDto = new UserUpdateAboutDto();
-            updAboutDto.setAboutMe(user.getUserDetails().getAboutMe());
-
-            UserUpdateStudyDto upStudyDto = new UserUpdateStudyDto();
-            upStudyDto.setWorkInformation(user.getUserDetails().getWorkInformation());
-            upStudyDto.setStudyInformation(user.getUserDetails().getStudyInformation());
-
-            UserUpdateBasicInfoDto upBasicDto = new UserUpdateBasicInfoDto();
-            upBasicDto.setFirstName(user.getUserDetails().getFirstName());
-            upBasicDto.setLastName(user.getUserDetails().getLastName());
-            upBasicDto.setEmail(user.getEmail());
-            upBasicDto.setPhone(user.getUserDetails().getPhone());
-            upBasicDto.setAddressDirection(user.getUserDetails().getAddressDirection());
-            upBasicDto.setCity(user.getUserDetails().getCity());
-            upBasicDto.setState(user.getUserDetails().getState());
-            upBasicDto.setZipcode(user.getUserDetails().getZipcode());
-
-            model.addAttribute("userAboutMe", updAboutDto);
-            model.addAttribute("userStudy", upStudyDto);
-            model.addAttribute("userBasicInfo", upBasicDto);
-            model.addAttribute("userLogged", user);
-            model.addAttribute("areaActive", "passwordActive");
-            model.addAttribute("oldPasswordCheck", !checkPassword);
-            return "user/profile";
-        }
-        user.setPassword(passwordEncoder.encode(userUpDto.getPassword()));
-        userService.save(user);
-
-        redirectAttrs.addAttribute("message", "Password saved").addFlashAttribute("password", "Password info area");
-        redirectAttrs.addAttribute("areaActive", "passwordActive").addFlashAttribute("passwordActive", "Activate password area");
-        return "redirect:/admin/profile";
+        return updatePassword(model, userUpDto, result, redirectAttrs, "/admin/profile");
     }
 
     @RequestMapping(value = "/admin/updateAdminBasicInfo", method = RequestMethod.POST)
@@ -201,76 +154,7 @@ public class AdminController {
                                          @ModelAttribute("userBasicInfo") @Valid UserUpdateBasicInfoDto userUpDto,
                                          BindingResult result,
                                          RedirectAttributes redirectAttrs) {
-
-        User user = userService.getLoggedInUser();
-
-        if (result.hasErrors()) {
-            user.getUserDetails().setProfilePicture(null);
-
-            UserUpdateAboutDto upAboutDto = new UserUpdateAboutDto();
-            upAboutDto.setAboutMe(user.getUserDetails().getAboutMe());
-
-            UserUpdatePasswordDto upPassDto = new UserUpdatePasswordDto();
-            upPassDto.setPassword("");
-
-            UserUpdateStudyDto upStudyDto = new UserUpdateStudyDto();
-            upStudyDto.setWorkInformation(user.getUserDetails().getWorkInformation());
-            upStudyDto.setStudyInformation(user.getUserDetails().getStudyInformation());
-
-            model.addAttribute("userAboutMe", upAboutDto);
-            model.addAttribute("userPassword", upPassDto);
-            model.addAttribute("userStudy", upStudyDto);
-            model.addAttribute("userLogged", user);
-            model.addAttribute("areaActive", "basicActive");
-            return "user/profile";
-        }
-
-        user.getUserDetails().setFirstName(userUpDto.getFirstName());
-        user.getUserDetails().setLastName(userUpDto.getLastName());
-        user.getUserDetails().setPhone(userUpDto.getPhone());
-        user.getUserDetails().setAddressDirection(userUpDto.getAddressDirection());
-        user.getUserDetails().setState(userUpDto.getState());
-        user.getUserDetails().setCity(userUpDto.getCity());
-        user.getUserDetails().setZipcode(userUpDto.getZipcode());
-        user.setEmail(userUpDto.getEmail());
-        user.setInstitution(userUpDto.getInstitution());
-
-        if (!userUpDto.getProfilePicture().isEmpty()) {
-            // Profile photo update
-            Format formatter = new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss");
-            String fileName = formatter.format(Calendar.getInstance().getTime()) + "_thumbnail.jpg";
-
-            MultipartFile pictureFile = userUpDto.getProfilePicture();
-            if (!pictureFile.isEmpty()) {
-                try {
-                    File dir = new File(PROFILE_PICTURE_PATH + user.getId());   // Create the directory to save datatype files
-                    if (!dir.exists())
-                        dir.mkdirs();
-
-                    byte[] bytes = pictureFile.getBytes();
-
-                    ByteArrayInputStream imageInputStream = new ByteArrayInputStream(bytes);
-                    BufferedImage image = ImageIO.read(imageInputStream);
-                    BufferedImage thumbnail = Scalr.resize(image, 200);
-
-                    File thumbnailOut = new File(dir.getAbsolutePath() + File.separator + fileName);
-                    ImageIO.write(thumbnail, "png", thumbnailOut);
-
-                    UploadFile uploadFile = new UploadFile();
-                    uploadFile.setFilePath(fileName);
-
-                    user.getUserDetails().setProfilePicture(uploadFile);
-                    System.out.println("Image Saved::: " + fileName);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        userService.save(user);
-
-        redirectAttrs.addAttribute("message", "Basic information updated").addFlashAttribute("aboutMe", "Basic information area");
-        redirectAttrs.addAttribute("areaActive", "basicActive").addFlashAttribute("basicActive", "Basic information area");
-        return "redirect:/admin/profile";
+        return updateBasicInfo(model, userUpDto, result, redirectAttrs, "/admin/profile");
     }
 
     @GetMapping("/admin/userList")
