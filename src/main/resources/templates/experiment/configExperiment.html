@@ -307,13 +307,12 @@
                             </div>
                             <!-- END Data Type table to load -->
 
-                            <div class="row form-group">
+                            <div class="row form-group text-center">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
-
                                 <textarea rows="5" class="form-control" th:text="${configuration.getinfo()}" name="info"
-                                          id="info" readonly/>
-
+                                          id="info" rleadonly/>
                                 </div>
+
                             </div>
                         </div>
                         <!-- END Training Test Validation files -->
@@ -332,7 +331,8 @@
                             </div>
                             <div class="col-sm-12 col-md-4 col-lg-4">
                                 <button type="submit" id="cloneExperimentButton" name="cloneExperimentButton"
-                                        class="btn-primary btn-lg btn" >Clone experiment
+                                        class="btn-primary btn-lg btn" th:disabled="${disabledClone!=null}">Clone
+                                    experiment
                                 </button>
                             </div>
                             <div class="col-sm-12 col-md-4 col-lg-4">
@@ -349,8 +349,8 @@
         </div>
 
         <!-- END Main -->
-    </div>
 
+    </div>
     <!-- RUN SECTION -->
     <div class="container" th:if="${not #lists.isEmpty(runList)}">
         <div id="runForms" class="panel panel-default">
@@ -372,6 +372,7 @@
                             <th scope="col">Model</th>
                             <th scope="col"></th>
                             <th scope="col"></th>
+                            <th scope="col"></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -380,7 +381,7 @@
                             <tr th:id="'tr' + ${iterStat.index}">
                                 <form th:action="@{/experiment/runList}" th:object="${expDetailsDto}" method="GET"
                                       class="form-horizontal">
-                                    <td scope="row"><label th:text="${iterStat.index+1}"
+                                    <td scope="row"><label th:text="${run.getId()}"
                                                            th:id="'runId'+${iterStat.index}"/></td>
                                     <td scope="row"><label th:name="bestIndividual"
                                                            th:id="'bestIndividual'+${iterStat.index}"
@@ -391,9 +392,9 @@
                                     </td>
                                     <td scope="row"><label th:name="status" th:id="'status'+${iterStat.index}"
                                                            th:text="${run.getStatus()}"/></td>
-                                    <td scope="row"><label th:name="iniDate"
+                                    <td scope="row"><label th:name="iniDate" th:id="iniDate"
                                                            th:text="${run.getIniDate()}"/></td>
-                                    <td scope="row"><label th:name="lastDate"
+                                    <td scope="row"><label th:name="lastDate" th:id="lastDate"
                                                            th:text="${run.getModificationDate()}"/></td>
                                     <td scope="row"><label th:name="model" th:id="model+${iterStat.index}"
                                                            th:text="${run.getModel()}"/></td>
@@ -414,6 +415,7 @@
                                     </td>
                                 </form>
                             </tr>
+
                         </th:block>
                         </tbody>
                     </table>
@@ -477,25 +479,6 @@
                 $("#radioDataTypeHidden").remove();
                 document.querySelector('#typeFile').required = false;
             }
-        }
-
-        function cloneExperiment() {
-            $.ajax({
-                url: encodeURI("/user/rest/runStatus/"),
-                data: {
-                    'expId': $("#id").val(),
-                },
-                cache: false,
-                async: true,
-                type: "POST",
-                dataType: "json",
-                success: function () {
-                    alert("Clone successfully")
-                },
-                error:function () {
-                    alert("Error clone")
-                }
-            });
         }
 
         // <![CDATA[
@@ -575,6 +558,13 @@
         var indexesHide = [];
 
         $(document).ready(function () {
+
+            $("#searchExperiment").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#runTable tr").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
 
             saveDatasetInfo();
             updateGrammarContent();
