@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.jws.soap.SOAPBinding;
 import javax.validation.Valid;
 import java.io.*;
 import java.util.*;
@@ -77,6 +78,7 @@ public class ExperimentController {
         model.addAttribute("dataTypeList", new ArrayList());
         model.addAttribute("user", user);
         model.addAttribute("configExp", new ConfigExperimentDto());
+        model.addAttribute("disabledClone", true);
         modelAddData(model, user, null, null, null);
 
         return "experiment/configExperiment";
@@ -336,6 +338,23 @@ public class ExperimentController {
         return "experiment/configExperiment";
 
     }
+
+    @RequestMapping(value = "/experiment/start", method = RequestMethod.POST, params = "cloneExperimentButton")
+    public String cloneExperiment(Model model,
+                                  @RequestParam("id") String expId) throws IllegalStateException, IOException {
+        if (expId == null || expId == "") {
+            return "redirect:/experiment/configExperimen";
+        }
+        // Experiment section:
+        Experiment exp = experimentService.findExperimentById(Long.valueOf(expId)).clone();
+        Calendar calendar = Calendar.getInstance();
+        java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
+        exp.setCreationDate(currentTimestamp);
+        experimentService.saveExperiment(exp);
+        // END - Experiment section
+        return expRepoSelected(model, String.valueOf(exp.getId()));
+    }
+
 
     private void fileConfig(ExperimentDataType expDataType, User user, ExpPropertiesDto propertiesDto,
                             ConfigExperimentDto configExpDto, java.sql.Timestamp currentTimestamp,
