@@ -7,3 +7,6 @@ install:
   - mvn clean package #-Dmaven.test.skip=true
   - docker build -f docker/Dockerfile -t jmcolmenar/webge:latest .
   - docker push jmcolmenar/webge:latest
+
+before_install:
+  - chmod +x mvnw
