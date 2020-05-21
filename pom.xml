@@ -12,6 +12,39 @@
 	<description>Web interface for optimization based on Grammatical Evolution</description>
 	<url>https://github.com/GRAFO-URJC/WebGE</url>
 
+	<developers>
+		<!-- Students and interns -->
+		<developer>
+			<name>Lei Chen Xu (@leichenxu)</name>
+		</developer>
+		<developer>
+			<name>Gonçalo Silveira (@gonkyprojects)</name>
+		</developer>
+		<developer>
+			<name>Victor Oliveira (@victorOliveira1997)</name>
+		</developer>
+		<developer>
+			<name>Carlos García Moreno (@garciamorenc)</name>
+		</developer>
+		<developer>
+			<name>Alberto Niironen (@smensito)</name>
+		</developer>
+		<!-- Tutor -->
+		<developer>
+			<name>J. Manuel Colmenar (@jmcolmenar)</name>
+			<email>josemanuel.colmenar@urjc.es</email>
+			<organization>Universidad Rey Juan Carlos</organization>
+			<organizationUrl>http://www.urjc.es</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com/GRAFO-URJC/WebGE.git</connection>
+		<developerConnection>scm:git:ssh://github.com/GRAFO-URJC/WebGE.git</developerConnection>
+		<url>https://github.com/GRAFO-URJC/WebGE/tree/master</url>
+		<tag>HEAD</tag>
+	</scm>
+
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
