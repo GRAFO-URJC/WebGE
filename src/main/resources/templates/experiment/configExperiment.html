@@ -372,48 +372,44 @@
                             <th scope="col">Model</th>
                             <th scope="col"></th>
                             <th scope="col"></th>
-                            <th scope="col"></th>
                         </tr>
                         </thead>
                         <tbody>
 
                         <th:block th:each="run, iterStat : ${runList}">
                             <tr th:id="'tr' + ${iterStat.index}">
-                                <form th:action="@{/experiment/runList}" th:object="${expDetailsDto}" method="GET"
-                                      class="form-horizontal">
-                                    <td scope="row"><label th:text="${run.getId()}"
-                                                           th:id="'runId'+${iterStat.index}"/></td>
-                                    <td scope="row"><label th:name="bestIndividual"
-                                                           th:id="'bestIndividual'+${iterStat.index}"
-                                                           th:text="${run.getDiagramData().bestIndividual}"/></td>
-                                    <td scope="row"><label th:name="currentGeneration"
-                                                           th:id="'currentGeneration'+${iterStat.index}"
-                                                           th:text="${run.getDiagramData().currentGeneration}"/>
-                                    </td>
-                                    <td scope="row"><label th:name="status" th:id="'status'+${iterStat.index}"
-                                                           th:text="${run.getStatus()}"/></td>
-                                    <td scope="row"><label th:name="iniDate" th:id="iniDate"
-                                                           th:text="${run.getIniDate()}"/></td>
-                                    <td scope="row"><label th:name="lastDate" th:id="lastDate"
-                                                           th:text="${run.getModificationDate()}"/></td>
-                                    <td scope="row"><label th:name="model" th:id="model+${iterStat.index}"
-                                                           th:text="${run.getModel()}"/></td>
-                                    <td scope="row" th:id="'showPlot'+${iterStat.index}" class="">
-                                        <a th:href="@{/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}"
-                                           target="_blank" class="btn-default btn-sm btn loadButton">Show plot
-                                            execution</a>
-                                    </td>
-                                    <td scope="row" th:id="'showDelete'+${iterStat.index}">
-                                        <button type="button" th:name="${run.id}"
-                                                th:id="${'deleteRun' + iterStat.index}"
-                                                onclick="confirmDelete(this.id, this.name)"
-                                                class="btn-default btn btn-sm"
-                                                rel="tooltip"
-                                                title="Delete run"
-                                        ><span
-                                                class="glyphicon glyphicon-trash small"></span></button>
-                                    </td>
-                                </form>
+                                <td scope="row"><label th:text="${run.getId()}"
+                                                       th:id="'runId'+${iterStat.index}"/></td>
+                                <td scope="row"><label th:name="bestIndividual"
+                                                       th:id="'bestIndividual'+${iterStat.index}"
+                                                       th:text="${run.getDiagramData().bestIndividual}"/></td>
+                                <td scope="row"><label th:name="currentGeneration"
+                                                       th:id="'currentGeneration'+${iterStat.index}"
+                                                       th:text="${run.getDiagramData().currentGeneration}"/>
+                                </td>
+                                <td scope="row"><label th:name="status" th:id="'status'+${iterStat.index}"
+                                                       th:text="${run.getStatus()}"/></td>
+                                <td scope="row"><label th:name="iniDate" th:id="iniDate"
+                                                       th:text="${run.getIniDate()}"/></td>
+                                <td scope="row"><label th:name="lastDate" th:id="lastDate"
+                                                       th:text="${run.getModificationDate()}"/></td>
+                                <td scope="row"><label th:name="model" th:id="model+${iterStat.index}"
+                                                       th:text="${run.getModel()}"/></td>
+                                <td scope="row" th:id="'showPlot'+${iterStat.index}" class="">
+                                    <a th:href="@{/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}"
+                                       target="_blank" class="btn-default btn-sm btn loadButton">Show plot
+                                        execution</a>
+                                </td>
+                                <td scope="row" th:id="'showDelete'+${iterStat.index}">
+                                    <button type="button" th:name="${run.id}"
+                                            th:id="${'deleteRun' + iterStat.index}"
+                                            onclick="confirmDelete(this.id, this.name)"
+                                            class="btn-default btn btn-sm"
+                                            rel="tooltip"
+                                            title="Delete run"
+                                    ><span
+                                            class="glyphicon glyphicon-trash small"></span></button>
+                                </td>
                             </tr>
 
                         </th:block>
@@ -558,13 +554,6 @@
         var indexesHide = [];
 
         $(document).ready(function () {
-
-            $("#searchExperiment").on("keyup", function () {
-                var value = $(this).val().toLowerCase();
-                $("#runTable tr").filter(function () {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-                });
-            });
 
             saveDatasetInfo();
             updateGrammarContent();
