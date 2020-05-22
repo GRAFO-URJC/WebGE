@@ -3,13 +3,47 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.gramevApp</groupId>
+	<groupId>com.github.grafo-urjc.webge</groupId>
 	<artifactId>gramev</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>gramev</name>
-	<description>Gram Ev</description>
+	<name>${project.groupId}:${project.artifactId}</name>
+	<description>Web interface for optimization based on Grammatical Evolution</description>
+	<url>https://github.com/GRAFO-URJC/WebGE</url>
+
+	<developers>
+		<!-- Students and interns -->
+		<developer>
+			<name>Lei Chen Xu (@leichenxu)</name>
+		</developer>
+		<developer>
+			<name>Gonçalo Silveira (@gonkyprojects)</name>
+		</developer>
+		<developer>
+			<name>Victor Oliveira (@victorOliveira1997)</name>
+		</developer>
+		<developer>
+			<name>Carlos García Moreno (@garciamorenc)</name>
+		</developer>
+		<developer>
+			<name>Alberto Niironen (@smensito)</name>
+		</developer>
+		<!-- Tutor -->
+		<developer>
+			<name>J. Manuel Colmenar (@jmcolmenar)</name>
+			<email>josemanuel.colmenar@urjc.es</email>
+			<organization>Universidad Rey Juan Carlos</organization>
+			<organizationUrl>http://www.urjc.es</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com/GRAFO-URJC/WebGE.git</connection>
+		<developerConnection>scm:git:ssh://github.com/GRAFO-URJC/WebGE.git</developerConnection>
+		<url>https://github.com/GRAFO-URJC/WebGE/tree/master</url>
+		<tag>HEAD</tag>
+	</scm>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -36,27 +70,16 @@
 			<version>5.1.4.RELEASE</version>
 		</dependency>
 
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-cache</artifactId>
 		</dependency>
-		<!--
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-rest</artifactId>
-		</dependency>
-		-->
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
-		<!--
-		<dependency>
-			<groupId>org.springframework.session</groupId>
-			<artifactId>spring-session</artifactId>
-		</dependency>
-		-->
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
@@ -148,12 +171,6 @@
 			<artifactId>opencsv</artifactId>
 			<version>4.0</version>
 		</dependency>
-		<!--
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-entitymanager</artifactId>
-            <version>5.0.12.Final</version>
-        </dependency>-->
 
 		<dependency>
 			<groupId>org.hibernate</groupId>
@@ -205,17 +222,8 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
-		<!--
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-		</dependency>
 
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-core-asl</artifactId>
-		</dependency>
-		-->
+		<!-- Dependencies for the evolutionary algorithms -->
 		<dependency>
 			<groupId>net.sourceforge.jeval</groupId>
 			<artifactId>jeval</artifactId>
@@ -223,10 +231,17 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.jeco.code</groupId>
-			<artifactId>jeco</artifactId>
-			<version>{version}</version>
+			<groupId>com.github.absysgroup.jeco</groupId>
+			<artifactId>jeco-core</artifactId>
+			<version>1.0.8</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math3</artifactId>
+			<version>3.4</version>
+		</dependency>
+
 
 	</dependencies>
 
