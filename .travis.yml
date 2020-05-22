@@ -1,0 +1,9 @@
+sudo: required
+language: java
+jdk:
+  - openjdk11
+install:
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - mvn clean package #-Dmaven.test.skip=true
+  - docker build -f docker/Dockerfile -t jmcolmenar/webge:latest .
+  - docker push jmcolmenar/webge:latest
