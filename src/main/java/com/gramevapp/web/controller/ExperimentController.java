@@ -380,18 +380,18 @@ public class ExperimentController {
 
     @RequestMapping(value = "/experiment/start", method = RequestMethod.POST, params = "cloneExperimentButton")
     public String cloneExperiment(Model model,
-                                  @RequestParam("id") String expId) throws IllegalStateException, IOException {
-        if (expId == null || expId == "") {
-            return "redirect:/experiment/configExperimen";
-        }
-        // Experiment section:
-        Experiment exp = experimentService.findExperimentById(Long.valueOf(expId)).clone();
-        Calendar calendar = Calendar.getInstance();
-        java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
-        exp.setCreationDate(currentTimestamp);
-        experimentService.saveExperiment(exp);
-        // END - Experiment section
-        return expRepoSelected(model, String.valueOf(exp.getId()));
+                                  @RequestParam("grammarId") String grammarId,
+                                  @RequestParam("experimentDataTypeId") String experimentDataTypeId,
+                                  @ModelAttribute("type") ExperimentDataTypeDto expDataTypeDto,
+                                  @RequestParam("radioDataType") String radioDataTypeHidden,
+                                  @ModelAttribute("typeFile") FileModelDto fileModelDto,
+                                  @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
+                                  BindingResult result,
+                                  RedirectAttributes redirectAttrs) throws IllegalStateException, IOException {
+        configExpDto.setId(null);
+        configExpDto.setDefaultRunId(null);
+        return saveExperiment(model,grammarId,experimentDataTypeId,expDataTypeDto,radioDataTypeHidden,fileModelDto,configExpDto
+        ,result);
     }
 
 
