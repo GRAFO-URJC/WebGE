@@ -36,7 +36,7 @@ public class RunRestController {
         run.setCurrentGeneration(run.getDiagramData().getCurrentGeneration());
         run.setBestIndividual(run.getDiagramData().getBestIndividual());
 
-        if (run.getDiagramData().getFinished() || run.getDiagramData().getBestIndividual() <= 0.0) {
+        if (run.getDiagramData().getFinished() || run.getDiagramData().getBestIndividual() <= 0.0 && !status.equals("WAITING")) {
             if (run.getDiagramData().getBestIndividual() <= 0.0) {
                 run.setBestIndividual(0.0);
             }

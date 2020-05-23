@@ -18,6 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.jws.soap.SOAPBinding;
 import javax.validation.Valid;
 import java.io.*;
+import java.sql.Timestamp;
 import java.util.*;
 
 import static com.engine.util.Common.TRAINING_PATH_PROP;
@@ -132,6 +133,7 @@ public class ExperimentController {
             return "experiment/configExperiment";
         }
 
+
         // CONFIGURATION SECTION
         // GRAMMAR SECTION
         Grammar grammar = grammarRepository.findGrammarById(Long.parseLong(grammarId));
@@ -161,12 +163,57 @@ public class ExperimentController {
         experimentService.saveExperiment(exp);
         // END - Experiment section
 
+        // remove old run
+
         // Grammar File SECTION
         String grammarFilePath = grammarFileSection(user, configExpDto, grammar);
         // END - Grammar File SECTION
 
         // Create ExpPropertiesDto file
-        ExpPropertiesDto propertiesDto = new ExpPropertiesDto(user,
+        expPropertiesSet(radioDataTypeHidden, fileModelDto, configExpDto, user, currentTimestamp, expDataType, exp, grammarFilePath, run);
+
+        List<Thread> threads = new ArrayList<>();
+        // Run experiment in new thread
+        threads.add(runExperimentDetails(user, run, run.getDiagramData()));
+        //check if need to run more runs
+        for (int i = 1; i < configExpDto.getNumberRuns(); i++) {
+            // RUN SECTION
+            Run newRun = runService.saveRun(new Run());
+            runSection(newRun, grammar, configExpDto, currentTimestamp);
+            exp.getIdRunList().add(newRun);
+            newRun.setExperimentId(exp);
+
+            expDataType.setRunId(newRun.getId());
+            newRun.setDefaultExpDataTypeId(expDataType.getId());
+            // Create ExpPropertiesDto file
+            expPropertiesSet(radioDataTypeHidden, fileModelDto, configExpDto, user, currentTimestamp, expDataType, exp, grammarFilePath, newRun);
+
+            newRun.setStatus(Run.Status.WAITING);
+
+            // Run experiment in new thread
+            threads.add(runExperimentDetails(user, newRun, newRun.getDiagramData()));
+        }
+        experimentService.saveExperiment(exp);
+
+        Thread thread = new Thread(() -> {
+            try {
+                for (Thread th : threads) {
+                    th.start();
+                    th.join();
+                }
+            } catch (Exception e) {
+
+            }
+        });
+        thread.start();
+
+        redirectAttrs.addAttribute("idRun", run.getId()).addFlashAttribute("configuration",
+                "Experiment is being created");
+        return "redirect:/experiment/redirectConfigExperiment";
+    }
+
+    protected void expPropertiesSet(@RequestParam("radioDataType") String radioDataTypeHidden, @ModelAttribute("typeFile") FileModelDto fileModelDto, @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto, User user, Timestamp currentTimestamp, ExperimentDataType expDataType, Experiment exp, String grammarFilePath, Run newRun) throws IOException {
+        ExpPropertiesDto newPropertiesDto = new ExpPropertiesDto(user,
                 0.0, configExpDto.getTournament(), 0,
                 configExpDto.getCrossoverProb(), grammarFilePath, 0,
                 1, configExpDto.getMutationProb(), false, 1,
@@ -174,20 +221,12 @@ public class ExperimentController {
                 configExpDto.getGenerations(), false, configExpDto.getMaxWraps(),
                 500, configExpDto.getExperimentName(),
                 configExpDto.getExperimentDescription());
+        fileConfig(expDataType, user, newPropertiesDto, configExpDto, currentTimestamp, fileModelDto, radioDataTypeHidden,
+                newRun, exp);
 
-        fileConfig(expDataType, user, propertiesDto, configExpDto, currentTimestamp, fileModelDto, radioDataTypeHidden,
-                run, exp);
-
-        DiagramData diagramData = new DiagramData();
-        diagramData.setRunId(run);
-        diagramDataService.saveDiagram(diagramData);
-
-        // Run experiment in new thread
-        runExperimentDetails(user, run, run.getDiagramData());
-
-        redirectAttrs.addAttribute("idRun", run.getId()).addFlashAttribute("configuration",
-                "Experiment is being created");
-        return "redirect:/experiment/redirectConfigExperiment";
+        DiagramData newDiagramData = new DiagramData();
+        newDiagramData.setRunId(newRun);
+        diagramDataService.saveDiagram(newDiagramData);
     }
 
     @GetMapping("/experiment/redirectConfigExperiment")
@@ -570,43 +609,6 @@ public class ExperimentController {
         return "experiment/configExperiment";
     }
 
-    @GetMapping(value = "/experiment/runList", params = "runExperimentButton")
-    public String runExperiment(Model model,
-                                @RequestParam(value = "runId") String runId) throws IOException {
-
-        User user = userService.getLoggedInUser();
-        Long longRunId = Long.parseLong(runId);
-        Run run = runService.findByRunId(longRunId);
-        // reset model
-        run.setModel("");
-        DiagramData diagramData = diagramDataService.findByRunId(run);
-
-        ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, diagramData);
-
-        if (run.getStatus().equals(Run.Status.RUNNING)) {      // We don't execute it if it's RUNNING
-            model.addAttribute("expDetails", experimentDetailsDto);
-            return "experiment/experimentDetails";
-        }
-        experimentDetailsDto.setStatus(run.getStatus());    // The last status will be displayed in the new tab until Aj
-        model.addAttribute("expDetails", experimentDetailsDto);
-
-        Calendar calendar = Calendar.getInstance();
-        java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
-        run.setModificationDate(currentTimestamp);
-
-        Iterator<DiagramPair> it = diagramData.getListPair().iterator();
-        ArrayList<DiagramPair> lAux = new ArrayList<>();
-        while (it.hasNext()) {
-            DiagramPair value = it.next();
-            lAux.add(value);
-        }
-        diagramData.getListPair().removeAll(lAux);
-        diagramDataService.saveDiagram(diagramData);
-        runExperimentDetails(user, run, run.getDiagramData());
-
-        return "experiment/experimentDetails";
-    }
-
     private ExperimentDetailsDto setExperimentDetailDto(Run run, DiagramData diagramData) {
         ExperimentDetailsDto experimentDetailsDto = new ExperimentDetailsDto();
         experimentDetailsDto.setExperimentId(run.getExperimentId().getId());
@@ -652,7 +654,7 @@ public class ExperimentController {
         return "experiment/showDiagramPlot";
     }
 
-    public void runExperimentDetails(User user, Run run, DiagramData diagramData) throws IOException {
+    public Thread runExperimentDetails(User user, Run run, DiagramData diagramData) throws IOException {
         ExpProperties prop = experimentService.findPropertiesById(run.getIdProperties());
         String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + run.getExperimentName().replaceAll("\\s+", "") + "_" + prop.getUuidPropDto() + ".properties";
 
@@ -673,13 +675,13 @@ public class ExperimentController {
         };
         Thread th = new Thread(obj);
         th.setUncaughtExceptionHandler(h);
-        th.start();
         threadMap.put(th.getId(), th);
         run.setThreaId(th.getId());
         runnables.put(th.getId(), obj);
         // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
 
         propertiesReader.close();
+        return th;
     }
 
     public void createPropertiesFile(String propertiesFilePath, ExpPropertiesDto propertiesDto, String expName, java.sql.Timestamp currentTimeStamp) throws IOException {
@@ -869,6 +871,13 @@ public class ExperimentController {
 
             exp.setCreationDate(currentTimestamp);
             exp.setModificationDate(currentTimestamp);
+
+            List<Run> oldRunList = new ArrayList<>();
+            oldRunList.addAll(exp.getIdRunList());
+            //remove old run
+            for (Run oldRun : oldRunList) {
+                exp.removeRun(oldRun);
+            }
 
             if (run != null) {
                 exp.setDefaultRunId(run.getId());          // Doesn't exists -> We set up the run id obtained before
