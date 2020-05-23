@@ -762,6 +762,9 @@ pre code {
   padding-left: 15px;
   padding-right: 15px;
 }
+.container textarea{
+  resize: none;
+}
 .row {
   margin-left: -15px;
   margin-right: -15px;
