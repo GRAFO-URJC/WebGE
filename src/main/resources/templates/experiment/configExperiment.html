@@ -49,6 +49,9 @@
     <!-- Main -->
     <div class="container">
         <div id="forms" class="panel panel-default">
+            <div th:if="${messageClone}" class="alert alert-info">
+                <label th:text="${messageClone}" id="cloneMessage"></label>
+            </div>
             <header class="panel-heading">
                 <h2>Experiment configuration area</h2>
             </header>
@@ -325,7 +328,7 @@
                         <div class="row text-center">
                             <div class="col-sm-12 col-md-4 col-lg-4" style="margin-bottom:2px">
                                 <button type="submit" id="saveExperimentButton" name="saveExperimentButton"
-                                        onclick="document.querySelector('#typeFile').required = false;"
+                                        onclick="saveOrRunButton=true;"
                                         class="btn-primary btn-lg btn">Save experiment
                                 </button>
                             </div>
@@ -338,7 +341,8 @@
                             </div>
                             <div class="col-sm-12 col-md-4 col-lg-4">
                                 <button type="submit" id="runExperimentButton" name="runExperimentButton"
-                                        class="btn-primary btn-lg btn">Save and run experiment
+                                        class="btn-primary btn-lg btn"
+                                        onclick="saveOrRunButton=true;">Save and run experiment
                                 </button>
                             </div>
                         </div>
@@ -474,7 +478,6 @@
 
             if (document.getElementById('radioDataType' + cleanIterStat).checked) {
                 $("#radioDataTypeHidden").remove();
-                document.querySelector('#typeFile').required = false;
             }
         }
 
@@ -600,13 +603,6 @@
         };
 
 
-        function downloadDataTypeFile() {
-
-            var textToWrite = document.getElementById("info").value;
-            textToWrite = listToMatrix(textToWrite.split("/(\s*;\s*/)|((\n\r)|(\r\n))"), 11);
-            exportCSVFile(textToWrite, "datatypefile");
-        }
-
         //https://stackoverflow.com/questions/4492385/how-to-convert-simple-array-into-two-
         // dimensional-array-matrix-with-javascript/39838921
         function listToMatrix(list, elementsPerSubArray) {
@@ -676,6 +672,24 @@
                 return true;
             }
         }
+
+        let saveOrRunButton = false;
+
+        window.onbeforeunload = function (e) {
+            if (document.getElementById("cloneMessage") && !saveOrRunButton) {
+                e = e || window.event;
+
+                // For IE and Firefox prior to version 4
+                if (e) {
+                    e.returnValue = 'Sure?';
+                }
+
+                // For Safari
+                return 'Sure?';
+            }
+
+
+        };
 
     </script>
 </div>
