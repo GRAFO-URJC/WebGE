@@ -341,12 +341,19 @@ public class ExperimentController {
                                   @RequestParam("radioDataType") String radioDataTypeHidden,
                                   @ModelAttribute("typeFile") FileModelDto fileModelDto,
                                   @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
-                                  BindingResult result,
-                                  RedirectAttributes redirectAttrs) throws IllegalStateException, IOException {
+                                  BindingResult result) throws IllegalStateException, IOException {
+        User user=userService.getLoggedInUser();
         configExpDto.setId(null);
         configExpDto.setDefaultRunId(null);
-        return saveExperiment(model, grammarId, experimentDataTypeId, expDataTypeDto, radioDataTypeHidden, fileModelDto, configExpDto
-                , result);
+
+        model.addAttribute("configuration", configExpDto);
+        model.addAttribute("expConfig", configExpDto);
+        modelAddData(model, user, grammarRepository.findGrammarById(Long.valueOf(grammarId)),
+                experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
+                null);
+        model.addAttribute("disabledClone", true);
+        model.addAttribute("messageClone", "This experiment is cloned and not saved yet.");
+        return "experiment/configExperiment";
     }
 
 
