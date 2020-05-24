@@ -1,6 +1,7 @@
 package com.gramevapp.web.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.gramevapp.web.other.DateFormat;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -184,6 +185,15 @@ public class Run {
     public Date getIniDate() {
         return iniDate;
     }
+
+    public String getIniDateFormated() {
+        return DateFormat.formatDate(iniDate);
+    }
+
+    public String getModificationDateFormated() {
+        return DateFormat.formatDate(modificationDate);
+    }
+
 
     public void setIniDate(Date iniDate) {
         this.iniDate = iniDate;

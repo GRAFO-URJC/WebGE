@@ -3,6 +3,7 @@ package com.gramevapp.web.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.gramevapp.web.other.BeanUtil;
+import com.gramevapp.web.other.DateFormat;
 import com.gramevapp.web.service.ExperimentService;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.context.ApplicationContext;
@@ -443,5 +444,13 @@ public class Experiment {
         experiment.numberRuns = this.numberRuns;
 
         return experiment;
+    }
+
+    public String getCreationDateFormated() {
+        return DateFormat.formatDate(creationDate);
+    }
+
+    public String getModificationDateFormated() {
+        return DateFormat.formatDate(modificationDate);
     }
 }

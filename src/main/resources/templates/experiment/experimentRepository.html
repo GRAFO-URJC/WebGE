@@ -83,7 +83,7 @@
                                                            th:text="${exp.experimentDescription}" id="description"/>
                                     </td>
                                     <td scope="row"><label th:name="creationDate" th:id="creationDate"
-                                                           th:text="${exp.getCreationDate()}" id="creationDate"/>
+                                                           th:text="${exp.getCreationDateFormated()}" id="creationDate"/>
                                     </td>
                                     <td scope="row" class="details-control">
                                         <button type="button">More information</button>
@@ -188,9 +188,9 @@
                                                                                th:id="'status'+${iterStat.index}"
                                                                                th:text="${run.getStatus()}"/></td>
                                                         <td scope="row"><label th:name="iniDate" th:id="iniDate"
-                                                                               th:text="${run.getIniDate()}"/></td>
+                                                                               th:text="${run.getIniDateFormated()}"/></td>
                                                         <td scope="row"><label th:name="lastDate" th:id="lastDate"
-                                                                               th:text="${run.getModificationDate()}"/>
+                                                                               th:text="${run.getModificationDateFormated()}"/>
                                                         </td>
                                                         <td scope="row"><label th:name="model"
                                                                                th:id="model+${iterStat.index}"

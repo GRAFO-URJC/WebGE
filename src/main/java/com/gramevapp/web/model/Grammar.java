@@ -1,6 +1,7 @@
 package com.gramevapp.web.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.gramevapp.web.other.DateFormat;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -156,5 +157,9 @@ public class Grammar {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getCreationDateFormated() {
+        return DateFormat.formatDate(creationDate);
     }
 }
