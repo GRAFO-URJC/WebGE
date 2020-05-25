@@ -236,14 +236,14 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         int i=0;
         stop = false;
         while (!stop && (i < numExecutions)) {
-            System.out.println("\nRun #" + i);
-            System.out.println("========");
+            logger.info("Run #" + i);
+            logger.info("========");
 
             double startTime = System.currentTimeMillis();
             algorithm.initialize();
             solutions = algorithm.execute();
             double time = (System.currentTimeMillis() - startTime) / 1000;
-            System.out.println("\nExecution time: " + time + " seconds.\n");
+            logger.info("Execution time: " + time + " seconds.");
 
             executionReport.clear();
 
@@ -256,7 +256,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
                 executionReport.add(String.valueOf(solutions.get(0).getObjective(0)) + ";" + this.generatePhenotype(solutions.get(0)).toString() + ";" + String.valueOf(time));
 
                 // Just for interrupted executions:
-                System.out.println("\n\n@@;" + this.generatePhenotype(solutions.get(0)).toString() + "\n\n");
+                logger.info("@@;" + this.generatePhenotype(solutions.get(0)).toString());
             }
 
             for (String s : SymbolicRegressionGE.executionReport) {
@@ -269,12 +269,12 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         System.out.flush();
         System.err.flush();
 
-        System.out.println("\n\n Execution report");
-        System.out.println("==================\n");
-        System.out.println("#Run;" + SymbolicRegressionGE.REPORT_HEADER);
+        logger.info("Execution report");
+        logger.info("==================");
+        logger.info("#Run;" + SymbolicRegressionGE.REPORT_HEADER);
         SymbolicRegressionGE.executionReport.clear();
         for (String s : log) {
-            System.out.println(s);
+            logger.info(s);
             SymbolicRegressionGE.executionReport.add(s);
         }
 
