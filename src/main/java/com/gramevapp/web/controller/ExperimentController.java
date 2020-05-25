@@ -1,6 +1,7 @@
 package com.gramevapp.web.controller;
 
 import com.engine.algorithm.RunnableExpGramEv;
+import com.engine.algorithm.SymbolicRegressionGE;
 import com.gramevapp.web.model.*;
 import com.gramevapp.web.repository.GrammarRepository;
 import com.gramevapp.web.service.DiagramDataService;
@@ -14,12 +15,16 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.uma.jmetal.util.fileoutput.SolutionSetOutput;
 
-import javax.jws.soap.SOAPBinding;
+import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.engine.util.Common.TRAINING_PATH_PROP;
 
@@ -27,6 +32,7 @@ import static com.engine.util.Common.TRAINING_PATH_PROP;
 public class ExperimentController {
 
     private HashMap<Long, Thread> threadMap = new HashMap();
+    private static HashMap<String, Run> threadRunMap = new HashMap();
     private static HashMap<Long, RunnableExpGramEv> runnables = new HashMap();
 
     @Autowired
@@ -162,8 +168,6 @@ public class ExperimentController {
         exp.setDefaultGrammar(grammar.getId());
         experimentService.saveExperiment(exp);
         // END - Experiment section
-
-        // remove old run
 
         // Grammar File SECTION
         String grammarFilePath = grammarFileSection(user, configExpDto, grammar);
@@ -342,7 +346,7 @@ public class ExperimentController {
                                   @ModelAttribute("typeFile") FileModelDto fileModelDto,
                                   @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
                                   BindingResult result) throws IllegalStateException, IOException {
-        User user=userService.getLoggedInUser();
+        User user = userService.getLoggedInUser();
         configExpDto.setId(null);
         configExpDto.setDefaultRunId(null);
 
@@ -594,6 +598,7 @@ public class ExperimentController {
         experimentDetailsDto.setLastDate(run.getModificationDate().toString());
         experimentDetailsDto.setBestIndividual(diagramData.getBestIndividual());
         experimentDetailsDto.setCurrentGeneration(diagramData.getCurrentGeneration());
+        experimentDetailsDto.setExecutionReport(run.getExecutionReport());
         return experimentDetailsDto;
     }
 
@@ -613,7 +618,26 @@ public class ExperimentController {
         ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, diagramData);
         model.addAttribute("expDetails", experimentDetailsDto);
 
-        return "experiment/showDiagramPlot";
+        return "experiment/experimentDetails";
+    }
+
+    @GetMapping(value = "/experiment/runList", params = "showTestStatsPlotButton")
+    public String showRunTestStatsExperiment(Model model,
+                                             @RequestParam(value = "runId") String runId) {
+        Run run = runService.findByRunId(Long.parseLong(runId));
+        run.getDefaultExpDataTypeId();
+        DiagramData diagramData = diagramDataService.findByRunId(run);
+
+        if (run.getStatus().equals(Run.Status.RUNNING)) {
+            ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, diagramData);
+            model.addAttribute("expDetails", experimentDetailsDto);
+            return "experiment/experimentDetails";
+        }
+
+        ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, diagramData);
+        model.addAttribute("expDetails", experimentDetailsDto);
+
+        return "experiment/showTestStatsPlot";
     }
 
     public Thread runExperimentDetails(User user, Run run, DiagramData diagramData) throws IOException {
@@ -626,18 +650,23 @@ public class ExperimentController {
         Properties properties = new Properties();
         properties.load(propertiesReader);
         properties.setProperty(TRAINING_PATH_PROP, prop.getTrainingPath());
-
         RunnableExpGramEv obj = new RunnableExpGramEv(properties, diagramData, run);
         Thread.UncaughtExceptionHandler h = new Thread.UncaughtExceptionHandler() {
             public void uncaughtException(Thread th, Throwable ex) {
                 run.setStatus(Run.Status.FAILED);
                 run.getDiagramData().setFailed(true);
-                System.out.println("Uncaught exception: " + ex);
+                if (run.getExecutionReport() == null) {
+                    run.setExecutionReport(new String());
+                }
+                run.setExecutionReport(run.getExecutionReport() + "\nUncaught exception: " + ex);
+                runService.saveRun(run);
+                System.out.println(("Uncaught exception: " + ex));
             }
         };
         Thread th = new Thread(obj);
         th.setUncaughtExceptionHandler(h);
         threadMap.put(th.getId(), th);
+        threadRunMap.put(th.getName(), run);
         run.setThreaId(th.getId());
         runnables.put(th.getId(), obj);
         // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
@@ -899,7 +928,7 @@ public class ExperimentController {
         ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, run.getDiagramData());
 
         model.addAttribute("expDetails", experimentDetailsDto);
-        return "experiment/showDiagramPlot";
+        return "experiment/experimentDetails";
     }
 
     @RequestMapping(value = "/experiment/expRepoSelected", method = RequestMethod.POST, params = "deleteRun")
@@ -1001,4 +1030,56 @@ public class ExperimentController {
     public static HashMap<Long, RunnableExpGramEv> getRunnables() {
         return runnables;
     }
+
+    @PostConstruct
+    public void initSystemStream() {
+        String messageSkip = "\u001B[0;39m \u001B[36mc.engine.algorithm.SymbolicRegressionGE \u001B[0;39m \u001B[2m:\u001B[0;39m ";
+        System.setOut(new PrintStream(System.out) {
+            @Override
+            public void write(byte buf[], int off, int len) {
+                //Convert byte[] to String
+                String logInfo = new String(buf);
+                if (logInfo.contains("j.c.algorithm.ga.SimpleGeneticAlgorithm") ||
+                        logInfo.contains("c.engine.algorithm.SymbolicRegressionGE")) {
+                    String infoFormated = new String();
+                    Pattern pattern =
+                            Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}");
+                    Matcher matcher = pattern.matcher(logInfo);
+                    if (matcher.find()) {
+                        infoFormated += matcher.group() + (logInfo.contains("j.c.algorithm.ga.SimpleGeneticAlgorithm") ?
+                                " j.c.algorithm.ga.SimpleGeneticAlgorithm :" : " c.engine.algorithm.SymbolicRegressionGE :");
+                    }
+                    pattern =
+                            Pattern.compile("[0-9]{1,3}% performed.*$");
+                    matcher = pattern.matcher(logInfo);
+
+                    if (matcher.find()) {
+                        //j.c.algorithm.ga.SimpleGeneticAlgorithm
+                        infoFormated += matcher.group()+"\r\n";
+                    } else {
+                        //c.engine.algorithm.SymbolicRegressionGE
+                        infoFormated += logInfo.substring(logInfo.indexOf(messageSkip) + messageSkip.length());
+
+                    }
+                    pattern =
+                            Pattern.compile("Thread-[0-9]+");
+                    matcher = pattern.matcher(logInfo);
+                    if (matcher.find()) {
+                        String threadName = matcher.group();
+                        Run run = threadRunMap.get(threadName);
+                        if (run != null) {
+                            if (run.getExecutionReport() == null) {
+                                run.setExecutionReport(new String());
+                            }
+                            run.setExecutionReport(run.getExecutionReport() + "\n" + infoFormated);
+                            runService.saveRun(run);
+                        }
+                    }
+                }
+
+                super.write(buf, off, len);
+            }
+        });
+    }
+
 }
