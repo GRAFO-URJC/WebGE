@@ -31,7 +31,6 @@ import java.util.logging.Logger;
 import static com.engine.util.Common.currentDateTimeAsFormattedString;
 
 /**
- *
  * @author Carlos García Moreno, J. M. Colmenar
  */
 public class SymbolicRegressionGE extends AbstractProblemGE {
@@ -70,7 +69,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         this.properties = properties;
 
         if (this.properties.getProperty(com.engine.util.Common.SENSIBLE_INITIALIZATION) != null) { // Not initializated in properties
-            this.setSensibleInitialization(true,Double.valueOf(this.properties.getProperty(com.engine.util.Common.SENSIBLE_INITIALIZATION)));
+            this.setSensibleInitialization(true, Double.valueOf(this.properties.getProperty(com.engine.util.Common.SENSIBLE_INITIALIZATION)));
         }
 
         this.evaluator = new Evaluator();
@@ -136,9 +135,23 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         return newFunction;
     }
 
+    //Method to replace the unknowns variables by values
+    public static Double calculateFunctionValuedResultWithCSVData(String originalFunction, String[] content) throws EvaluationException {
+        String newFunction = originalFunction;
+        Evaluator evaluatorForFunction = new Evaluator();
+
+        String replacePart;
+        for (int i = 1; i < content.length; i++) {
+            replacePart = "X" + i;
+            newFunction = newFunction.replaceAll(replacePart, content[i]);
+        }
+
+        return Double.valueOf(evaluatorForFunction.evaluate(newFunction));
+    }
+
     @Override
     public SymbolicRegressionGE clone() {
-        SymbolicRegressionGE clone = new SymbolicRegressionGE(properties,this.numberOfObjectives);
+        SymbolicRegressionGE clone = new SymbolicRegressionGE(properties, this.numberOfObjectives);
         return clone;
     }
 
@@ -215,7 +228,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         IntegerFlipMutation<Variable<Integer>> mutationOperator = new IntegerFlipMutation<>(this, mutationProb);
         SinglePointCrossover<Variable<Integer>> crossoverOperator = new SinglePointCrossover<>(this, SinglePointCrossover.DEFAULT_FIXED_CROSSOVER_POINT, crossOverProb, SinglePointCrossover.AVOID_REPETITION_IN_FRONT);
         SimpleDominance<Variable<Integer>> comparator = new SimpleDominance<>();
-        TournamentSelect<Variable<Integer>> selectionOp = new TournamentSelect<>(tournamentSize,comparator);
+        TournamentSelect<Variable<Integer>> selectionOp = new TournamentSelect<>(tournamentSize, comparator);
 
         if (numObjectives == 2) {
             algorithm = new ModifiedNSGAII(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), mutationOperator, crossoverOperator, selectionOp);
@@ -233,7 +246,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
         ArrayList<String> log = new ArrayList<>();
 
-        int i=0;
+        int i = 0;
         stop = false;
         while (!stop && (i < numExecutions)) {
             logger.info("Run #" + i);
@@ -307,7 +320,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     private static void addToLogFile(String str) {
         try {
             File file = new File(logPopulationOutputFile);
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file,true));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
             writer.write(str);
             writer.flush();
             writer.close();
@@ -316,11 +329,14 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         }
     }
 
-    public Boolean getStop(){
+    public Boolean getStop() {
         return stop;
     }
 
-    public String getModel(){
-        return this.generatePhenotype(solutions.get(0)).toString();
+    public String getModel() {
+        if(solutions!=null&&!solutions.isEmpty()){
+            return this.generatePhenotype(solutions.get(0)).toString();
+        }
+        return null;
     }
 }
