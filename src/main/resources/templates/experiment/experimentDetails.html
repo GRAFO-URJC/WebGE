@@ -183,8 +183,6 @@
 
                     }
 
-                    chart.options.data[0].dataPoints = dataPoints;
-
                     isFinnish = data['finished'];
                     isStopped = data['stopped'];
                     isFailed = data['failed'];
@@ -232,7 +230,6 @@
         };
 
         $(document).ready(function () {
-            dataPoints = [];
 
             setTimeout(function () {
                 reloadPlotD3($("#runId").text());

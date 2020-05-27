@@ -8,6 +8,7 @@ import com.gramevapp.web.service.DiagramDataService;
 import com.gramevapp.web.service.ExperimentService;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;
+import net.sourceforge.jeval.EvaluationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -596,8 +597,10 @@ public class ExperimentController {
         experimentDetailsDto.setDefaultExpDataTypeId(run.getExperimentId().getDefaultExpDataType());
         experimentDetailsDto.setIniDate(run.getIniDate().toString());
         experimentDetailsDto.setLastDate(run.getModificationDate().toString());
-        experimentDetailsDto.setBestIndividual(diagramData.getBestIndividual());
-        experimentDetailsDto.setCurrentGeneration(diagramData.getCurrentGeneration());
+        if (diagramData != null) {
+            experimentDetailsDto.setBestIndividual(diagramData.getBestIndividual());
+            experimentDetailsDto.setCurrentGeneration(diagramData.getCurrentGeneration());
+        }
         experimentDetailsDto.setExecutionReport(run.getExecutionReport());
         return experimentDetailsDto;
     }
@@ -623,19 +626,24 @@ public class ExperimentController {
 
     @GetMapping(value = "/experiment/runList", params = "showTestStatsPlotButton")
     public String showRunTestStatsExperiment(Model model,
-                                             @RequestParam(value = "runId") String runId) {
+                                             @RequestParam(value = "runId") String runId) throws EvaluationException {
         Run run = runService.findByRunId(Long.parseLong(runId));
-        run.getDefaultExpDataTypeId();
-        DiagramData diagramData = diagramDataService.findByRunId(run);
+        List<Double> listYLine = new ArrayList<>();
+        List<Double> listFunctionResult = new ArrayList<>();
+        String[] splitContent=
+                experimentService.findExperimentDataTypeById(run.getDefaultExpDataTypeId()).getinfo().split("\r\n");
 
-        if (run.getStatus().equals(Run.Status.RUNNING)) {
-            ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, diagramData);
-            model.addAttribute("expDetails", experimentDetailsDto);
-            return "experiment/experimentDetails";
+        for(int i = 1;i<splitContent.length;i++){
+            String[] contentSplit = splitContent[i].split(";");
+            listYLine.add(Double.valueOf(contentSplit[0]));
+            listFunctionResult.add(SymbolicRegressionGE.calculateFunctionValuedResultWithCSVData(run.getModel(),
+                    contentSplit));
         }
 
-        ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, diagramData);
+        ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, null);
         model.addAttribute("expDetails", experimentDetailsDto);
+        model.addAttribute("listYLine", listYLine);
+        model.addAttribute("listFunctionResult", listFunctionResult);
 
         return "experiment/showTestStatsPlot";
     }
@@ -1055,7 +1063,7 @@ public class ExperimentController {
 
                     if (matcher.find()) {
                         //j.c.algorithm.ga.SimpleGeneticAlgorithm
-                        infoFormated += matcher.group()+"\r\n";
+                        infoFormated += matcher.group() + "\r\n";
                     } else {
                         //c.engine.algorithm.SymbolicRegressionGE
                         infoFormated += logInfo.substring(logInfo.indexOf(messageSkip) + messageSkip.length());
