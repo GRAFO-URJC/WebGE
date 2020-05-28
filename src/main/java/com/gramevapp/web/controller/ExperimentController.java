@@ -16,14 +16,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.uma.jmetal.util.fileoutput.SolutionSetOutput;
 
 import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,7 +31,7 @@ import static com.engine.util.Common.TRAINING_PATH_PROP;
 public class ExperimentController {
 
     private HashMap<Long, Thread> threadMap = new HashMap();
-    private static HashMap<String, Run> threadRunMap = new HashMap();
+    private static HashMap<String, Long> threadRunMap = new HashMap();
     private static HashMap<Long, RunnableExpGramEv> runnables = new HashMap();
 
     @Autowired
@@ -674,7 +672,7 @@ public class ExperimentController {
         Thread th = new Thread(obj);
         th.setUncaughtExceptionHandler(h);
         threadMap.put(th.getId(), th);
-        threadRunMap.put(th.getName(), run);
+        threadRunMap.put(th.getName(), run.getId());
         run.setThreaId(th.getId());
         runnables.put(th.getId(), obj);
         // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
@@ -926,23 +924,13 @@ public class ExperimentController {
             redirectAttrs.addAttribute("showPlotExecutionButton", "showPlotExecutionButton");
             return "redirect:experiment/runList";
         }
-        
-        Thread thread = new Thread(()->{
-            th.interrupt();
-            runnables.get(threadId).stopExecution();
-            try {
-                th.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        th.interrupt();
+        runnables.get(threadId).stopExecution();
 
-            run.setStatus(Run.Status.STOPPED);
-            run.getDiagramData().setStopped(true);
-            diagramDataService.saveDiagram(run.getDiagramData());
-            runService.saveRun(run);
-        });
-
-        thread.start();
+        run.setStatus(Run.Status.STOPPED);
+        run.getDiagramData().setStopped(true);
+        diagramDataService.saveDiagram(run.getDiagramData());
+        runService.saveRun(run);
 
         ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, run.getDiagramData());
 
@@ -1085,7 +1073,7 @@ public class ExperimentController {
                     matcher = pattern.matcher(logInfo);
                     if (matcher.find()) {
                         String threadName = matcher.group();
-                        Run run = threadRunMap.get(threadName);
+                        Run run = runService.findByRunId(threadRunMap.get(threadName));
                         if (run != null) {
                             if (run.getExecutionReport() == null) {
                                 run.setExecutionReport(new String());
