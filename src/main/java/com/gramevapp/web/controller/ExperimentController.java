@@ -926,12 +926,23 @@ public class ExperimentController {
             redirectAttrs.addAttribute("showPlotExecutionButton", "showPlotExecutionButton");
             return "redirect:experiment/runList";
         }
-        run.setStatus(Run.Status.STOPPED);
-        run.getDiagramData().setStopped(true);
-        runService.saveRun(run);
+        
+        Thread thread = new Thread(()->{
+            th.interrupt();
+            runnables.get(threadId).stopExecution();
+            try {
+                th.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-        th.interrupt();
-        runnables.get(threadId).stopExecution();
+            run.setStatus(Run.Status.STOPPED);
+            run.getDiagramData().setStopped(true);
+            diagramDataService.saveDiagram(run.getDiagramData());
+            runService.saveRun(run);
+        });
+
+        thread.start();
 
         ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, run.getDiagramData());
 
