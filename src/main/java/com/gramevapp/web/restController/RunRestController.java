@@ -45,11 +45,14 @@ public class RunRestController {
         }
 
         if (run.getDiagramData().getStopped()) {
+            run.setModel(ExperimentController.getRunnables().get(run.getThreaId()).getModel());
             this.setStatus(run, Run.Status.STOPPED);
         }
         if (run.getDiagramData().getFailed()) {
+            run.setModel(ExperimentController.getRunnables().get(run.getThreaId()).getModel());
             this.setStatus(run, Run.Status.FAILED);
         }
+        runService.saveRun(run);
 
         return run;
     }
