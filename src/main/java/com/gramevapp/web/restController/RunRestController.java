@@ -25,10 +25,6 @@ public class RunRestController {
     public @ResponseBody
     Run getRunStatus(String runId, String status) {
 
-        User user = userService.getLoggedInUser();
-        if (user == null)
-            System.out.println("User not authenticated");
-
         if (runId == "")
             return null;
 
@@ -52,7 +48,6 @@ public class RunRestController {
             run.setModel(ExperimentController.getRunnables().get(run.getThreaId()).getModel());
             this.setStatus(run, Run.Status.FAILED);
         }
-        runService.saveRun(run);
 
         return run;
     }
