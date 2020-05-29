@@ -2,6 +2,7 @@ package com.gramevapp.web.controller;
 
 import com.engine.algorithm.RunnableExpGramEv;
 import com.engine.algorithm.SymbolicRegressionGE;
+import com.engine.util.UtilStats;
 import com.gramevapp.web.model.*;
 import com.gramevapp.web.repository.GrammarRepository;
 import com.gramevapp.web.service.DiagramDataService;
@@ -628,20 +629,33 @@ public class ExperimentController {
         Run run = runService.findByRunId(Long.parseLong(runId));
         List<Double> listYLine = new ArrayList<>();
         List<Double> listFunctionResult = new ArrayList<>();
-        String[] splitContent=
+        String[] splitContent =
                 experimentService.findExperimentDataTypeById(run.getDefaultExpDataTypeId()).getinfo().split("\r\n");
 
-        for(int i = 1;i<splitContent.length;i++){
+        double[] yDoubleArray = new double[splitContent.length - 1];
+        double[] functionResultDoubleArray = new double[splitContent.length - 1];
+        double yValue, modelValue;
+
+        for (int i = 1; i < splitContent.length; i++) {
             String[] contentSplit = splitContent[i].split(";");
-            listYLine.add(Double.valueOf(contentSplit[0]));
-            listFunctionResult.add(SymbolicRegressionGE.calculateFunctionValuedResultWithCSVData(run.getModel(),
-                    contentSplit));
+            yValue = Double.parseDouble(contentSplit[0]);
+            modelValue = SymbolicRegressionGE.calculateFunctionValuedResultWithCSVData(run.getModel(),
+                    contentSplit);
+            listYLine.add(yValue);
+            listFunctionResult.add(modelValue);
+            yDoubleArray[i - 1] = yValue;
+            functionResultDoubleArray[i - 1] = modelValue;
+
         }
 
         ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, null);
         model.addAttribute("expDetails", experimentDetailsDto);
         model.addAttribute("listYLine", listYLine);
         model.addAttribute("listFunctionResult", listFunctionResult);
+        model.addAttribute("RSME", UtilStats.computeRMSE(yDoubleArray,functionResultDoubleArray));
+        model.addAttribute("AvgError", UtilStats.computeAvgError(yDoubleArray,functionResultDoubleArray));
+        model.addAttribute("RSquare", UtilStats.computeRSquare(yDoubleArray,functionResultDoubleArray));
+        model.addAttribute("absoluteError", UtilStats.computeAbsoluteError(yDoubleArray,functionResultDoubleArray));
 
         return "experiment/showTestStatsPlot";
     }
