@@ -60,11 +60,13 @@ public class ExperimentController {
     private final String PROPERTIES_DIR_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "properties" + File.separator + "";
 
     private void modelAddData(Model model, User user, Grammar grammar, ExperimentDataType experimentDataType,
-                              List<ExperimentDataType> experimentDataTypeList) {
+                              List<ExperimentDataType> experimentDataTypeList, Long testExperimentDataTypeId) {
+        ExperimentDataType testExperimentDataType = testExperimentDataTypeId == null ? null : experimentService.findDataTypeById(testExperimentDataTypeId);
         model.addAttribute("grammarList", grammarRepository.findByUserId(user.getId()));
         model.addAttribute("datasetList", experimentService.findAllExperimentDataTypeByUserId(user.getId()));
         model.addAttribute("grammar", grammar);
         model.addAttribute("experimentDataType", experimentDataType);
+        model.addAttribute("testExperimentDataType", testExperimentDataType);
         model.addAttribute("dataTypeList", experimentDataTypeList);
     }
 
@@ -86,7 +88,7 @@ public class ExperimentController {
         model.addAttribute("user", user);
         model.addAttribute("configExp", new ConfigExperimentDto());
         model.addAttribute("disabledClone", true);
-        modelAddData(model, user, null, null, null);
+        modelAddData(model, user, null, null, null, null);
 
         return "experiment/configExperiment";
     }
@@ -113,6 +115,7 @@ public class ExperimentController {
     public String runExperiment(Model model,
                                 @RequestParam("grammarId") String grammarId,
                                 @RequestParam("experimentDataTypeId") String experimentDataTypeId,
+                                @RequestParam("testExperimentDataTypeId") String testExperimentDataTypeId,
                                 @ModelAttribute("type") ExperimentDataTypeDto expDataTypeDto,
                                 @RequestParam("radioDataType") String radioDataTypeHidden,
                                 @ModelAttribute("typeFile") FileModelDto fileModelDto,
@@ -121,7 +124,7 @@ public class ExperimentController {
                                 RedirectAttributes redirectAttrs) throws IllegalStateException, IOException {
 
         User user = userService.getLoggedInUser();
-        modelAddData(model, user, null, null, null);
+        modelAddData(model, user, null, null, null, null);
 
         // Check the data received
         if (result.hasErrors()) {
@@ -164,8 +167,10 @@ public class ExperimentController {
         // Experiment section:
         Experiment exp = experimentSection(configExpDto.getId() != null ?
                         experimentService.findExperimentById(configExpDto.getId()) : null
-                , user, expDataType, configExpDto, grammar, run, currentTimestamp, run.getId());
-        exp.setDefaultGrammar(grammar.getId());
+                , user,
+                (testExperimentDataTypeId.equals("")) ? null : experimentService.
+                        findExperimentDataTypeById(Long.valueOf(testExperimentDataTypeId))
+                , expDataType, configExpDto, grammar, run, currentTimestamp, run.getId());
         experimentService.saveExperiment(exp);
         // END - Experiment section
 
@@ -249,6 +254,7 @@ public class ExperimentController {
         }
         Grammar grammar = experimentService.findGrammarById(run.getExperimentId().getDefaultGrammar());
         ExperimentDataType expDataType = experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType());
+        Experiment experiment = experimentService.findExperimentById(run.getExperimentId().getId());
 
         List<Run> runList = run.getExperimentId().getIdRunList();
         List<ExperimentDataType> expDataTypeList = run.getExperimentId().getIdExpDataTypeList();
@@ -260,7 +266,7 @@ public class ExperimentController {
         model.addAttribute("runList", runList);
         model.addAttribute("dataTypeList", expDataTypeList);
         model.addAttribute("configExp", configExpDto);
-        modelAddData(model, user, grammar, expDataType, expDataTypeList);
+        modelAddData(model, user, grammar, expDataType, expDataTypeList, experiment.getDefaultTestExpDataTypeId());
 
         return "experiment/configExperiment";
     }
@@ -269,6 +275,7 @@ public class ExperimentController {
     public String saveExperiment(Model model,
                                  @RequestParam("grammarId") String grammarId,
                                  @RequestParam("experimentDataTypeId") String experimentDataTypeId,
+                                 @RequestParam("testExperimentDataTypeId") String testExperimentDataTypeId,
                                  @ModelAttribute("type") ExperimentDataTypeDto expDataTypeDto,
                                  @RequestParam("radioDataType") String radioDataTypeHidden,
                                  @ModelAttribute("typeFile") FileModelDto fileModelDto,
@@ -276,7 +283,7 @@ public class ExperimentController {
                                  BindingResult result) throws IllegalStateException, IOException {
 
         User user = userService.getLoggedInUser();
-        modelAddData(model, user, null, null, null);
+        modelAddData(model, user, null, null, null, null);
 
         if (result.hasErrors()) {
             model.addAttribute("configuration", configExpDto);
@@ -310,7 +317,9 @@ public class ExperimentController {
         if (configExpDto.getId() != null) {
             exp = experimentService.findExperimentById(configExpDto.getId());
         }
-        exp = experimentSection(exp, user, expDataType, configExpDto, updGrammar,
+        ExperimentDataType testExperimentDataType = (testExperimentDataTypeId.equals("")) ? null : experimentService.
+                findExperimentDataTypeById(Long.valueOf(testExperimentDataTypeId));
+        exp = experimentSection(exp, user, testExperimentDataType, expDataType, configExpDto, updGrammar,
                 null, currentTimestamp, null);
         // END - Experiment section
 
@@ -332,7 +341,7 @@ public class ExperimentController {
 
         modelAddData(model, user, grammarRepository.findGrammarById(Long.valueOf(grammarId)),
                 experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
-                exp.getIdExpDataTypeList());
+                exp.getIdExpDataTypeList(), testExperimentDataType == null ? null : testExperimentDataType.getId());
         return "experiment/configExperiment";
 
     }
@@ -354,7 +363,7 @@ public class ExperimentController {
         model.addAttribute("expConfig", configExpDto);
         modelAddData(model, user, grammarRepository.findGrammarById(Long.valueOf(grammarId)),
                 experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
-                null);
+                null, configExpDto.getTestDefaultExpDataTypeId());
         model.addAttribute("disabledClone", true);
         model.addAttribute("messageClone", "This experiment is cloned and not saved yet.");
         return "experiment/configExperiment";
@@ -473,7 +482,7 @@ public class ExperimentController {
                 grammar, expDataType);
 
         modelAddData(model, user, grammar, experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()),
-                exp.getIdExpDataTypeList());
+                exp.getIdExpDataTypeList(), exp.getDefaultTestExpDataTypeId());
         model.addAttribute("runList", runList);
         model.addAttribute("configuration", configExpDto);
         model.addAttribute("configExp", configExpDto);
@@ -539,40 +548,6 @@ public class ExperimentController {
         experimentService.saveExperiment(expConfig);
         experimentService.deleteExperiment(expConfig);
         return idExp;
-    }
-
-    @RequestMapping(value = "/experiment/runList", method = RequestMethod.GET, params = "loadExperimentButton")
-    public String loadExperiment(Model model,
-                                 @RequestParam("runId") String runId) {
-        User user = userService.getLoggedInUser();
-        Long longRunId = Long.parseLong(runId);
-        Run run = runService.findByRunId(longRunId);
-
-        Grammar grammar = experimentService.findGrammarById(run.getDefaultGrammarId());
-        ExperimentDataType expDataType = experimentService.findExperimentDataTypeById(run.getDefaultExpDataTypeId());
-        List<Run> runList = run.getExperimentId().getIdRunList();
-
-        run.setDefaultRunId(longRunId);
-        run.getExperimentId().setDefaultGrammar(grammar.getId());
-        run.getExperimentId().setDefaultExpDataType(expDataType.getId());
-        run.getExperimentId().setDefaultRunId(longRunId);   // To know what run to load
-
-        ConfigExperimentDto configExpDto = new ConfigExperimentDto();
-        configExpDto = fillConfigExpDto(configExpDto, run.getExperimentId(), run, grammar, expDataType);
-
-        experimentService.findExperimentDataTypeById(run.getDefaultExpDataTypeId());
-
-        modelAddData(model,
-                user,
-                grammar,
-                experimentService.findExperimentDataTypeById(run.getDefaultExpDataTypeId()),
-                null);
-        model.addAttribute("configuration", configExpDto);
-        model.addAttribute("configExp", configExpDto);
-        model.addAttribute("runList", runList);
-        model.addAttribute("dataTypeList", run.getExperimentId().getIdExpDataTypeList());
-
-        return "experiment/configExperiment";
     }
 
     private ExperimentDetailsDto setExperimentDetailDto(Run run, DiagramData diagramData) {
@@ -652,10 +627,10 @@ public class ExperimentController {
         model.addAttribute("expDetails", experimentDetailsDto);
         model.addAttribute("listYLine", listYLine);
         model.addAttribute("listFunctionResult", listFunctionResult);
-        model.addAttribute("RSME", UtilStats.computeRMSE(yDoubleArray,functionResultDoubleArray));
-        model.addAttribute("AvgError", UtilStats.computeAvgError(yDoubleArray,functionResultDoubleArray));
-        model.addAttribute("RSquare", UtilStats.computeRSquare(yDoubleArray,functionResultDoubleArray));
-        model.addAttribute("absoluteError", UtilStats.computeAbsoluteError(yDoubleArray,functionResultDoubleArray));
+        model.addAttribute("RSME", UtilStats.computeRMSE(yDoubleArray, functionResultDoubleArray));
+        model.addAttribute("AvgError", UtilStats.computeAvgError(yDoubleArray, functionResultDoubleArray));
+        model.addAttribute("RSquare", UtilStats.computeRSquare(yDoubleArray, functionResultDoubleArray));
+        model.addAttribute("absoluteError", UtilStats.computeAbsoluteError(yDoubleArray, functionResultDoubleArray));
 
         return "experiment/showTestStatsPlot";
     }
@@ -851,7 +826,8 @@ public class ExperimentController {
         return expDataType;
     }
 
-    public Experiment experimentSection(Experiment exp, User user, ExperimentDataType expDataType,
+    public Experiment experimentSection(Experiment exp, User user, ExperimentDataType testExpDataType,
+                                        ExperimentDataType expDataType,
                                         ConfigExperimentDto configExpDto, Grammar grammar, Run run,
                                         java.sql.Timestamp currentTimestamp, Long longDefaultRunId) {
         if (exp == null) {   // We create it
@@ -894,9 +870,13 @@ public class ExperimentController {
         }
         exp.addGrammar(grammar);
         exp.addExperimentDataType(expDataType);
-
         exp.setDefaultGrammar(grammar.getId());
         exp.setDefaultExpDataType(expDataType.getId());
+        exp.setDefaultTestExpDataTypeId(testExpDataType != null ? testExpDataType.getId() : null);
+
+        if (testExpDataType != null && !exp.getIdExpDataTypeList().contains(testExpDataType)) {
+            exp.getIdExpDataTypeList().add(testExpDataType);
+        }
 
         return exp;
     }
