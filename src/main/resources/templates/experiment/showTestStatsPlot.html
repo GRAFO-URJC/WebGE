@@ -52,19 +52,28 @@
                     </div>
                     <div class="col-sm-6 col-md-6 col-lg-6">
                         <h4>
-                            <label>Run status: </label>
+                            <label>RSME: </label>
+                            <label th:text="${RSME}"/>
                         </h4>
                     </div>
                 </div>
                 <div class="row form-group text-center" style="margin-bottom: 0px;">
-                    <div class="col-sm-6 col-md-6 col-lg-6">
+                    <div class="col-sm-4 col-md-4 col-lg-4">
                         <h4>
-                            <label>Best individual: </label>
+                            <label>AVG Error: </label>
+                            <label th:text="${AvgError}"/>
                         </h4>
                     </div>
-                    <div class="col-sm-6 col-md-6 col-lg-6">
+                    <div class="col-sm-4 col-md-4 col-lg-4">
                         <h4>
-                            <label>Current generation: </label>
+                            <label>RSquare: </label>
+                            <label th:text="${RSquare}"/>
+                        </h4>
+                    </div>
+                    <div class="col-sm-4 col-md-4 col-lg-4">
+                        <h4>
+                            <label>AbsoluteError: </label>
+                            <label th:text="${absoluteError}"/>
                         </h4>
                     </div>
                 </div>
@@ -95,16 +104,16 @@
                 },
                 data: [{
                     markerSize: 4,
-                    color: "OrangeRed",
+                    color: "Blue",
                     type: "line",
                     dataPoints: yColumnDataPoints,
-                    toolTipContent: "Solution : <b>{y}</b> <br/> Index y column: <b>{x}</b>"
+                    toolTipContent: "Solution y column : <b>{y}</b> "
                 }, {
                     markerSize: 4,
                     color: "OrangeRed",
                     type: "line",
                     dataPoints: modelColumnDataPoints,
-                    toolTipContent: "Solution : <b>{y}</b> <br/> Index model : <b>{x}</b>"
+                    toolTipContent: "Solution model: <b>{y}</b>"
                 }],
                 axisX: {
                     title: "Index",
