@@ -52,9 +52,7 @@
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" th:href="${#authentication.getAuthorities().toArray()[0].getAuthority().equals('ROLE_ADMIN')}
-                            ?'/admin':'/'">
-                    <img style="height: 45px;padding-bottom: 5px" th:src="@{/images/index/Logo_urjc.png}"/>WebGE</a>
+                    <img style="height: 75px;padding-bottom: 5px" th:src="@{/images/index/Logo_urjc.png}"/>
             </div>
 
             <div class="collapse navbar-collapse header-collapse">
@@ -81,6 +79,7 @@
                             <span class="glyphicon glyphicon-user"></span>
                         </span>
                     </a></li>
+
                     <li><a th:href="@{/admin/userList}" rel="tooltip" title="List of users"><span
                             class="glyphicon glyphicon-th-list"></span></a></li>
                     <li><a th:href="@{/admin/profile}" rel="tooltip" title="User profile"><span
@@ -96,6 +95,10 @@
                                          class="navbar-text navbar-right btn-sm btn btn-default"><span
                         style="color:#4183c4" class="glyphicon glyphicon-log-in" rel="tooltip"
                         title="Log in"></span></p></a>
+                <a th:href="${#authentication.getAuthorities().toArray()[0].getAuthority().equals('ROLE_ADMIN')}
+                            ?'/admin':'/'"><p
+                        class="navbar-text navbar-right btn-sm btn btn-default" rel="tooltip"
+                        title="Home page">Webge</p></a>
 
             </div>
         </div>
