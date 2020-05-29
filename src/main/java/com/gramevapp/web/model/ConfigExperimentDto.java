@@ -51,14 +51,18 @@ public class ConfigExperimentDto {
     private Integer numberRuns = 1;
     private Long defaultGrammarId;
     private Long defaultExpDataTypeId;
+    private Long testDefaultExpDataTypeId;
     private String grammarName;
     private String grammarDescription;
     @NotEmpty(message = "Grammar area text cannot be empty")
     private String fileText; // This is the text on the file - That's written in an areaText - So we can take it as a String
     private String dataTypeName;
+    private String testDataTypeName;
     @NotEmpty(message = "Grammar area text cannot be empty")
     private String info;
+    private String testInfo;
     private String dataTypeDescription; // status
+    private String testDataTypeDescription;
     @NotEmpty(message = "Choose one data type option")
     private String dataTypeType = "training";   // Validation, test, training
 
@@ -284,5 +288,37 @@ public class ConfigExperimentDto {
 
     public void setDefaultRunId(Long defaultRunId) {
         this.defaultRunId = defaultRunId;
+    }
+
+    public Long getTestDefaultExpDataTypeId() {
+        return testDefaultExpDataTypeId;
+    }
+
+    public void setTestDefaultExpDataTypeId(Long testDefaultExpDataTypeId) {
+        this.testDefaultExpDataTypeId = testDefaultExpDataTypeId;
+    }
+
+    public String getTestDataTypeName() {
+        return testDataTypeName;
+    }
+
+    public void setTestDataTypeName(String testDataTypeName) {
+        this.testDataTypeName = testDataTypeName;
+    }
+
+    public String getTestDataTypeDescription() {
+        return testDataTypeDescription;
+    }
+
+    public void setTestDataTypeDescription(String testDataTypeDescription) {
+        this.testDataTypeDescription = testDataTypeDescription;
+    }
+
+    public String getTestInfo() {
+        return testInfo;
+    }
+
+    public void setTestInfo(String testInfo) {
+        this.testInfo = testInfo;
     }
 }

@@ -60,6 +60,9 @@ public class Experiment {
     @Column
     private Long defaultExpDataType;
 
+    @Column
+    private Long defaultTestExpDataTypeId;
+
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToMany(fetch = FetchType.LAZY,
             cascade = CascadeType.ALL,
@@ -452,5 +455,13 @@ public class Experiment {
 
     public String getModificationDateFormated() {
         return DateFormat.formatDate(modificationDate);
+    }
+
+    public Long getDefaultTestExpDataTypeId() {
+        return defaultTestExpDataTypeId;
+    }
+
+    public void setDefaultTestExpDataTypeId(Long defaultTestExpDataTypeId) {
+        this.defaultTestExpDataTypeId = defaultTestExpDataTypeId;
     }
 }

@@ -238,27 +238,14 @@
 
                             <div class="row form-group center-block">
                                 <div class="col-sm-12 col-md-12 col-lg-8">
-                                    <!-- Error handling -->
-                                    <p class="text-warning"
-                                       th:each="error : ${#fields.errors('dataTypeName')}"
-                                       th:text="${error}">Validation error</p>
-                                    <!-- END error handling -->
-                                    <div th:classappend="${#fields.hasErrors('dataTypeName')}? 'has-error':'dataTypeName error'">
-                                        <input type="text" class="form-control" name="dataTypeName" id="dataTypeName"
-                                               th:value="${configuration.getDataTypeName()}"
-                                               placeholder="Name of dataset"
-                                               readonly/>
-                                    </div>
+                                    <input type="text" class="form-control" name="dataTypeName" id="dataTypeName"
+                                           th:value="${configuration.getDataTypeName()}"
+                                           placeholder="Name of dataset"
+                                           readonly/>
                                 </div>
                             </div>
                             <div class="row form-group">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <!-- Error handling -->
-                                    <p class="text-warning"
-                                       th:each="error: ${#fields.errors('dataTypeDescription')}"
-                                       th:text="${error}">Validation error
-                                    </p>
-                                    <!-- END error handling -->
                                     <div th:classappend="${#fields.hasErrors('dataTypeDescription')}? 'has-error':'dataTypeDescription error'">
                                         <input type="text" class="form-control" name="dataTypeDescription"
                                                id="dataTypeDescription"
@@ -283,10 +270,52 @@
                                 <textarea rows="5" class="form-control" th:text="${configuration.getinfo()}" name="info"
                                           id="info" readonly/>
                                 </div>
-
                             </div>
                         </div>
                         <!-- END Training Test Validation files -->
+                        <!-- Test Test files -->
+                        <div class="col-sm-12 col-md-12 col-lg-12 center-block">
+                            <div class="jumbotron row form-group">
+                                <h3>Test Dataset</h3>
+                            </div>
+
+                            <div class="row form-group center-block">
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <select id="testDatasetId" name="testDatasetId" onchange="updateTestDatasetContent()">
+                                        <option value="">Select a dataset ...</option>
+                                        <option th:each="dataset,ite : ${datasetList}" th:value="${ite.index}"
+                                                th:text="${dataset.getDataTypeName() + ' - ' + dataset.getDataTypeDescription()}"
+                                                th:selected="(${(testExperimentDataType !=null) && (testExperimentDataType.getId() == dataset.getId())})"/>
+                                    </select>
+                                    <input id="testExperimentDataTypeId" name="testExperimentDataTypeId" hidden="true"/>
+                                </div>
+                            </div>
+
+                            <div class="row form-group center-block">
+                                <div class="col-sm-12 col-md-12 col-lg-8">
+                                    <input type="text" class="form-control" name="testDataTypeName" id="testDataTypeName"
+                                           th:value="${configuration.getTestDataTypeName()}"
+                                           placeholder="Name of dataset"
+                                           readonly/>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <input type="text" class="form-control" name="testDataTypeDescription"
+                                           id="testDataTypeDescription"
+                                           th:value="${configuration.getTestDataTypeDescription()}"
+                                           placeholder="Description of the file" readonly/>
+                                </div>
+                            </div>
+
+                            <div class="row form-group text-center">
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                <textarea rows="5" class="form-control" th:text="${configuration.getTestInfo()}" name="testInfo"
+                                          id="testInfo" readonly/>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- END Test dataset-->
 
                         <div class="col-sm-12 col-md-12 col-lg-12">
                             <hr/>
@@ -376,7 +405,8 @@
                                         execution</a>
                                 </td>
                                 <td scope="row" th:id="'showDelete'+${iterStat.index}">
-                                    <a th:id="'showTestStats'+${iterStat.index}" th:href="@{/experiment/runList(runId=${run.getId()}, showTestStatsPlotButton='showTestStatsPlotButton')}"
+                                    <a th:id="'showTestStats'+${iterStat.index}"
+                                       th:href="@{/experiment/runList(runId=${run.getId()}, showTestStatsPlotButton='showTestStatsPlotButton')}"
                                        target="_blank" class="btn-default btn-sm btn loadButton">Test stats</a>
                                     <button type="button" th:name="${run.id}"
                                             th:id="${'deleteRun' + iterStat.index}"
@@ -419,6 +449,20 @@
                 $('#dataTypeName').val("");
                 $('#dataTypeDescription').val("");
                 $('#info').val("");
+            }
+        }
+
+        function updateTestDatasetContent() {
+            if ($('#testDatasetId').val() != "") {
+                let i = parseInt($('#testDatasetId').val());
+                $('#testDataTypeName').val(datasetListInfo[i].dataTypeName);
+                $('#testDataTypeDescription').val(datasetListInfo[i].dataTypeDescription);
+                $('#testInfo').val(datasetListInfo[i].info);
+                $('#testExperimentDataTypeId').val(datasetListInfo[i].idDataset);
+            } else {
+                $('#testDataTypeName').val("");
+                $('#testDataTypeDescription').val("");
+                $('#testInfo').val("");
             }
         }
 
@@ -523,6 +567,7 @@
             saveDatasetInfo();
             updateGrammarContent();
             updateDatasetContent()
+            updateTestDatasetContent()
 
             $('[name="status"]').each(function (index) {
                 if (($(this).text() == "FINISHED") || ($(this).text() == "STOPPED") || ($(this).text() == "FAILED")) {
