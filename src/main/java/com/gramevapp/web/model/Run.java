@@ -100,8 +100,9 @@ public class Run {
     private Integer numberRuns = 1;
     @Column
     private String model = "";
-    @Column
-    private String executionReport;
+    @OneToOne(mappedBy = "run", cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY)
+    private RunExecutionReport RunExecutionReport;
 
     public Run(Run run) {
         this(run.getExperimentId(), run.getDiagramData(), run.getBestIndividual(), run.getCurrentGeneration(), run.getIdProperties(), run.getStatus(), run.getIniDate(), run.getModificationDate(), run.getExperimentName(), run.getExperimentDescription(), run.getDefaultRunId(), run.getGenerations(), run.getPopulationSize(), run.getMaxWraps(), run.getTournament(), run.getCrossoverProb(), run.getMutationProb(), run.getInitialization(), run.getObjective(), run.getResults(), run.getNumCodons(), run.getNumberRuns());
@@ -412,11 +413,11 @@ public class Run {
         this.model = model;
     }
 
-    public String getExecutionReport() {
-        return executionReport;
+    public com.gramevapp.web.model.RunExecutionReport getRunExecutionReport() {
+        return RunExecutionReport;
     }
 
-    public void setExecutionReport(String executionReport) {
-        this.executionReport = executionReport;
+    public void setRunExecutionReport(com.gramevapp.web.model.RunExecutionReport runExecutionReport) {
+        RunExecutionReport = runExecutionReport;
     }
 }

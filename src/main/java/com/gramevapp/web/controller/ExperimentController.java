@@ -142,7 +142,6 @@ public class ExperimentController {
             return "experiment/configExperiment";
         }
 
-
         // CONFIGURATION SECTION
         // GRAMMAR SECTION
         Grammar grammar = grammarRepository.findGrammarById(Long.parseLong(grammarId));
@@ -526,6 +525,7 @@ public class ExperimentController {
             listRunIt.remove();
             runIt.setExperimentId(null);
             runIt.getDiagramData().setRunId(null);
+            runService.removeExecutionReport(runService.getRunExecutionReport(runIt.getId()));
             experimentService.deleteExpProperties(experimentService.findPropertiesById(runIt.getIdProperties()));
             diagramDataService.deleteDiagram(runIt.getDiagramData());
         }
@@ -575,7 +575,7 @@ public class ExperimentController {
             experimentDetailsDto.setBestIndividual(diagramData.getBestIndividual());
             experimentDetailsDto.setCurrentGeneration(diagramData.getCurrentGeneration());
         }
-        experimentDetailsDto.setExecutionReport(run.getExecutionReport());
+        experimentDetailsDto.setExecutionReport(runService.getRunExecutionReport(run.getId()).getExecutionReport());
         return experimentDetailsDto;
     }
 
@@ -650,11 +650,9 @@ public class ExperimentController {
             public void uncaughtException(Thread th, Throwable ex) {
                 run.setStatus(Run.Status.FAILED);
                 run.getDiagramData().setFailed(true);
-                if (run.getExecutionReport() == null) {
-                    run.setExecutionReport(new String());
-                }
-                run.setExecutionReport(run.getExecutionReport() + "\nUncaught exception: " + ex);
-                runService.saveRun(run);
+                RunExecutionReport runExecutionReport = runService.getRunExecutionReport(run.getId());
+                runExecutionReport.setExecutionReport(runExecutionReport.getExecutionReport() + "\nUncaught exception: " + ex);
+                runService.saveRunExecutionReport(runExecutionReport);
                 System.out.println(("Uncaught exception: " + ex));
             }
         };
@@ -782,6 +780,9 @@ public class ExperimentController {
         run.setResults(configExpDto.getResults());
         run.setNumCodons(configExpDto.getNumCodons());
         run.setNumberRuns(configExpDto.getNumberRuns());
+        RunExecutionReport runExecutionReport = new RunExecutionReport();
+        runExecutionReport.setId(run.getId());
+        runService.saveRunExecutionReport(runExecutionReport);
 
         return run;
     }
@@ -891,6 +892,7 @@ public class ExperimentController {
                 th.interrupt();
                 runnables.get(oldRun.getThreaId()).stopExecution();
             }
+            runService.removeExecutionReport(runService.getRunExecutionReport(oldRun.getId()));
             exp.removeRun(oldRun);
             runService.deleteRun(oldRun);
         }
@@ -1067,15 +1069,11 @@ public class ExperimentController {
                     matcher = pattern.matcher(logInfo);
                     if (matcher.find()) {
                         String threadName = matcher.group();
-                        Run run = runService.findByRunId(threadRunMap.get(threadName));
-                        if (run != null) {
-                            if (run.getExecutionReport() == null) {
-                                run.setExecutionReport(new String());
-                            }
-                            run.setExecutionReport(run.getExecutionReport() + "\n" + infoFormated);
-                            runService.saveRun(run);
-                        }
+                        RunExecutionReport runExecutionReport = runService.getRunExecutionReport(threadRunMap.get(threadName));
+                        runExecutionReport.setExecutionReport(runExecutionReport.getExecutionReport() + "\n" + infoFormated);
+                        runService.saveRunExecutionReport(runExecutionReport);
                     }
+
                 }
 
                 super.write(buf, off, len);
