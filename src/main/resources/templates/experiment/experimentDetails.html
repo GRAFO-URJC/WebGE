@@ -188,7 +188,7 @@
                     isFailed = data['failed'];
 
                     chart.render();
-                    executionReportTextArea.textContent=data['runId']['executionReport'];
+                    executionReportTextArea.textContent=data['runId']['runExecutionReport']['executionReport'];
                     executionReportTextArea.scrollTop = executionReportTextArea.scrollHeight;
                 },
                 complete: function (data) {
