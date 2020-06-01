@@ -1100,6 +1100,9 @@ public class ExperimentController {
                     if (matcher.find()) {
                         String threadName = matcher.group();
                         RunExecutionReport runExecutionReport = runService.getRunExecutionReport(threadRunMap.get(threadName));
+                        if(runExecutionReport.getExecutionReport()==null){
+                            runExecutionReport.setExecutionReport("");
+                        }
                         runExecutionReport.setExecutionReport(runExecutionReport.getExecutionReport() + "\n" + infoFormated);
                         runService.saveRunExecutionReport(runExecutionReport);
                     }
