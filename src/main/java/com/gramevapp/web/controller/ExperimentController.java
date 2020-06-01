@@ -604,9 +604,46 @@ public class ExperimentController {
         Run run = runService.findByRunId(Long.parseLong(runId));
         List<Double> listYLine = new ArrayList<>();
         List<Double> listFunctionResult = new ArrayList<>();
+        List<Double> trainingResult = new ArrayList<>();
         String[] splitContent =
                 experimentService.findExperimentDataTypeById(run.getDefaultExpDataTypeId()).getinfo().split("\r\n");
 
+        processExperimentDataTypeInfo(splitContent, listYLine, listFunctionResult, trainingResult, run);
+
+        ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, null);
+        model.addAttribute("expDetails", experimentDetailsDto);
+        model.addAttribute("listYLine", listYLine);
+        model.addAttribute("listFunctionResult", listFunctionResult);
+        model.addAttribute("RMSE", trainingResult.get(0));
+        model.addAttribute("AvgError", trainingResult.get(1));
+        model.addAttribute("RSquare", trainingResult.get(2));
+        model.addAttribute("absoluteError", trainingResult.get(3));
+        model.addAttribute("index", run.getExperimentId().getIdRunList().indexOf(run) + 1);
+        model.addAttribute("model", run.getModel());
+
+        if (run.getExperimentId().getDefaultTestExpDataTypeId() != null) {
+            List<Double> testListYLine = new ArrayList<>();
+            List<Double> testListFunctionResult = new ArrayList<>();
+            List<Double> testResult = new ArrayList<>();
+            splitContent = experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultTestExpDataTypeId()).getinfo().split("\r\n");
+
+            processExperimentDataTypeInfo(splitContent, testListYLine, testListFunctionResult, testResult, run);
+            model.addAttribute("testRMSE", testResult.get(0));
+            model.addAttribute("testAvgError", testResult.get(1));
+            model.addAttribute("testRSquare", testResult.get(2));
+            model.addAttribute("testAbsoluteError", testResult.get(3));
+            model.addAttribute("testListYLine", testListYLine);
+            model.addAttribute("testListFunctionResult", testListFunctionResult);
+
+        } else {
+            model.addAttribute("noTest", true);
+        }
+
+        return "experiment/showTestStatsPlot";
+    }
+
+    private void processExperimentDataTypeInfo(String[] splitContent, List<Double> listYLine, List<Double> listFunctionResult, List<Double> result,
+                                               Run run) throws EvaluationException {
         double[] yDoubleArray = new double[splitContent.length - 1];
         double[] functionResultDoubleArray = new double[splitContent.length - 1];
         double yValue, modelValue;
@@ -620,22 +657,15 @@ public class ExperimentController {
             listFunctionResult.add(modelValue);
             yDoubleArray[i - 1] = yValue;
             functionResultDoubleArray[i - 1] = modelValue;
-
         }
-
-        ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, null);
-        model.addAttribute("expDetails", experimentDetailsDto);
-        model.addAttribute("listYLine", listYLine);
-        model.addAttribute("listFunctionResult", listFunctionResult);
-        model.addAttribute("RSME", UtilStats.computeRMSE(yDoubleArray, functionResultDoubleArray));
-        model.addAttribute("AvgError", UtilStats.computeAvgError(yDoubleArray, functionResultDoubleArray));
-        model.addAttribute("RSquare", UtilStats.computeRSquare(yDoubleArray, functionResultDoubleArray));
-        model.addAttribute("absoluteError", UtilStats.computeAbsoluteError(yDoubleArray, functionResultDoubleArray));
-
-        return "experiment/showTestStatsPlot";
+        // RMSE AVGERROR RSQUARE ABSOLUTEERROR
+        result.add(UtilStats.computeRMSE(yDoubleArray, functionResultDoubleArray));
+        result.add(UtilStats.computeAvgError(yDoubleArray, functionResultDoubleArray));
+        result.add(UtilStats.computeRSquare(yDoubleArray, functionResultDoubleArray));
+        result.add(UtilStats.computeAbsoluteError(yDoubleArray, functionResultDoubleArray));
     }
 
-    public Thread runExperimentDetails(User user, Run run, DiagramData diagramData) throws IOException {
+    private Thread runExperimentDetails(User user, Run run, DiagramData diagramData) throws IOException {
         ExpProperties prop = experimentService.findPropertiesById(run.getIdProperties());
         String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + run.getExperimentName().replaceAll("\\s+", "") + "_" + prop.getUuidPropDto() + ".properties";
 
