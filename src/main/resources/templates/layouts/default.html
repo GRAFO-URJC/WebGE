@@ -96,9 +96,9 @@
                         style="color:#4183c4" class="glyphicon glyphicon-log-in" rel="tooltip"
                         title="Log in"></span></p></a>
                 <a th:href="${#authentication.getAuthorities().toArray()[0].getAuthority().equals('ROLE_ADMIN')}
-                            ?'/admin':'/'"><p
-                        class="navbar-text navbar-right btn-sm btn btn-default" rel="tooltip"
-                        title="Home page">Webge</p></a>
+                            ?'/admin':'/'">
+                    <h3 class="navbar-text navbar-right" rel="tooltip"
+                        title="Home page">Webge</h3></a>
 
             </div>
         </div>
