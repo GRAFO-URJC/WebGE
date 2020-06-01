@@ -54,12 +54,6 @@
 
                 <section class="panel-body center-block">
                     <div th:if="${not #lists.isEmpty(experimentList)}">
-                        <div class="inner-addon left-addon">
-                            <i class="glyphicon glyphicon-search "></i>
-                            <input class="form-control" id="searchExperiment" type="text"
-                                   placeholder="Search experiment ..."/>
-                        </div>
-                        <br/>
                         <table class="table table-hover display" id="expRepository">
                             <thead>
                             <tr>
@@ -245,13 +239,6 @@
 
     <script>
         $(document).ready(function () {
-            $("#searchExperiment").on("keyup", function () {
-                var value = $(this).val().toLowerCase();
-                $("#expTableBody tr").filter(function () {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-                });
-            });
-
             tableDefinition('#expRepository', "#expTableBody", 4, 5, 6);
 
         });
