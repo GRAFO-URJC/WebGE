@@ -407,7 +407,7 @@
                                 <td scope="row" th:id="'showDelete'+${iterStat.index}">
                                     <a th:id="'showTestStats'+${iterStat.index}"
                                        th:href="@{/experiment/runList(runId=${run.getId()}, showTestStatsPlotButton='showTestStatsPlotButton')}"
-                                       target="_blank" class="btn-default btn-sm btn loadButton">Test stats</a>
+                                       target="_blank" class="btn-default btn-sm btn loadButton">Show stats</a>
                                     <button type="button" th:name="${run.id}"
                                             th:id="${'deleteRun' + iterStat.index}"
                                             onclick="confirmDelete(this.id, this.name)"
