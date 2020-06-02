@@ -1,7 +1,8 @@
 package com.gramevapp.web.service;
 
-import com.gramevapp.web.model.*;
-import com.gramevapp.web.other.UserToUserDetails;
+import com.gramevapp.web.model.Role;
+import com.gramevapp.web.model.User;
+import com.gramevapp.web.model.UserRegistrationDto;
 import com.gramevapp.web.repository.UserDetailsRepository;
 import com.gramevapp.web.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

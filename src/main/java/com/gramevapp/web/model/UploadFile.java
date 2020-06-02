@@ -1,13 +1,6 @@
 package com.gramevapp.web.model;
 
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.web.multipart.MultipartFile;
-
 import javax.persistence.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 
 @Entity
 @Table(name = "UPLOAD_FILE")

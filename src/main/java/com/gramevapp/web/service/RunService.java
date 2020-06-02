@@ -1,6 +1,9 @@
 package com.gramevapp.web.service;
 
-import com.gramevapp.web.model.*;
+import com.gramevapp.web.model.ExpProperties;
+import com.gramevapp.web.model.Experiment;
+import com.gramevapp.web.model.Run;
+import com.gramevapp.web.model.RunExecutionReport;
 import com.gramevapp.web.repository.ExperimentRepository;
 import com.gramevapp.web.repository.PropertiesRepository;
 import com.gramevapp.web.repository.RunExecutionReportRepository;

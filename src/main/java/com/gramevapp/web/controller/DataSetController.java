@@ -1,9 +1,7 @@
 package com.gramevapp.web.controller;
 
 import com.gramevapp.web.model.ExperimentDataType;
-import com.gramevapp.web.model.Grammar;
 import com.gramevapp.web.model.User;
-import com.gramevapp.web.repository.ExperimentDataTypeRepository;
 import com.gramevapp.web.service.ExperimentService;
 import com.gramevapp.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Controller
 public class DataSetController {

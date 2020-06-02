@@ -1,7 +1,7 @@
 package com.gramevapp.web.other;
 
-import java.util.Date;
 import java.util.Calendar;
+import java.util.Date;
 
 public class DateFormat {
     public static String formatDate(Date date) {
