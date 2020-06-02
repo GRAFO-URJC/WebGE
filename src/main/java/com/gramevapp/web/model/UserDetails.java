@@ -1,10 +1,6 @@
 package com.gramevapp.web.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 public class UserDetails{

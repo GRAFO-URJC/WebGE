@@ -1,7 +1,6 @@
 package com.gramevapp.web.service;
 
 import com.gramevapp.web.model.UploadFile;
-import com.gramevapp.web.model.User;
 import com.gramevapp.web.repository.UploadFileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

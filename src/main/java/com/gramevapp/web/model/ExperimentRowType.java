@@ -3,7 +3,6 @@ package com.gramevapp.web.model;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 @Entity
 @Table(name="experiment_row_type")
