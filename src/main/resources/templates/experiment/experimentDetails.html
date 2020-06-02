@@ -204,7 +204,7 @@
 
         function checkRunStatus(runId) {
             $.ajax({
-                url: encodeURI("/user/rest/runStatus/"),
+                url: encodeURI("/rest/runStatus/"),
                 data: {
                     'runId': runId,
                     'status': $("#status").text()
