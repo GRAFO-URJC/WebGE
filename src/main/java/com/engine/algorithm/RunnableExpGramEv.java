@@ -34,7 +34,7 @@ public class RunnableExpGramEv implements Runnable {
         runElement.setBestIndividual(diagramData.getBestIndividual());
         runElement.setCurrentGeneration(diagramData.getCurrentGeneration());
 
-        ge = new SymbolicRegressionGE(properties,numObjectives);
+        ge = new SymbolicRegressionGE(properties, numObjectives);
 
         RunGeObserver observer = new RunGeObserver();
         diagramData.setFinished(false);
@@ -49,7 +49,7 @@ public class RunnableExpGramEv implements Runnable {
         ge.stopExecution();
     }
 
-    public String getModel(){
+    public String getModel() {
         return this.ge.getModel();
     }
 }

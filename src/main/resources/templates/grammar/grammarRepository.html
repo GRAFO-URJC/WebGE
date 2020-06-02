@@ -78,7 +78,7 @@
                                     <td scope="row"><label th:name="description" th:id="description"
                                                            th:text="${gr.grammarDescription}" id="description"/></td>
                                     <td scope="row"><label th:name="creationDate" th:id="creationDate"
-                                                           th:text="${gr.creationDate}" id="creationDate"/></td>
+                                                           th:text="${gr.getCreationDateFormated()}" id="creationDate"/></td>
                                     <td scope="row" class="details-control">
                                         <button type="button">Display grammar</button>
                                     </td>
@@ -160,7 +160,7 @@
                     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
                 });
             });
-            tableDefinition('#grammarRepositoryTable',"#grammarTableBody");
+            tableDefinition('#grammarRepositoryTable', "#grammarTableBody", 4, 5, 6);
 
         });
 

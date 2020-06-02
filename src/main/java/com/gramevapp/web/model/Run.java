@@ -1,22 +1,22 @@
 package com.gramevapp.web.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.gramevapp.web.other.DateFormat;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Table(name = "run")
 @DynamicUpdate
 public class Run {
-    public enum Status { INITIALIZING, RUNNING, STOPPED, FINISHED, FAILED; };
+    public enum Status {INITIALIZING, WAITING, RUNNING, STOPPED, FINISHED, FAILED;}
+
 
     @Id
-    @Column(name="RUN_ID", updatable= false)
+    @Column(name = "RUN_ID", updatable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
@@ -34,7 +34,7 @@ public class Run {
     private Experiment experimentId;
 
     @JsonIgnore
-    @OneToOne(cascade =  CascadeType.ALL,
+    @OneToOne(cascade = CascadeType.ALL,
             mappedBy = "runId")
     private DiagramData diagramData;
 
@@ -52,16 +52,16 @@ public class Run {
 
     @Column
     private Status status;
-    @Column(name="EXPERIMENT_NAME")
+    @Column(name = "EXPERIMENT_NAME")
     private String experimentName;
-    @Column(name="EXPERIMENT_DESCRIPTION")
+    @Column(name = "EXPERIMENT_DESCRIPTION")
     private String experimentDescription;
 
-    @Column(name="iniDate")
+    @Column(name = "iniDate")
     @Temporal(TemporalType.TIMESTAMP)
     private Date iniDate;
 
-    @Column(name="modificationDate")
+    @Column(name = "modificationDate")
     @Temporal(TemporalType.TIMESTAMP)
     private Date modificationDate;
 
@@ -93,13 +93,16 @@ public class Run {
     @Column
     private String results = "";             // Text file with the results of the experiments
     @Column
-    private Integer numCodons =10;
+    private Integer numCodons = 10;
     @Column
     private Integer numberRuns = 1;
     @Column
     private String model = "";
+    @OneToOne(mappedBy = "run", cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY)
+    private RunExecutionReport RunExecutionReport;
 
-    public Run(Run run){
+    public Run(Run run) {
         this(run.getExperimentId(), run.getDiagramData(), run.getBestIndividual(), run.getCurrentGeneration(), run.getIdProperties(), run.getStatus(), run.getIniDate(), run.getModificationDate(), run.getExperimentName(), run.getExperimentDescription(), run.getDefaultRunId(), run.getGenerations(), run.getPopulationSize(), run.getMaxWraps(), run.getTournament(), run.getCrossoverProb(), run.getMutationProb(), run.getInitialization(), run.getObjective(), run.getResults(), run.getNumCodons(), run.getNumberRuns());
     }
 
@@ -163,26 +166,35 @@ public class Run {
 
     // https://github.com/SomMeri/org.meri.jpa.tutorial/blob/master/src/main/java/org/meri/jpa/relationships/entities/bestpractice/SafeTwitterAccount.java
     public void setExperimentId(Experiment experimentId) {
-        if(sameAs(experimentId))
-            return ;
+        if (sameAs(experimentId))
+            return;
         Experiment oldExperimentId = this.experimentId;
         this.experimentId = experimentId;
 
-        if(oldExperimentId!=null)
+        if (oldExperimentId != null)
             oldExperimentId.removeRun(this);
-        if(experimentId!=null)
+        if (experimentId != null)
             experimentId.addRun(this);
 
         this.experimentId = experimentId;
     }
 
     private boolean sameAs(Experiment newExperiment) {
-        return this.experimentId==null? newExperiment == null : experimentId.equals(newExperiment);
+        return this.experimentId == null ? newExperiment == null : experimentId.equals(newExperiment);
     }
 
     public Date getIniDate() {
         return iniDate;
     }
+
+    public String getIniDateFormated() {
+        return DateFormat.formatDate(iniDate);
+    }
+
+    public String getModificationDateFormated() {
+        return DateFormat.formatDate(modificationDate);
+    }
+
 
     public void setIniDate(Date iniDate) {
         this.iniDate = iniDate;
@@ -372,7 +384,7 @@ public class Run {
         this.threaId = threaId;
     }
 
-    public void updateRun(Long grammar, Long expDataType, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date modificationDate){
+    public void updateRun(Long grammar, Long expDataType, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date modificationDate) {
         this.defaultExpDataTypeId = expDataType;
         this.defaultGrammarId = grammar;
         this.experimentName = experimentName;
@@ -397,5 +409,13 @@ public class Run {
 
     public void setModel(String model) {
         this.model = model;
+    }
+
+    public com.gramevapp.web.model.RunExecutionReport getRunExecutionReport() {
+        return RunExecutionReport;
+    }
+
+    public void setRunExecutionReport(com.gramevapp.web.model.RunExecutionReport runExecutionReport) {
+        RunExecutionReport = runExecutionReport;
     }
 }

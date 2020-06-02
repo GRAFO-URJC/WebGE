@@ -1,6 +1,7 @@
 package com.gramevapp.web.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.gramevapp.web.other.DateFormat;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -266,6 +267,14 @@ public class ExperimentDataType {
 
     public void setUserIdUserId(Long userIdUserId) {
         this.userIdUserId = userIdUserId;
+    }
+
+    public String getCreationDateFormated() {
+        return DateFormat.formatDate(creationDate);
+    }
+
+    public String getModificationDateFormated() {
+        return DateFormat.formatDate(modificationDate);
     }
 
 }

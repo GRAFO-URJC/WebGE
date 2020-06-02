@@ -1,7 +1,8 @@
 package com.gramevapp.web.service;
 
-import com.gramevapp.web.model.*;
-import com.gramevapp.web.other.UserToUserDetails;
+import com.gramevapp.web.model.Role;
+import com.gramevapp.web.model.User;
+import com.gramevapp.web.model.UserRegistrationDto;
 import com.gramevapp.web.repository.UserDetailsRepository;
 import com.gramevapp.web.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -70,6 +70,7 @@ public class UserService {
         user.setEmail(registration.getEmail());
         user.setPassword(passwordEncoder.encode(registration.getPassword()));
         user.setUsername(registration.getUsername().toLowerCase());
+        user.setInstitution(registration.getInstitution());
 
         user.setRoles(Arrays.asList(new Role("ROLE_USER")));    // Later we can change the role of the user
 
@@ -144,5 +145,16 @@ public class UserService {
 
     public void updateUser(){
         this.userRepository.flush();
+    }
+
+    public List<User> findAllUserWithoutAdmin(){
+        User admin = this.getLoggedInUser();
+        List<User> userList=userRepository.findAll();
+        userList.remove(userList.indexOf(admin));
+        return userList;
+    }
+
+    public void deleteUserById(Long id){
+        userRepository.deleteById(id);
     }
 }

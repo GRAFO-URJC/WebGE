@@ -2,17 +2,14 @@ package com.gramevapp.web.service;
 
 import com.gramevapp.web.model.*;
 import com.gramevapp.web.repository.*;
-import com.opencsv.bean.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 
 import java.io.BufferedReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.UUID;
 
 // We use repositories ExperimentDataType, ExperimentRowType here too.
 @Service("experimentService")
@@ -191,5 +188,9 @@ public class ExperimentService {
 
     public void deleteGrammar(Grammar grammar){
         grammarRepository.delete(grammar);
+    }
+
+    public List<Experiment> findAll(){
+        return experimentRepository.findAll();
     }
 }

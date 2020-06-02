@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+</head>
+<body>
+<div id="page" layout:fragment="content" message=${errorMessage}>
+
+    <!-- Main -->
+    <div class="container">
+        <div class="row">
+            <div id="forms" class="panel panel-default">
+                <header class="panel-heading">
+                    <div class="row">
+                        <div class="col-sm-9"><h2>Users</h2></div>
+                    </div>
+                </header>
+
+                <section class="panel-body center-block">
+                    <div th:if="${not #lists.isEmpty(userList)}">
+                        <table class="table table-hover" id="userListTable">
+                            <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Username</th>
+                                <th scope="col">First name</th>
+                                <th scope="col">Last name</th>
+                                <th scope="col">Institution</th>
+                                <th scope="col">Controls</th>
+                                <th scope="col"></th>
+                                <th scope="col" style="display: none"></th>
+                            </tr>
+                            </thead>
+                            <tbody id="userListBody">
+                            <th:block th:each="user, iterStat : ${userList}">
+                                <tr th:id="'tr' + ${iterStat.index}">
+                                    <td scope="row"><label th:name="id" th:text="${user.getId()}" id="id"/>
+                                    </td>
+                                    <td scope="row"><label th:name="username" th:text="${user.getUsername()}"
+                                                           id="id"/></td>
+                                    <td scope="row"><label th:name="firstName"
+                                                           th:text="${user.getUserDetails().getFirstName()}"
+                                                           id="name"/></td>
+                                    <td scope="row"><label th:name="lastName"
+                                                           th:text="${user.getUserDetails().getLastName()}"
+                                                           id="description"/></td>
+                                    <td scope="row"><label th:name="institution"
+                                                           th:text="${user.getInstitution()}"/></td>
+                                    <td scope="row" class="details-control">
+                                        <button type="button">Display user</button>
+                                    </td>
+                                    <td scope="row">
+                                        <button type="button" th:name="${user.getId()}"
+                                                onclick="changePassword(this.name)"
+                                                class="btn-default btn btn-sm"
+                                                rel="tooltip"
+                                                title="Change password"
+                                        ><span
+                                                class="glyphicon glyphicon-lock small"></span></button>
+                                        <button type="button" th:name="${user.getId()}"
+                                                th:id="${'deleteUser' + iterStat.index}"
+                                                onclick="confirmDelete(this.id, this.name)"
+                                                class="btn-default btn btn-sm"
+                                                rel="tooltip"
+                                                title="Delete user"
+                                        ><span
+                                                class="glyphicon glyphicon-trash small"></span></button>
+                                    </td>
+                                    <td style="display:none;">
+                                        <div class="row">
+                                            <div class="form-group col-lg-12 col-sm-12">
+                                                <b>Email: </b><label class="control-label" th:text="${user.getEmail()==''
+                                                ?'Not given':user.getEmail()}"></label>
+                                                <br>
+                                                <b>Phone number: </b><label class="control-label" th:text="${user.getUserDetails().getPhone()==null
+                                                ?'Not given':user.getUserDetails().getPhone()}"></label>
+                                                <br>
+                                                <b>Direction: </b><label class="control-label" th:text="${user.getUserDetails().getAddressDirection()==null
+                                                ||user.getUserDetails().getAddressDirection()==''
+                                                ?'Not given':user.getUserDetails().getAddressDirection()}"></label>
+                                                <br>
+                                                <b>City: </b><label class="control-label" th:text="${user.getUserDetails().getCity()==null
+                                                ||user.getUserDetails().getCity()==''
+                                                ?'Not given':user.getUserDetails().getCity()}"></label>
+                                                <br>
+                                                <b>State/Province: </b><label class="control-label" th:text="${user.getUserDetails().getState()==null
+                                                ||user.getUserDetails().getState()==''
+                                                ?'Not given':user.getUserDetails().getState()}"></label>
+                                                <br>
+                                                <b>Zipcode: </b><label class="control-label" th:text="${user.getUserDetails().getZipcode()==null
+                                                ?'Not given':user.getUserDetails().getZipcode()}"></label>
+                                                <br>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                </tr>
+                            </th:block>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    <!-- END Main -->
+    <script>
+        $(document).ready(function () {
+            tableDefinition('#userListTable', "#userListBody", 5, 6, 7);
+        })
+
+        function confirmDelete(iterStat, userId) {
+            let result = confirm("Delete the selected user?");
+            if (result) {
+                deleteRow(iterStat, userId);
+            }
+        }
+
+        function changePassword(userId) {
+            let result = prompt("Please enter new password:");
+            if (result != null && result != "") {
+                changePasswordRequest(userId, result);
+            }
+        }
+
+        function deleteRow(iterStat, userId) {
+            let cleanIterStat = iterStat.substring("deleteUser".length, iterStat.length);   // Dará error, si hay listado con mas de 9 obj, no pillará el id de 10, pq sólo mira hasta el último
+
+            $.ajax({
+                url: encodeURI("/admin/deleteUser"),
+                data: {
+                    'userId': userId,
+                    'deleteUser': 'deleteUser'
+                },
+                cache: false,
+                async: true,
+                type: "POST",
+                dataType: "json",
+                success: function (data) {
+                    if (data == -1) {
+                        alert("User have experiments, cannot be deleted")
+                    } else {
+                        $("#tr" + cleanIterStat).remove();
+                        $("#trAux" + cleanIterStat).remove();
+                    }
+
+                }
+            });
+        };
+
+        function changePasswordRequest(userId, password) {
+
+            $.ajax({
+                url: encodeURI("/admin/changePassword"),
+                data: {
+                    'userId': userId,
+                    'password': password
+                },
+                cache: false,
+                async: true,
+                type: "POST",
+                success: function () {
+                    alert("Password changed");
+                },
+                error: function () {
+                    alert("Error change password")
+                }
+            });
+        };
+    </script>
+</div>
+</body>
+</html>

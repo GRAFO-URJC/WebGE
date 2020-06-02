@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.w3.org/1999/xhtml"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}"
+      lang="en">
+
+<head>
+    <title>Experiment testing area</title>
+</head>
+
+<!--
+    Attribute th:field will replace attributes value, id and name in your input tag.
+    Instead, use plain th:id, th:value and th:name without using th:field. Then you will get what you wanted.
+-->
+
+<body>
+<div id="page" layout:fragment="content" message=${errorMessage}>
+    <!-- Main -->
+    <div class="container">
+        <div id="forms" class="panel panel-default">
+            <nav class="navbar navbar-default" style="margin-bottom: 0px" id="myTab" role="tablist">
+                <div class="container-fluid">
+
+                    <ul class="nav navbar-nav navbar-left">
+                        <h2>Run <span th:text="${'#'+index+' '}"></span>
+                            <i><span th:text="${expDetails.getExperimentName()}"></span></i></h2>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="nav-item active" style="float: right">
+                            <a class="active nav-link" id="showTraining" data-toggle="tab" href="#trainingContent"
+                               role="tab" aria-controls="trainingContent" aria-selected="true"><h4>Training</h4></a>
+                        </li>
+                        <li class="nav-item" style="float: right">
+                            <a class="nav-link" id="showTest" data-toggle="tab" href="#testContent" role="tab"
+                               aria-controls="testContent" aria-selected="false"><h4>Test</h4></a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="tab-content">
+
+                <section class="panel-body">
+                    <div class="row form-group">
+                        <div class="tab-pane fade show active in" id="trainingContent" role="tabpanel"
+                             aria-labelledby="trainingContent-tab">
+                            <div id="chartContainer" style="height: 360px; width: 100%;"></div>
+                        </div>
+                        <div class="tab-pane fade show" id="testContent" role="tabpanel"
+                             aria-labelledby="testContent-tab">
+                            <div th:if="${noTest==null}" id="testContentShow">
+                                <div id="testChartContainer" style="width: 100%;"></div>
+
+                            </div>
+                            <div th:if="${noTest!=null}" id="noTest">
+                                <div class="alert alert-info">
+                                    <label>Dataset not set.</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="details" style="margin-left: 20px;">
+                            <div class="row form-group text-left" style="margin-bottom: 0px;margin-top: 40px;">
+                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                    <h3>
+                                        <label th:id="experimentName"
+                                               th:text="${expDetails.getExperimentName()+' RUN#'+index}"/>
+                                    </h3>
+                                </div>
+                            </div>
+                            <div class="row form-group text-left" style="margin-bottom: 0px;">
+                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                    <h3>
+                                        <b>Model: </b><label th:id="runId" th:text="${model}"/>
+                                    </h3>
+                                </div>
+                            </div>
+                            <div class="row form-group text-left">
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <h3>
+                                        <label><b>Stats:</b></label>
+                                    </h3>
+                                </div>
+                                <div class="col-sm-2 col-md-2 col-lg-2">
+                                </div>
+                                <div class="col-sm-5 col-md-5 col-lg-5">
+                                    <h4>
+                                        <label><b>AVG Error: </b></label>
+                                        <label id="AvgError" th:text="${AvgError}"/>
+                                    </h4>
+                                </div>
+
+                                <div class="col-sm-5 col-md-5 col-lg-5">
+                                    <h4>
+                                        <label><b>RMSE: </b></label>
+                                        <label id="RMSE" th:text="${RMSE}"/>
+                                    </h4>
+                                </div>
+
+                                <div class="col-sm-2 col-md-2 col-lg-2">
+                                </div>
+                                <div class="col-sm-5 col-md-5 col-lg-5">
+                                    <h4>
+                                        <label><b>AbsoluteError: </b></label>
+                                        <label id="absoluteError" th:text="${absoluteError}"/>
+                                    </h4>
+                                </div>
+
+                                <div class="col-sm-5 col-md-5 col-lg-5">
+                                    <h4>
+                                        <label><b>R<sup>2</sup>: </b></label>
+                                        <label id="RSquare" th:text="${RSquare}"/>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+            </div>
+
+        </div>
+
+        <!-- END Main -->
+
+    </div>
+
+    <script th:inline="javascript">
+        let yColumnDataPoints = [], modelColumnDataPoints = [];
+        let testChart = null, chart;
+
+        function reloadPlotD3() {
+            chart = new CanvasJS.Chart("chartContainer", {
+                animationEnabled: true,
+                backgroundColor: "transparent",
+                colorSet: "greenShades",
+                animationEnabled: true,
+                exportEnabled: true,
+                theme: "theme3",
+                zoomEnabled: true,
+                panEnabled: true,
+
+                title: {
+                    text: "Diagram data flow showing best individual"
+                },
+                data: [{
+                    markerSize: 4,
+                    color: "Blue",
+                    type: "line",
+                    dataPoints: yColumnDataPoints,
+                    toolTipContent: "Solution y column : <b>{y}</b> "
+                }, {
+                    markerSize: 4,
+                    color: "OrangeRed",
+                    type: "line",
+                    dataPoints: modelColumnDataPoints,
+                    toolTipContent: "Solution model: <b>{y}</b>"
+                }],
+                axisX: {
+                    title: "Index",
+                    labelAngle: -50,
+                    lineThickness: 1.0,
+                    tickThickness: 0.5,
+                },
+                axisY: {
+                    title: "Solution",
+                    lineThickness: 1,
+                    tickThickness: 1,
+                    gridThickness: 1,
+                },
+                toolTip: {
+                    shared: true,
+                    enabled: true,
+                    animationEnabled: true,
+                },
+            });
+            /*<![CDATA[*/
+            let listYLine = [[${listYLine}]];
+            let listFunctionResult = [[${listFunctionResult}]];
+            /*]]>*/
+            loadChart(yColumnDataPoints, modelColumnDataPoints, chart, listYLine, listFunctionResult);
+
+            if (document.getElementById("testChartContainer")) {
+                let testYColumnDataPoints = [], testModelColumnDataPoints = [];
+                /*<![CDATA[*/
+                let testListYLine = [[${testListYLine}]];
+                let testListFunctionResult = [[${testListFunctionResult}]];
+                /*]]>*/
+                testChart = new CanvasJS.Chart("testChartContainer", {
+                    animationEnabled: true,
+                    backgroundColor: "transparent",
+                    colorSet: "greenShades",
+                    animationEnabled: true,
+                    exportEnabled: true,
+                    theme: "theme3",
+                    zoomEnabled: true,
+                    panEnabled: true,
+
+                    title: {
+                        text: "Diagram data flow showing best individual"
+                    },
+                    data: [{
+                        markerSize: 4,
+                        color: "Blue",
+                        type: "line",
+                        dataPoints: testYColumnDataPoints,
+                        toolTipContent: "Solution y column : <b>{y}</b> "
+                    }, {
+                        markerSize: 4,
+                        color: "OrangeRed",
+                        type: "line",
+                        dataPoints: testModelColumnDataPoints,
+                        toolTipContent: "Solution model: <b>{y}</b>"
+                    }],
+                    axisX: {
+                        title: "Index",
+                        labelAngle: -50,
+                        lineThickness: 1.0,
+                        tickThickness: 0.5,
+                    },
+                    axisY: {
+                        title: "Solution",
+                        lineThickness: 1,
+                        tickThickness: 1,
+                        gridThickness: 1,
+                    },
+                    toolTip: {
+                        shared: true,
+                        enabled: true,
+                        animationEnabled: true,
+                    },
+                });
+
+                loadChart(testYColumnDataPoints, testModelColumnDataPoints, testChart, testListYLine, testListFunctionResult)
+
+            }
+        }
+
+        function loadChart(yColumnDataPoints, modelColumnDataPoints, chart, listYLine, listFunctionResult) {
+            let dataLoaderCount = 0, yPoint;
+
+            for (dataLoaderCount; dataLoaderCount < listYLine.length; dataLoaderCount++) {
+                yPoint = listYLine[dataLoaderCount];
+                yColumnDataPoints.push({x: dataLoaderCount, y: parseFloat(yPoint)});
+
+                yPoint = listFunctionResult[dataLoaderCount];
+                modelColumnDataPoints.push({x: dataLoaderCount, y: parseFloat(yPoint)});
+
+            }
+
+            chart.render();
+        }
+
+        $(document).ready(function () {
+            reloadPlotD3();
+        });
+
+        $(".nav .nav-link").on("click", function () {
+            if (this.id == "showTraining") {
+                $("#trainingContent").removeClass("hidden");
+                $("#testContent").addClass("hidden");
+                $("#testContent").addClass("hidden");
+                $("#testContent").css("height", "");
+                if (document.getElementById("noTest")) {
+                    $("#details").removeClass("hidden");
+                } else {
+                    /*<![CDATA[*/
+                     $('#AvgError').text([[${AvgError}]]);
+                     $('#RMSE').text([[${RMSE}]]);
+                     $('#absoluteError').text([[${absoluteError}]]);
+                     $('#RSquare').text([[${RSquare}]]);
+                    /*]]>*/
+                }
+            } else {
+                $("#trainingContent").addClass("hidden");
+                $("#testContent").removeClass("hidden");
+                $("#testContent").css("height", "360px");
+                if (document.getElementById("noTest")) {
+                    $("#details").addClass("hidden");
+                } else {
+                    /*<![CDATA[*/
+                    $('#AvgError').text([[${testAvgError}]]);
+                    $('#RMSE').text([[${testRMSE}]]);
+                    $('#absoluteError').text([[${testAbsoluteError}]]);
+                    $('#RSquare').text([[${testRSquare}]]);
+                    /*]]>*/
+                }
+            }
+        });
+
+    </script>
+</div>
+</body>
+</html>

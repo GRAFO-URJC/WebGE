@@ -6,23 +6,6 @@
       lang="en">
 
 <head>
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"/>
-    <!-- For the profile template -->
-    <link th:href="@{/assets/dist/css/experimentDetails.css}" rel="stylesheet" id="experimentDetails-css"/>
-
-    <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
-    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
-    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
-    <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-
-    <style>
-        .line {
-            fill: none;
-            stroke: #000;
-            stroke-width: 1.5px;
-        }
-    </style>
-
     <title>Experiment testing area</title>
 </head>
 
@@ -64,6 +47,15 @@
                             <!-- END - Stop button -->
                         </div>
                     </form>
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <h4>Execution report</h4>
+                        <textarea id="executionReportTextArea" class="form-control"
+                                style="height: 120px; width: 100%;font-size: 12px;font-size: 11px" th:text="${expDetails.getExecutionReport()}"
+                                  disabled></textarea>
+                    </div>
                 </div>
 
                 <div class="col-sm-12 col-md-12 col-lg-12">
@@ -121,16 +113,17 @@
     <!-- END Main -->
 
     <script>
+        let executionReportTextArea = document.getElementById("executionReportTextArea");
         let dataLoaderCount = 0;
         // <![CDATA[
-        var dataPoints = [],
+        let dataPoints = [],
             xPoint,
             yPoint,
             isFinnish,
             isStopped,
             isFailed;
 
-        var chart = new CanvasJS.Chart("chartContainer", {
+        let chart = new CanvasJS.Chart("chartContainer", {
             animationEnabled: true,
             backgroundColor: "transparent",
             colorSet: "greenShades",
@@ -190,13 +183,13 @@
 
                     }
 
-                    chart.options.data[0].dataPoints = dataPoints;
-
                     isFinnish = data['finished'];
                     isStopped = data['stopped'];
                     isFailed = data['failed'];
 
                     chart.render();
+                    executionReportTextArea.textContent=data['runId']['runExecutionReport']['executionReport'];
+                    executionReportTextArea.scrollTop = executionReportTextArea.scrollHeight;
                 },
                 complete: function (data) {
                     setTimeout(function () {
@@ -211,7 +204,7 @@
 
         function checkRunStatus(runId) {
             $.ajax({
-                url: encodeURI("/user/rest/runStatus/"),
+                url: encodeURI("/rest/runStatus/"),
                 data: {
                     'runId': runId,
                     'status': $("#status").text()
@@ -221,22 +214,22 @@
                 type: "GET",
                 dataType: "json",
                 success: function (data) {
-                    var bestIndividualStr = data['bestIndividual'];
-                    var currentGenerationStr = data['currentGeneration'];
-                    var statusStr = data['status'];
+                    let bestIndividualStr = data['bestIndividual'];
+                    let currentGenerationStr = data['currentGeneration'];
+                    let statusStr = data['status'];
 
                     $("#bestIndividual").text(bestIndividualStr);
                     $("#currentGeneration").text(currentGenerationStr);
                     $("#status").text(statusStr);
                     if (($('#status').text() == "FINISHED") || ($('#status').text() == "STOPPED") || ($('#status').text() == "FAILED")) {
                         $("#stopDiv").remove();
+                        chart.title.set("text", "Diagram data flow showing best individual");
                     }
                 }
             });
         };
 
         $(document).ready(function () {
-            dataPoints = [];
 
             setTimeout(function () {
                 reloadPlotD3($("#runId").text());
