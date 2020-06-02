@@ -5,8 +5,6 @@
       layout:decorate="~{layouts/default}"
       lang="en">
 <head>
-    <!-- For the profile template -->
-    <link th:href="@{/assets/dist/css/experimentRepository.css}" rel="stylesheet" id="experimentRepository-css"/>
 
     <style>
         /* enable absolute positioning */
@@ -85,7 +83,7 @@
                                     <td scope="row">
                                         <form th:action="@{/experiment/expRepoSelected}" th:object="${expRepository}"
                                               method="GET">
-                                            <input type="text" class="hiddenInput" th:name="id"
+                                            <input type="text" class="hidden" th:name="id"
                                                    th:value="${exp.getId()}"/>
                                             <button type="submit"
                                                     th:name="loadExperimentButton" class="btn-default btn btn-sm">Load
