@@ -89,7 +89,7 @@
                                 <td scope="row"><label th:text="${user.getUserDetails().getLastName()}"/></td>
                                 <td scope="row"><label th:text="${user.getInstitution()}"/></td>
                                 <td scope="row"><label th:text="${run.getExperimentId().getExperimentName()}"/></td>
-                                <td scope="row"><label th:text="${run.getStatus()}"/></td>
+                                <td scope="row"><label name="status" th:id="${run.getId()}" th:text="${run.getStatus()}"/></td>
                                 <td scope="row"><label th:text="${run.getStatus().equals(running)?run.getIniDate():
                                                     run.getModificationDate()}"/></td>
                             </tr>
@@ -105,7 +105,46 @@
                         "paging": true,
                     });
                     $('.dataTables_length').addClass('bs-select');
+
+                    $('[name="status"]').each(function (index) {
+                        if (($(this).text() == "RUNNING") || ($(this).text() == "INITIALIZING") || ($(this).text() == "WAITING")) {
+                            showRunStatus(this.id,$(this).text());
+                        }
+                    });
                 });
+
+
+                function showRunStatus(runId,status) {
+
+                    setTimeout(function () {
+                        checkRunStatus(runId, status)
+                    }, 1000);
+                }
+
+                function checkRunStatus(runId, status) {
+                    $.ajax({
+                        url: encodeURI("/rest/runStatus/"),
+                        data: {
+                            'runId': runId,
+                            'status': status,
+                        },
+                        cache: false,
+                        async: true,
+                        type: "GET",
+                        dataType: "json",
+                        success: function (data) {
+                            let statusStr = data['status'];
+                            $("#"+runId).text(statusStr);
+                        },
+                        complete: function () {
+                            if (($(status).text() != "FINISHED") && ($(status).text() != "STOPPED") && ($(status).text() != "FAILED")) {
+                                setTimeout(function () {
+                                    checkRunStatus(runId, status);
+                                }, 1000);
+                            }
+                        }
+                    });
+                };
             </script>
         </div>
         <!-- END Main -->

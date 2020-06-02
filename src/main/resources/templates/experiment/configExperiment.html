@@ -498,7 +498,7 @@
         // <![CDATA[
         function checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat) {
             $.ajax({
-                url: encodeURI("/user/rest/runStatus/"),
+                url: encodeURI("/rest/runStatus/"),
                 data: {
                     'runId': runId.text(),
                     'status': $(status).text()

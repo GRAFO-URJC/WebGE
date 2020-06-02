@@ -19,7 +19,7 @@ public class RunRestController {
     @Autowired
     RunService runService;
 
-    @RequestMapping(value = "/user/rest/runStatus/", method = RequestMethod.GET,
+    @RequestMapping(value = "/rest/runStatus/", method = RequestMethod.GET,
             produces = "application/json")
     public @ResponseBody
     Run getRunStatus(String runId, String status) {
