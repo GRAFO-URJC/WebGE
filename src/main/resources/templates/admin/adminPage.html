@@ -2,8 +2,8 @@
 
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.w3.org/1999/xhtml"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/defaultAdmin}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns="http://www.w3.org/1999/html"
+      layout:decorate="~{layouts/default}"
       lang="en">
 <head>
     <link rel="stylesheet" th:href="@{/assets/dist/css/index.css}"/>
@@ -17,12 +17,15 @@
     <div class="container">
         <div id="forms" class="panel panel-default">
             <header class="panel-heading">
-                <h2>Home </h2>
+                <h2>Home admin</h2>
             </header>
 
             <section class="panel-body form-horizontal center-block text-center">
                 <div th:if="${message}" class="alert alert-info">
-                    <label th:text="${message}"></label>
+                    <form action="/admin/profile" onclick="">
+                        <input type="text" id="areaActive" name="areaActive" value="passwordActive" hidden/>
+                        <button class="btn btn-link" type="submit" th:text="${message}"/>
+                    </form>
                 </div>
                 <div th:if="${messageUserCreated}" class="alert alert-info">
                     <label th:text="${messageUserCreated}"></label>
@@ -53,8 +56,96 @@
                             </div>
                         </div>
                     </a>
+
+                    <a th:href="@{/admin/userList}">
+                        <div class="col-sm-6 col-md-4 col-lg-4 mt-4 form-group">
+                            <div class="card center-block">
+                                <div class="card-block">
+                                    <h4 class="card-title mt-3">User list</h4>
+                                    <div class="card-text">
+                                        See all the users created and modify password if is necessary
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
                 </div>
+                <div th:if="${not #lists.isEmpty(userList)}">
+                    <table class="table table-hover" id="lastRunsSummaryTable">
+                        <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Surname</th>
+                            <th scope="col">Institution</th>
+                            <th scope="col">Experiment name</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Timestamp</th>
+                        </tr>
+                        </thead>
+                        <tbody id="lastRunsSummaryTbody">
+                        <th:block th:each="user : ${userList}">
+                            <tr th:with="run=${summaryExperiment.get(user)}">
+                                <td scope="row"><label th:text="${user.getUserDetails().getFirstName()}"/></td>
+                                <td scope="row"><label th:text="${user.getUserDetails().getLastName()}"/></td>
+                                <td scope="row"><label th:text="${user.getInstitution()}"/></td>
+                                <td scope="row"><label th:text="${run.getExperimentId().getExperimentName()}"/></td>
+                                <td scope="row"><label name="status" th:id="${run.getId()}" th:text="${run.getStatus()}"/></td>
+                                <td scope="row"><label th:text="${run.getStatus().equals(running)?run.getIniDate():
+                                                    run.getModificationDate()}"/></td>
+                            </tr>
+                        </th:block>
+                        </tbody>
+                    </table>
+                </div>
+
             </section>
+            <script>
+                $(document).ready(function () {
+                    $("#lastRunsSummaryTable").DataTable({
+                        "paging": true,
+                    });
+                    $('.dataTables_length').addClass('bs-select');
+
+                    $('[name="status"]').each(function (index) {
+                        if (($(this).text() == "RUNNING") || ($(this).text() == "INITIALIZING") || ($(this).text() == "WAITING")) {
+                            showRunStatus(this.id,$(this).text());
+                        }
+                    });
+                });
+
+
+                function showRunStatus(runId,status) {
+
+                    setTimeout(function () {
+                        checkRunStatus(runId, status)
+                    }, 1000);
+                }
+
+                function checkRunStatus(runId, status) {
+                    $.ajax({
+                        url: encodeURI("/rest/runStatus/"),
+                        data: {
+                            'runId': runId,
+                            'status': status,
+                        },
+                        cache: false,
+                        async: true,
+                        type: "GET",
+                        dataType: "json",
+                        success: function (data) {
+                            let statusStr = data['status'];
+                            $("#"+runId).text(statusStr);
+                        },
+                        complete: function () {
+                            if (($(status).text() != "FINISHED") && ($(status).text() != "STOPPED") && ($(status).text() != "FAILED")) {
+                                setTimeout(function () {
+                                    checkRunStatus(runId, status);
+                                }, 1000);
+                            }
+                        }
+                    });
+                };
+            </script>
         </div>
         <!-- END Main -->
     </div>

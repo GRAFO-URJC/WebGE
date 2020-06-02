@@ -39,6 +39,7 @@ public class ExperimentDetailsDto {
 
     private Double bestIndividual;
     private Integer currentGeneration;
+    private String executionReport;
 
     public ExperimentDetailsDto() {
     }
@@ -316,5 +317,13 @@ public class ExperimentDetailsDto {
 
     public void setDataTypeType(String dataTypeType) {
         this.dataTypeType = dataTypeType;
+    }
+
+    public String getExecutionReport() {
+        return executionReport;
+    }
+
+    public void setExecutionReport(String executionReport) {
+        this.executionReport = executionReport;
     }
 }

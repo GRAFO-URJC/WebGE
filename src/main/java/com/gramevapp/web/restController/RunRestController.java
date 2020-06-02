@@ -1,15 +1,14 @@
 package com.gramevapp.web.restController;
 
 import com.gramevapp.web.controller.ExperimentController;
-import com.gramevapp.web.model.Experiment;
 import com.gramevapp.web.model.Run;
-import com.gramevapp.web.model.User;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController("runRestController")
 public class RunRestController {
@@ -20,14 +19,10 @@ public class RunRestController {
     @Autowired
     RunService runService;
 
-    @RequestMapping(value = "/user/rest/runStatus/", method = RequestMethod.GET,
+    @RequestMapping(value = "/rest/runStatus/", method = RequestMethod.GET,
             produces = "application/json")
     public @ResponseBody
     Run getRunStatus(String runId, String status) {
-
-        User user = userService.getLoggedInUser();
-        if (user == null)
-            System.out.println("User not authenticated");
 
         if (runId == "")
             return null;
@@ -36,7 +31,7 @@ public class RunRestController {
         run.setCurrentGeneration(run.getDiagramData().getCurrentGeneration());
         run.setBestIndividual(run.getDiagramData().getBestIndividual());
 
-        if (run.getDiagramData().getFinished() || run.getDiagramData().getBestIndividual() <= 0.0) {
+        if (run.getDiagramData().getFinished() || run.getDiagramData().getBestIndividual() <= 0.0 && !status.equals("WAITING")) {
             if (run.getDiagramData().getBestIndividual() <= 0.0) {
                 run.setBestIndividual(0.0);
             }
@@ -45,9 +40,11 @@ public class RunRestController {
         }
 
         if (run.getDiagramData().getStopped()) {
+            run.setModel(ExperimentController.getRunnables().get(run.getThreaId()).getModel());
             this.setStatus(run, Run.Status.STOPPED);
         }
         if (run.getDiagramData().getFailed()) {
+            run.setModel(ExperimentController.getRunnables().get(run.getThreaId()).getModel());
             this.setStatus(run, Run.Status.FAILED);
         }
 

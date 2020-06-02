@@ -1,7 +1,6 @@
 package com.gramevapp.web.serviceImplementation;
 
 import com.gramevapp.web.model.User;
-import com.gramevapp.web.repository.UserRepository;
 import com.gramevapp.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

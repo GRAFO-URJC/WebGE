@@ -81,7 +81,7 @@
                                                            th:text="${dataset.getDataTypeDescription()}"
                                                            id="description"/></td>
                                     <td scope="row"><label th:name="creationDate" th:id="creationDate"
-                                                           th:text="${dataset.getCreationDate()}" id="creationDate"/>
+                                                           th:text="${dataset.getCreationDateFormated()}" id="creationDate"/>
                                     </td>
                                     <td scope="row" class="details-control">
                                         <button type="button">Display dataset</button>
@@ -171,7 +171,7 @@
 
     <script>
         $(document).ready(function () {
-            tableDefinition('#datasetRepository', "#datasetTbody");
+            tableDefinition('#datasetRepository', "#datasetTbody", 4, 5, 6);
         })
 
         function downloadDataset(elemName) {
