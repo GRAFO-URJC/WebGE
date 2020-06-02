@@ -851,7 +851,7 @@ pre code {
   right: 8.333333333333332%;
 }
 .col-xs-pull-0 {
-  right: 0%;
+  right: 0;
 }
 .col-xs-push-12 {
   left: 100%;
@@ -890,7 +890,7 @@ pre code {
   left: 8.333333333333332%;
 }
 .col-xs-push-0 {
-  left: 0%;
+  left: 0;
 }
 .col-xs-offset-12 {
   margin-left: 100%;
@@ -929,7 +929,7 @@ pre code {
   margin-left: 8.333333333333332%;
 }
 .col-xs-offset-0 {
-  margin-left: 0%;
+  margin-left: 0;
 }
 @media (min-width: 768px) {
   .col-sm-1, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12 {
@@ -1008,7 +1008,7 @@ pre code {
     right: 8.333333333333332%;
   }
   .col-sm-pull-0 {
-    right: 0%;
+    right: 0;
   }
   .col-sm-push-12 {
     left: 100%;
@@ -1047,7 +1047,7 @@ pre code {
     left: 8.333333333333332%;
   }
   .col-sm-push-0 {
-    left: 0%;
+    left: 0;
   }
   .col-sm-offset-12 {
     margin-left: 100%;
@@ -1086,7 +1086,7 @@ pre code {
     margin-left: 8.333333333333332%;
   }
   .col-sm-offset-0 {
-    margin-left: 0%;
+    margin-left: 0;
   }
 }
 @media (min-width: 992px) {
@@ -1166,7 +1166,7 @@ pre code {
     right: 8.333333333333332%;
   }
   .col-md-pull-0 {
-    right: 0%;
+    right: 0;
   }
   .col-md-push-12 {
     left: 100%;
@@ -1205,7 +1205,7 @@ pre code {
     left: 8.333333333333332%;
   }
   .col-md-push-0 {
-    left: 0%;
+    left: 0;
   }
   .col-md-offset-12 {
     margin-left: 100%;
@@ -1244,7 +1244,7 @@ pre code {
     margin-left: 8.333333333333332%;
   }
   .col-md-offset-0 {
-    margin-left: 0%;
+    margin-left: 0;
   }
 }
 @media (min-width: 1200px) {
@@ -1324,7 +1324,7 @@ pre code {
     right: 8.333333333333332%;
   }
   .col-lg-pull-0 {
-    right: 0%;
+    right: 0;
   }
   .col-lg-push-12 {
     left: 100%;
@@ -1363,7 +1363,7 @@ pre code {
     left: 8.333333333333332%;
   }
   .col-lg-push-0 {
-    left: 0%;
+    left: 0;
   }
   .col-lg-offset-12 {
     margin-left: 100%;
@@ -1402,7 +1402,7 @@ pre code {
     margin-left: 8.333333333333332%;
   }
   .col-lg-offset-0 {
-    margin-left: 0%;
+    margin-left: 0;
   }
 }
 table {
@@ -1981,8 +1981,8 @@ select[multiple].input-lg {
   min-height: 23px;
 }
 .form-horizontal .form-group {
-  margin-left: 0px;
-  margin-right: 0px;
+  margin-left: 0;
+  margin-right: 0;
 }
 .form-horizontal .form-control-static {
   padding-top: 4px;
@@ -2209,7 +2209,7 @@ fieldset[disabled] .btn-warning.active {
   background-repeat: repeat-x;
   border-color: #cd504a;
   color: #fff;
-  text-shadow: 0px -1px 0 rgba(0, 0, 0, 0.3);
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3);
 }
 .btn-danger:active,
 .btn-danger.active {
@@ -2402,7 +2402,7 @@ fieldset[disabled] .btn-link:focus {
 }
 .btn-xs,
 .btn-group-xs > .btn {
-  padding: 0px 12px;
+  padding: 0 12px;
   vertical-align: top;
   font-size: 11px;
   font-weight: bold;
@@ -4635,7 +4635,7 @@ a.thumbnail.active {
 }
 .progress-bar {
   float: left;
-  width: 0%;
+  width: 0;
   height: 100%;
   font-size: 12px;
   line-height: 19px;
@@ -5162,7 +5162,6 @@ a.list-group-item-danger.active:focus {
 .well {
   min-height: 20px;
   padding: 15px;
-  margin-bottom: 20px;
   background-color: #f5f5f5;
   border: 1px solid #e3e3e3;
   border-radius: 3px;
@@ -5910,7 +5909,7 @@ button.close {
 
 /** NINO **/
 .no-border {
-    border:0px;
+    border:0;
 }
 
 /* custom footer*/
