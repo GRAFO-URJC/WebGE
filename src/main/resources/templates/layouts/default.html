@@ -64,8 +64,10 @@
                             class="glyphicon glyphicon glyphicon-plus-sign"></span></a></li>
                     <li><a th:href="@{/experiment/experimentRepository}" rel="tooltip" title="List of experiments"><span
                             class="glyphicon glyphicon-th-list"></span></a></li>
-                    <li><a th:href="@{/user/profile}" rel="tooltip" title="User profile"><span th:text="${session.userDetails.getFirstName()+
-                    ' '+session.userDetails.getLastName()}"
+                    <li><a th:href="@{/user/profile}" rel="tooltip" title="User profile"><span th:text="${
+                    session.userDetails!=null?
+                    session.userDetails.getFirstName()+
+                    ' '+session.userDetails.getLastName():''}"
                             class="glyphicon glyphicon-user">
                     </span>
                     </a></li>
