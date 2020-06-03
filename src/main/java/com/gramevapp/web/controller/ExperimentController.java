@@ -454,7 +454,7 @@ public class ExperimentController {
     public String experimentRepository(Model model) {
 
         User user = userService.getLoggedInUser();
-        List<Experiment> lExperiment = experimentService.findByUserId(user);
+        List<Experiment> lExperiment = experimentService.findByUser(user);
         model.addAttribute("experimentList", lExperiment);
         model.addAttribute("user", user);
 
@@ -903,10 +903,6 @@ public class ExperimentController {
         exp.setDefaultGrammar(grammar.getId());
         exp.setDefaultExpDataType(expDataType.getId());
         exp.setDefaultTestExpDataTypeId(testExpDataType != null ? testExpDataType.getId() : null);
-
-        if (testExpDataType != null && !exp.getIdExpDataTypeList().contains(testExpDataType)) {
-            exp.getIdExpDataTypeList().add(testExpDataType);
-        }
 
         return exp;
     }
