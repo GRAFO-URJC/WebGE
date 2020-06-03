@@ -129,7 +129,7 @@ public class ExperimentService {
         grammarRepository.flush();
     }
 
-    public List<Experiment> findByUserId(User user) {
+    public List<Experiment> findByUser(User user) {
         return experimentRepository.findByUserId(user);
     }
 

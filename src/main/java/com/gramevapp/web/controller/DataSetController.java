@@ -1,9 +1,11 @@
 package com.gramevapp.web.controller;
 
+import com.gramevapp.web.model.Experiment;
 import com.gramevapp.web.model.ExperimentDataType;
 import com.gramevapp.web.model.User;
 import com.gramevapp.web.service.ExperimentService;
 import com.gramevapp.web.service.UserService;
+import net.sourceforge.jeval.function.math.Exp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 @Controller
@@ -31,9 +34,20 @@ public class DataSetController {
                 experimentService.findAllExperimentDataTypeByUserId(user.getId());
         List<Boolean> disabled = new ArrayList<>();
         List<List<String>> datasetInformation = new ArrayList<>();
+        HashSet experimentDataTypeListInUse = new HashSet<>();
+
+        List<Experiment> experimentList = experimentService.findByUser(user);
+        for (Experiment experiment : experimentList) {
+            if(experiment.getDefaultExpDataType()!=null){
+                experimentDataTypeListInUse.add(experimentService.findExperimentDataTypeById(experiment.getDefaultExpDataType()));
+            }
+            if(experiment.getDefaultTestExpDataTypeId()!=null) {
+                experimentDataTypeListInUse.add(experimentService.findExperimentDataTypeById(experiment.getDefaultTestExpDataTypeId()));
+            }
+        }
 
         for (ExperimentDataType experimentDataType : datasetList) {
-            disabled.add(experimentDataType.getExperimentList().size() > 0);
+            disabled.add(experimentDataTypeListInUse.contains(experimentDataType));
             StringBuilder stringBuilder = new StringBuilder();
             String info = experimentDataType.getinfo();
             List<String> currentDataset = new ArrayList<>();
