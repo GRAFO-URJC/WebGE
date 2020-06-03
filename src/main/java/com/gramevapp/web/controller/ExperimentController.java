@@ -610,8 +610,7 @@ public class ExperimentController {
 
         processExperimentDataTypeInfo(splitContent, listYLine, listFunctionResult, trainingResult, run);
 
-        ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, null);
-        model.addAttribute("expDetails", experimentDetailsDto);
+        model.addAttribute("expDetails", run.getExperimentId());
         model.addAttribute("listYLine", listYLine);
         model.addAttribute("listFunctionResult", listFunctionResult);
         model.addAttribute("RMSE", trainingResult.get(0));
