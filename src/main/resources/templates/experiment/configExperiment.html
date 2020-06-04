@@ -279,7 +279,8 @@
 
                             <div class="row form-group center-block">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <select id="testDatasetId" name="testDatasetId" onchange="updateTestDatasetContent()">
+                                    <select id="testDatasetId" name="testDatasetId"
+                                            onchange="updateTestDatasetContent()">
                                         <option value="">Select a dataset ...</option>
                                         <option th:each="dataset,ite : ${datasetList}" th:value="${ite.index}"
                                                 th:text="${dataset.getDataTypeName() + ' - ' + dataset.getDataTypeDescription()}"
@@ -291,7 +292,8 @@
 
                             <div class="row form-group center-block">
                                 <div class="col-sm-12 col-md-12 col-lg-8">
-                                    <input type="text" class="form-control" name="testDataTypeName" id="testDataTypeName"
+                                    <input type="text" class="form-control" name="testDataTypeName"
+                                           id="testDataTypeName"
                                            placeholder="Name of dataset"
                                            readonly/>
                                 </div>
@@ -306,7 +308,7 @@
 
                             <div class="row form-group text-center">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
-                                <textarea rows="5" class="form-control"  name="testInfo"
+                                <textarea rows="5" class="form-control" name="testInfo"
                                           id="testInfo" readonly></textarea>
                                 </div>
                             </div>
@@ -321,7 +323,7 @@
                         <div class="row text-center">
                             <div class="col-sm-12 col-md-4 col-lg-4" style="margin-bottom:2px">
                                 <button type="submit" id="saveExperimentButton" name="saveExperimentButton"
-                                        onclick="saveOrRunButton=true;"
+                                        onclick="saveButton=true;"
                                         class="btn-primary btn-lg btn">Save experiment
                                 </button>
                             </div>
@@ -335,7 +337,7 @@
                             <div class="col-sm-12 col-md-4 col-lg-4">
                                 <button type="submit" id="runExperimentButton" name="runExperimentButton"
                                         class="btn-primary btn-lg btn"
-                                        onclick="saveOrRunButton=true;">Save and run experiment
+                                        onclick="runButton=true;">Save and run experiment
                                 </button>
                             </div>
                         </div>
@@ -677,16 +679,22 @@
 
         function checkDeletePreviousRun() {
             if (document.getElementById("runForms") && !cloneButton) {
-                return confirm('Do you really want to save/run it? This will delete the previous runs...');
+                if(saveButton){
+                    return confirm('Do you really want to save it? If you changed the setting (not test dataset) of the' +
+                        ' experiment previous runs will be deleted...');
+                }else{
+                    return confirm('Do you really want to run it? This will delete the previous runs...');
+                }
             } else {
                 return true;
             }
         }
 
-        let saveOrRunButton = false;
+        let runButton = false;
+        let saveButton = false;
 
         window.onbeforeunload = function (e) {
-            if (document.getElementById("cloneMessage") && !saveOrRunButton) {
+            if (document.getElementById("cloneMessage") && !runButton && !saveButton) {
                 e = e || window.event;
 
                 // For IE and Firefox prior to version 4
