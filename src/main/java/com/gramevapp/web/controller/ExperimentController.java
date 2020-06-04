@@ -313,11 +313,37 @@ public class ExperimentController {
         // END - Experiment Data Type SECTION
 
         // Experiment section:
-        if (configExpDto.getId() != null) {
-            exp = experimentService.findExperimentById(configExpDto.getId());
-        }
         ExperimentDataType testExperimentDataType = (testExperimentDataTypeId.equals("")) ? null : experimentService.
                 findExperimentDataTypeById(Long.valueOf(testExperimentDataTypeId));
+
+        if (configExpDto.getId() != null) {
+            exp = experimentService.findExperimentById(configExpDto.getId());
+            // check if only test was changed
+            boolean sameExp = exp.getExperimentName().equals(configExpDto.getExperimentName())&&
+                    exp.getExperimentDescription().equals(configExpDto.getExperimentDescription())&&
+                    exp.getGenerations().equals(configExpDto.getGenerations())&&
+                    exp.getCrossoverProb().equals(configExpDto.getCrossoverProb())&&
+                    exp.getPopulationSize().equals(configExpDto.getPopulationSize())&&
+                    exp.getMutationProb().equals(configExpDto.getMutationProb())&&
+                    exp.getMaxWraps().equals(configExpDto.getMaxWraps())&&
+                    exp.getTournament().equals(configExpDto.getTournament())&&
+                    exp.getNumberRuns().equals(configExpDto.getNumberRuns())&&
+                    exp.getObjective().equals(configExpDto.getObjective())&&
+                    exp.getDefaultGrammar().equals(Long.valueOf(grammarId))&&
+                    exp.getDefaultExpDataType().equals(Long.valueOf(experimentDataTypeId));
+            if(sameExp){
+                exp.setDefaultTestExpDataTypeId(Long.valueOf(testExperimentDataTypeId));
+                experimentService.saveExperiment(exp);
+                modelAddData(model, user, grammarRepository.findGrammarById(Long.valueOf(grammarId)),
+                        experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
+                        exp.getIdExpDataTypeList(), testExperimentDataType == null ? null : testExperimentDataType.getId());
+
+                model.addAttribute("runList", exp.getIdRunList());
+                return "experiment/configExperiment";
+            }
+        }
+
+
         exp = experimentSection(exp, user, testExperimentDataType, expDataType, configExpDto, updGrammar,
                 null, currentTimestamp, null);
         // END - Experiment section
@@ -336,7 +362,6 @@ public class ExperimentController {
 
         fileConfig(expDataType, user, propertiesDto, configExpDto, currentTimestamp, fileModelDto, radioDataTypeHidden,
                 null, exp);
-
 
         modelAddData(model, user, grammarRepository.findGrammarById(Long.valueOf(grammarId)),
                 experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
@@ -477,7 +502,6 @@ public class ExperimentController {
 
         modelAddData(model, user, grammar, experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()),
                 exp.getIdExpDataTypeList(), exp.getDefaultTestExpDataTypeId());
-        model.addAttribute("runList", runList);
         model.addAttribute("configuration", configExpDto);
         model.addAttribute("configExp", configExpDto);
         model.addAttribute("runList", runList);
