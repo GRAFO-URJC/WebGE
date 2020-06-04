@@ -6,7 +6,7 @@ import javax.persistence.*;
 @Table(name = "run_execution_report")
 public class RunExecutionReport {
     @Id
-    @Column(name = "run_id", updatable = false)
+    @Column(name = "run_id")
     private Long id;
 
     @Column

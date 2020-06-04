@@ -412,9 +412,7 @@ public class ExperimentController {
             Reader reader = new FileReader(tmpFile);
             experimentService.loadExperimentRowTypeFile(reader, expDataType);   // Save row here
             reader.close();
-        } else {   // DataType selected from list
-            experimentService.loadExperimentRowType(expDataType);
-            List<ExperimentRowType> lExpRowType = expDataType.getListRowsFile();
+        } else {
             // Create temporal training path file
             File tmpFile = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") +
                     "trainingPathFile.csv");
@@ -423,10 +421,7 @@ public class ExperimentController {
             FileWriter fWriter = new FileWriter(tmpFile, false);    // true = append; false = overwrite
             BufferedWriter writer = new BufferedWriter(fWriter);
 
-            writer.append(expDataType.headerToString());
-
-            for (ExperimentRowType e : lExpRowType)
-                writer.append(e.toString());
+            writer.append(expDataType.getinfo());
             writer.close();
             dataFilePath = tmpFile.getAbsolutePath();
         }

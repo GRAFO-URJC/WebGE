@@ -66,7 +66,7 @@ public class ExperimentDataType {
     // https://www.thoughts-on-java.org/hibernate-tips-map-bidirectional-many-one-association/
     @GeneratedValue(strategy = GenerationType.AUTO)
     @OneToMany(cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY,
+            fetch = FetchType.EAGER,
             mappedBy = "expDataTypeId")
     private List<ExperimentRowType> listRowsFile;
 
