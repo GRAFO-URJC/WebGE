@@ -14,21 +14,21 @@ import java.util.Scanner;
  * @author cgarc
  */
 public class CSVReader {
-    
+
     private String csvFile;
-    private File file;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+    private File file;
     private String csvSplitBy = ";";
-    
+
     public CSVReader(String csvFile){
         this.csvFile = csvFile;
         loadFile(this.csvFile);
     }
-    
+
     //Create object file
     private void loadFile(String path){
         file = new File(path);
     }
-    
+
     //Get number of Rows from a CSV file
     private int numberRows() throws FileNotFoundException{//modificar private
         int nRows = 0;
@@ -36,14 +36,16 @@ public class CSVReader {
         try{
             inputStream = new Scanner(file);
             while(inputStream.hasNextLine()){
-                inputStream.nextLine();
-                nRows++;
+                String nextline=inputStream.nextLine();
+                if(!nextline.equals("")){
+                    nRows++;
+                }
             }
             inputStream.close();
         }catch(FileNotFoundException e){}
         return nRows;
     }
-    
+
     //Get number of colummns from a CVS file
     private int numberColumns() throws FileNotFoundException{
         int nColumns = 0;
@@ -58,13 +60,13 @@ public class CSVReader {
         }catch(FileNotFoundException e){}
         return nColumns;
     }
-    
+
     //Read CVS and create a matrix with the complete information
     public String[][] loadMatrix() throws FileNotFoundException{
         int rows = this.numberRows();
         int columns = this.numberColumns();
         String[][] matrix = new String[rows][columns];
-        
+
         Scanner inputStream;
         String line;
         String[] values;
@@ -73,17 +75,19 @@ public class CSVReader {
             inputStream = new Scanner(file);
             while(inputStream.hasNextLine()){
                 line = inputStream.nextLine();
-                values = line.split(csvSplitBy);
-                for (int i=0;i<values.length;i++){
-                    matrix[j][i] = values[i];
-                    //System.out.println(values[i]);
-                }                
-                j++;
+                if(!line.equals("")) {
+                    values = line.split(csvSplitBy);
+                    for (int i = 0; i < values.length; i++) {
+                        matrix[j][i] = values[i];
+                        //System.out.println(values[i]);
+                    }
+                    j++;
+                }
             }
-        }catch(FileNotFoundException e){}  
-        
+        }catch(FileNotFoundException e){}
+
         return matrix;
-    }        
+    }
 }
     
     
