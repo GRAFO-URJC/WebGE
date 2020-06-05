@@ -30,9 +30,9 @@ import static com.engine.util.Common.TRAINING_PATH_PROP;
 @Controller
 public class ExperimentController {
 
-    private HashMap<Long, Thread> threadMap = new HashMap();
-    private static HashMap<String, Long> threadRunMap = new HashMap();
-    private static HashMap<Long, RunnableExpGramEv> runnables = new HashMap();
+    private HashMap<Long, Thread> threadMap = new HashMap<>();
+    private static HashMap<String, Long> threadRunMap = new HashMap<>();
+    private static HashMap<Long, RunnableExpGramEv> runnables = new HashMap<>();
 
     @Autowired
     private ExperimentService experimentService;
@@ -76,8 +76,7 @@ public class ExperimentController {
 
         model.addAttribute("type", new ExperimentDataType());
         model.addAttribute("configuration", configExpDto);
-        model.addAttribute("runList", new ArrayList());
-        model.addAttribute("dataTypeList", new ArrayList());
+        model.addAttribute("runList", null);
         model.addAttribute("user", user);
         model.addAttribute("configExp", new ConfigExperimentDto());
         model.addAttribute("disabledClone", true);
@@ -91,17 +90,6 @@ public class ExperimentController {
      * "configExpDto" for validation -> configExp
      * "configuration" is for send data from Controller to View and
      * "configExp" is the object from the form View
-     *
-     * @param model
-     * @param grammarDto
-     * @param expDataTypeDto
-     * @param fileModelDto
-     * @param configExpDto
-     * @param result
-     * @param redirectAttrs
-     * @return
-     * @throws IllegalStateException
-     * @throws IOException
      */
     @RequestMapping(value = "/experiment/start", method = RequestMethod.POST, params = "runExperimentButton")
     public String runExperiment(Model model,
@@ -138,7 +126,7 @@ public class ExperimentController {
         ExperimentDataType expDataType = experimentService.
                 findExperimentDataTypeById(Long.valueOf(experimentDataTypeId));
 
-        expDataType = experimentDataTypeSection(fileModelDto, expDataType, currentTimestamp);
+        experimentDataTypeSection(fileModelDto, expDataType, currentTimestamp);
         expDataType.setRunId(run.getId());
         run.setDefaultExpDataTypeId(expDataType.getId());
         // END - Experiment Data Type SECTION
@@ -190,7 +178,7 @@ public class ExperimentController {
                     th.join();
                 }
             } catch (Exception e) {
-
+                e.printStackTrace();
             }
         });
         thread.start();
@@ -200,7 +188,7 @@ public class ExperimentController {
         return "redirect:/experiment/redirectConfigExperiment";
     }
 
-    protected void expPropertiesSet( @ModelAttribute("typeFile") FileModelDto fileModelDto, @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto, User user, Timestamp currentTimestamp, ExperimentDataType expDataType, Experiment exp, String grammarFilePath, Run newRun) throws IOException {
+    protected void expPropertiesSet(@ModelAttribute("typeFile") FileModelDto fileModelDto, @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto, User user, Timestamp currentTimestamp, ExperimentDataType expDataType, Experiment exp, String grammarFilePath, Run newRun) throws IOException {
         ExpPropertiesDto newPropertiesDto = new ExpPropertiesDto(user,
                 0.0, configExpDto.getTournament(), 0,
                 configExpDto.getCrossoverProb(), grammarFilePath, 0,
@@ -281,14 +269,14 @@ public class ExperimentController {
 
         // Experiment Data Type SECTION
         ExperimentDataType expDataType;
-        if (experimentDataTypeId == "-1") {
+        if (experimentDataTypeId.equals("-1")) {
             result.rejectValue("typeFile", "error.typeFile", "Choose one file");
             return "experiment/configExperiment";
         } else {
             expDataType = experimentService.findDataTypeById(Long.parseLong(experimentDataTypeId));
         }
 
-        expDataType = experimentDataTypeSection(fileModelDto, expDataType, currentTimestamp);
+        experimentDataTypeSection(fileModelDto, expDataType, currentTimestamp);
         // END - Experiment Data Type SECTION
 
         // Experiment section:
@@ -406,7 +394,7 @@ public class ExperimentController {
         properties.setProperty(TRAINING_PATH_PROP, "");
 
         ExpProperties expPropertiesEntity = experimentService.saveExpProperties(new ExpProperties());
-        createExpPropertiesEntity(expPropertiesEntity, properties, exp, run, propertiesDto, "");
+        createExpPropertiesEntity(expPropertiesEntity, properties, exp, run, propertiesDto);
 
         propertiesReader.close();
     }
@@ -547,12 +535,6 @@ public class ExperimentController {
         Run run = runService.findByRunId(longRunId);
         DiagramData diagramData = diagramDataService.findByRunId(run);
 
-        if (run.getStatus().equals(Run.Status.RUNNING)) {
-            ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, diagramData);
-            model.addAttribute("expDetails", experimentDetailsDto);
-            return "experiment/experimentDetails";
-        }
-
         ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, diagramData);
         model.addAttribute("expDetails", experimentDetailsDto);
 
@@ -636,15 +618,13 @@ public class ExperimentController {
         properties.load(propertiesReader);
         properties.setProperty(TRAINING_PATH_PROP, prop.getTrainingPath());
         RunnableExpGramEv obj = new RunnableExpGramEv(properties, diagramData, run, experimentService.findExperimentDataTypeById(run.getDefaultExpDataTypeId()));
-        Thread.UncaughtExceptionHandler h = new Thread.UncaughtExceptionHandler() {
-            public void uncaughtException(Thread th, Throwable ex) {
-                run.setStatus(Run.Status.FAILED);
-                run.getDiagramData().setFailed(true);
-                RunExecutionReport runExecutionReport = runService.getRunExecutionReport(run.getId());
-                runExecutionReport.setExecutionReport(runExecutionReport.getExecutionReport() + "\nUncaught exception: " + ex);
-                runService.saveRunExecutionReport(runExecutionReport);
-                System.out.println(("Uncaught exception: " + ex));
-            }
+        Thread.UncaughtExceptionHandler h = (th, ex) -> {
+            run.setStatus(Run.Status.FAILED);
+            run.getDiagramData().setFailed(true);
+            RunExecutionReport runExecutionReport = runService.getRunExecutionReport(run.getId());
+            runExecutionReport.setExecutionReport(runExecutionReport.getExecutionReport() + "\nUncaught exception: " + ex);
+            runService.saveRunExecutionReport(runExecutionReport);
+            System.out.println(("Uncaught exception: " + ex));
         };
         Thread th = new Thread(obj);
         th.setUncaughtExceptionHandler(h);
@@ -674,7 +654,7 @@ public class ExperimentController {
         propertiesWriter.println("WorkDir=" + propertiesDto.getWorkDir().replace("\\", "/"));
         propertiesWriter.println("RealDataCopied=" + propertiesDto.getRealDataCopied());
         propertiesWriter.println("CrossoverProb=" + propertiesDto.getCrossoverProb());
-        propertiesWriter.println("BnfPathFile=" + propertiesDto.getBnfPathFile().substring(2, propertiesDto.getBnfPathFile().length()).replace("\\", "/"));
+        propertiesWriter.println("BnfPathFile=" + propertiesDto.getBnfPathFile().substring(2).replace("\\", "/"));
         propertiesWriter.println("Objectives=" + propertiesDto.getObjectives());
         propertiesWriter.println("ClassPathSeparator=" + propertiesDto.getClassPathSeparator());
         propertiesWriter.println("Executions=" + propertiesDto.getExecutions());
@@ -690,21 +670,21 @@ public class ExperimentController {
         propertiesWriter.println("ModelWidth=" + propertiesDto.getModelWidth());
 
         if (propertiesDto.getTraining())
-            propertiesWriter.println("TrainingPath=" + propertiesDto.getTrainingPath().substring(2, propertiesDto.getTrainingPath().length()).replace("\\", "/"));
+            propertiesWriter.println("TrainingPath=" + propertiesDto.getTrainingPath().substring(2).replace("\\", "/"));
         else if (propertiesDto.getValidation()) {
-            propertiesWriter.println("TrainingPath=" + propertiesDto.getTrainingPath().substring(2, propertiesDto.getTrainingPath().length()).replace("\\", "/")); // TEMPORAL UNTIL KNOW IF WE NEED THIS OR NOT
-            propertiesWriter.println("ValidationPath=" + propertiesDto.getValidationPath().substring(2, propertiesDto.getValidationPath().length()).replace("\\", "/"));
+            propertiesWriter.println("TrainingPath=" + propertiesDto.getTrainingPath().substring(2).replace("\\", "/")); // TEMPORAL UNTIL KNOW IF WE NEED THIS OR NOT
+            propertiesWriter.println("ValidationPath=" + propertiesDto.getValidationPath().substring(2).replace("\\", "/"));
         } else {
-            propertiesWriter.println("TrainingPath=" + propertiesDto.getTrainingPath().substring(2, propertiesDto.getTrainingPath().length()).replace("\\", "/"));
-            propertiesWriter.println("TestPath=" + propertiesDto.getTestPath().substring(2, propertiesDto.getTestPath().length()).replace("\\", "/"));
+            propertiesWriter.println("TrainingPath=" + propertiesDto.getTrainingPath().substring(2).replace("\\", "/"));
+            propertiesWriter.println("TestPath=" + propertiesDto.getTestPath().substring(2).replace("\\", "/"));
             // ("\\", "/")
         }
         propertiesWriter.close();
     }
 
-    private ExpProperties createExpPropertiesEntity(ExpProperties expProp, Properties properties,
-                                                   Experiment experiment,
-                                                   Run run, ExpPropertiesDto propDto, String dataFilePath) {
+    private void createExpPropertiesEntity(ExpProperties expProp, Properties properties,
+                                           Experiment experiment,
+                                           Run run, ExpPropertiesDto propDto) {
         expProp.setUuidPropDto(propDto.getId().toString());
 
         expProp.setIdExp(experiment.getId());
@@ -735,7 +715,7 @@ public class ExperimentController {
         expProp.setMaxWraps(Integer.parseInt(properties.getProperty("MaxWraps")));
         expProp.setModelWidth(Integer.parseInt(properties.getProperty("ModelWidth")));
 
-        expProp.setTrainingPath(dataFilePath);
+        expProp.setTrainingPath("");
 
         expProp.setExperimentName(experiment.getExperimentName());
         expProp.setExperimentDescription(experiment.getExperimentDescription());
@@ -743,10 +723,9 @@ public class ExperimentController {
         expProp.setResults(experiment.getResults());
         expProp.setNumberRuns(experiment.getNumberRuns());
 
-        return expProp;
     }
 
-    private Run runSection(Run run, Grammar grammar, ConfigExperimentDto configExpDto, java.sql.Timestamp currentTimestamp) {
+    private void runSection(Run run, Grammar grammar, ConfigExperimentDto configExpDto, Timestamp currentTimestamp) {
         run.setDefaultRunId(run.getId());
         run.setStatus(Run.Status.INITIALIZING);
 
@@ -774,7 +753,6 @@ public class ExperimentController {
         runExecutionReport.setId(run.getId());
         runService.saveRunExecutionReport(runExecutionReport);
 
-        return run;
     }
 
     private String grammarFileSection(User user, ConfigExperimentDto configExpDto, Grammar grammar) throws IllegalStateException, IOException {
@@ -802,7 +780,7 @@ public class ExperimentController {
         return grammarFilePath;
     }
 
-    private ExperimentDataType experimentDataTypeSection(FileModelDto fileModelDto, ExperimentDataType expDataType, java.sql.Timestamp currentTimestamp) throws IOException {
+    private void experimentDataTypeSection(FileModelDto fileModelDto, ExperimentDataType expDataType, Timestamp currentTimestamp) {
         if (!fileModelDto.getTypeFile().isEmpty()) {
             expDataType.setCreationDate(currentTimestamp);
             expDataType.setDataTypeType("training");
@@ -810,13 +788,12 @@ public class ExperimentController {
             expDataType.setModificationDate(currentTimestamp);
         }
 
-        return expDataType;
     }
 
     private Experiment experimentSection(Experiment exp, User user, ExperimentDataType testExpDataType,
-                                        ExperimentDataType expDataType,
-                                        ConfigExperimentDto configExpDto, Grammar grammar, Run run,
-                                        java.sql.Timestamp currentTimestamp, Long longDefaultRunId) {
+                                         ExperimentDataType expDataType,
+                                         ConfigExperimentDto configExpDto, Grammar grammar, Run run,
+                                         java.sql.Timestamp currentTimestamp, Long longDefaultRunId) {
         if (exp == null) {   // We create it
             exp = new Experiment(user, configExpDto.getExperimentName(), configExpDto.getExperimentDescription(), configExpDto.getGenerations(),
                     configExpDto.getPopulationSize(), configExpDto.getMaxWraps(), configExpDto.getTournament(), configExpDto.getCrossoverProb(), configExpDto.getMutationProb(),
@@ -865,8 +842,7 @@ public class ExperimentController {
     }
 
     private void removeRuns(Experiment exp) {
-        List<Run> oldRunList = new ArrayList<>();
-        oldRunList.addAll(exp.getIdRunList());
+        List<Run> oldRunList = new ArrayList<>(exp.getIdRunList());
         //remove old run
         for (Run oldRun : oldRunList) {
             Thread th = threadMap.get(oldRun.getThreaId());
@@ -915,7 +891,7 @@ public class ExperimentController {
     public
     @ResponseBody
     Long deleteRun(@RequestParam("runId") String runId) {
-        Boolean found = false;
+        boolean found = false;
 
         Long longRunId = Long.parseLong(runId);
         Run run = runService.findByRunId(longRunId);
@@ -951,7 +927,7 @@ public class ExperimentController {
 
         if (experimentService.findPropertiesById(run.getIdProperties()) != null)
             runService.deleteExpProperties(experimentService.findPropertiesById(run.getIdProperties()));
-        if (experiment.getDefaultRunId() == longRunId) {
+        if (experiment.getDefaultRunId().equals(longRunId)) {
             experiment.setDefaultRunId(null);
             experimentService.saveExperiment(experiment);
         }
@@ -961,13 +937,13 @@ public class ExperimentController {
     public ConfigExperimentDto fillConfigExpDto(ConfigExperimentDto configExpDto, Experiment exp, Run run, Grammar grammar, ExperimentDataType expDataType) {
         if (run == null) {
             configExpDto.setDefaultRunId(exp.getDefaultRunId());
-            configExpDto = setConfigExpDtoWIthExperiment(configExpDto, exp.getExperimentName(),
+            setConfigExpDtoWIthExperiment(configExpDto, exp.getExperimentName(),
                     exp.getExperimentDescription(), exp.getCrossoverProb(), exp.getGenerations(),
                     exp.getPopulationSize(), exp.getMaxWraps(), exp.getTournament(), exp.getMutationProb(),
                     exp.getInitialization(), exp.getResults(), exp.getNumCodons(), exp.getNumberRuns(), exp.getObjective(), exp);
         } else {
             configExpDto.setDefaultRunId(run.getId());
-            configExpDto = setConfigExpDtoWIthExperiment(configExpDto, run.getExperimentName(),
+            setConfigExpDtoWIthExperiment(configExpDto, run.getExperimentName(),
                     run.getExperimentDescription(), run.getCrossoverProb(), run.getGenerations(),
                     run.getPopulationSize(), run.getMaxWraps(), run.getTournament(),
                     run.getMutationProb(), run.getInitialization(), run.getResults(), run.getNumCodons(),
@@ -986,7 +962,7 @@ public class ExperimentController {
         return configExpDto;
     }
 
-    private ConfigExperimentDto setConfigExpDtoWIthExperiment(ConfigExperimentDto configExpDto, String experimentName, String experimentDescription, Double crossoverProb, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Experiment exp) {
+    private void setConfigExpDtoWIthExperiment(ConfigExperimentDto configExpDto, String experimentName, String experimentDescription, Double crossoverProb, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Experiment exp) {
         configExpDto.setExperimentName(experimentName);
         configExpDto.setExperimentDescription(experimentDescription);
         configExpDto.setCrossoverProb(crossoverProb);
@@ -1001,7 +977,6 @@ public class ExperimentController {
         configExpDto.setNumCodons(numCodons);
         configExpDto.setNumberRuns(numberRuns);
         configExpDto.setObjective(objective);
-        return configExpDto;
     }
 
     public static HashMap<Long, RunnableExpGramEv> getRunnables() {
@@ -1013,12 +988,12 @@ public class ExperimentController {
         String messageSkip = "\u001B[0;39m \u001B[36mc.engine.algorithm.SymbolicRegressionGE \u001B[0;39m \u001B[2m:\u001B[0;39m ";
         System.setOut(new PrintStream(System.out) {
             @Override
-            public void write(byte buf[], int off, int len) {
+            public void write(byte[] buf, int off, int len) {
                 //Convert byte[] to String
                 String logInfo = new String(buf);
                 if (logInfo.contains("j.c.algorithm.ga.SimpleGeneticAlgorithm") ||
                         logInfo.contains("c.engine.algorithm.SymbolicRegressionGE")) {
-                    String infoFormated = new String();
+                    String infoFormated = "";
                     Pattern pattern =
                             Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}");
                     Matcher matcher = pattern.matcher(logInfo);

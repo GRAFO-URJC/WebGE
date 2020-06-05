@@ -96,11 +96,11 @@ public class Experiment {
     @Column
     private Integer numberRuns = 1;
 
-    @Column(name = "creationDate")
+    @Column(name = "creation_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationDate = null;
 
-    @Column(name = "updateDate")
+    @Column(name = "update_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date modificationDate = null;
 

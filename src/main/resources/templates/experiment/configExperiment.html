@@ -341,7 +341,7 @@
 
     </div>
     <!-- RUN SECTION -->
-    <div class="container" th:if="${not #lists.isEmpty(runList)}">
+    <div class="container" th:if="${runList!=null && not #lists.isEmpty(runList)}">
         <div id="runForms" class="panel panel-default">
             <header class="panel-heading">
                 <h2>List of runs</h2>

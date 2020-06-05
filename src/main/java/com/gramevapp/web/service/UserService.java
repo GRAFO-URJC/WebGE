@@ -13,8 +13,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 // Service = DAO
 // This will work as an intermediate between the real data and the action we want to do with that - We are the modifier
@@ -31,7 +32,7 @@ public class UserService {
 
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public User saveUser(UserRegistrationDto registration){
+    public void saveUser(UserRegistrationDto registration) {
         User user = new User();
         com.gramevapp.web.model.UserDetails userDetails = new com.gramevapp.web.model.UserDetails();
 
@@ -45,17 +46,18 @@ public class UserService {
         user.setUsername(registration.getUsername().toLowerCase());
         user.setInstitution(registration.getInstitution());
 
-        user.setRoles(Arrays.asList(new Role("ROLE_USER")));    // Later we can change the role of the user
+        user.setRoles(Collections.singletonList(new Role("ROLE_USER")));    // Later we can change the role of the user
 
         userDetailsRepository.save(userDetails);
         user = userRepository.save(user);
 
         userDetails.setUser(user);
 
-        return user;
     }
 
-    public User findByEmail(String email){  return userRepository.findByEmail(email); }
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 
     @Autowired
     public void setUserRepository(UserRepository userRepository) {
@@ -63,12 +65,13 @@ public class UserService {
     }
 
     public User getById(Long id) {
-        return userRepository.findById(id).get();
+        Optional<User> check = userRepository.findById(id);
+        return check.orElse(null);
     }
 
-    public User save(User s) {
+    public void save(User s) {
         userDetailsRepository.save(s.getUserDetails());
-        return userRepository.save(s);
+        userRepository.save(s);
     }
 
     public User findByUsername(String username) {
@@ -82,22 +85,21 @@ public class UserService {
             return null;
         }
 
-        User user = findByUsername(authentication.getName());
-        return user;
+        return findByUsername(authentication.getName());
     }
 
-    public void updateUser(){
+    public void updateUser() {
         this.userRepository.flush();
     }
 
-    public List<User> findAllUserWithoutAdmin(){
+    public List<User> findAllUserWithoutAdmin() {
         User admin = this.getLoggedInUser();
-        List<User> userList=userRepository.findAll();
-        userList.remove(userList.indexOf(admin));
+        List<User> userList = userRepository.findAll();
+        userList.remove(admin);
         return userList;
     }
 
-    public void deleteUserById(Long id){
+    public void deleteUserById(Long id) {
         userRepository.deleteById(id);
     }
 }

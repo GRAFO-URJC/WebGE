@@ -132,7 +132,7 @@ public class UserController extends UserCommon {
 
     @GetMapping("/user")
     public String userIndex(HttpServletRequest request) {
-        if(userService.getLoggedInUser()!=null){
+        if (userService.getLoggedInUser() != null) {
             UserDetails userDetails = userService.getLoggedInUser().getUserDetails();
             request.getSession().setAttribute("userDetails", userDetails);
         }

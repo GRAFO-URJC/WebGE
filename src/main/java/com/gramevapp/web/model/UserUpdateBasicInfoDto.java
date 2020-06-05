@@ -1,26 +1,25 @@
 package com.gramevapp.web.model;
 
-import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.format.annotation.NumberFormat;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 public class UserUpdateBasicInfoDto {
 
     private static final String PATTERN = "^[\\p{L} .'-]*$";  // https://stackoverflow.com/questions/15805555/java-regex-to-validate-full-name-allow-only-spaces-and-letters
-    private static final String PATTERN_NUM_LETTERS = "^[\\p{L} \\d .'-]+$";
+    private static final String EMAIL = "^[^@]+@[^@]+$";
 
     //  Basic info
     @Pattern(regexp = PATTERN, message = "First name cannot contain strange characters")
-    @NotEmpty
+    @NotNull
     private String firstName;
     @Pattern(regexp = PATTERN, message = "Last name cannot contain strange characters")
-    @NotEmpty
+    @NotNull
     private String lastName;
-    @Email
-    @NotEmpty
+    @Pattern(regexp = EMAIL, message = "Not valid email")
+    @NotNull
     private String email;
     @NumberFormat
     private Integer phone;
@@ -34,7 +33,7 @@ public class UserUpdateBasicInfoDto {
 
     private MultipartFile profilePicture;
 
-    @NotEmpty(message = "Institution cannot be empty")
+    @NotNull(message = "Institution cannot be empty")
     private String institution;
 
     public MultipartFile getProfilePicture() {

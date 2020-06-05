@@ -56,7 +56,7 @@ public class GrammarController {
         } catch (DataIntegrityViolationException e) {
             System.out.println(e.getCause() instanceof org.hibernate.exception.ConstraintViolationException);
             if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
-                return Long.valueOf(-1);
+                return (long) -1;
             }
         }
 

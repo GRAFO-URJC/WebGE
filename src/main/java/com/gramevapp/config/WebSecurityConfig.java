@@ -23,7 +23,7 @@ import javax.sql.DataSource;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig
-    extends WebSecurityConfigurerAdapter {
+        extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private LoggingAccessDeniedHandler accessDeniedHandler;
@@ -51,7 +51,7 @@ public class WebSecurityConfig
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            .authorizeRequests()
+                .authorizeRequests()
                 .antMatchers(
                         "/",
                         "/images/**",
@@ -60,35 +60,35 @@ public class WebSecurityConfig
                 .antMatchers("/user/**").hasRole("USER")    // Only users can access to /user/whatever
                 .antMatchers("/admin/**").hasRole("ADMIN")    // Only admin can access to /admin/whatever
                 .anyRequest().authenticated()
-            .and()
+                .and()
                 .formLogin().loginPage("/login").successHandler(myAuthenticationSuccessHandler())
                 .permitAll()
-            .and()
-            .logout()
+                .and()
+                .logout()
                 .invalidateHttpSession(true)
                 //.clearAuthentication(true)
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/login?logout")
                 .permitAll()
-            .and()
-            .exceptionHandling()
-             .accessDeniedHandler(accessDeniedHandler)
-            .and()
+                .and()
+                .exceptionHandling()
+                .accessDeniedHandler(accessDeniedHandler)
+                .and()
                 .httpBasic()
-                    .realmName(REALM_NAME)
-                    .authenticationEntryPoint(new CustomAuthenticationEntryPoint());    // CustomAuthenticationEntryPoint created
+                .realmName(REALM_NAME)
+                .authenticationEntryPoint(new CustomAuthenticationEntryPoint());    // CustomAuthenticationEntryPoint created
 
         http.csrf().disable();
         http.headers().frameOptions().disable();
     }
 
     @Bean
-    public BCryptPasswordEncoder passwordEncoder(){
+    public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(11);
     }
 
     @Bean
-    public DaoAuthenticationProvider authenticationProvider(){
+    public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(myUserDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
@@ -96,7 +96,7 @@ public class WebSecurityConfig
     }
 
     @Bean
-    public AuthenticationSuccessHandler myAuthenticationSuccessHandler(){
+    public AuthenticationSuccessHandler myAuthenticationSuccessHandler() {
         return new UrlAuthenticationSuccessHandler();
     }
 }

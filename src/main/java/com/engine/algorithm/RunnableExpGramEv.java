@@ -28,7 +28,7 @@ public class RunnableExpGramEv implements Runnable {
 
         int numObjectives = 1;
         if ((properties.getProperty(OBJECTIVES_PROP) != null)
-                && (Integer.valueOf(properties.getProperty(OBJECTIVES_PROP)) == 2)) {
+                && (Integer.parseInt(properties.getProperty(OBJECTIVES_PROP)) == 2)) {
             numObjectives = 2;
         }
 

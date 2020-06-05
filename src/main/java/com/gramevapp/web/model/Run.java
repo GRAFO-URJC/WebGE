@@ -7,12 +7,13 @@ import org.hibernate.annotations.DynamicUpdate;
 import javax.persistence.*;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
 @Table(name = "run")
 @DynamicUpdate
 public class Run {
-    public enum Status {INITIALIZING, WAITING, RUNNING, STOPPED, FINISHED, FAILED;}
+    public enum Status {INITIALIZING, WAITING, RUNNING, STOPPED, FINISHED, FAILED}
 
 
     @Id
@@ -57,11 +58,11 @@ public class Run {
     @Column(name = "EXPERIMENT_DESCRIPTION")
     private String experimentDescription;
 
-    @Column(name = "iniDate")
+    @Column(name = "ini_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date iniDate;
 
-    @Column(name = "modificationDate")
+    @Column(name = "modification_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date modificationDate;
 
@@ -101,10 +102,6 @@ public class Run {
     @OneToOne(mappedBy = "run", cascade = CascadeType.ALL,
             fetch = FetchType.LAZY)
     private RunExecutionReport RunExecutionReport;
-
-    public Run(Run run) {
-        this(run.getExperimentId(), run.getDiagramData(), run.getBestIndividual(), run.getCurrentGeneration(), run.getIdProperties(), run.getStatus(), run.getIniDate(), run.getModificationDate(), run.getExperimentName(), run.getExperimentDescription(), run.getDefaultRunId(), run.getGenerations(), run.getPopulationSize(), run.getMaxWraps(), run.getTournament(), run.getCrossoverProb(), run.getMutationProb(), run.getInitialization(), run.getObjective(), run.getResults(), run.getNumCodons(), run.getNumberRuns());
-    }
 
     public Run(Experiment experimentId, DiagramData diagramData, Double bestIndividual, Integer currentGeneration, Long idProperties, Status status, Date iniDate, Date modificationDate, String experimentName, String experimentDescription, Long defaultRunId, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String objective, String results, Integer numCodons, Integer numberRuns) {
         this.experimentId = experimentId;
@@ -180,7 +177,7 @@ public class Run {
     }
 
     private boolean sameAs(Experiment newExperiment) {
-        return this.experimentId == null ? newExperiment == null : experimentId.equals(newExperiment);
+        return Objects.equals(experimentId, newExperiment);
     }
 
     public Date getIniDate() {

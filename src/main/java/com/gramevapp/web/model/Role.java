@@ -9,7 +9,7 @@ public class Role implements Serializable {
 
     // Admin, normal user, user with privilages (?) ....
     @Id
-    @Column(name = "ROLE_ID", nullable = false, updatable= false)
+    @Column(name = "ROLE_ID", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
@@ -50,6 +50,7 @@ public class Role implements Serializable {
     public String getRole() {
         return role;
     }
+
     public void setRole(String role) {
         this.role = role;
     }

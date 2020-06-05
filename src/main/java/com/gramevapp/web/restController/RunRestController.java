@@ -24,7 +24,7 @@ public class RunRestController {
     public @ResponseBody
     Run getRunStatus(String runId, String status) {
 
-        if (runId == "")
+        if (runId.equals(""))
             return null;
 
         Run run = runService.findByRunId(Long.parseLong(runId));

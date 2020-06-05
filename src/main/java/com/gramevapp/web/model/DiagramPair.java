@@ -5,21 +5,21 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
-@Table(name="diagram_pair")
+@Table(name = "diagram_pair")
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
 @DynamicUpdate
-public class DiagramPair
-{
+public class DiagramPair {
     @Id
-    @Column(name = "diagram_pair_id", updatable= false)
+    @Column(name = "diagram_pair_id", updatable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @ManyToOne(targetEntity=DiagramData.class,fetch = FetchType.EAGER)
+    @ManyToOne(targetEntity = DiagramData.class, fetch = FetchType.EAGER)
     @JoinTable(
             name = "diagram_pair_list",
             joinColumns = {
@@ -75,20 +75,20 @@ public class DiagramPair
     // https://github.com/SomMeri/org.meri.jpa.tutorial/blob/master/src/main/java/org/meri/jpa/relationships/entities/bestpractice/SafeTwitterAccount.java
     public void setDiagramData(DiagramData diagramDataId) {
         //prevent endless loop
-        if(sameAs(diagramDataId))
-            return ;
+        if (sameAs(diagramDataId))
+            return;
         // set new diagramData
         DiagramData oldDiagramData = this.diagramDataId;
         this.diagramDataId = diagramDataId;
         // remove from the old diagram data
-        if(oldDiagramData!=null)
+        if (oldDiagramData != null)
             oldDiagramData.removeListPair(this);
         // set myself into new diagram data owner
-        if(diagramDataId!=null)
+        if (diagramDataId != null)
             diagramDataId.addListPair(this);
     }
 
     private boolean sameAs(DiagramData newDiagramData) {
-        return this.diagramDataId==null? newDiagramData == null : diagramDataId.equals(newDiagramData);
+        return Objects.equals(diagramDataId, newDiagramData);
     }
 }

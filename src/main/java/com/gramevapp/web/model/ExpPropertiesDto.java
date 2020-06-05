@@ -135,15 +135,14 @@ public class ExpPropertiesDto {
     }
 
     public String getLoggerBasePath() {
-        if(loggerBasePath == null) {
+        if (loggerBasePath == null) {
             ApplicationContext context = BeanUtil.getAppContext();
             UserService userService = (UserService) context.getBean("userService");
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User user = userService.findByUsername(authentication.getName());
 
             return LOGGER_BASE_PATH + File.separator + user.getId();
-        }
-        else
+        } else
             return loggerBasePath;
     }
 

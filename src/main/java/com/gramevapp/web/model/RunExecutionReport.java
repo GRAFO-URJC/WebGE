@@ -16,7 +16,7 @@ public class RunExecutionReport {
     @JoinColumn(name = "run_id")
     private Run run;
 
-    public RunExecutionReport(){
+    public RunExecutionReport() {
 
     }
 

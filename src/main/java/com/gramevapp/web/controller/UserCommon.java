@@ -73,7 +73,7 @@ public class UserCommon {
                                      UserUpdateBasicInfoDto userUpDto,
                                      BindingResult result,
                                      RedirectAttributes redirectAttrs,
-                                     String link){
+                                     String link) {
 
         User user = userService.getLoggedInUser();
 
@@ -143,7 +143,7 @@ public class UserCommon {
 
         redirectAttrs.addAttribute("message", "Basic information updated").addFlashAttribute("aboutMe", "Basic information area");
         redirectAttrs.addAttribute("areaActive", "basicActive").addFlashAttribute("basicActive", "Basic information area");
-        return "redirect:"+link;
+        return "redirect:" + link;
     }
 
     protected UserUpdateBasicInfoDto userSet(User user) {
