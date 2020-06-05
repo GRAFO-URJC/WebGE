@@ -1,9 +1,9 @@
 package com.engine.util;
 
-import java.util.Properties;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.stat.StatUtils;
-import org.apache.commons.math3.stat.regression.SimpleRegression;
+
+import java.util.Properties;
 
 /**
  * Utility methods for statistics.

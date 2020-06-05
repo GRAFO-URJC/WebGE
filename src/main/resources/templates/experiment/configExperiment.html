@@ -244,24 +244,13 @@
                                 </div>
                             </div>
                             <div class="row form-group">
-                                <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <div th:classappend="${#fields.hasErrors('dataTypeDescription')}? 'has-error':'dataTypeDescription error'">
-                                        <input type="text" class="form-control" name="dataTypeDescription"
-                                               id="dataTypeDescription"
-                                               placeholder="Description of the file" readonly/>
-                                    </div>
+                                <div class="col-sm-12 col-md-12 col-lg-12"><input type="text" class="form-control"
+                                                                                  name="dataTypeDescription"
+                                                                                  id="dataTypeDescription"
+                                                                                  placeholder="Description of the file"
+                                                                                  readonly/>
                                 </div>
                             </div>
-
-                            <!-- Data Type table to load -->
-                            <div style="display: none">
-                                <input type="hidden" th:name="defaultExpDataTypeId" th:id="defaultExpDataTypeId"
-                                       th:value="${configuration.getDefaultExpDataTypeId()}"/>
-                                <input class="hiddenRadio" type="radio" th:name="radioDataType"
-                                       th:id="radioDataTypeHidden"
-                                       checked="checked"/>
-                            </div>
-                            <!-- END Data Type table to load -->
 
                             <div class="row form-group text-center">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
@@ -485,14 +474,6 @@
             document.body.removeChild(event.target);
         }
 
-        function check(iterStat) {
-            var cleanIterStat = iterStat.substring("radioDataType".length, iterStat.length);
-
-            if (document.getElementById('radioDataType' + cleanIterStat).checked) {
-                $("#radioDataTypeHidden").remove();
-            }
-        }
-
         // <![CDATA[
         function checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat) {
             $.ajax({
@@ -679,10 +660,10 @@
 
         function checkDeletePreviousRun() {
             if (document.getElementById("runForms") && !cloneButton) {
-                if(saveButton){
+                if (saveButton) {
                     return confirm('Do you really want to save it? If you changed the setting (not test dataset) of the' +
                         ' experiment previous runs will be deleted...');
-                }else{
+                } else {
                     return confirm('Do you really want to run it? This will delete the previous runs...');
                 }
             } else {
