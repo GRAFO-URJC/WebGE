@@ -30,7 +30,7 @@ public class Grammar {
                     @JoinColumn(name = "EXPERIMENT_ID", referencedColumnName = "EXPERIMENT_ID")
             }
     )
-    private List<Experiment> listExperiment=new ArrayList<>();
+    private List<Experiment> listExperiment = new ArrayList<>();
 
     @Column
     private Long runId;
@@ -41,7 +41,7 @@ public class Grammar {
     @Column
     private String grammarDescription;
 
-    @Column(name = "creationDate")
+    @Column(name = "creation_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationDate = null;
 
@@ -54,15 +54,6 @@ public class Grammar {
 
     public Grammar(List<Experiment> exp) {
         this.listExperiment = exp;
-    }
-
-    /**
-     * Copy constructor.
-     */
-    public Grammar(Grammar grammar) {
-        this(grammar.getListExperiment(), grammar.getRunId(), grammar.getGrammarName(), grammar.getGrammarDescription(), grammar.getFileText(), grammar.getCreationDate());
-        //no defensive copies are created here, since
-        //there are no mutable object fields (String is immutable)
     }
 
     public Date getCreationDate() {

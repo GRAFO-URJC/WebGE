@@ -29,14 +29,14 @@ public class RunGeObserver implements Observer {
 
         // Taking data from dictionary
         // Actual generation
-        int currGen = Integer.valueOf(dataMap.get("CurrentGeneration").toString());
+        int currGen = Integer.parseInt(dataMap.get("CurrentGeneration").toString());
         // Porcentaje de ejecución Execution percentage
-        int currPercent = Math.round((currGen * 100) / Integer.valueOf(dataMap.get("MaxGenerations").toString()));
+        int currPercent = Math.round((currGen * 100) / Integer.parseInt(dataMap.get("MaxGenerations").toString()));
 
         // One of these two are null
 
         // Current value of best individual
-        double currBest = Double.valueOf(dataMap.get("BestObjective").toString());
+        double currBest = Double.parseDouble(dataMap.get("BestObjective").toString());
 
         // Multi-objetive shows all objectives (Not necessary but do not erase)
         double objs[][] = (double[][]) dataMap.get("Objectives");
@@ -62,10 +62,7 @@ public class RunGeObserver implements Observer {
         if (currPercent == 100 || currBest <= 0.0)
             this.diagramData.setFinished(true);
 
-        if (currBest > 0.0)
-            this.diagramData.setBestIndividual(currBest);
-        else
-            this.diagramData.setBestIndividual(0.0);
+        this.diagramData.setBestIndividual(Math.max(currBest, 0.0));
         this.diagramData.setCurrentGeneration(currGen);
 
         dataDataService.saveDiagramPair(diagramPair);

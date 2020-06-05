@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 // We use repositories ExperimentDataType, ExperimentRowType here too.
 @Service("experimentService")
@@ -26,12 +27,12 @@ public class ExperimentService {
     @Autowired
     private PropertiesRepository propertiesRepository;
 
-    public ExperimentDataType saveDataType(ExperimentDataType expDataType) {
-        return experimentDataTypeRepository.save(expDataType);
+    public void saveDataType(ExperimentDataType expDataType) {
+        experimentDataTypeRepository.save(expDataType);
     }
 
-    public Experiment saveExperiment(Experiment experiment) {
-        return experimentRepository.save(experiment);
+    public void saveExperiment(Experiment experiment) {
+        experimentRepository.save(experiment);
     }
 
     public List<Experiment> findByUser(User user) {
@@ -47,19 +48,23 @@ public class ExperimentService {
     }
 
     public ExperimentDataType findDataTypeById(Long dataTypeId) {
-        return experimentDataTypeRepository.findById(dataTypeId).get();
+        Optional<ExperimentDataType> check = experimentDataTypeRepository.findById(dataTypeId);
+        return check.orElse(null);
     }
 
     public Experiment findExperimentById(Long id) {
-        return experimentRepository.findById(id).get();
+        Optional<Experiment> check = experimentRepository.findById(id);
+        return check.orElse(null);
     }
 
     public ExperimentDataType findExperimentDataTypeById(Long id) {
-        return experimentDataTypeRepository.findById(id).get();
+        Optional<ExperimentDataType> check = experimentDataTypeRepository.findById(id);
+        return check.orElse(null);
     }
 
     public ExpProperties findPropertiesById(Long propertiesId) {
-        return propertiesRepository.findById(propertiesId).get();
+        Optional<ExpProperties> check = propertiesRepository.findById(propertiesId);
+        return check.orElse(null);
     }
 
     public void deleteExpProperties(ExpProperties expProperties) {

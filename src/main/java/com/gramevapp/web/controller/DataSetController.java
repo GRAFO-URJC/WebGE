@@ -33,14 +33,14 @@ public class DataSetController {
                 experimentService.findAllExperimentDataTypeByUserId(user.getId());
         List<Boolean> disabled = new ArrayList<>();
         List<List<String>> datasetInformation = new ArrayList<>();
-        HashSet experimentDataTypeListInUse = new HashSet<>();
+        HashSet<ExperimentDataType> experimentDataTypeListInUse = new HashSet<>();
 
         List<Experiment> experimentList = experimentService.findByUser(user);
         for (Experiment experiment : experimentList) {
-            if(experiment.getDefaultExpDataType()!=null){
+            if (experiment.getDefaultExpDataType() != null) {
                 experimentDataTypeListInUse.add(experimentService.findExperimentDataTypeById(experiment.getDefaultExpDataType()));
             }
-            if(experiment.getDefaultTestExpDataTypeId()!=null) {
+            if (experiment.getDefaultTestExpDataTypeId() != null) {
                 experimentDataTypeListInUse.add(experimentService.findExperimentDataTypeById(experiment.getDefaultTestExpDataTypeId()));
             }
         }
@@ -107,7 +107,7 @@ public class DataSetController {
         } catch (DataIntegrityViolationException e) {
             System.out.println(e.getCause() instanceof org.hibernate.exception.ConstraintViolationException);
             if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
-                return Long.valueOf(-1);
+                return (long) -1;
             }
         }
 

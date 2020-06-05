@@ -17,7 +17,7 @@ public class FileValidator implements Validator {
     public void validate(Object target, Errors errors) {
         FileModelDto fileModelDto = (FileModelDto) target;
 
-        if (fileModelDto.getTypeFile() != null && fileModelDto.getTypeFile().isEmpty()){
+        if (fileModelDto.getTypeFile() != null && fileModelDto.getTypeFile().isEmpty()) {
             errors.rejectValue("file", "file.empty");
         }
     }

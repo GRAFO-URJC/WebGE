@@ -26,19 +26,19 @@ public class DiagramDataService {
     @Autowired
     private RunRepository runRepository;
 
-    public DiagramData getLastBestIndividual(Run runId){
+    public DiagramData getLastBestIndividual(Run runId) {
         return diagramRepository.findByRunId(runId);
     }
 
-    public DiagramData findByRunId(Run runId){
+    public DiagramData findByRunId(Run runId) {
         return diagramRepository.findByRunId(runId);
     }
 
-    public DiagramData saveDiagram(DiagramData diagramData) {
-        return diagramRepository.save(diagramData);
+    public void saveDiagram(DiagramData diagramData) {
+        diagramRepository.save(diagramData);
     }
 
-    public void saveRun(Run run){
+    public void saveRun(Run run) {
         runRepository.save(run);
     }
 
@@ -46,7 +46,7 @@ public class DiagramDataService {
         diagramPairRepository.save(diagramPair);
     }
 
-    public void deleteDiagram(DiagramData diagramDataId){
+    public void deleteDiagram(DiagramData diagramDataId) {
         diagramRepository.delete(diagramDataId);
     }
 }

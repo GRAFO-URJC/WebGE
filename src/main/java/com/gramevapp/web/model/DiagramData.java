@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="diagram_data")
+@Table(name = "diagram_data")
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
@@ -18,23 +18,23 @@ import java.util.List;
 public class DiagramData {
 
     @Id
-    @Column(name = "diagram_data_id", nullable = false, updatable= false)
+    @Column(name = "diagram_data_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToMany(fetch=FetchType.EAGER,
-            cascade=CascadeType.ALL,
+    @OneToMany(fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL,
             mappedBy = "diagramDataId",
             orphanRemoval = true,
-            targetEntity=DiagramPair.class)
+            targetEntity = DiagramPair.class)
     private List<DiagramPair> listPair;   // To display diagram with one click.
 
     @Column
     private Double bestIndividual = 0.0;  // Best solution
 
 
-    @OneToOne(targetEntity=Run.class, fetch=FetchType.LAZY)
+    @OneToOne(targetEntity = Run.class, fetch = FetchType.LAZY)
     private Run runId;
 
     @Column
@@ -95,7 +95,7 @@ public class DiagramData {
 
     public void setRunId(Run run) {
         this.runId = run;
-        if(run != null)
+        if (run != null)
             run.setDiagramData(this);
     }
 
@@ -139,17 +139,17 @@ public class DiagramData {
         this.failed = failed;
     }
 
-    public void addListPair(double bestIndividual, int currentGeneration){
+    public void addListPair(double bestIndividual, int currentGeneration) {
         DiagramPair diagramPair = new DiagramPair(bestIndividual, currentGeneration);
 
         this.listPair.add(diagramPair);
     }
 
     //https://github.com/SomMeri/org.meri.jpa.tutorial/blob/master/src/main/java/org/meri/jpa/relationships/entities/bestpractice/SafePerson.java
-    public void addListPair(DiagramPair diagramPair){
+    public void addListPair(DiagramPair diagramPair) {
         //prevent endless loop
-        if(this.listPair.contains(diagramPair))
-            return ;
+        if (this.listPair.contains(diagramPair))
+            return;
         this.listPair.add(diagramPair);
         diagramPair.setDiagramData(this);
     }
@@ -161,7 +161,7 @@ public class DiagramData {
     public void removeListPair(DiagramPair diagramPair) {
         //prevent endless loop
         if (!listPair.contains(diagramPair))
-            return ;
+            return;
         //remove the account
         listPair.remove(diagramPair);
         //remove myself from the twitter account

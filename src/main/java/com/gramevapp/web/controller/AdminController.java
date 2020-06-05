@@ -30,12 +30,15 @@ public class AdminController extends UserCommon {
         List<Experiment> experimentList = experimentService.findAll();
         for (Experiment experiment : experimentList) {
             User u = experiment.getUserId();
-            Run newRunCompare = runService.findByRunId(experiment.getDefaultRunId());
-            Run run = summaryExperiment.get(u);
-            if (run == null) {
-                summaryExperiment.put(u, newRunCompare);
-            } else {
-                summaryExperiment.put(u, compareRun(run, newRunCompare));
+            if (experiment.getDefaultRunId() != null && runService.findByRunId(experiment.getDefaultRunId()) != null) {
+                Run newRunCompare = runService.findByRunId(experiment.getDefaultRunId());
+                Run run = summaryExperiment.get(u);
+                if (run == null) {
+                    summaryExperiment.put(u, newRunCompare);
+                } else {
+                    summaryExperiment.put(u, compareRun(run, newRunCompare));
+                }
+
             }
         }
         model.addAttribute("summaryExperiment", summaryExperiment);
@@ -162,7 +165,7 @@ public class AdminController extends UserCommon {
         } catch (DataIntegrityViolationException e) {
             System.out.println(e.getCause() instanceof org.hibernate.exception.ConstraintViolationException);
             if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
-                return Long.valueOf(-1);
+                return (long) -1;
             }
         }
 

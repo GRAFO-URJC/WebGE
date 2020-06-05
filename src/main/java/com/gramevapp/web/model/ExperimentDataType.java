@@ -30,7 +30,7 @@ public class ExperimentDataType {
                     @JoinColumn(name = "experiment_id", referencedColumnName = "experiment_id")
             }
     )
-    private List<Experiment> experimentList= new ArrayList<>();
+    private List<Experiment> experimentList = new ArrayList<>();
 
     @Column
     private Long runId;
@@ -51,24 +51,17 @@ public class ExperimentDataType {
     private Long userIdUserId;
 
     // https://softwareyotrasdesvirtudes.com/2012/09/20/anotaciones-en-jpa-para-sobrevivir-a-una-primera-persistenica/
-    @Column(name = "creationDate")
+    @Column(name = "creation_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationDate = null;
 
-    @Column(name = "updateDate")
+    @Column(name = "update_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date modificationDate = null;
 
     public ExperimentDataType(Experiment exp) {
         this.experimentList = new ArrayList<>();
         experimentList.add(exp);
-    }
-
-    /**
-     * Copy constructor.
-     */
-    public ExperimentDataType(ExperimentDataType eDType) {
-        this(eDType.getExperimentList(), eDType.getRunId(), eDType.getDataTypeName(), eDType.getinfo(), eDType.getDataTypeDescription(), eDType.getDataTypeType(), eDType.getCreationDate(), eDType.getModificationDate());
     }
 
     public ExperimentDataType() {
@@ -126,9 +119,7 @@ public class ExperimentDataType {
     }
 
     public void deleteExperimentInList(Experiment experimentId) {
-        if(experimentList.contains(experimentId)){
-            experimentList.remove(experimentId);
-        }
+        experimentList.remove(experimentId);
     }
 
     public void deleteExperimentList() {
@@ -136,7 +127,7 @@ public class ExperimentDataType {
     }
 
     public void addExperimentList(Experiment experimentId) {
-        if(!experimentList.contains(experimentId)){
+        if (!experimentList.contains(experimentId)) {
             experimentList.add(experimentId);
         }
     }

@@ -1,10 +1,9 @@
 package com.gramevapp.web.model;
 
 import com.gramevapp.config.FieldMatch;
-import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -15,35 +14,38 @@ import javax.validation.constraints.Size;
 
 public class UserRegistrationDto {
     private static final String USERNAME_PATTERN = "^[a-z0-9_-]{3,15}$";
-
+    private static final String EMAIL = "^[^@]+@[^@]+$";
 
     @Pattern(regexp = USERNAME_PATTERN, message = "Username cannot have spaces neither strange characters or uppercase and must have between 3-15 letters")
-    @NotEmpty(message = "User name cannot be empty")
+    @NotNull(message = "User name cannot be empty")
+    @Size(min = 1)
     private String username;
 
-    @NotEmpty(message = "Firstname cannot be empty")
+    @NotNull(message = "Firstname cannot be empty")
+    @Size(min = 1)
     private String FirstName;
 
-    @NotEmpty(message = "Lastname cannot be empty")
+    @NotNull(message = "Lastname cannot be empty")
+    @Size(min = 1)
     private String LastName;
 
-    @NotEmpty
+    @NotNull
     @Size(min = 6, max = 50, message = "Your password must between 6 and 15 characters")
     private String password;
 
-    @NotEmpty
+    @NotNull
     @Size(min = 6, max = 50, message = "Your confirmation password must between 6 and 15 characters")
     private String confirmPassword;
 
-    @Email
-    @NotEmpty(message = "Email cannot be empty")
+    @Pattern(regexp = EMAIL, message = "Not valid email")
+    @NotNull(message = "Email cannot be empty")
     private String email;
 
-    @Email
-    @NotEmpty(message = "Email confirmation cannot be empty")
+    @Pattern(regexp = EMAIL, message = "Not valid email")
+    @NotNull(message = "Email confirmation cannot be empty")
     private String confirmEmail;
 
-    @NotEmpty(message = "Institution cannot be empty")
+    @NotNull(message = "Institution cannot be empty")
     private String institution;
 
     //  Direction

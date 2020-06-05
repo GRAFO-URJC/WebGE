@@ -10,6 +10,8 @@ import java.util.List;
 @Repository
 public interface ExperimentRepository extends JpaRepository<Experiment, Long> {
     Experiment findByUserIdAndId(User user, Long id);
+
     List<Experiment> findByUserId(User user);
+
     void deleteById(Long id);
 }

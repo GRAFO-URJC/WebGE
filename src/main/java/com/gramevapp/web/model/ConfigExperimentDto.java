@@ -1,51 +1,53 @@
 package com.gramevapp.web.model;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 public class ConfigExperimentDto {
     private Long id;
 
     private String experimentName;
     private String experimentDescription;
-    @Min(value=100)
-    @Max(value=100000)
+    @Min(value = 100)
+    @Max(value = 100000)
     @NotNull
     private Integer generations = 1000;
-    @Min(value=0)
-    @Max(value=100000)
+    @Min(value = 0)
+    @Max(value = 100000)
     @NotNull
     private Integer populationSize = 50;
-    @Min(value=0)
-    @Max(value=1000)
+    @Min(value = 0)
+    @Max(value = 1000)
     @NotNull
     private Integer maxWraps = 3;
-    @Min(value=0)
-    @Max(value=1000)
+    @Min(value = 0)
+    @Max(value = 1000)
     @NotNull
     private Integer tournament = 2;
-    @Min(value=0)
-    @Max(value=100)
+    @Min(value = 0)
+    @Max(value = 100)
     @NotNull
     private Double crossoverProb = 0.5;
-    @Min(value=0)
-    @Max(value=100)
+    @Min(value = 0)
+    @Max(value = 100)
     @NotNull
     private Double mutationProb = 0.5;
-    @NotEmpty(message = "Initialization cannot be empty")
+    @NotNull(message = "Initialization cannot be empty")
+    @Size(min = 1)
     private String initialization = " ";       // Random OR Sensible
-    @NotEmpty(message = "Results cannot be empty")
+    @NotNull(message = "Results cannot be empty")
+    @Size(min = 1)
     private String results = " ";             // Text file with the results of the experiments
-    @Min(value=0)
-    @Max(value=100)
+    @Min(value = 0)
+    @Max(value = 100)
     @NotNull
-    private Integer numCodons =10;
-    @Min(value=0)
-    @Max(value=100)
+    private Integer numCodons = 10;
+    @Min(value = 0)
+    @Max(value = 100)
     @NotNull
     private Integer numberRuns = 1;
     private Long defaultGrammarId;
@@ -53,7 +55,8 @@ public class ConfigExperimentDto {
     private Long testDefaultExpDataTypeId;
     private String grammarName;
     private String grammarDescription;
-    @NotEmpty(message = "Grammar area text cannot be empty")
+    @NotNull(message = "Grammar area text cannot be empty")
+    @Size(min = 1)
     private String fileText; // This is the text on the file - That's written in an areaText - So we can take it as a String
     private String dataTypeType = "training";   // Validation, test, training
 
@@ -62,13 +65,14 @@ public class ConfigExperimentDto {
 
     /**
      * 0 -> Root Mean Squared Error (RMSE)
-     1 -> Clarke Error Grid (CEG)
-     2 -> Bi-objective: RMSE & CEG
-     3 -> R Square (R^2)
-     4 -> Absolute Error (Abs. Error)
-     5 -> Mean Absolute Relative Deviation (MARD)
+     * 1 -> Clarke Error Grid (CEG)
+     * 2 -> Bi-objective: RMSE & CEG
+     * 3 -> R Square (R^2)
+     * 4 -> Absolute Error (Abs. Error)
+     * 5 -> Mean Absolute Relative Deviation (MARD)
      */
-    @NotEmpty
+    @NotNull
+    @Size(min = 1)
     private String objective;
     private MultipartFile typeFile;
 
