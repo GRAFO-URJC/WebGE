@@ -161,15 +161,10 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
      *
      * @param obs
      */
-    public void runGE(RunGeObserver obs) {
+    public void runGE(RunGeObserver obs, String experimentDatatypeInfo) {
         // Load target data
         // TODO: NO distinguir entre training, validation y test.
-        CSVReader csv = new CSVReader(properties.getProperty(Common.TRAINING_PATH_PROP));
-        try {
-            func = csv.loadMatrix();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        func = processExperimentDataTypeInfo(experimentDatatypeInfo);
         vars = getVariables(func);
         logger.setLevel(Level.ALL);
 
@@ -334,9 +329,19 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     }
 
     public String getModel() {
-        if(solutions!=null&&!solutions.isEmpty()){
+        if (solutions != null && !solutions.isEmpty()) {
             return this.generatePhenotype(solutions.get(0)).toString();
         }
         return null;
+    }
+
+    private String[][] processExperimentDataTypeInfo(String info) {
+        String[] infoSplit = info.split("\\r\\n");
+        String[][] matrix = new String[infoSplit.length][];
+        int count = 0;
+        for (String line : infoSplit) {
+            matrix[count++] = line.split(";");
+        }
+        return matrix;
     }
 }

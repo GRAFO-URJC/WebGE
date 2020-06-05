@@ -319,19 +319,19 @@ public class ExperimentController {
         if (configExpDto.getId() != null) {
             exp = experimentService.findExperimentById(configExpDto.getId());
             // check if only test was changed
-            boolean sameExp = exp.getExperimentName().equals(configExpDto.getExperimentName())&&
-                    exp.getExperimentDescription().equals(configExpDto.getExperimentDescription())&&
-                    exp.getGenerations().equals(configExpDto.getGenerations())&&
-                    exp.getCrossoverProb().equals(configExpDto.getCrossoverProb())&&
-                    exp.getPopulationSize().equals(configExpDto.getPopulationSize())&&
-                    exp.getMutationProb().equals(configExpDto.getMutationProb())&&
-                    exp.getMaxWraps().equals(configExpDto.getMaxWraps())&&
-                    exp.getTournament().equals(configExpDto.getTournament())&&
-                    exp.getNumberRuns().equals(configExpDto.getNumberRuns())&&
-                    exp.getObjective().equals(configExpDto.getObjective())&&
-                    exp.getDefaultGrammar().equals(Long.valueOf(grammarId))&&
+            boolean sameExp = exp.getExperimentName().equals(configExpDto.getExperimentName()) &&
+                    exp.getExperimentDescription().equals(configExpDto.getExperimentDescription()) &&
+                    exp.getGenerations().equals(configExpDto.getGenerations()) &&
+                    exp.getCrossoverProb().equals(configExpDto.getCrossoverProb()) &&
+                    exp.getPopulationSize().equals(configExpDto.getPopulationSize()) &&
+                    exp.getMutationProb().equals(configExpDto.getMutationProb()) &&
+                    exp.getMaxWraps().equals(configExpDto.getMaxWraps()) &&
+                    exp.getTournament().equals(configExpDto.getTournament()) &&
+                    exp.getNumberRuns().equals(configExpDto.getNumberRuns()) &&
+                    exp.getObjective().equals(configExpDto.getObjective()) &&
+                    exp.getDefaultGrammar().equals(Long.valueOf(grammarId)) &&
                     exp.getDefaultExpDataType().equals(Long.valueOf(experimentDataTypeId));
-            if(sameExp){
+            if (sameExp) {
                 exp.setDefaultTestExpDataTypeId(Long.valueOf(testExperimentDataTypeId));
                 experimentService.saveExperiment(exp);
                 modelAddData(model, user, grammarRepository.findGrammarById(Long.valueOf(grammarId)),
@@ -359,9 +359,6 @@ public class ExperimentController {
         removeRuns(exp);
 
         experimentService.saveExperiment(exp);
-
-        fileConfig(expDataType, user, propertiesDto, configExpDto, currentTimestamp, fileModelDto, radioDataTypeHidden,
-                null, exp);
 
         modelAddData(model, user, grammarRepository.findGrammarById(Long.valueOf(grammarId)),
                 experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
@@ -422,38 +419,6 @@ public class ExperimentController {
         createPropertiesFile(propertiesFilePath, propertiesDto, configExpDto.getExperimentName(), currentTimestamp);  // Write in property file
         // END - Create ExpPropertiesDto file
 
-        // MultipartFile section
-        MultipartFile multipartFile = fileModelDto.getTypeFile();
-        String dataFilePath;
-
-        // If Radio button and file path selected -> File path is selected
-        // NULL -> didn't select the dataType file from the list - ON if th:value in input is empty
-        if ((multipartFile.getOriginalFilename() == "null") && (radioDataTypeHidden.equals("on") && !multipartFile.isEmpty()) || (!radioDataTypeHidden.equals("on") && !multipartFile.isEmpty())) {
-            File tmpFile = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") +
-                    multipartFile.getOriginalFilename());
-            multipartFile.transferTo(tmpFile);
-
-            dataFilePath = tmpFile.getAbsolutePath();
-            Reader reader = new FileReader(tmpFile);
-            experimentService.loadExperimentRowTypeFile(reader, expDataType);   // Save row here
-            reader.close();
-        } else {
-            // Create temporal training path file
-            File tmpFile = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") +
-                    "trainingPathFile.csv");
-            tmpFile.createNewFile();
-
-            FileWriter fWriter = new FileWriter(tmpFile, false);    // true = append; false = overwrite
-            BufferedWriter writer = new BufferedWriter(fWriter);
-
-            writer.append(expDataType.getinfo());
-            writer.close();
-            dataFilePath = tmpFile.getAbsolutePath();
-        }
-        // END Reader - FILE DATA TYPE
-        // END - Multipart File Section
-        // END CONFIGURATION SECTION
-
         // Execute program with experiment info
         File propertiesFile = new File(propertiesFilePath);
         Reader propertiesReader = new FileReader(propertiesFile);
@@ -461,10 +426,10 @@ public class ExperimentController {
         Properties properties = new Properties();
         properties.load(propertiesReader);
 
-        properties.setProperty(TRAINING_PATH_PROP, dataFilePath);
+        properties.setProperty(TRAINING_PATH_PROP, "");
 
         ExpProperties expPropertiesEntity = experimentService.saveExpProperties(new ExpProperties());
-        createExpPropertiesEntity(expPropertiesEntity, properties, exp, run, propertiesDto, dataFilePath);
+        createExpPropertiesEntity(expPropertiesEntity, properties, exp, run, propertiesDto, "");
 
         propertiesReader.close();
     }
@@ -693,7 +658,7 @@ public class ExperimentController {
         Properties properties = new Properties();
         properties.load(propertiesReader);
         properties.setProperty(TRAINING_PATH_PROP, prop.getTrainingPath());
-        RunnableExpGramEv obj = new RunnableExpGramEv(properties, diagramData, run);
+        RunnableExpGramEv obj = new RunnableExpGramEv(properties, diagramData, run, experimentService.findExperimentDataTypeById(run.getDefaultExpDataTypeId()));
         Thread.UncaughtExceptionHandler h = new Thread.UncaughtExceptionHandler() {
             public void uncaughtException(Thread th, Throwable ex) {
                 run.setStatus(Run.Status.FAILED);
@@ -1114,7 +1079,7 @@ public class ExperimentController {
                     if (matcher.find()) {
                         String threadName = matcher.group();
                         RunExecutionReport runExecutionReport = runService.getRunExecutionReport(threadRunMap.get(threadName));
-                        if(runExecutionReport.getExecutionReport()==null){
+                        if (runExecutionReport.getExecutionReport() == null) {
                             runExecutionReport.setExecutionReport("");
                         }
                         runExecutionReport.setExecutionReport(runExecutionReport.getExecutionReport() + "\n" + infoFormated);
