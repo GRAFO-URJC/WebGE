@@ -338,9 +338,24 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     private String[][] processExperimentDataTypeInfo(String info) {
         String[] infoSplit = info.split("\\r\\n");
         String[][] matrix = new String[infoSplit.length][];
-        int count = 0;
-        for (String line : infoSplit) {
-            matrix[count++] = line.split(";");
+
+        ArrayList<String> columnList = new ArrayList<>();
+
+        String[] columns = infoSplit[0].split("\r\n");
+        int index = 0;
+        for (String column : columns[0].split(";")) {
+            if (index == 0) {
+                columnList.add("#Y");
+            } else {
+                columnList.add("X" + index);
+            }
+            index++;
+        }
+        matrix[0]= columnList.toArray(new String[0]);
+
+        int count = 1;
+        for (int i = 1; i < infoSplit.length; i++) {
+            matrix[count++] = infoSplit[i].split(";");
         }
         return matrix;
     }

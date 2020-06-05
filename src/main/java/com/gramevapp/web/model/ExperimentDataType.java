@@ -60,18 +60,7 @@ public class ExperimentDataType {
     @Temporal(TemporalType.TIMESTAMP)
     private Date modificationDate = null;
 
-    @ElementCollection
-    private List<String> header;
-
-    // https://www.thoughts-on-java.org/hibernate-tips-map-bidirectional-many-one-association/
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @OneToMany(cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
-            mappedBy = "expDataTypeId")
-    private List<ExperimentRowType> listRowsFile;
-
     public ExperimentDataType(Experiment exp) {
-        listRowsFile = new ArrayList<>();
         this.experimentList = new ArrayList<>();
         experimentList.add(exp);
     }
@@ -80,14 +69,16 @@ public class ExperimentDataType {
      * Copy constructor.
      */
     public ExperimentDataType(ExperimentDataType eDType) {
-        this(eDType.getExperimentList(), eDType.getRunId(), eDType.getDataTypeName(), eDType.getinfo(), eDType.getDataTypeDescription(), eDType.getDataTypeType(), eDType.getCreationDate(), eDType.getModificationDate(), eDType.getHeader(), eDType.getListRowsFile());
+        this(eDType.getExperimentList(), eDType.getRunId(), eDType.getDataTypeName(), eDType.getinfo(), eDType.getDataTypeDescription(), eDType.getDataTypeType(), eDType.getCreationDate(), eDType.getModificationDate());
     }
 
     public ExperimentDataType() {
-        this.listRowsFile = new ArrayList<>();
+
     }
 
-    public ExperimentDataType(List<Experiment> experimentId, Long runId, String dataTypeName, String info, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, List<String> header, List<ExperimentRowType> listRowsFile) {
+    public ExperimentDataType(List<Experiment> experimentId, Long runId,
+                              String dataTypeName, String info, String dataTypeDescription,
+                              String dataTypeType, Date creationDate, Date modificationDate) {
         this.experimentList = experimentId;
         this.runId = runId;
         this.dataTypeName = dataTypeName;
@@ -96,8 +87,6 @@ public class ExperimentDataType {
         this.dataTypeType = dataTypeType;
         this.creationDate = creationDate;
         this.modificationDate = modificationDate;
-        this.header = header;
-        this.listRowsFile = listRowsFile;
     }
 
     public ExperimentDataType(List<Experiment> exp, String dataTypeName, String info, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate) {
@@ -107,18 +96,17 @@ public class ExperimentDataType {
         this.dataTypeType = dataTypeType;
         this.creationDate = creationDate;
         this.modificationDate = modificationDate;
-        this.listRowsFile = new ArrayList<>();
         this.experimentList = exp;
     }
 
-    public ExperimentDataType(String dataTypeName, String info, String dataTypeDescription, String dataTypeType, Date creationDate, Date modificationDate, ArrayList<ExperimentRowType> listRowsFile) {
+    public ExperimentDataType(String dataTypeName, String info, String dataTypeDescription, String dataTypeType,
+                              Date creationDate, Date modificationDate) {
         this.dataTypeName = dataTypeName;
         this.info = info;
         this.dataTypeDescription = dataTypeDescription;
         this.dataTypeType = dataTypeType;
         this.creationDate = creationDate;
         this.modificationDate = modificationDate;
-        this.listRowsFile = listRowsFile;
     }
 
     public Long getRunId() {
@@ -127,14 +115,6 @@ public class ExperimentDataType {
 
     public void setRunId(Long runId) {
         this.runId = runId;
-    }
-
-    public List<String> getHeader() {
-        return header;
-    }
-
-    public void setHeader(ArrayList<String> header) {
-        this.header = header;
     }
 
     public Experiment getExperiment(Experiment experiment) {
@@ -168,14 +148,6 @@ public class ExperimentDataType {
 
     public String getDataTypeType() {
         return dataTypeType;
-    }
-
-    public List<ExperimentRowType> getListRowsFile() {
-        return listRowsFile;
-    }
-
-    public void setListRowsFile(ArrayList<ExperimentRowType> listRowsFile) {
-        this.listRowsFile = listRowsFile;
     }
 
     public void setDataTypeType(String dataTypeType) {
@@ -228,37 +200,6 @@ public class ExperimentDataType {
 
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
-    }
-
-    // https://github.com/SomMeri/org.meri.jpa.tutorial/blob/master/src/main/java/org/meri/jpa/relationships/entities/bestpractice/SafePerson.java
-    public void addExperimentRowType(ExperimentRowType expRowType) {
-        if (this.listRowsFile.contains(expRowType))
-            return;
-        this.listRowsFile.add(expRowType);
-        expRowType.setExpDataTypeId(this);
-    }
-
-    public void removeExperimentRowType(ExperimentRowType expRowType) {
-        if (!listRowsFile.contains(expRowType))
-            return;
-        listRowsFile.remove(expRowType);
-        expRowType.setExpDataTypeId(null);
-    }
-
-    public String headerToString() {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        Iterator<String> it = this.header.iterator();
-
-        while (it.hasNext()) {
-            String column = it.next();
-            if (!it.hasNext())
-                stringBuilder.append(column + "\n");
-            else
-                stringBuilder.append(column + ";");
-        }
-
-        return stringBuilder.toString();
     }
 
     public Long getUserIdUserId() {
