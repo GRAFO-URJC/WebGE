@@ -1,20 +1,14 @@
 package com.gramevapp.web.service;
 
 import com.gramevapp.web.model.*;
-import com.gramevapp.web.repository.*;
+import com.gramevapp.web.repository.ExperimentDataTypeRepository;
+import com.gramevapp.web.repository.ExperimentRepository;
+import com.gramevapp.web.repository.GrammarRepository;
+import com.gramevapp.web.repository.PropertiesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 // We use repositories ExperimentDataType, ExperimentRowType here too.
 @Service("experimentService")
@@ -36,24 +30,8 @@ public class ExperimentService {
         return experimentDataTypeRepository.save(expDataType);
     }
 
-    public Grammar saveGrammar(Grammar grammar) {
-        return grammarRepository.save(grammar);
-    }
-
     public Experiment saveExperiment(Experiment experiment) {
         return experimentRepository.save(experiment);
-    }
-
-    public void updateExperiment() {
-        experimentRepository.flush();
-    }
-
-    public void updataExpDataType() {
-        experimentDataTypeRepository.flush();
-    }
-
-    public void updateGrammar() {
-        grammarRepository.flush();
     }
 
     public List<Experiment> findByUser(User user) {
@@ -84,10 +62,6 @@ public class ExperimentService {
         return propertiesRepository.findById(propertiesId).get();
     }
 
-    public ExpProperties findPropertiesByExpIdAndRunId(Long expId, Long runId) {
-        return propertiesRepository.findByIdExpAndIdRun(expId, runId);
-    }
-
     public void deleteExpProperties(ExpProperties expProperties) {
         propertiesRepository.delete(expProperties);
     }
@@ -104,16 +78,8 @@ public class ExperimentService {
         experimentRepository.delete(experiment);
     }
 
-    public void deleteDataTypeFile(ExperimentDataType experimentDataType) {
-        experimentDataTypeRepository.delete(experimentDataType);
-    }
-
     public void deleteDataTypeFile(Long id) {
         experimentDataTypeRepository.delete(this.findDataTypeById(id));
-    }
-
-    public void deleteGrammar(Grammar grammar) {
-        grammarRepository.delete(grammar);
     }
 
     public List<Experiment> findAll() {

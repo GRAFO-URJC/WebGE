@@ -5,7 +5,6 @@ import com.gramevapp.web.model.ExperimentDataType;
 import com.gramevapp.web.model.User;
 import com.gramevapp.web.service.ExperimentService;
 import com.gramevapp.web.service.UserService;
-import net.sourceforge.jeval.function.math.Exp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
