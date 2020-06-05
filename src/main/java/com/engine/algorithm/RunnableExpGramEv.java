@@ -2,6 +2,7 @@ package com.engine.algorithm;
 
 import com.gramevapp.web.model.DiagramData;
 import com.gramevapp.web.model.DiagramPair;
+import com.gramevapp.web.model.ExperimentDataType;
 import com.gramevapp.web.model.Run;
 
 import java.util.Properties;
@@ -14,11 +15,13 @@ public class RunnableExpGramEv implements Runnable {
     private final DiagramData diagramData;
     private final Run runElement;
     private SymbolicRegressionGE ge;
+    private ExperimentDataType experimentDataType;
 
-    public RunnableExpGramEv(Properties properties, DiagramData diagramData, Run runElement) {
+    public RunnableExpGramEv(Properties properties, DiagramData diagramData, Run runElement, ExperimentDataType experimentDataType) {
         this.properties = properties;
         this.diagramData = diagramData;
         this.runElement = runElement;
+        this.experimentDataType = experimentDataType;
     }
 
     @Override
@@ -42,7 +45,7 @@ public class RunnableExpGramEv implements Runnable {
         diagramData.setFailed(false);
         observer.setDiagramData(diagramData);
 
-        ge.runGE(observer);
+        ge.runGE(observer, experimentDataType.getinfo());
     }
 
     public void stopExecution() {
