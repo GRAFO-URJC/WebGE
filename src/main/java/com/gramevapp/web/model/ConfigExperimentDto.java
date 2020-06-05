@@ -55,14 +55,6 @@ public class ConfigExperimentDto {
     private String grammarDescription;
     @NotEmpty(message = "Grammar area text cannot be empty")
     private String fileText; // This is the text on the file - That's written in an areaText - So we can take it as a String
-    private String dataTypeName;
-    private String testDataTypeName;
-    @NotEmpty(message = "Grammar area text cannot be empty")
-    private String info;
-    private String testInfo;
-    private String dataTypeDescription; // status
-    private String testDataTypeDescription;
-    @NotEmpty(message = "Choose one data type option")
     private String dataTypeType = "training";   // Validation, test, training
 
     private Long diagramDataId;
@@ -249,29 +241,6 @@ public class ConfigExperimentDto {
         this.fileText = fileText;
     }
 
-    public String getDataTypeName() {
-        return dataTypeName;
-    }
-
-    public void setDataTypeName(String dataTypeName) {
-        this.dataTypeName = dataTypeName;
-    }
-
-    public String getinfo() {
-        return info;
-    }
-
-    public void setinfo(String info) {
-        this.info = info;
-    }
-
-    public String getDataTypeDescription() {
-        return dataTypeDescription;
-    }
-
-    public void setDataTypeDescription(String dataTypeDescription) {
-        this.dataTypeDescription = dataTypeDescription;
-    }
 
     public String getDataTypeType() {
         return dataTypeType;
@@ -297,27 +266,4 @@ public class ConfigExperimentDto {
         this.testDefaultExpDataTypeId = testDefaultExpDataTypeId;
     }
 
-    public String getTestDataTypeName() {
-        return testDataTypeName;
-    }
-
-    public void setTestDataTypeName(String testDataTypeName) {
-        this.testDataTypeName = testDataTypeName;
-    }
-
-    public String getTestDataTypeDescription() {
-        return testDataTypeDescription;
-    }
-
-    public void setTestDataTypeDescription(String testDataTypeDescription) {
-        this.testDataTypeDescription = testDataTypeDescription;
-    }
-
-    public String getTestInfo() {
-        return testInfo;
-    }
-
-    public void setTestInfo(String testInfo) {
-        this.testInfo = testInfo;
-    }
 }

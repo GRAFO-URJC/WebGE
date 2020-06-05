@@ -72,12 +72,6 @@ public class ExperimentController {
     @GetMapping("/experiment/configExperiment")
     public String configExperiment(Model model,
                                    @ModelAttribute("configuration") ConfigExperimentDto configExpDto) {
-        /* WE NEED TO ADD HERE THE EXPERIMENT INFO TO SEND IT TO configExperiment
-         deleted code that seems to be useless, if need something go back and find
-         in the commit
-         https://github.com/GRAFO-URJC/WebGE/commit/2475b17f685f1e65c9c2199638410ff925613166
-        */
-
         User user = userService.getLoggedInUser();
 
         model.addAttribute("type", new ExperimentDataType());
@@ -101,7 +95,6 @@ public class ExperimentController {
      * @param model
      * @param grammarDto
      * @param expDataTypeDto
-     * @param radioDataTypeHidden
      * @param fileModelDto
      * @param configExpDto
      * @param result
@@ -115,8 +108,6 @@ public class ExperimentController {
                                 @RequestParam("grammarId") String grammarId,
                                 @RequestParam("experimentDataTypeId") String experimentDataTypeId,
                                 @RequestParam("testExperimentDataTypeId") String testExperimentDataTypeId,
-                                @ModelAttribute("type") ExperimentDataTypeDto expDataTypeDto,
-                                @RequestParam("radioDataType") String radioDataTypeHidden,
                                 @ModelAttribute("typeFile") FileModelDto fileModelDto,
                                 @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
                                 BindingResult result,
@@ -128,16 +119,6 @@ public class ExperimentController {
         // Check the data received
         if (result.hasErrors()) {
             model.addAttribute("configuration", configExpDto);
-            return "experiment/configExperiment";
-        }
-
-        if (radioDataTypeHidden.equals("on") && fileModelDto.getTypeFile().isEmpty()) {        // Radio button neither file path selected
-            result.rejectValue("typeFile", "error.typeFile", "Choose one file");
-            return "experiment/configExperiment";
-        }
-
-        if (radioDataTypeHidden.equals("on") && fileModelDto.getTypeFile().isEmpty()) {        // Radio button neither file path selected
-            result.rejectValue("typeFile", "error.typeFile", "Choose one file");
             return "experiment/configExperiment";
         }
 
@@ -157,7 +138,7 @@ public class ExperimentController {
         ExperimentDataType expDataType = experimentService.
                 findExperimentDataTypeById(Long.valueOf(experimentDataTypeId));
 
-        expDataType = experimentDataTypeSection(fileModelDto, expDataType, expDataTypeDto, currentTimestamp);
+        expDataType = experimentDataTypeSection(fileModelDto, expDataType, currentTimestamp);
         expDataType.setRunId(run.getId());
         run.setDefaultExpDataTypeId(expDataType.getId());
         // END - Experiment Data Type SECTION
@@ -177,7 +158,7 @@ public class ExperimentController {
         // END - Grammar File SECTION
 
         // Create ExpPropertiesDto file
-        expPropertiesSet(radioDataTypeHidden, fileModelDto, configExpDto, user, currentTimestamp, expDataType, exp, grammarFilePath, run);
+        expPropertiesSet(fileModelDto, configExpDto, user, currentTimestamp, expDataType, exp, grammarFilePath, run);
 
         List<Thread> threads = new ArrayList<>();
         // Run experiment in new thread
@@ -193,7 +174,7 @@ public class ExperimentController {
             expDataType.setRunId(newRun.getId());
             newRun.setDefaultExpDataTypeId(expDataType.getId());
             // Create ExpPropertiesDto file
-            expPropertiesSet(radioDataTypeHidden, fileModelDto, configExpDto, user, currentTimestamp, expDataType, exp, grammarFilePath, newRun);
+            expPropertiesSet(fileModelDto, configExpDto, user, currentTimestamp, expDataType, exp, grammarFilePath, newRun);
 
             newRun.setStatus(Run.Status.WAITING);
 
@@ -219,7 +200,7 @@ public class ExperimentController {
         return "redirect:/experiment/redirectConfigExperiment";
     }
 
-    protected void expPropertiesSet(@RequestParam("radioDataType") String radioDataTypeHidden, @ModelAttribute("typeFile") FileModelDto fileModelDto, @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto, User user, Timestamp currentTimestamp, ExperimentDataType expDataType, Experiment exp, String grammarFilePath, Run newRun) throws IOException {
+    protected void expPropertiesSet( @ModelAttribute("typeFile") FileModelDto fileModelDto, @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto, User user, Timestamp currentTimestamp, ExperimentDataType expDataType, Experiment exp, String grammarFilePath, Run newRun) throws IOException {
         ExpPropertiesDto newPropertiesDto = new ExpPropertiesDto(user,
                 0.0, configExpDto.getTournament(), 0,
                 configExpDto.getCrossoverProb(), grammarFilePath, 0,
@@ -228,7 +209,7 @@ public class ExperimentController {
                 configExpDto.getGenerations(), false, configExpDto.getMaxWraps(),
                 500, configExpDto.getExperimentName(),
                 configExpDto.getExperimentDescription());
-        fileConfig(expDataType, user, newPropertiesDto, configExpDto, currentTimestamp, fileModelDto, radioDataTypeHidden,
+        fileConfig(expDataType, user, newPropertiesDto, configExpDto, currentTimestamp,
                 newRun, exp);
 
         DiagramData newDiagramData = new DiagramData();
@@ -275,7 +256,6 @@ public class ExperimentController {
                                  @RequestParam("experimentDataTypeId") String experimentDataTypeId,
                                  @RequestParam("testExperimentDataTypeId") String testExperimentDataTypeId,
                                  @ModelAttribute("type") ExperimentDataTypeDto expDataTypeDto,
-                                 @RequestParam("radioDataType") String radioDataTypeHidden,
                                  @ModelAttribute("typeFile") FileModelDto fileModelDto,
                                  @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
                                  BindingResult result) throws IllegalStateException, IOException {
@@ -308,7 +288,7 @@ public class ExperimentController {
             expDataType = experimentService.findDataTypeById(Long.parseLong(experimentDataTypeId));
         }
 
-        expDataType = experimentDataTypeSection(fileModelDto, expDataType, expDataTypeDto, currentTimestamp);
+        expDataType = experimentDataTypeSection(fileModelDto, expDataType, currentTimestamp);
         // END - Experiment Data Type SECTION
 
         // Experiment section:
@@ -371,7 +351,6 @@ public class ExperimentController {
                                   @RequestParam("grammarId") String grammarId,
                                   @RequestParam("experimentDataTypeId") String experimentDataTypeId,
                                   @ModelAttribute("type") ExperimentDataTypeDto expDataTypeDto,
-                                  @RequestParam("radioDataType") String radioDataTypeHidden,
                                   @ModelAttribute("typeFile") FileModelDto fileModelDto,
                                   @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto) throws IllegalStateException {
         User user = userService.getLoggedInUser();
@@ -391,7 +370,7 @@ public class ExperimentController {
 
     private void fileConfig(ExperimentDataType expDataType, User user, ExpPropertiesDto propertiesDto,
                             ConfigExperimentDto configExpDto, java.sql.Timestamp currentTimestamp,
-                            FileModelDto fileModelDto, String radioDataTypeHidden, Run run, Experiment exp) throws IOException {
+                            Run run, Experiment exp) throws IOException {
         // Reader - FILE DATA TYPE - Convert MultipartFile into Generic Java File - Then convert it to Reader
         String dataTypeDirectoryPath = DATATYPE_DIR_PATH;
         if (expDataType.getDataTypeType().equals("validation")) {
@@ -823,16 +802,12 @@ public class ExperimentController {
         return grammarFilePath;
     }
 
-    private ExperimentDataType experimentDataTypeSection(FileModelDto fileModelDto, ExperimentDataType expDataType, ExperimentDataTypeDto expDataTypeDto, java.sql.Timestamp currentTimestamp) throws IOException {
+    private ExperimentDataType experimentDataTypeSection(FileModelDto fileModelDto, ExperimentDataType expDataType, java.sql.Timestamp currentTimestamp) throws IOException {
         if (!fileModelDto.getTypeFile().isEmpty()) {
-            expDataType.setDataTypeName(expDataTypeDto.getDataTypeName());
-            expDataType.setinfo(expDataTypeDto.getinfo());
-            expDataType.setDataTypeDescription(expDataTypeDto.getDataTypeDescription());
             expDataType.setCreationDate(currentTimestamp);
             expDataType.setDataTypeType("training");
         } else if (expDataType.getRunId() != null) {
             expDataType.setModificationDate(currentTimestamp);
-            expDataType.setDataTypeType(expDataTypeDto.getDataTypeType().toString());
         }
 
         return expDataType;
@@ -1007,9 +982,6 @@ public class ExperimentController {
         configExpDto.setGrammarDescription(grammar.getGrammarDescription());
         configExpDto.setFileText(grammar.getFileText());
 
-        configExpDto.setDataTypeName(expDataType.getDataTypeName());
-        configExpDto.setinfo(expDataType.getinfo());
-        configExpDto.setDataTypeDescription(expDataType.getDataTypeDescription());
 
         return configExpDto;
     }

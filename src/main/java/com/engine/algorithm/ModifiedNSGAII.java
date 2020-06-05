@@ -1,8 +1,5 @@
 package com.engine.algorithm;
 
-import java.util.HashMap;
-import java.util.HashSet;
-
 import jeco.core.algorithm.moga.NSGAII;
 import jeco.core.operator.crossover.CrossoverOperator;
 import jeco.core.operator.mutation.MutationOperator;
@@ -11,6 +8,9 @@ import jeco.core.problem.Problem;
 import jeco.core.problem.Solution;
 import jeco.core.problem.Solutions;
 import jeco.core.problem.Variable;
+
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * NSGAII algorithm modified to provide the observer the current population.

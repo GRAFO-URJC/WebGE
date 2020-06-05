@@ -5,8 +5,6 @@
  */
 package com.engine.algorithm;
 
-import com.engine.util.CSVReader;
-import com.engine.util.Common;
 import com.engine.util.UtilStats;
 import jeco.core.algorithm.Algorithm;
 import jeco.core.algorithm.ga.SimpleGeneticAlgorithm;
@@ -22,7 +20,9 @@ import jeco.core.problem.Variable;
 import net.sourceforge.jeval.EvaluationException;
 import net.sourceforge.jeval.Evaluator;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
