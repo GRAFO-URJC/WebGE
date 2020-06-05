@@ -9,6 +9,4 @@ import java.util.List;
 
 @Repository
 public interface RunRepository extends JpaRepository<Run, Long> {
-    List<Run> findAllByExperimentId(Experiment experimentId);
-    Run findTop1ByOrderByIdDesc();
 }

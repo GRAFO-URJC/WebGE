@@ -43,24 +43,11 @@ public class DiagramDataService {
         runRepository.save(run);
     }
 
-    public void saveDiagramPairList(List<DiagramPair> diagramPairList) {
-        for(DiagramPair dp : diagramPairList)
-        diagramPairRepository.save(dp);
-    }
-
     public void saveDiagramPair(DiagramPair diagramPair) {
         diagramPairRepository.save(diagramPair);
     }
 
     public void deleteDiagram(DiagramData diagramDataId){
         diagramRepository.delete(diagramDataId);
-    }
-
-    public void flushDiagramData() {
-        diagramRepository.flush();
-    }
-
-    public void flushDiagramPair() {
-        diagramPairRepository.flush();
     }
 }

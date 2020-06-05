@@ -15,7 +15,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.PostConstruct;
@@ -374,8 +373,7 @@ public class ExperimentController {
                                   @ModelAttribute("type") ExperimentDataTypeDto expDataTypeDto,
                                   @RequestParam("radioDataType") String radioDataTypeHidden,
                                   @ModelAttribute("typeFile") FileModelDto fileModelDto,
-                                  @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
-                                  BindingResult result) throws IllegalStateException, IOException {
+                                  @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto) throws IllegalStateException {
         User user = userService.getLoggedInUser();
         configExpDto.setId(null);
         configExpDto.setDefaultRunId(null);
@@ -681,7 +679,7 @@ public class ExperimentController {
         return th;
     }
 
-    public void createPropertiesFile(String propertiesFilePath, ExpPropertiesDto propertiesDto, String expName, java.sql.Timestamp currentTimeStamp) throws IOException {
+    private void createPropertiesFile(String propertiesFilePath, ExpPropertiesDto propertiesDto, String expName, java.sql.Timestamp currentTimeStamp) throws IOException {
         File propertiesNewFile = new File(propertiesFilePath);
         if (!propertiesNewFile.exists()) {
             propertiesNewFile.createNewFile();
@@ -725,7 +723,7 @@ public class ExperimentController {
         propertiesWriter.close();
     }
 
-    public ExpProperties createExpPropertiesEntity(ExpProperties expProp, Properties properties,
+    private ExpProperties createExpPropertiesEntity(ExpProperties expProp, Properties properties,
                                                    Experiment experiment,
                                                    Run run, ExpPropertiesDto propDto, String dataFilePath) {
         expProp.setUuidPropDto(propDto.getId().toString());
@@ -769,7 +767,7 @@ public class ExperimentController {
         return expProp;
     }
 
-    public Run runSection(Run run, Grammar grammar, ConfigExperimentDto configExpDto, java.sql.Timestamp currentTimestamp) {
+    private Run runSection(Run run, Grammar grammar, ConfigExperimentDto configExpDto, java.sql.Timestamp currentTimestamp) {
         run.setDefaultRunId(run.getId());
         run.setStatus(Run.Status.INITIALIZING);
 
@@ -800,7 +798,7 @@ public class ExperimentController {
         return run;
     }
 
-    public String grammarFileSection(User user, ConfigExperimentDto configExpDto, Grammar grammar) throws IllegalStateException, IOException {
+    private String grammarFileSection(User user, ConfigExperimentDto configExpDto, Grammar grammar) throws IllegalStateException, IOException {
 
         File dir = new File(GRAMMAR_DIR_PATH + user.getId());
         if (!dir.exists())
@@ -825,7 +823,7 @@ public class ExperimentController {
         return grammarFilePath;
     }
 
-    public ExperimentDataType experimentDataTypeSection(FileModelDto fileModelDto, ExperimentDataType expDataType, ExperimentDataTypeDto expDataTypeDto, java.sql.Timestamp currentTimestamp) throws IOException {
+    private ExperimentDataType experimentDataTypeSection(FileModelDto fileModelDto, ExperimentDataType expDataType, ExperimentDataTypeDto expDataTypeDto, java.sql.Timestamp currentTimestamp) throws IOException {
         if (!fileModelDto.getTypeFile().isEmpty()) {
             expDataType.setDataTypeName(expDataTypeDto.getDataTypeName());
             expDataType.setinfo(expDataTypeDto.getinfo());
@@ -840,7 +838,7 @@ public class ExperimentController {
         return expDataType;
     }
 
-    public Experiment experimentSection(Experiment exp, User user, ExperimentDataType testExpDataType,
+    private Experiment experimentSection(Experiment exp, User user, ExperimentDataType testExpDataType,
                                         ExperimentDataType expDataType,
                                         ConfigExperimentDto configExpDto, Grammar grammar, Run run,
                                         java.sql.Timestamp currentTimestamp, Long longDefaultRunId) {
@@ -905,11 +903,6 @@ public class ExperimentController {
             exp.removeRun(oldRun);
             runService.deleteRun(oldRun);
         }
-    }
-
-    @GetMapping("/experiment/experimentDetails")
-    public String experimentDetails(@ModelAttribute("expDetails") ExperimentDetailsDto expDetailsDto) {
-        return "experiment/experimentDetails";
     }
 
     @PostMapping(value = "/experiment/stopRun", params = "stopRunExperimentButton")

@@ -37,20 +37,8 @@ public class RunService {
         return runRepository.findById(runId).get();
     }
 
-    public List<Run> findAllByExperiment(Experiment exp){
-        return runRepository.findAllByExperimentId(exp);
-    }
-
-    public Run findLastRunId(){
-        return runRepository.findTop1ByOrderByIdDesc();
-    }
-
     public void deleteRun(Run run){
         runRepository.delete(run);
-    }
-
-    public void updateRun(){
-        runRepository.flush();
     }
 
     public void deleteExpProperties(ExpProperties expProperties){

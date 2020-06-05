@@ -11,15 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public interface UserRepository  extends JpaRepository<User,Long> {
     User findByUsername(String username);
-    User findByUsernameAndPassword(String username, String password);
-    User findByEmailAndPassword(String email, String password);
     User findByEmail(String email);
     User save(UserRegistrationDto userRegistrationDto); // Save the new user by the register form
     User save(User user);
 
-
-    @Modifying
-    @Transactional
-    @Query("update User u set u.userDetails.profilePicture.filePath = ?2 where u.username = ?1")
-    int updateFilePath(String username, String filePath);
 }
