@@ -35,16 +35,13 @@ public class RunRestController {
             if (run.getDiagramData().getBestIndividual() <= 0.0) {
                 run.setBestIndividual(0.0);
             }
-            run.setModel(ExperimentController.getRunnables().get(run.getThreaId()).getModel());
             this.setStatus(run, Run.Status.FINISHED);
         }
 
         if (run.getDiagramData().getStopped()) {
-            run.setModel(ExperimentController.getRunnables().get(run.getThreaId()).getModel());
             this.setStatus(run, Run.Status.STOPPED);
         }
         if (run.getDiagramData().getFailed()) {
-            run.setModel(ExperimentController.getRunnables().get(run.getThreaId()).getModel());
             this.setStatus(run, Run.Status.FAILED);
         }
 

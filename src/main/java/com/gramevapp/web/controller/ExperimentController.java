@@ -617,7 +617,8 @@ public class ExperimentController {
         Properties properties = new Properties();
         properties.load(propertiesReader);
         properties.setProperty(TRAINING_PATH_PROP, prop.getTrainingPath());
-        RunnableExpGramEv obj = new RunnableExpGramEv(properties, diagramData, run, experimentService.findExperimentDataTypeById(run.getDefaultExpDataTypeId()));
+        RunnableExpGramEv obj = new RunnableExpGramEv(properties, diagramData, run,
+                experimentService.findExperimentDataTypeById(run.getDefaultExpDataTypeId()),runService);
         Thread.UncaughtExceptionHandler h = (th, ex) -> {
             run.setStatus(Run.Status.FAILED);
             run.getDiagramData().setFailed(true);
