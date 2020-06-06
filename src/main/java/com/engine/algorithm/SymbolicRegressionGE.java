@@ -6,6 +6,8 @@
 package com.engine.algorithm;
 
 import com.engine.util.UtilStats;
+import com.gramevapp.web.model.Run;
+import com.gramevapp.web.service.RunService;
 import jeco.core.algorithm.Algorithm;
 import jeco.core.algorithm.ga.SimpleGeneticAlgorithm;
 import jeco.core.algorithm.moge.AbstractProblemGE;
@@ -38,27 +40,27 @@ import static com.engine.util.Common.currentDateTimeAsFormattedString;
  */
 public class SymbolicRegressionGE extends AbstractProblemGE {
 
-    private static final Logger logger = Logger.getLogger(SymbolicRegressionGE.class.getName());
+    private final Logger logger = Logger.getLogger(SymbolicRegressionGE.class.getName());
     protected Evaluator evaluator;
-    protected static String[][] func;
-    private static HashMap<String, Integer> vars = new HashMap<>();
+    protected String[][] func;
+    private HashMap<String, Integer> vars = new HashMap<>();
 
     protected Properties properties;
-    private static Solutions<Variable<Integer>> solutions;
-    private static String logPopulationOutputFile;
+    private Solutions<Variable<Integer>> solutions;
+    private String logPopulationOutputFile = new String();
 
     // Binary masks for logging:
-    public static final int LOG_GENOTYPE_MASK = 1;
-    public static final int LOG_USED_GENES_MASK = 2;
-    public static final int LOG_FITNESS_MASK = 4;
-    public static final int LOG_PHENOTYPE_MASK = 8;
-    public static final int LOG_EVALUATION_MASK = 16;
+    public final int LOG_GENOTYPE_MASK = 1;
+    public final int LOG_USED_GENES_MASK = 2;
+    public final int LOG_FITNESS_MASK = 4;
+    public final int LOG_PHENOTYPE_MASK = 8;
+    public final int LOG_EVALUATION_MASK = 16;
 
-    private static Algorithm<Variable<Integer>> algorithm;
-    private static boolean stop;
+    private Algorithm<Variable<Integer>> algorithm;
+    private boolean stop;
 
     public static final String REPORT_HEADER = "Obj.;Model;Time";
-    public static ArrayList<String> executionReport = new ArrayList<>();
+    public ArrayList<String> executionReport = new ArrayList<>();
 
 
     public SymbolicRegressionGE(Properties properties, int numObjectives) {
@@ -157,7 +159,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     /**
      * Method to run the GE algorithm with the provided properties.
      */
-    public void runGE(RunGeObserver obs, String experimentDatatypeInfo) {
+    public void runGE(RunGeObserver obs, String experimentDatatypeInfo, Run run, RunService runService) {
         // Load target data
         // TODO: NO distinguir entre training, validation y test.
         func = processExperimentDataTypeInfo(experimentDatatypeInfo);
@@ -263,7 +265,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
                 logger.info("@@;" + this.generatePhenotype(solutions.get(0)).toString());
             }
 
-            for (String s : SymbolicRegressionGE.executionReport) {
+            for (String s : executionReport) {
                 log.add(i + ";" + s);
             }
 
@@ -276,12 +278,14 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         logger.info("Execution report");
         logger.info("==================");
         logger.info("#Run;" + SymbolicRegressionGE.REPORT_HEADER);
-        SymbolicRegressionGE.executionReport.clear();
+        executionReport.clear();
         for (String s : log) {
             logger.info(s);
-            SymbolicRegressionGE.executionReport.add(s);
+            executionReport.add(s);
         }
-
+        Run newRun = runService.findByRunId(run.getId());
+        newRun.setModel(this.getModel());
+        runService.saveRun(newRun);
 
     }
 
@@ -306,7 +310,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
      * Opens the log population file to add the string that was passed as a
      * parameter.
      */
-    private static void addToLogFile(String str) {
+    private void addToLogFile(String str) {
         try {
             File file = new File(logPopulationOutputFile);
             BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));

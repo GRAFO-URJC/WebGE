@@ -490,7 +490,7 @@
                     let statusStr = data['status'];
                     let bestIndividualStr = data['bestIndividual'];
                     let currentGenerationStr = data['currentGeneration'];
-                    let modelStr = data['model'] == "" ? "Waiting for finish" : data['model'];
+                    let modelStr = data['model'] === "" ? "Waiting for finish" : data['model'];
 
 
                     $(status).text(statusStr);
@@ -515,7 +515,9 @@
                     if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED")) {
                         $("#showDelete" + iterStat).removeClass("hidden");
                         $("#runExperimentButton" + iterStat).removeClass("hidden");
-
+                        if($(model).text()==="Waiting for finish"){
+                            $(model).text("Refresh for load");
+                        }
                     }
                 }
             });
