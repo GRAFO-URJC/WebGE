@@ -60,7 +60,7 @@
                                 <div th:classappend="${#fields.hasErrors('experimentName')}? 'has-error':'experimentName error'">
                                     <input type="text" class="form-control" id="experimentName" name="experimentName"
                                            th:value="${configuration.getExperimentName()}"
-                                           placeholder="Name of the experiment"/>
+                                           placeholder="Name of the experiment" required/>
                                 </div>
                             </div>
                         </div>
