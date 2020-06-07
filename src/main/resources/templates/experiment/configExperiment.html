@@ -516,7 +516,9 @@
                         $("#showDelete" + iterStat).removeClass("hidden");
                         $("#runExperimentButton" + iterStat).removeClass("hidden");
                         if($(model).text()==="Waiting for finish"){
-                            $(model).text("Refresh for load");
+                            setTimeout(function () {
+                                checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat);
+                            }, 1000);
                         }
                     }
                 }
