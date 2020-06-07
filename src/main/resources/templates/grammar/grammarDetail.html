@@ -27,7 +27,7 @@
                             <div class="col-sm-11 col-md-11 col-lg-11">
                                 <input id="grammarName" type="text" class="form-control"
                                        th:value="${grammar.getGrammarName()}" name="grammarName"
-                                       placeholder="Name of the grammar"/>
+                                       placeholder="Name of the grammar" required/>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -37,7 +37,7 @@
                             <div class="col-sm-11 col-md-11 col-lg-11">
                                 <input id="grammarDescription" type="text" class="form-control"
                                        th:value="${grammar.getGrammarDescription()}" name="grammarDescription"
-                                       placeholder="Description of the grammar"/>
+                                       placeholder="Description of the grammar" required/>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -47,7 +47,7 @@
                             <div class="col-sm-11 col-md-11 col-lg-11">
                                 <textarea id="fileText" rows="5" class="form-control" th:text="${grammar.getFileText()}"
                                           placeholder="Grammar file " name="fileText" th:inline="text"
-                                          style="resize: none;"/>
+                                          style="resize: none;" required/>
                             </div>
                         </div>
                         <div class="col-sm-12 col-md-12 col-lg-12">
