@@ -9,7 +9,9 @@ import javax.validation.constraints.Size;
 
 @FieldMatch.List({
         @FieldMatch(first = "password", second = "confirmPassword", message = "The password fields must match"),
-        @FieldMatch(first = "email", second = "confirmEmail", message = "The email fields must match")
+        @FieldMatch(first = "confirmPassword", second = "password", message = "The password fields must match"),
+        @FieldMatch(first = "email", second = "confirmEmail", message = "The email fields must match"),
+        @FieldMatch(first = "confirmEmail", second = "email", message = "The email fields must match")
 })
 
 public class UserRegistrationDto {
@@ -18,16 +20,15 @@ public class UserRegistrationDto {
 
     @Pattern(regexp = USERNAME_PATTERN, message = "Username cannot have spaces neither strange characters or uppercase and must have between 3-15 letters")
     @NotNull(message = "User name cannot be empty")
-    @Size(min = 1)
     private String username;
 
-    @NotNull(message = "Firstname cannot be empty")
-    @Size(min = 1)
-    private String FirstName;
+    @NotNull
+    @Size(min = 1, message = "Firstname cannot be empty")
+    private String firstName;
 
-    @NotNull(message = "Lastname cannot be empty")
-    @Size(min = 1)
-    private String LastName;
+    @NotNull
+    @Size(min = 1,message = "Lastname cannot be empty")
+    private String lastName;
 
     @NotNull
     @Size(min = 6, max = 50, message = "Your password must between 6 and 15 characters")
@@ -37,15 +38,16 @@ public class UserRegistrationDto {
     @Size(min = 6, max = 50, message = "Your confirmation password must between 6 and 15 characters")
     private String confirmPassword;
 
+    @NotNull
     @Pattern(regexp = EMAIL, message = "Not valid email")
-    @NotNull(message = "Email cannot be empty")
     private String email;
 
+    @NotNull
     @Pattern(regexp = EMAIL, message = "Not valid email")
-    @NotNull(message = "Email confirmation cannot be empty")
     private String confirmEmail;
 
-    @NotNull(message = "Institution cannot be empty")
+    @NotNull
+    @Size(min = 1, message = "Institution cannot be empty")
     private String institution;
 
     //  Direction
@@ -61,7 +63,7 @@ public class UserRegistrationDto {
     // Extra info
     private String aboutMe;
 
-    @AssertTrue
+    @AssertTrue(message = "You need to agree accept terms and conditions")
     private Boolean terms;
 
     public String getAddress() {
@@ -129,19 +131,19 @@ public class UserRegistrationDto {
     }
 
     public String getFirstName() {
-        return FirstName;
+        return firstName;
     }
 
     public void setFirstName(String firstName) {
-        this.FirstName = firstName;
+        this.firstName = firstName;
     }
 
     public String getLastName() {
-        return LastName;
+        return lastName;
     }
 
     public void setLastName(String lastName) {
-        this.LastName = lastName;
+        this.lastName = lastName;
     }
 
     public String getPassword() {
