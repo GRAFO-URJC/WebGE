@@ -7,7 +7,9 @@ import javax.validation.constraints.Size;
 
 @FieldMatch.List({
         @FieldMatch(first = "password",
-                second = "confirmPassword", message = "The password fields must match")
+                second = "confirmPassword", message = "The password fields must match"),
+        @FieldMatch(first = "confirmPassword",
+                second = "password", message = "The password fields must match")
 })
 
 public class UserUpdatePasswordDto {

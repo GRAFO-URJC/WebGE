@@ -122,12 +122,6 @@
                         <form th:action="${#authentication.getAuthorities().toArray()[0].getAuthority().equals('ROLE_ADMIN')}
                             ?'/admin/updateAdminBasicInfo':'/user/updateUserBasicInfo'" th:object="${userBasicInfo}"
                               enctype="multipart/form-data" class="form-horizontal" role="form" method="post">
-                            <!-- Error handling -->
-
-                            <p th:if="${#fields.hasErrors()}" class="text-warning"
-                               th:each="error: ${#fields.errors()}"
-                               th:text="${error}">Validation error
-                            </p>
 
                             <!-- Success update -->
                             <div th:if="${message}" th:id="messageBasic" class="alert alert-info">
@@ -144,14 +138,22 @@
 
                                 <div class="form-group col-lg-6 co-sm-6">
                                     <label class="control-label" for="firstName">First name:</label>
-                                    <div th:classappend="${#fields.hasErrors('firstName')}? 'has-error':'lastName error'">
+                                    <div th:classappend="${#fields.hasErrors('firstName')}? 'has-error':''">
+                                        <p th:if="${#fields.hasErrors('firstName')}"
+                                           th:text="${#fields.errors('firstName')}"
+                                           class="text-warning">
+                                        </p>
                                         <input type="text" class="form-control" th:name="firstName" id="firstName"
                                                th:value="${userLogged.getUserDetails().getFirstName()}"/>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-6 col-sm-6">
                                     <label class="control-label" for="lastName">Last name:</label>
-                                    <div th:classappend="${#fields.hasErrors('lastName')}? 'has-error':'lastName error'">
+                                    <div th:classappend="${#fields.hasErrors('lastName')}? 'has-error':''">
+                                        <p th:if="${#fields.hasErrors('lastName')}"
+                                           th:text="${#fields.errors('lastName')}"
+                                           class="text-warning">
+                                        </p>
                                         <input type="text" class="form-control" th:name="lastName" id="lastName"
                                                th:value="${userLogged.getUserDetails().getLastName()}"/>
                                     </div>
@@ -286,14 +288,7 @@
                             <form th:action="${#authentication.getAuthorities().toArray()[0].getAuthority().equals('ROLE_ADMIN')}
                             ?'/admin/updateAdminPassword':'/user/updateUserPassword'" th:object="${userPassword}"
                                   class="form-horizontal" role="form" method="post">
-                                <!-- Error handling -->
-                                <p th:if="${#fields.hasErrors()}" class="text-warning"
-                                   th:each="error: ${#fields.errors()}"
-                                   th:text="${error}">Validation error
-                                </p>
-                                <p th:if="${oldPasswordCheck}" class="text-warning">
-                                    Old password incorrect
-                                </p>
+
                                 <!-- Success update -->
                                 <div th:if="${message}" th:id="messagePassword" class="alert alert-info">
                                     <label th:text="${message}"></label>
@@ -302,22 +297,31 @@
                                 <div class="row">
                                     <div class="form-group col-lg-4 col-sm-4">
                                         <label class="control-label" for="oldPassword">Password:</label>
-                                        <div th:classappend="${#fields.hasErrors('oldPassword')}? 'has-error':'old password error'">
+                                        <div th:classappend="${#oldPasswordCheck}? 'has-error':''">
+                                            <p th:if="${oldPasswordCheck}" class="text-warning">
+                                                Old password incorrect
+                                            </p>
                                             <input class="form-control" type="password" th:name="oldPassword"
                                                    id="oldPassword"/>
                                         </div>
                                     </div>
                                     <div class="form-group col-lg-4 col-sm-4">
                                         <label class="control-label" for="password">Password:</label>
-                                        <div th:classappend="${#fields.hasErrors('password')}? 'has-error':'password error'">
+                                        <div th:classappend="${#fields.hasErrors('password')}? 'has-error':''">
+                                            <p th:if="${#fields.hasErrors('password')}" th:text="${#fields.errors('password')}" class="text-warning">
+                                            </p>
                                             <input class="form-control" type="password" th:name="password"
                                                    id="password"/>
                                         </div>
                                     </div>
                                     <div class="form-group col-lg-4 col-sm-4">
                                         <label class="control-label" for="confirmPassword">Confirm:</label>
+                                        <div th:classappend="${#fields.hasErrors('confirmPassword')}? 'has-error':''">
+                                            <p th:if="${#fields.hasErrors('confirmPassword')}" th:text="${#fields.errors('confirmPassword')}" class="text-warning">
+                                            </p>
                                         <input class="form-control" type="password" th:name="confirmPassword"
                                                id="confirmPassword"/>
+                                        </div>
                                     </div>
                                 </div>
 
