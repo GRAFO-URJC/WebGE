@@ -48,7 +48,7 @@ public class RunnableExpGramEv implements Runnable {
         diagramData.setFailed(false);
         observer.setDiagramData(diagramData);
 
-        ge.runGE(observer, experimentDataType.getinfo(), runElement, runService);
+        ge.runGE(observer, experimentDataType.getInfo(), runElement, runService);
     }
 
     public void stopExecution() {
