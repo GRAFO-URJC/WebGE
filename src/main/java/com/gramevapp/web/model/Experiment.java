@@ -43,19 +43,33 @@ public class Experiment {
     private String experimentDescription;
 
     @JsonBackReference
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @ManyToMany(fetch = FetchType.LAZY,
-            mappedBy = "listExperiment")
+    @ManyToMany
+    @JoinTable(
+            name = "grammar_list",
+            joinColumns = {
+                    @JoinColumn(name = "EXPERIMENT_ID")
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "GRAMMAR_ID", referencedColumnName = "GRAMMAR_ID")
+            }
+    )
     private List<Grammar> idGrammarList;
 
     @Column
     private Long defaultGrammar;
 
     @JsonBackReference
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @ManyToMany(fetch = FetchType.LAZY,
-            mappedBy = "experimentList")
-    private List<ExperimentDataType> idExpDataTypeList;
+    @ManyToMany
+    @JoinTable(
+            name = "dataset_list",
+            joinColumns = {
+                    @JoinColumn(name = "experiment_id")
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "experimentdatatype_id", referencedColumnName = "experimentdatatype_id")
+            }
+    )
+    private List<Dataset> idExpDataTypeList;
 
     @Column
     private Long defaultExpDataType;
@@ -110,7 +124,7 @@ public class Experiment {
         this.idRunList = new ArrayList<>();
     }
 
-    public Experiment(User userId, String experimentName, List<Grammar> idGrammarList, List<ExperimentDataType> idExpDataTypeList, List<Run> idRunList) {
+    public Experiment(User userId, String experimentName, List<Grammar> idGrammarList, List<Dataset> idExpDataTypeList, List<Run> idRunList) {
         this.userId = userId;
         this.experimentName = experimentName;
         this.idGrammarList = idGrammarList;
@@ -142,7 +156,7 @@ public class Experiment {
         this.creationDate = creationDate;
     }
 
-    public Experiment(User userId, String experimentName, String experimentDescription, List<Grammar> idGrammarList, List<ExperimentDataType> idExpDataTypeList, List<Run> idRunList, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date creationDate, Date modificationDate) {
+    public Experiment(User userId, String experimentName, String experimentDescription, List<Grammar> idGrammarList, List<Dataset> idExpDataTypeList, List<Run> idRunList, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date creationDate, Date modificationDate) {
         this.userId = userId;
         this.experimentName = experimentName;
         this.experimentDescription = experimentDescription;
@@ -180,10 +194,6 @@ public class Experiment {
         this.defaultGrammar = defaultGrammarId;
         ApplicationContext context = BeanUtil.getAppContext();
         ExperimentService experimentService = (ExperimentService) context.getBean("experimentService");
-
-        Grammar defaultGrammar = experimentService.findGrammarById(defaultGrammarId);
-        if (defaultGrammar != null)
-            defaultGrammar.addExperimentId(this);
     }
 
     public Long getDefaultExpDataType() {
@@ -194,10 +204,6 @@ public class Experiment {
         this.defaultExpDataType = defaultExpDataTypeId;
         ApplicationContext context = BeanUtil.getAppContext();
         ExperimentService experimentService = (ExperimentService) context.getBean("experimentService");
-
-        ExperimentDataType defaultExpDType = experimentService.findExperimentDataTypeById(defaultExpDataType);
-        if (defaultExpDType != null)
-            defaultExpDType.addExperimentList(this);
     }
 
     public List<Run> getIdRunList() {
@@ -275,35 +281,31 @@ public class Experiment {
         if (this.idGrammarList.contains(grammar))
             return;
         this.idGrammarList.add(grammar);
-        grammar.addExperimentId(this);
     }
 
     public void removeGrammar(Grammar grammar) {
         if (!idGrammarList.contains(grammar))
             return;
         idGrammarList.remove(grammar);
-        grammar.deleteExperimentId(this);
     }
 
-    public void addExperimentDataType(ExperimentDataType expData) {
+    public void addExperimentDataType(Dataset expData) {
         if (this.idExpDataTypeList.contains(expData))
             return;
         this.idExpDataTypeList.add(expData);
-        expData.addExperimentList(this);
     }
 
-    public void removeExperimentDataType(ExperimentDataType expData) {
+    public void removeExperimentDataType(Dataset expData) {
         if (!idExpDataTypeList.contains(expData))
             return;
         idExpDataTypeList.remove(expData);
-        expData.deleteExperimentInList(this);
     }
 
-    public List<ExperimentDataType> getIdExpDataTypeList() {
+    public List<Dataset> getIdExpDataTypeList() {
         return idExpDataTypeList;
     }
 
-    public void setIdExpDataTypeList(List<ExperimentDataType> idExpDataTypeList) {
+    public void setIdExpDataTypeList(List<Dataset> idExpDataTypeList) {
         this.idExpDataTypeList = idExpDataTypeList;
     }
 

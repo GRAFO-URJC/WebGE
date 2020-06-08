@@ -60,7 +60,7 @@
                                 <div th:classappend="${#fields.hasErrors('experimentName')}? 'has-error':'experimentName error'">
                                     <input type="text" class="form-control" id="experimentName" name="experimentName"
                                            th:value="${configuration.getExperimentName()}"
-                                           placeholder="Name of the experiment"/>
+                                           placeholder="Name of the experiment" required/>
                                 </div>
                             </div>
                         </div>
@@ -166,7 +166,7 @@
                             <div class="row form-group text-center">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
                                     <label for="tournament">Objective function:</label>
-                                    <select class="form-control" name="objective">
+                                    <select class="form-control" name="objective" id="objective">
                                         <option value="RMSE">Root Mean Squared Error (RMSE)</option>
                                         <!--<option value="CEG">Clarke Error Grid (CEG)</option>
                                         <option value="RMSECEG">Bi-objective: RMSE y CEG</option>
@@ -419,6 +419,44 @@
     <script th:inline="javascript">
 
         let cloneButton = false;
+        let datasetListInfo = [];
+        let data = {};
+        let indexesShow = [];
+        let indexesHide = [];
+        let experimentInformation;
+        let runButton = false;
+        let saveButton = false;
+
+        $(document).ready(function () {
+            /*<![CDATA[*/
+            experimentInformation = [[${configuration}]];
+            /*]]>*/
+
+            saveDatasetInfo();
+            updateGrammarContent();
+            updateDatasetContent()
+            updateTestDatasetContent()
+
+            $('[name="status"]').each(function (index) {
+                if (($(this).text() == "FINISHED") || ($(this).text() == "STOPPED") || ($(this).text() == "FAILED")) {
+                    indexesShow[index] = index;
+                }
+                if (($(this).text() == "RUNNING") || ($(this).text() == "INITIALIZING") || ($(this).text() == "WAITING")) {
+                    indexesHide[index] = index;
+                    showRunStatus("runExperimentButton" + index);
+                }
+            });
+
+            indexesShow.forEach(function (element, index) {
+                $("#runExperimentButton" + indexesShow[index]).removeClass("hidden");
+                $("#showDelete" + indexesShow[index]).removeClass("hidden");
+            });
+
+            indexesHide.forEach(function (element, index) {
+                $("#showDelete" + indexesHide[index]).addClass("hidden");
+                $("#runExperimentButton" + indexesShow[index]).addClass("hidden");
+            });
+        });
 
         // Updates the content of the textarea including the text of the selected grammar.
         function updateGrammarContent() {
@@ -450,11 +488,9 @@
                 $('#testDataTypeName').val("");
                 $('#testDataTypeDescription').val("");
                 $('#testInfo').val("");
+                $('#testExperimentDataTypeId').val("");
             }
         }
-
-        let datasetListInfo = [];
-        let data = {};
 
         function saveDatasetInfo() {
             /*<![CDATA[*/
@@ -474,7 +510,6 @@
             document.body.removeChild(event.target);
         }
 
-        // <![CDATA[
         function checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat) {
             $.ajax({
                 url: encodeURI("/rest/runStatus/"),
@@ -515,15 +550,15 @@
                     if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED")) {
                         $("#showDelete" + iterStat).removeClass("hidden");
                         $("#runExperimentButton" + iterStat).removeClass("hidden");
-                        if($(model).text()==="Waiting for finish"){
-                            $(model).text("Refresh for load");
+                        if ($(model).text() === "Waiting for finish") {
+                            setTimeout(function () {
+                                checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat);
+                            }, 1000);
                         }
                     }
                 }
             });
         };
-
-        // ]]>
 
         function showRunStatus(iterStat) {
             let cleanIterStat = iterStat.substring("runExperimentButton".length, iterStat.length);
@@ -540,45 +575,14 @@
             }, 1000);
         }
 
-        var indexesShow = [];
-        var indexesHide = [];
-
-        $(document).ready(function () {
-
-            saveDatasetInfo();
-            updateGrammarContent();
-            updateDatasetContent()
-            updateTestDatasetContent()
-
-            $('[name="status"]').each(function (index) {
-                if (($(this).text() == "FINISHED") || ($(this).text() == "STOPPED") || ($(this).text() == "FAILED")) {
-                    indexesShow[index] = index;
-                }
-                if (($(this).text() == "RUNNING") || ($(this).text() == "INITIALIZING") || ($(this).text() == "WAITING")) {
-                    indexesHide[index] = index;
-                    showRunStatus("runExperimentButton" + index);
-                }
-            });
-
-            indexesShow.forEach(function (element, index) {
-                $("#runExperimentButton" + indexesShow[index]).removeClass("hidden");
-                $("#showDelete" + indexesShow[index]).removeClass("hidden");
-            });
-
-            indexesHide.forEach(function (element, index) {
-                $("#showDelete" + indexesHide[index]).addClass("hidden");
-                $("#runExperimentButton" + indexesShow[index]).addClass("hidden");
-            });
-        });
-
         function confirmDelete(iterStat, runId) {
-            var result = confirm("Are you sure to delete this run ?");
+            let result = confirm("Are you sure to delete this run ?");
             if (result)
                 deleteRow(iterStat, runId);
         }
 
         function deleteRow(iterStat, runId) {
-            var cleanIterStat = iterStat.substring("deleteRun".length, iterStat.length);
+            let cleanIterStat = iterStat.substring("deleteRun".length, iterStat.length);
 
             $.ajax({
                 url: encodeURI("/experiment/expRepoSelected"),
@@ -595,86 +599,45 @@
                     $("#trAux" + cleanIterStat).remove();
                 }
             });
-        };
-
-
-        //https://stackoverflow.com/questions/4492385/how-to-convert-simple-array-into-two-
-        // dimensional-array-matrix-with-javascript/39838921
-        function listToMatrix(list, elementsPerSubArray) {
-            var matrix = [], i, k;
-
-            for (i = 0, k = -1; i < list.length; i++) {
-                if (i % elementsPerSubArray === 0) {
-                    k++;
-                    matrix[k] = [];
-                }
-
-                matrix[k].push(list[i]);
-            }
-
-            return matrix;
-        }
-
-        //https://dev.to/asfo/exportando-un-json-a-csv-con-javascript-2246
-        //change things for customize
-        function convertToCSV(objArray) {
-            const array = typeof objArray != "object" ? JSON.parse(objArray) : objArray;
-            let str = "";
-
-            for (let i = 0; i < array.length; i++) {
-                let line = "";
-                for (let index in array[i]) {
-                    if (line != "") line += ";  ";
-
-                    line += array[i][index];
-                }
-
-                str += line + "\r\n";
-            }
-
-            return str;
-        }
-
-        function exportCSVFile(items, fileName) {
-
-            const jsonObject = JSON.stringify(items);
-
-            const csv = convertToCSV(jsonObject);
-
-            const exportName = fileName + ".csv" || "export.csv";
-
-            const blob = new Blob([csv], {type: "text/csv;charset=utf-8;"});
-            if (navigator.msSaveBlob) {
-                navigator.msSaveBlob(blob, exportName);
-            } else {
-                const link = document.createElement("a");
-                if (link.download !== undefined) {
-                    const url = URL.createObjectURL(blob);
-                    link.setAttribute("href", url);
-                    link.setAttribute("download", exportName);
-                    link.style.visibility = "hidden";
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                }
-            }
         }
 
         function checkDeletePreviousRun() {
-            if (document.getElementById("runForms") && !cloneButton) {
-                if (saveButton) {
-                    return confirm('Do you really want to save it? If you changed the setting (not test dataset) of the' +
-                        ' experiment previous runs will be deleted...');
-                } else {
-                    return confirm('Do you really want to run it? This will delete the previous runs...');
-                }
+            if (document.getElementById("runForms") && !cloneButton && !(saveButton && checkExperimentInformationEqual())) {
+                return confirm('Do you really want to run it? This will delete the previous runs...');
             } else {
                 return true;
             }
         }
 
-        let runButton = false;
-        let saveButton = false;
+        function checkExperimentInformationEqual() {
+            let experimentName = $('#experimentName').val();
+            let experimentDescription = $('#experimentDescription').val();
+            let generations = $('#generations').val();
+            let crossoverProb = $('#crossoverProb').val();
+            let populationSize = $('#populationSize').val();
+            let mutationProb = $('#mutationProb').val();
+            let maxWraps = $('#maxWraps').val();
+            let numCodons = $('#numCodons').val();
+            let tournament = $('#tournament').val();
+            let numberRuns = $('#numberRuns').val();
+            let objective = $('#objective').val();
+            let grammarId = $('#grammarId').val();
+            let datasetId = $('#experimentDataTypeId').val();
+            return (experimentInformation['experimentName'] === experimentName &&
+                experimentInformation['experimentDescription'] === experimentDescription &&
+                experimentInformation['generations'] == generations &&
+                experimentInformation['crossoverProb'] == crossoverProb &&
+                experimentInformation['populationSize'] == populationSize &&
+                experimentInformation['mutationProb'] == mutationProb &&
+                experimentInformation['maxWraps'] == maxWraps &&
+                experimentInformation['numCodons'] == numCodons &&
+                experimentInformation['tournament'] == tournament &&
+                experimentInformation['numberRuns'] == numberRuns &&
+                experimentInformation['objective'] === objective &&
+                experimentInformation['defaultGrammarId'] == grammarId &&
+                experimentInformation['defaultExpDataTypeId'] == datasetId);
+        }
+
 
         window.onbeforeunload = function (e) {
             if (document.getElementById("cloneMessage") && !runButton && !saveButton) {
