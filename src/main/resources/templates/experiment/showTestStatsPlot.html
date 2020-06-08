@@ -141,20 +141,24 @@
                 panEnabled: true,
 
                 title: {
-                    text: "Diagram data flow showing best individual"
+                    text: "Traning stats"
                 },
                 data: [{
-                    markerSize: 4,
+                    markerSize: 2,
                     color: "Blue",
                     type: "line",
                     dataPoints: yColumnDataPoints,
-                    toolTipContent: "Solution y column : <b>{y}</b> "
+                    legendText: "Solution data",
+                    showInLegend: true,
+                    toolTipContent: "Solution data : <b>{y}</b> "
                 }, {
-                    markerSize: 4,
+                    markerSize: 2,
                     color: "OrangeRed",
                     type: "line",
+                    legendText: "Solution prediction",
+                    showInLegend: true,
                     dataPoints: modelColumnDataPoints,
-                    toolTipContent: "Solution model: <b>{y}</b>"
+                    toolTipContent: "Solution prediction: <b>{y}</b>"
                 }],
                 axisX: {
                     title: "Index",
@@ -197,20 +201,24 @@
                     panEnabled: true,
 
                     title: {
-                        text: "Diagram data flow showing best individual"
+                        text: "Test stats"
                     },
                     data: [{
-                        markerSize: 4,
+                        markerSize: 2,
                         color: "Blue",
                         type: "line",
                         dataPoints: testYColumnDataPoints,
-                        toolTipContent: "Solution y column : <b>{y}</b> "
+                        legendText: "Solution data",
+                        showInLegend: true,
+                        toolTipContent: "Solution data : <b>{y}</b> "
                     }, {
-                        markerSize: 4,
+                        markerSize: 2,
                         color: "OrangeRed",
                         type: "line",
+                        legendText: "Solution prediction",
+                        showInLegend: true,
                         dataPoints: testModelColumnDataPoints,
-                        toolTipContent: "Solution model: <b>{y}</b>"
+                        toolTipContent: "Solution prediction: <b>{y}</b>"
                     }],
                     axisX: {
                         title: "Index",
@@ -265,10 +273,10 @@
                     $("#details").removeClass("hidden");
                 } else {
                     /*<![CDATA[*/
-                     $('#AvgError').text([[${AvgError}]]);
-                     $('#RMSE').text([[${RMSE}]]);
-                     $('#absoluteError').text([[${absoluteError}]]);
-                     $('#RSquare').text([[${RSquare}]]);
+                    $('#AvgError').text([[${AvgError}]]);
+                    $('#RMSE').text([[${RMSE}]]);
+                    $('#absoluteError').text([[${absoluteError}]]);
+                    $('#RSquare').text([[${RSquare}]]);
                     /*]]>*/
                 }
             } else {
