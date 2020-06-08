@@ -1,8 +1,10 @@
 package com.gramevapp.web.controller;
 
+import com.gramevapp.web.model.Experiment;
 import com.gramevapp.web.model.Grammar;
 import com.gramevapp.web.model.User;
 import com.gramevapp.web.repository.GrammarRepository;
+import com.gramevapp.web.service.ExperimentService;
 import com.gramevapp.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 @Controller
@@ -21,20 +24,25 @@ public class GrammarController {
     @Autowired
     private UserService userService;
 
-
     @Autowired
     private GrammarRepository grammarRepository;
+
+    @Autowired
+    private ExperimentService experimentService;
 
 
     @RequestMapping(value = "/grammar/grammarRepository", method = RequestMethod.GET)
     public String grammarRepository(Model model) {
-
         User user = userService.getLoggedInUser();
+        HashSet<Long> grammarsIdInUse = new HashSet<>();
+        for (Experiment experiment : experimentService.findByUser(user)) {
+            grammarsIdInUse.add(experiment.getDefaultGrammar());
+        }
         List<Grammar> grammarList = grammarRepository.findByUserId(user.getId());
         List<Boolean> disabled = new ArrayList<>();
 
         for (Grammar grammar : grammarList) {
-            disabled.add(grammar.getListExperiment().size() > 0);
+            disabled.add(grammarsIdInUse.contains(grammar.getId()));
         }
 
         model.addAttribute("grammarList", grammarList);

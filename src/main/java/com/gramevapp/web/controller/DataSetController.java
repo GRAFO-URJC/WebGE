@@ -1,7 +1,7 @@
 package com.gramevapp.web.controller;
 
+import com.gramevapp.web.model.Dataset;
 import com.gramevapp.web.model.Experiment;
-import com.gramevapp.web.model.ExperimentDataType;
 import com.gramevapp.web.model.User;
 import com.gramevapp.web.service.ExperimentService;
 import com.gramevapp.web.service.UserService;
@@ -29,11 +29,11 @@ public class DataSetController {
     @GetMapping("/datasets/list")
     public String datasetList(Model model) {
         User user = userService.getLoggedInUser();
-        List<ExperimentDataType> datasetList =
+        List<Dataset> datasetList =
                 experimentService.findAllExperimentDataTypeByUserId(user.getId());
         List<Boolean> disabled = new ArrayList<>();
         List<List<String>> datasetInformation = new ArrayList<>();
-        HashSet<ExperimentDataType> experimentDataTypeListInUse = new HashSet<>();
+        HashSet<Dataset> experimentDataTypeListInUse = new HashSet<>();
 
         List<Experiment> experimentList = experimentService.findByUser(user);
         for (Experiment experiment : experimentList) {
@@ -45,7 +45,7 @@ public class DataSetController {
             }
         }
 
-        for (ExperimentDataType experimentDataType : datasetList) {
+        for (Dataset experimentDataType : datasetList) {
             disabled.add(experimentDataTypeListInUse.contains(experimentDataType));
             StringBuilder stringBuilder = new StringBuilder();
             String info = experimentDataType.getinfo();
@@ -84,13 +84,13 @@ public class DataSetController {
     @RequestMapping(value = "/dataset/datasetDetail")
     public String createDataset(Model model) {
         User user = userService.getLoggedInUser();
-        model.addAttribute("experimentDataType", new ExperimentDataType());
+        model.addAttribute("experimentDataType", new Dataset());
         model.addAttribute("user", user);
         return "dataset/datasetDetail";
     }
 
     @RequestMapping(value = "/dataset/saveDataset", method = RequestMethod.POST)
-    public String saveGrammar(Model model, @ModelAttribute("experimentDataType") @Valid ExperimentDataType experimentDataType) {
+    public String saveGrammar(Model model, @ModelAttribute("experimentDataType") @Valid Dataset experimentDataType) {
         experimentDataType.setDataTypeType("training");
         experimentDataType.setCreationDate(new Date(System.currentTimeMillis()));
         experimentDataType.setUserIdUserId(userService.getLoggedInUser().getId());

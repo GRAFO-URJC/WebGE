@@ -1,7 +1,7 @@
 package com.engine.algorithm;
 
+import com.gramevapp.web.model.Dataset;
 import com.gramevapp.web.model.DiagramData;
-import com.gramevapp.web.model.ExperimentDataType;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.service.RunService;
 
@@ -15,10 +15,10 @@ public class RunnableExpGramEv implements Runnable {
     private final DiagramData diagramData;
     private final Run runElement;
     private SymbolicRegressionGE ge;
-    private ExperimentDataType experimentDataType;
+    private Dataset experimentDataType;
     private RunService runService;
 
-    public RunnableExpGramEv(Properties properties, DiagramData diagramData, Run runElement, ExperimentDataType experimentDataType,
+    public RunnableExpGramEv(Properties properties, DiagramData diagramData, Run runElement, Dataset experimentDataType,
                              RunService runService) {
         this.properties = properties;
         this.diagramData = diagramData;

@@ -58,9 +58,9 @@ public class ExperimentController {
     private final String DATATYPE_DIR_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "dataType" + File.separator + "";
     private final String PROPERTIES_DIR_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "properties" + File.separator + "";
 
-    private void modelAddData(Model model, User user, Grammar grammar, ExperimentDataType experimentDataType,
-                              List<ExperimentDataType> experimentDataTypeList, Long testExperimentDataTypeId) {
-        ExperimentDataType testExperimentDataType = testExperimentDataTypeId == null ? null : experimentService.findDataTypeById(testExperimentDataTypeId);
+    private void modelAddData(Model model, User user, Grammar grammar, Dataset experimentDataType,
+                              List<Dataset> experimentDataTypeList, Long testExperimentDataTypeId) {
+        Dataset testExperimentDataType = testExperimentDataTypeId == null ? null : experimentService.findDataTypeById(testExperimentDataTypeId);
         model.addAttribute("grammarList", grammarRepository.findByUserId(user.getId()));
         model.addAttribute("datasetList", experimentService.findAllExperimentDataTypeByUserId(user.getId()));
         model.addAttribute("grammar", grammar);
@@ -74,7 +74,7 @@ public class ExperimentController {
                                    @ModelAttribute("configuration") ConfigExperimentDto configExpDto) {
         User user = userService.getLoggedInUser();
 
-        model.addAttribute("type", new ExperimentDataType());
+        model.addAttribute("type", new Dataset());
         model.addAttribute("configuration", configExpDto);
         model.addAttribute("runList", null);
         model.addAttribute("user", user);
@@ -123,11 +123,10 @@ public class ExperimentController {
         runSection(run, grammar, configExpDto, currentTimestamp);
 
         // Experiment Data Type SECTION
-        ExperimentDataType expDataType = experimentService.
+        Dataset expDataType = experimentService.
                 findExperimentDataTypeById(Long.valueOf(experimentDataTypeId));
 
         experimentDataTypeSection(fileModelDto, expDataType, currentTimestamp);
-        expDataType.setRunId(run.getId());
         run.setDefaultExpDataTypeId(expDataType.getId());
         // END - Experiment Data Type SECTION
 
@@ -159,7 +158,6 @@ public class ExperimentController {
             exp.getIdRunList().add(newRun);
             newRun.setExperimentId(exp);
 
-            expDataType.setRunId(newRun.getId());
             newRun.setDefaultExpDataTypeId(expDataType.getId());
             // Create ExpPropertiesDto file
             expPropertiesSet(fileModelDto, configExpDto, user, currentTimestamp, expDataType, exp, grammarFilePath, newRun);
@@ -188,7 +186,7 @@ public class ExperimentController {
         return "redirect:/experiment/redirectConfigExperiment";
     }
 
-    protected void expPropertiesSet(@ModelAttribute("typeFile") FileModelDto fileModelDto, @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto, User user, Timestamp currentTimestamp, ExperimentDataType expDataType, Experiment exp, String grammarFilePath, Run newRun) throws IOException {
+    protected void expPropertiesSet(@ModelAttribute("typeFile") FileModelDto fileModelDto, @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto, User user, Timestamp currentTimestamp, Dataset expDataType, Experiment exp, String grammarFilePath, Run newRun) throws IOException {
         ExpPropertiesDto newPropertiesDto = new ExpPropertiesDto(user,
                 0.0, configExpDto.getTournament(), 0,
                 configExpDto.getCrossoverProb(), grammarFilePath, 0,
@@ -214,17 +212,17 @@ public class ExperimentController {
 
         if (run == null) { // Run eliminated
             model.addAttribute("grammar", new Grammar());
-            model.addAttribute("type", new ExperimentDataType());
+            model.addAttribute("type", new Dataset());
             model.addAttribute("configuration", new ConfigExperimentDto());
             model.addAttribute("user", user);
             return "experiment/configExperiment";
         }
         Grammar grammar = experimentService.findGrammarById(run.getExperimentId().getDefaultGrammar());
-        ExperimentDataType expDataType = experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType());
+        Dataset expDataType = experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType());
         Experiment experiment = experimentService.findExperimentById(run.getExperimentId().getId());
 
         List<Run> runList = run.getExperimentId().getIdRunList();
-        List<ExperimentDataType> expDataTypeList = run.getExperimentId().getIdExpDataTypeList();
+        List<Dataset> expDataTypeList = run.getExperimentId().getIdExpDataTypeList();
 
         ConfigExperimentDto configExpDto = fillConfigExpDto(new ConfigExperimentDto(),
                 run.getExperimentId(), run, grammar);
@@ -243,7 +241,7 @@ public class ExperimentController {
                                  @RequestParam("grammarId") String grammarId,
                                  @RequestParam("experimentDataTypeId") String experimentDataTypeId,
                                  @RequestParam("testExperimentDataTypeId") String testExperimentDataTypeId,
-                                 @ModelAttribute("type") ExperimentDataTypeDto expDataTypeDto,
+                                 @ModelAttribute("type") DatasetDto expDataTypeDto,
                                  @ModelAttribute("typeFile") FileModelDto fileModelDto,
                                  @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
                                  BindingResult result) throws IllegalStateException, IOException {
@@ -268,7 +266,7 @@ public class ExperimentController {
         java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
 
         // Experiment Data Type SECTION
-        ExperimentDataType expDataType;
+        Dataset expDataType;
         if (experimentDataTypeId.equals("-1")) {
             result.rejectValue("typeFile", "error.typeFile", "Choose one file");
             return "experiment/configExperiment";
@@ -280,7 +278,7 @@ public class ExperimentController {
         // END - Experiment Data Type SECTION
 
         // Experiment section:
-        ExperimentDataType testExperimentDataType = (testExperimentDataTypeId.equals("")) ? null : experimentService.
+        Dataset testExperimentDataType = (testExperimentDataTypeId.equals("")) ? null : experimentService.
                 findExperimentDataTypeById(Long.valueOf(testExperimentDataTypeId));
 
         if (configExpDto.getId() != null) {
@@ -343,7 +341,7 @@ public class ExperimentController {
     public String cloneExperiment(Model model,
                                   @RequestParam("grammarId") String grammarId,
                                   @RequestParam("experimentDataTypeId") String experimentDataTypeId,
-                                  @ModelAttribute("type") ExperimentDataTypeDto expDataTypeDto,
+                                  @ModelAttribute("type") DatasetDto expDataTypeDto,
                                   @ModelAttribute("typeFile") FileModelDto fileModelDto,
                                   @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto) throws IllegalStateException {
         User user = userService.getLoggedInUser();
@@ -361,7 +359,7 @@ public class ExperimentController {
     }
 
 
-    private void fileConfig(ExperimentDataType expDataType, User user, ExpPropertiesDto propertiesDto,
+    private void fileConfig(Dataset expDataType, User user, ExpPropertiesDto propertiesDto,
                             ConfigExperimentDto configExpDto, java.sql.Timestamp currentTimestamp,
                             Run run, Experiment exp) throws IOException {
         // Reader - FILE DATA TYPE - Convert MultipartFile into Generic Java File - Then convert it to Reader
@@ -485,16 +483,14 @@ public class ExperimentController {
 
         Iterator<Grammar> listGrammarIt = expConfig.getIdGrammarList().iterator();
         while (listGrammarIt.hasNext()) {
-            Grammar grammarIt = listGrammarIt.next();
+            listGrammarIt.next();
             listGrammarIt.remove();
-            grammarIt.deleteExperimentId(expConfig);
         }
 
-        Iterator<ExperimentDataType> listDataTypeIt = expConfig.getIdExpDataTypeList().iterator();
+        Iterator<Dataset> listDataTypeIt = expConfig.getIdExpDataTypeList().iterator();
         while (listDataTypeIt.hasNext()) {
-            ExperimentDataType expData = listDataTypeIt.next();
+            listDataTypeIt.next();
             listDataTypeIt.remove();
-            expData.deleteExperimentInList(expConfig);
         }
 
         expConfig.setDefaultGrammar(null);
@@ -741,8 +737,6 @@ public class ExperimentController {
         run.setExperimentDescription(configExpDto.getExperimentDescription());
 
         run.setDefaultGrammarId(grammar.getId());
-        grammar.setRunId(run.getId());
-
         run.setGenerations(configExpDto.getGenerations());
         run.setPopulationSize(configExpDto.getPopulationSize());
         run.setMaxWraps(configExpDto.getMaxWraps());
@@ -785,18 +779,13 @@ public class ExperimentController {
         return grammarFilePath;
     }
 
-    private void experimentDataTypeSection(FileModelDto fileModelDto, ExperimentDataType expDataType, Timestamp currentTimestamp) {
-        if (!fileModelDto.getTypeFile().isEmpty()) {
-            expDataType.setCreationDate(currentTimestamp);
-            expDataType.setDataTypeType("training");
-        } else if (expDataType.getRunId() != null) {
-            expDataType.setModificationDate(currentTimestamp);
-        }
-
+    private void experimentDataTypeSection(FileModelDto fileModelDto, Dataset expDataType, Timestamp currentTimestamp) {
+        expDataType.setCreationDate(currentTimestamp);
+        expDataType.setDataTypeType("training");
     }
 
-    private Experiment experimentSection(Experiment exp, User user, ExperimentDataType testExpDataType,
-                                         ExperimentDataType expDataType,
+    private Experiment experimentSection(Experiment exp, User user, Dataset testExpDataType,
+                                         Dataset expDataType,
                                          ConfigExperimentDto configExpDto, Grammar grammar, Run run,
                                          java.sql.Timestamp currentTimestamp, Long longDefaultRunId) {
         if (exp == null) {   // We create it
@@ -907,7 +896,6 @@ public class ExperimentController {
         while (grammarIt.hasNext() && !found) {
             Grammar grammarAux = grammarIt.next();
             if (grammarAux.getId().longValue() == run.getDefaultGrammarId().longValue()) {
-                grammarAux.deleteExperimentId(experiment);
 
                 if (grammarAux.getId().longValue() == experiment.getDefaultGrammar().longValue())
                     experiment.setDefaultRunId(Long.parseLong("0"));
