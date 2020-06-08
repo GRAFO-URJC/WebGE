@@ -1,49 +1,53 @@
 package com.gramevapp.web.model;
 
 import com.gramevapp.config.FieldMatch;
-import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @FieldMatch.List({
         @FieldMatch(first = "password", second = "confirmPassword", message = "The password fields must match"),
-        @FieldMatch(first = "email", second = "confirmEmail", message = "The email fields must match")
+        @FieldMatch(first = "confirmPassword", second = "password", message = "The password fields must match"),
+        @FieldMatch(first = "email", second = "confirmEmail", message = "The email fields must match"),
+        @FieldMatch(first = "confirmEmail", second = "email", message = "The email fields must match")
 })
 
 public class UserRegistrationDto {
     private static final String USERNAME_PATTERN = "^[a-z0-9_-]{3,15}$";
-
+    private static final String EMAIL = "^[^@]+@[^@]+$";
 
     @Pattern(regexp = USERNAME_PATTERN, message = "Username cannot have spaces neither strange characters or uppercase and must have between 3-15 letters")
-    @NotEmpty(message = "User name cannot be empty")
+    @NotNull(message = "User name cannot be empty")
     private String username;
 
-    @NotEmpty(message = "Firstname cannot be empty")
-    private String FirstName;
+    @NotNull
+    @Size(min = 1, message = "Firstname cannot be empty")
+    private String firstName;
 
-    @NotEmpty(message = "Lastname cannot be empty")
-    private String LastName;
+    @NotNull
+    @Size(min = 1,message = "Lastname cannot be empty")
+    private String lastName;
 
-    @NotEmpty
+    @NotNull
     @Size(min = 6, max = 50, message = "Your password must between 6 and 15 characters")
     private String password;
 
-    @NotEmpty
+    @NotNull
     @Size(min = 6, max = 50, message = "Your confirmation password must between 6 and 15 characters")
     private String confirmPassword;
 
-    @Email
-    @NotEmpty(message = "Email cannot be empty")
+    @NotNull
+    @Pattern(regexp = EMAIL, message = "Not valid email")
     private String email;
 
-    @Email
-    @NotEmpty(message = "Email confirmation cannot be empty")
+    @NotNull
+    @Pattern(regexp = EMAIL, message = "Not valid email")
     private String confirmEmail;
 
-    @NotEmpty(message = "Institution cannot be empty")
+    @NotNull
+    @Size(min = 1, message = "Institution cannot be empty")
     private String institution;
 
     //  Direction
@@ -59,7 +63,7 @@ public class UserRegistrationDto {
     // Extra info
     private String aboutMe;
 
-    @AssertTrue
+    @AssertTrue(message = "You need to agree accept terms and conditions")
     private Boolean terms;
 
     public String getAddress() {
@@ -127,19 +131,19 @@ public class UserRegistrationDto {
     }
 
     public String getFirstName() {
-        return FirstName;
+        return firstName;
     }
 
     public void setFirstName(String firstName) {
-        this.FirstName = firstName;
+        this.firstName = firstName;
     }
 
     public String getLastName() {
-        return LastName;
+        return lastName;
     }
 
     public void setLastName(String lastName) {
-        this.LastName = lastName;
+        this.lastName = lastName;
     }
 
     public String getPassword() {

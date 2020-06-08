@@ -1,7 +1,6 @@
 package com.gramevapp.web.service;
 
 import com.gramevapp.web.model.ExpProperties;
-import com.gramevapp.web.model.Experiment;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.model.RunExecutionReport;
 import com.gramevapp.web.repository.ExperimentRepository;
@@ -11,7 +10,7 @@ import com.gramevapp.web.repository.RunRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Optional;
 
 @Service("runService")
 public class RunService {
@@ -27,45 +26,35 @@ public class RunService {
     @Autowired
     RunExecutionReportRepository runExecutionReportRepository;
 
-    public Run saveRun(Run run){
+    public Run saveRun(Run run) {
         return runRepository.save(run);
     }
 
-    public Run findByRunId(Long runId){
-        if(runId==null)
+    public Run findByRunId(Long runId) {
+        if (runId == null)
             return null;
-        return runRepository.findById(runId).get();
+        Optional<Run> check = runRepository.findById(runId);
+        return check.orElse(null);
     }
 
-    public List<Run> findAllByExperiment(Experiment exp){
-        return runRepository.findAllByExperimentId(exp);
-    }
-
-    public Run findLastRunId(){
-        return runRepository.findTop1ByOrderByIdDesc();
-    }
-
-    public void deleteRun(Run run){
+    public void deleteRun(Run run) {
         runRepository.delete(run);
     }
 
-    public void updateRun(){
-        runRepository.flush();
-    }
-
-    public void deleteExpProperties(ExpProperties expProperties){
+    public void deleteExpProperties(ExpProperties expProperties) {
         expPropertiesRepository.delete(expProperties);
     }
 
-    public RunExecutionReport getRunExecutionReport(Long id){
-        return runExecutionReportRepository.findById(id).get();
+    public RunExecutionReport getRunExecutionReport(Long id) {
+        Optional<RunExecutionReport> check = runExecutionReportRepository.findById(id);
+        return check.orElse(null);
     }
 
-    public void saveRunExecutionReport(RunExecutionReport runExecutionReport){
+    public void saveRunExecutionReport(RunExecutionReport runExecutionReport) {
         runExecutionReportRepository.save(runExecutionReport);
     }
 
-    public void removeExecutionReport(RunExecutionReport runExecutionReport){
+    public void removeExecutionReport(RunExecutionReport runExecutionReport) {
         runExecutionReportRepository.delete(runExecutionReport);
     }
 }

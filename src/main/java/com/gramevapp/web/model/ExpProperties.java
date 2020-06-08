@@ -3,7 +3,7 @@ package com.gramevapp.web.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "expProperties")
+@Table(name = "exp_properties")
 public class ExpProperties {
 
     private static final String LOGGER_BASE_PATH = "resources/files/logs/population";
@@ -11,7 +11,7 @@ public class ExpProperties {
     private static final String CLASS_PATH_SEPARATOR = "\\;";
 
     @Id
-    @Column(name = "properties_id", nullable = false, updatable= false)
+    @Column(name = "properties_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
@@ -83,10 +83,10 @@ public class ExpProperties {
     @Column
     private Integer numberRuns;         // Num executions. Execute the experiment N times and obtain N solutions.
 
-    public ExpProperties(){
+    public ExpProperties() {
     }
 
-    public ExpProperties(Long id){
+    public ExpProperties(Long id) {
         this.id = id;
     }
 

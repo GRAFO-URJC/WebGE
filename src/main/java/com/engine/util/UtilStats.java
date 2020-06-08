@@ -1,13 +1,13 @@
 package com.engine.util;
 
-import java.util.Properties;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.stat.StatUtils;
-import org.apache.commons.math3.stat.regression.SimpleRegression;
+
+import java.util.Properties;
 
 /**
  * Utility methods for statistics.
- * 
+ *
  * @author J. M. Colmenar
  */
 public class UtilStats {
@@ -16,19 +16,15 @@ public class UtilStats {
     private static Double penaltyC;
     private static Double penaltyD;
     private static Double penaltyE;
-    
+
     public static final double DEFAULT_CEG_PENALTY_B = 1.0;
     public static final double DEFAULT_CEG_PENALTY_C = 10.0;
     public static final double DEFAULT_CEG_PENALTY_D = 100.0;
     public static final double DEFAULT_CEG_PENALTY_E = 1000.0;
-    
+
 
     /**
      * Computes the Root Mean Squared Error (RMSE) between two arrays of engine.data.
-     * 
-     * @param l1
-     * @param l2
-     * @return 
      */
     public static double computeRMSE(double[] l1, double[] l2) {
         double acu = 0.0;
@@ -39,7 +35,7 @@ public class UtilStats {
 
         return Math.sqrt(acu / l1.length);
     }
-    
+
     public static double computeAvgError(double[] expected, double[] observed) {
         double error = 0.0;
         for (int k = 0; k < expected.length; ++k) {
@@ -47,31 +43,31 @@ public class UtilStats {
         }
         error /= expected.length;
         return error;
-    }    
-    
+    }
+
     public static double getAverage(double[] darr) {
         return StatUtils.mean(darr);
     }
-    
+
     public static double calculatePvalueChiSquare(double[] expectedIn, double[] observedIn) {
         double pValue = 0.0;
-        
+
         double acu = 0.0;
-        for (int i=0; i<expectedIn.length; i++) {
-            acu += (Math.pow(expectedIn[i]-observedIn[i], 2)) / expectedIn[i];
+        for (int i = 0; i < expectedIn.length; i++) {
+            acu += (Math.pow(expectedIn[i] - observedIn[i], 2)) / expectedIn[i];
         }
-        
-        ChiSquaredDistribution chiDist = new ChiSquaredDistribution((double) expectedIn.length-1);
+
+        ChiSquaredDistribution chiDist = new ChiSquaredDistribution((double) expectedIn.length - 1);
         try {
             pValue = 1.0 - chiDist.cumulativeProbability(acu);
         } catch (Exception e) {
-            System.err.println("Error calculating p-value: "+e.getLocalizedMessage());
-            System.err.println("--> Accumulated value was: "+acu);
+            System.err.println("Error calculating p-value: " + e.getLocalizedMessage());
+            System.err.println("--> Accumulated value was: " + acu);
         }
         return pValue;
     }
-    
-    
+
+
     private static final int CLARKE_REGIONS = 5;
     // Zones for grids:
     private static final int A = 0;
@@ -79,14 +75,13 @@ public class UtilStats {
     private static final int C = 2;
     private static final int D = 3;
     private static final int E = 4;
-    
+
     /**
      * Clarke error grid of the given point.
      *
-     * @param y Reference glucose values
+     * @param y  Reference glucose values
      * @param yp Estimated glucose values
-     *
-     * @return The key of the region where the point is places: A, B, C, D or E. 
+     * @return The key of the region where the point is places: A, B, C, D or E.
      */
     public static int determineCEGRegion(double y, double yp) {
         if (((yp <= 70) && (y <= 70))
@@ -112,13 +107,12 @@ public class UtilStats {
             }                                 // End of 2nd if
         }                                     // End of 1st if
     }
-    
+
     /**
      * Clarke error grid of the estimated engine.data.
      *
-     * @param y Reference glucose values
+     * @param y  Reference glucose values
      * @param yp Estimated glucose values
-     *
      * @return For each region (A,B,C,D,E, key of the map), returns the number
      * of points that belong to it. The first position of the array corresponds
      * to region A, second to B and so on.
@@ -127,7 +121,7 @@ public class UtilStats {
         int[] total = new int[CLARKE_REGIONS];
 
         for (int i = 0; i < y.length; i++) {
-            int region = determineCEGRegion(y[i],yp[i]);
+            int region = determineCEGRegion(y[i], yp[i]);
             total[region] += 1;
         }
 
@@ -147,40 +141,37 @@ public class UtilStats {
     /**
      * Clarke error grid of the estimated engine.data, computed as a double value.
      *
-     * @param y Reference glucose values
+     * @param y  Reference glucose values
      * @param yp Estimated glucose values
-     *
      * @return For each region (A,B,C,D,E, key of the map), obtains the number
      * of points that belong to it and then calculates a weighted sum of these
      * values.
-     */    
+     */
     public static double computeCEG(double[] y, double[] yp) {
         int[] ceg = calculateCEG(y, yp);
-        
-        // Logaritmic scale: 
-        double fitness = (ceg[B] * penaltyB) + 
-                         (ceg[C] * penaltyC) +
-                         (ceg[D] * penaltyD) + 
-                         (ceg[E] * penaltyE);
-        
-        return fitness;
+
+        // Logaritmic scale:
+
+        return (ceg[B] * penaltyB) +
+                (ceg[C] * penaltyC) +
+                (ceg[D] * penaltyD) +
+                (ceg[E] * penaltyE);
     }
 
-    
+
     /**
      * Absolute error wighted with CEG zone.
-     * 
-     * @param y Reference glucose values
-     * @param yp Estimated glucose values
      *
-     * @return For 
+     * @param y  Reference glucose values
+     * @param yp Estimated glucose values
+     * @return For
      */
     public static double computeAbsoluteErrorWeightedCED(double[] y, double[] yp) {
         double error = 0.0;
         int region;
         double weight = 1.0;
         for (int k = 0; k < y.length; ++k) {
-            region = determineCEGRegion(y[k],yp[k]);
+            region = determineCEGRegion(y[k], yp[k]);
 //            switch (region) {
 //                case B:
 //                    weight = 10.0;
@@ -197,7 +188,7 @@ public class UtilStats {
 //                default: // Region A
 //                    weight = 1.0;
 //            }
-            error += ((region+1) * 2 * Math.abs(y[k] - yp[k]));
+            error += ((region + 1) * 2 * Math.abs(y[k] - yp[k]));
         }
         return error;
     }
@@ -211,36 +202,31 @@ public class UtilStats {
         double acuNum = 0.0;
         double acuE = 0.0;
         double acuO = 0.0;
-        
-        for (int i=0; i<expected.length; i++) {        
-            acuNum += ((expected[i]-avgE) * (observed[i]-avgO));
-            acuE += Math.pow((expected[i]-avgE), 2);
-            acuO += Math.pow((observed[i]-avgO), 2);
+
+        for (int i = 0; i < expected.length; i++) {
+            acuNum += ((expected[i] - avgE) * (observed[i] - avgO));
+            acuE += Math.pow((expected[i] - avgE), 2);
+            acuO += Math.pow((observed[i] - avgO), 2);
         }
-               
+
         double r = acuNum / Math.sqrt(acuE * acuO);
-        
+
         return Math.pow(r, 2);
     }
 
     /**
      * Absolute error between observed and expected values.
-     * 
-     * @param expected
-     * @param observed
-     * @return 
      */
     public static double computeAbsoluteError(double[] expected, double[] observed) {
         double error = 0.0;
         for (int k = 0; k < expected.length; ++k) {
             error += Math.abs(expected[k] - observed[k]);
         }
-        return error;        
+        return error;
     }
 
     /**
      * Sets the values of the penalty coeficients for the CEG objective function.
-     * @param props 
      */
     public static void setCEGPenalties(Properties props) {
         if (props.getProperty(com.engine.util.Common.CEG_PENALTY_B) != null) {
@@ -248,19 +234,19 @@ public class UtilStats {
         } else {
             penaltyB = DEFAULT_CEG_PENALTY_B;
         }
-        
+
         if (props.getProperty(com.engine.util.Common.CEG_PENALTY_C) != null) {
             penaltyC = Double.valueOf(props.getProperty(com.engine.util.Common.CEG_PENALTY_C));
         } else {
             penaltyC = DEFAULT_CEG_PENALTY_C;
         }
-        
+
         if (props.getProperty(com.engine.util.Common.CEG_PENALTY_D) != null) {
             penaltyD = Double.valueOf(props.getProperty(com.engine.util.Common.CEG_PENALTY_D));
         } else {
             penaltyD = DEFAULT_CEG_PENALTY_D;
         }
-        
+
         if (props.getProperty(com.engine.util.Common.CEG_PENALTY_E) != null) {
             penaltyE = Double.valueOf(props.getProperty(com.engine.util.Common.CEG_PENALTY_E));
         } else {

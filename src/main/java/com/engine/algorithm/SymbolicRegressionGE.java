@@ -5,9 +5,9 @@
  */
 package com.engine.algorithm;
 
-import com.engine.util.CSVReader;
-import com.engine.util.Common;
 import com.engine.util.UtilStats;
+import com.gramevapp.web.model.Run;
+import com.gramevapp.web.service.RunService;
 import jeco.core.algorithm.Algorithm;
 import jeco.core.algorithm.ga.SimpleGeneticAlgorithm;
 import jeco.core.algorithm.moge.AbstractProblemGE;
@@ -22,8 +22,13 @@ import jeco.core.problem.Variable;
 import net.sourceforge.jeval.EvaluationException;
 import net.sourceforge.jeval.Evaluator;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -35,41 +40,39 @@ import static com.engine.util.Common.currentDateTimeAsFormattedString;
  */
 public class SymbolicRegressionGE extends AbstractProblemGE {
 
-    private static final Logger logger = Logger.getLogger(SymbolicRegressionGE.class.getName());
+    private final Logger logger = Logger.getLogger(SymbolicRegressionGE.class.getName());
     protected Evaluator evaluator;
-    protected static String[][] func;
-    private static HashMap<String, Integer> vars = new HashMap<String, Integer>();
+    protected String[][] func;
+    private HashMap<String, Integer> vars = new HashMap<>();
 
     protected Properties properties;
-    private static Solutions<Variable<Integer>> solutions;
-    private static int logPopulation = 0;
-    private static String logPopulationOutputFile;
-    private static int gen;
+    private Solutions<Variable<Integer>> solutions;
+    private String logPopulationOutputFile = new String();
 
     // Binary masks for logging:
-    public static final int LOG_GENOTYPE_MASK = 1;
-    public static final int LOG_USED_GENES_MASK = 2;
-    public static final int LOG_FITNESS_MASK = 4;
-    public static final int LOG_PHENOTYPE_MASK = 8;
-    public static final int LOG_EVALUATION_MASK = 16;
+    public final int LOG_GENOTYPE_MASK = 1;
+    public final int LOG_USED_GENES_MASK = 2;
+    public final int LOG_FITNESS_MASK = 4;
+    public final int LOG_PHENOTYPE_MASK = 8;
+    public final int LOG_EVALUATION_MASK = 16;
 
-    private static Algorithm<Variable<Integer>> algorithm;
-    private static boolean stop;
+    private Algorithm<Variable<Integer>> algorithm;
+    private boolean stop;
 
     public static final String REPORT_HEADER = "Obj.;Model;Time";
-    public static ArrayList<String> executionReport = new ArrayList<>();
+    public ArrayList<String> executionReport = new ArrayList<>();
 
 
     public SymbolicRegressionGE(Properties properties, int numObjectives) {
         super(properties.getProperty(com.engine.util.Common.BNF_PATH_FILE_PROP), numObjectives,
-                Integer.valueOf(properties.getProperty(com.engine.util.Common.CHROMOSOME_LENGTH_PROP)),
-                Integer.valueOf(properties.getProperty(com.engine.util.Common.MAX_WRAPS_PROP)),
+                Integer.parseInt(properties.getProperty(com.engine.util.Common.CHROMOSOME_LENGTH_PROP)),
+                Integer.parseInt(properties.getProperty(com.engine.util.Common.MAX_WRAPS_PROP)),
                 AbstractProblemGE.CODON_UPPER_BOUND_DEFAULT);
 
         this.properties = properties;
 
         if (this.properties.getProperty(com.engine.util.Common.SENSIBLE_INITIALIZATION) != null) { // Not initializated in properties
-            this.setSensibleInitialization(true, Double.valueOf(this.properties.getProperty(com.engine.util.Common.SENSIBLE_INITIALIZATION)));
+            this.setSensibleInitialization(true, Double.parseDouble(this.properties.getProperty(com.engine.util.Common.SENSIBLE_INITIALIZATION)));
         }
 
         this.evaluator = new Evaluator();
@@ -97,7 +100,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
                 if (aux.equals("NaN")) {//TODO revisar valores menores que 0
                     funcI = Double.POSITIVE_INFINITY;
                 } else {
-                    funcI = Double.valueOf(aux);
+                    funcI = Double.parseDouble(aux);
                 }
             } catch (EvaluationException ex) {
                 Logger.getLogger(SymbolicRegressionGE.class.getName()).log(Level.SEVERE, null, ex);
@@ -105,7 +108,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             }
             //Add to prediction array the evaluation calculated
             prediction[i] = String.valueOf(funcI);
-            solution.getProperties().put(String.valueOf(i), (double) funcI);
+            solution.getProperties().put(String.valueOf(i), funcI);
         }
 
         // Calculate fitness
@@ -125,11 +128,9 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     private String calculateFunctionValued(String originalFunction, int index) {
         String newFunction = originalFunction;
 
-        Iterator iterator = vars.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry pair = (Map.Entry) iterator.next();
-            String key = pair.getKey().toString().toUpperCase();
-            int keyPosition = Integer.parseInt(pair.getValue().toString());
+        for (Map.Entry<String, Integer> stringIntegerEntry : vars.entrySet()) {
+            String key = stringIntegerEntry.getKey().toUpperCase();
+            int keyPosition = Integer.parseInt(stringIntegerEntry.getValue().toString());
             newFunction = newFunction.replace(key, func[index][keyPosition]);
         }
         return newFunction;
@@ -141,7 +142,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         Evaluator evaluatorForFunction = new Evaluator();
 
         String replacePart;
-        for (int i = 1; i < content.length; i++) {
+        for (int i = (content.length - 1); i > 0; i--) {
             replacePart = "X" + i;
             newFunction = newFunction.replaceAll(replacePart, content[i]);
         }
@@ -151,32 +152,24 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
     @Override
     public SymbolicRegressionGE clone() {
-        SymbolicRegressionGE clone = new SymbolicRegressionGE(properties, this.numberOfObjectives);
-        return clone;
+        return new SymbolicRegressionGE(properties, this.numberOfObjectives);
     }
 
 
     /**
      * Method to run the GE algorithm with the provided properties.
-     *
-     * @param obs
      */
-    public void runGE(RunGeObserver obs) {
+    public void runGE(RunGeObserver obs, String experimentDatatypeInfo, Run run, RunService runService) {
         // Load target data
         // TODO: NO distinguir entre training, validation y test.
-        CSVReader csv = new CSVReader(properties.getProperty(Common.TRAINING_PATH_PROP));
-        try {
-            func = csv.loadMatrix();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        func = processExperimentDataTypeInfo(experimentDatatypeInfo);
         vars = getVariables(func);
         logger.setLevel(Level.ALL);
 
         // Log population:
-        logPopulation = Integer.valueOf(properties.getProperty(com.engine.util.Common.LOG_POPULATION_PROP));
+        int logPopulation = Integer.parseInt(properties.getProperty(com.engine.util.Common.LOG_POPULATION_PROP));
         if (logPopulation > 0) {
-            gen = 0;
+            int gen = 0;
             String fileName = "Log_Population_" + currentDateTimeAsFormattedString() + ".csv";
             logPopulationOutputFile = properties.getProperty(com.engine.util.Common.LOGGER_BASE_PATH_PROP) + File.separator + fileName;
             // Report the elements that are logged:
@@ -202,23 +195,23 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
         int numObjectives = 1;
         if ((properties.getProperty(com.engine.util.Common.OBJECTIVES_PROP) != null)
-                && (Integer.valueOf(properties.getProperty(com.engine.util.Common.OBJECTIVES_PROP)) == 2)) {
+                && (Integer.parseInt(properties.getProperty(com.engine.util.Common.OBJECTIVES_PROP)) == 2)) {
             numObjectives = 2;
         }
 
         // Adjust some properties
         double crossOverProb = SinglePointCrossover.DEFAULT_PROBABILITY;
         if (properties.getProperty(com.engine.util.Common.CROSSOVER_PROB_PROP) != null) {
-            crossOverProb = Double.valueOf(properties.getProperty(com.engine.util.Common.CROSSOVER_PROB_PROP));
+            crossOverProb = Double.parseDouble(properties.getProperty(com.engine.util.Common.CROSSOVER_PROB_PROP));
         }
         double mutationProb = 1.0 / this.reader.getRules().size();
         if (properties.getProperty(com.engine.util.Common.MUTATION_PROB_PROP) != null) {
-            mutationProb = Double.valueOf(properties.getProperty(com.engine.util.Common.MUTATION_PROB_PROP));
+            mutationProb = Double.parseDouble(properties.getProperty(com.engine.util.Common.MUTATION_PROB_PROP));
         }
 
         int tournamentSize = 2;
         if (properties.getProperty(com.engine.util.Common.TOURNAMENT_SIZE_PROP) != null) {
-            tournamentSize = Integer.valueOf(properties.getProperty(com.engine.util.Common.TOURNAMENT_SIZE_PROP));
+            tournamentSize = Integer.parseInt(properties.getProperty(com.engine.util.Common.TOURNAMENT_SIZE_PROP));
         }
 
         // Set weight for CEG penalty
@@ -231,7 +224,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         TournamentSelect<Variable<Integer>> selectionOp = new TournamentSelect<>(tournamentSize, comparator);
 
         if (numObjectives == 2) {
-            algorithm = new ModifiedNSGAII(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), mutationOperator, crossoverOperator, selectionOp);
+            algorithm = new ModifiedNSGAII(this, Integer.parseInt(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.parseInt(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), mutationOperator, crossoverOperator, selectionOp);
         } else {
             algorithm = new SimpleGeneticAlgorithm<>(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), true, mutationOperator, crossoverOperator, selectionOp);
         }
@@ -241,7 +234,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
         int numExecutions = 1;
         if (properties.getProperty(com.engine.util.Common.NUM_EXECUTIONS) != null) {
-            numExecutions = Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_EXECUTIONS));
+            numExecutions = Integer.parseInt(properties.getProperty(com.engine.util.Common.NUM_EXECUTIONS));
         }
 
         ArrayList<String> log = new ArrayList<>();
@@ -262,17 +255,17 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
             if (numObjectives == 2) {
                 for (Solution s : solutions) {
-                    executionReport.add(String.valueOf(s.getObjective(0)) + " " + String.valueOf(s.getObjective(1)) + ";" + this.generatePhenotype(s).toString() + ";" + String.valueOf(time));
+                    executionReport.add(s.getObjective(0) + " " + s.getObjective(1) + ";" + this.generatePhenotype(s).toString() + ";" + time);
                 }
 
             } else {
-                executionReport.add(String.valueOf(solutions.get(0).getObjective(0)) + ";" + this.generatePhenotype(solutions.get(0)).toString() + ";" + String.valueOf(time));
+                executionReport.add(solutions.get(0).getObjective(0) + ";" + this.generatePhenotype(solutions.get(0)).toString() + ";" + time);
 
                 // Just for interrupted executions:
                 logger.info("@@;" + this.generatePhenotype(solutions.get(0)).toString());
             }
 
-            for (String s : SymbolicRegressionGE.executionReport) {
+            for (String s : executionReport) {
                 log.add(i + ";" + s);
             }
 
@@ -285,12 +278,26 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         logger.info("Execution report");
         logger.info("==================");
         logger.info("#Run;" + SymbolicRegressionGE.REPORT_HEADER);
-        SymbolicRegressionGE.executionReport.clear();
+        executionReport.clear();
         for (String s : log) {
             logger.info(s);
-            SymbolicRegressionGE.executionReport.add(s);
+            executionReport.add(s);
         }
-
+        obs.getLock().lock();
+        Run newRun = runService.findByRunId(run.getId());
+        newRun.setModel(this.getModel());
+        Run.Status status = null;
+        if(run.getDiagramData().getFinished()){
+            status=Run.Status.FINISHED;
+        }else if(run.getDiagramData().getFailed()){
+            status=Run.Status.FAILED;
+        }else if(run.getDiagramData().getStopped()){
+            status=Run.Status.STOPPED;
+        }
+        newRun.setStatus(status);
+        newRun.setModificationDate(new Timestamp(System.currentTimeMillis()));
+        runService.saveRun(newRun);
+        obs.getLock().lock();
 
     }
 
@@ -314,10 +321,8 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     /**
      * Opens the log population file to add the string that was passed as a
      * parameter.
-     *
-     * @param str
      */
-    private static void addToLogFile(String str) {
+    private void addToLogFile(String str) {
         try {
             File file = new File(logPopulationOutputFile);
             BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
@@ -334,9 +339,34 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     }
 
     public String getModel() {
-        if(solutions!=null&&!solutions.isEmpty()){
+        if (solutions != null && !solutions.isEmpty()) {
             return this.generatePhenotype(solutions.get(0)).toString();
         }
         return null;
+    }
+
+    private String[][] processExperimentDataTypeInfo(String info) {
+        String[] infoSplit = info.split("\\r\\n");
+        String[][] matrix = new String[infoSplit.length][];
+
+        ArrayList<String> columnList = new ArrayList<>();
+
+        String[] columns = infoSplit[0].split("\r\n");
+        int index = 0;
+        for (String column : columns[0].split(";")) {
+            if (index == 0) {
+                columnList.add("#Y");
+            } else {
+                columnList.add("X" + index);
+            }
+            index++;
+        }
+        matrix[0] = columnList.toArray(new String[0]);
+
+        int count = 1;
+        for (int i = 1; i < infoSplit.length; i++) {
+            matrix[count++] = infoSplit[i].split(";");
+        }
+        return matrix;
     }
 }
