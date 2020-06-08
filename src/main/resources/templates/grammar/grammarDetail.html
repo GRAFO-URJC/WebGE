@@ -3,38 +3,7 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/default}">
-    <!--Add Style-->
-    <style>
-        /* enable absolute positioning */
-        .inner-addon {
-            position: relative;
-        }
-
-        /* style icon */
-        .inner-addon .glyphicon {
-            position: absolute;
-            padding: 5px;
-            pointer-events: none;
-        }
-
-        /* align icon */
-        .left-addon .glyphicon {
-            left: 0px;
-        }
-
-        .right-addon .glyphicon {
-            right: 0px;
-        }
-
-        /* add padding  */
-        .left-addon input {
-            padding-left: 30px;
-        }
-
-        .right-addon input {
-            padding-right: 30px;
-        }
-    </style>
+<head>
 </head>
 <body>
 
@@ -58,7 +27,7 @@
                             <div class="col-sm-11 col-md-11 col-lg-11">
                                 <input id="grammarName" type="text" class="form-control"
                                        th:value="${grammar.getGrammarName()}" name="grammarName"
-                                       placeholder="Name of the grammar"/>
+                                       placeholder="Name of the grammar" required/>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -68,7 +37,7 @@
                             <div class="col-sm-11 col-md-11 col-lg-11">
                                 <input id="grammarDescription" type="text" class="form-control"
                                        th:value="${grammar.getGrammarDescription()}" name="grammarDescription"
-                                       placeholder="Description of the grammar"/>
+                                       placeholder="Description of the grammar" required/>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -78,7 +47,7 @@
                             <div class="col-sm-11 col-md-11 col-lg-11">
                                 <textarea id="fileText" rows="5" class="form-control" th:text="${grammar.getFileText()}"
                                           placeholder="Grammar file " name="fileText" th:inline="text"
-                                          style="resize: none;"/>
+                                          style="resize: none;" required/>
                             </div>
                         </div>
                         <div class="col-sm-12 col-md-12 col-lg-12">

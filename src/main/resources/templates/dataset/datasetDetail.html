@@ -3,38 +3,7 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/default}">
-    <!--Add Style-->
-    <style>
-        /* enable absolute positioning */
-        .inner-addon {
-            position: relative;
-        }
-
-        /* style icon */
-        .inner-addon .glyphicon {
-            position: absolute;
-            padding: 5px;
-            pointer-events: none;
-        }
-
-        /* align icon */
-        .left-addon .glyphicon {
-            left: 0px;
-        }
-
-        .right-addon .glyphicon {
-            right: 0px;
-        }
-
-        /* add padding  */
-        .left-addon input {
-            padding-left: 30px;
-        }
-
-        .right-addon input {
-            padding-right: 30px;
-        }
-    </style>
+<head>
 </head>
 <body>
 
@@ -87,7 +56,7 @@
                             </div>
                             <div class="col-sm-11 col-md-11 col-lg-11">
                                 <textarea id="info" rows="5" class="form-control"
-                                          th:text="${experimentDataType.getinfo()}"
+                                          th:text="${experimentDataType.getInfo()}"
                                           placeholder="Dataset file content" name="info" th:inline="text"
                                           style="resize: none;" readonly/>
                             </div>

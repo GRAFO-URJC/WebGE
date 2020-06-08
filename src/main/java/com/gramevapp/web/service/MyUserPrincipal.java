@@ -9,7 +9,6 @@ import java.util.Collection;
 
 // http://www.baeldung.com/spring-security-authentication-with-a-database
 public class MyUserPrincipal implements UserDetails {
-    private User user;
 
     // https://springframework.guru/spring-boot-web-application-part-6-spring-security-with-dao-authentication-provider/
     private Collection<SimpleGrantedAuthority> authorities;
@@ -18,7 +17,8 @@ public class MyUserPrincipal implements UserDetails {
     private String firstName;
     private Boolean enabled = true;
 
-    public MyUserPrincipal(){}
+    public MyUserPrincipal() {
+    }
 
     public String getFirstName() {
         return firstName;
@@ -80,6 +80,5 @@ public class MyUserPrincipal implements UserDetails {
     }
 
     public MyUserPrincipal(User user) {
-        this.user = user;
     }
 }

@@ -1,8 +1,9 @@
 package com.engine.algorithm;
 
+import com.gramevapp.web.model.Dataset;
 import com.gramevapp.web.model.DiagramData;
-import com.gramevapp.web.model.DiagramPair;
 import com.gramevapp.web.model.Run;
+import com.gramevapp.web.service.RunService;
 
 import java.util.Properties;
 
@@ -14,11 +15,16 @@ public class RunnableExpGramEv implements Runnable {
     private final DiagramData diagramData;
     private final Run runElement;
     private SymbolicRegressionGE ge;
+    private Dataset experimentDataType;
+    private RunService runService;
 
-    public RunnableExpGramEv(Properties properties, DiagramData diagramData, Run runElement) {
+    public RunnableExpGramEv(Properties properties, DiagramData diagramData, Run runElement, Dataset experimentDataType,
+                             RunService runService) {
         this.properties = properties;
         this.diagramData = diagramData;
         this.runElement = runElement;
+        this.experimentDataType = experimentDataType;
+        this.runService = runService;
     }
 
     @Override
@@ -26,7 +32,7 @@ public class RunnableExpGramEv implements Runnable {
 
         int numObjectives = 1;
         if ((properties.getProperty(OBJECTIVES_PROP) != null)
-                && (Integer.valueOf(properties.getProperty(OBJECTIVES_PROP)) == 2)) {
+                && (Integer.parseInt(properties.getProperty(OBJECTIVES_PROP)) == 2)) {
             numObjectives = 2;
         }
 
@@ -42,14 +48,11 @@ public class RunnableExpGramEv implements Runnable {
         diagramData.setFailed(false);
         observer.setDiagramData(diagramData);
 
-        ge.runGE(observer);
+        ge.runGE(observer, experimentDataType.getInfo(), runElement, runService);
     }
 
     public void stopExecution() {
         ge.stopExecution();
     }
 
-    public String getModel() {
-        return this.ge.getModel();
-    }
 }

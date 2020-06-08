@@ -26,11 +26,6 @@ public class UserController extends UserCommon {
                               @RequestParam(value = "message", required = false) String message,
                               @RequestParam(value = "areaActive", required = false) String areaActive) {
         User user = userService.getLoggedInUser();
-        if (user == null) {
-            System.out.println("User not authenticated");
-            return "redirect:/login";
-        }
-
         UserUpdateBasicInfoDto upBasicDto = new UserUpdateBasicInfoDto();
         UserUpdatePasswordDto upPassDto = new UserUpdatePasswordDto();
         UserUpdateAboutDto updAboutDto = new UserUpdateAboutDto();
@@ -110,10 +105,6 @@ public class UserController extends UserCommon {
                                 RedirectAttributes redirectAttrs) {
 
         User user = userService.getLoggedInUser();
-        if (user == null) {
-            System.out.println("User not authenticated");
-            return "redirect:/login";
-        }
 
         if (result.hasErrors()) {
             UserUpdateStudyDto upStudyDto = new UserUpdateStudyDto();
@@ -141,8 +132,10 @@ public class UserController extends UserCommon {
 
     @GetMapping("/user")
     public String userIndex(HttpServletRequest request) {
-        UserDetails userDetails = userService.getLoggedInUser().getUserDetails();
-        request.getSession().setAttribute("userDetails", userDetails);
+        if (userService.getLoggedInUser() != null) {
+            UserDetails userDetails = userService.getLoggedInUser().getUserDetails();
+            request.getSession().setAttribute("userDetails", userDetails);
+        }
         return "user/index";
     }
 

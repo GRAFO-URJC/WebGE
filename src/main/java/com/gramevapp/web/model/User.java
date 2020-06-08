@@ -13,7 +13,7 @@ import java.util.List;
 public class User implements Serializable {
 
     @Id
-    @Column(name = "USER_ID", nullable = false, updatable= false)
+    @Column(name = "USER_ID", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
@@ -32,32 +32,32 @@ public class User implements Serializable {
     private String institution;
 
     @JsonIgnore
-    @OneToOne(cascade =  CascadeType.ALL,
+    @OneToOne(cascade = CascadeType.ALL,
             mappedBy = "user")
     private UserDetails userDetails;
 
-    @ManyToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, targetEntity=Role.class)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, targetEntity = Role.class)
     @JoinTable(
             name = "users_roles",
-            joinColumns ={
+            joinColumns = {
                     @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
                     @JoinColumn(name = "username", referencedColumnName = "username"),
                     @JoinColumn(name = "email", referencedColumnName = "email")
             },
-            inverseJoinColumns ={
+            inverseJoinColumns = {
                     @JoinColumn(name = "role_id", referencedColumnName = "role_id"),
                     @JoinColumn(name = "role_name", referencedColumnName = "role")
             })
     private List<Role> roles;
 
     @JsonBackReference
-    @OneToMany(fetch=FetchType.LAZY,
+    @OneToMany(fetch = FetchType.LAZY,
             mappedBy = "userId",
-            targetEntity=Experiment.class,
+            targetEntity = Experiment.class,
             orphanRemoval = true)
     private List<Experiment> listExperiments;
 
-    public User(){
+    public User() {
         this.listExperiments = new ArrayList<>();
     }
 
@@ -86,7 +86,9 @@ public class User implements Serializable {
         this.enabled = enabled;
     }
 
-    public Long getId() { return id; }
+    public Long getId() {
+        return id;
+    }
 
     public void setId(Long id) {
         this.id = id;
@@ -116,13 +118,13 @@ public class User implements Serializable {
         this.roles = roles;
     }
 
-    public void addRole(Role role){
-        if(!this.roles.contains(role)){
+    public void addRole(Role role) {
+        if (!this.roles.contains(role)) {
             this.roles.add(role);
         }
     }
 
-    public void removeRole(Role role){
+    public void removeRole(Role role) {
         this.roles.remove(role);
     }
 
@@ -158,10 +160,9 @@ public class User implements Serializable {
         this.listExperiments = listExperiments;
     }
 
-    public Experiment addExperiment(Experiment experiment) {
+    public void addExperiment(Experiment experiment) {
         this.listExperiments.add(experiment);
         experiment.setUserId(this);
-        return experiment;
     }
 
     public String getInstitution() {

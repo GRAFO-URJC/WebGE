@@ -3,14 +3,15 @@ package com.gramevapp.web.model;
 import javax.persistence.*;
 
 @Entity
-public class UserDetails{
+@Table(name = "user_details")
+public class UserDetails {
 
     @Id
-    @Column(name = "USER_ID", nullable = false, updatable= false)
+    @Column(name = "USER_ID", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne(targetEntity=User.class, fetch=FetchType.LAZY)
+    @OneToOne(targetEntity = User.class, fetch = FetchType.LAZY)
     private User user;
 
     @Column
@@ -38,8 +39,7 @@ public class UserDetails{
 
     // Extra info
     @Column
-    private String aboutMe =" ";
-
+    private String aboutMe = " ";
 
 
     @JoinColumn(name = "PROFILE_PICTURE_ID", unique = true)

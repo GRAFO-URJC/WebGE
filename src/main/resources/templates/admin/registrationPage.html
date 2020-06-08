@@ -27,7 +27,10 @@ lang="en">
 
                     <div class="form-group col-lg-12">
                         <label class="control-label" for="username">Username *</label>
-                        <div th:classappend="${#fields.hasErrors('username')}? 'has-error':'Username error'">
+                        <div th:classappend="${#fields.hasErrors('username')}? 'has-error':''">
+                            <p th:if="${#fields.hasErrors('username')}" class="text-warning"
+                               th:text="${#fields.errors('username')}">
+                            </p>
                             <input id="username"
                                    class="form-control"
                                    placeholder="Username"
@@ -39,7 +42,10 @@ lang="en">
 
                     <div class="form-group col-lg-6">
                         <label class="control-label" for="email">E-mail *</label>
-                        <div th:classappend="${#fields.hasErrors('email')}? 'has-error':'Email error'">
+                        <div th:classappend="${#fields.hasErrors('email')}? 'has-error':''">
+                            <p th:if="${#fields.hasErrors('email')}" class="text-warning"
+                               th:text="${#fields.errors('email')}">
+                            </p>
                             <input id="email"
                                    class="form-control"
                                    placeholder="user@example.com"
@@ -50,7 +56,10 @@ lang="en">
 
                     <div class="form-group col-lg-6">
                         <label class="control-label" for="confirmEmail">Confirm e-mail *</label>
-                        <div th:classappend="${#fields.hasErrors('confirmEmail')}? 'has-error':'Confirm email error'">
+                        <div th:classappend="${#fields.hasErrors('confirmEmail')}? 'has-error':''">
+                            <p th:if="${#fields.hasErrors('confirmEmail')}" class="text-warning"
+                               th:text="${#fields.errors('confirmEmail')}">
+                            </p>
                             <input id="confirmEmail"
                                    class="form-control"
                                    placeholder="user@example.com"
@@ -61,7 +70,10 @@ lang="en">
 
                     <div class="form-group col-lg-6">
                         <label class="control-label" for="password">Password *</label>
-                        <div th:classappend="${#fields.hasErrors('password')}? 'has-error':'Password error'">
+                        <div th:classappend="${#fields.hasErrors('password')}? 'has-error':''">
+                            <p th:if="${#fields.hasErrors('password')}" class="text-warning"
+                               th:text="${#fields.errors('password')}">
+                            </p>
                             <input id="password"
                                    class="form-control"
                                    type="password"
@@ -72,7 +84,10 @@ lang="en">
 
                     <div class="form-group col-lg-6">
                         <label class="control-label" for="confirmPassword">Confirm password *</label>
-                        <div th:classappend="${#fields.hasErrors('confirmPassword')}? 'has-error':'Confirm password error'">
+                        <div th:classappend="${#fields.hasErrors('confirmPassword')}? 'has-error':''">
+                            <p th:if="${#fields.hasErrors('confirmPassword')}" class="text-warning"
+                               th:text="${#fields.errors('confirmPassword')}">
+                            </p>
                             <input id="confirmPassword"
                                    class="form-control"
                                    type="password"
@@ -83,7 +98,10 @@ lang="en">
 
                     <div class="form-group col-lg-12">
                         <label class="control-label" for="institution">Institution *</label>
-                        <div th:classappend="${#fields.hasErrors('institution')}? 'has-error':'Institution error'">
+                        <div th:classappend="${#fields.hasErrors('institution')}? 'has-error':''">
+                            <p th:if="${#fields.hasErrors('institution')}" class="text-warning"
+                               th:text="${#fields.errors('institution')}">
+                            </p>
                             <input id="institution"
                                    class="form-control"
                                    type="text"
@@ -92,22 +110,16 @@ lang="en">
                         </div>
                     </div>
 
-                    <!-- Error handling -->
-                    <div class="col-lg-12 text-center">
-                        <p th:if="${#fields.hasErrors()}" class="text-warning"
-                           th:each="error: ${#fields.errors()}"
-                           th:text="${error}">Validation error
-                        </p>
-                    </div>
-                    <!-- END error handling -->
-
                     <div class="form-group col-lg-12">
                         <hr/>
                     </div>
 
                     <div class="form-group col-lg-6">
                         <label for="firstName">First name</label>
-                        <div th:classappend="${#fields.hasErrors('firstName')}? 'has-error':'First name error'">
+                        <div th:classappend="${#fields.hasErrors('firstName')}? 'has-error':''">
+                            <p th:if="${#fields.hasErrors('firstName')}" class="text-warning"
+                               th:text="${#fields.errors('firstName')}">
+                            </p>
                             <input id="firstName"
                                    class="form-control"
                                    placeholder="First name"
@@ -117,7 +129,10 @@ lang="en">
                     </div>
                     <div class="form-group col-lg-6">
                         <label for="lastName">Last name</label>
-                        <div th:classappend="${#fields.hasErrors('lastName')}? 'has-error':'Last name error'">
+                        <div th:classappend="${#fields.hasErrors('lastName')}? 'has-error':''">
+                            <p th:if="${#fields.hasErrors('lastName')}" class="text-warning"
+                               th:text="${#fields.errors('lastName')}">
+                            </p>
                             <input id="lastName"
                                    class="form-control"
                                    placeholder="Last name"
@@ -126,19 +141,12 @@ lang="en">
                         </div>
                     </div>
 
-                    <!-- Error handling -->
-                    <div class="col-lg-12 text-center">
-                        <p class="text-warning"
-                           th:each="error: ${#fields.errors('firstName')}"
-                           th:text="${error}">Validation error</p>
-
-                        <p class="text-warning"
-                           th:each="error : ${#fields.errors('lastName')}"
-                           th:text="${error}">Validation error</p>
-                    </div>
-                    <!-- END error handling -->
-
                     <div class="col-lg-12 label">
+                        <div th:classappend="${#fields.hasErrors('terms')}? 'has-error':''">
+                            <p th:if="${#fields.hasErrors('terms')}" class="text-warning"
+                               th:text="${#fields.errors('terms')}">
+                            </p>
+                        </div>
                         <label for="terms">
                             <input id="terms"
                                    type="checkbox"

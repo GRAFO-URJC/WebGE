@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.List;
 
 @Service("diagramDataService")
 @Transactional
@@ -27,40 +26,27 @@ public class DiagramDataService {
     @Autowired
     private RunRepository runRepository;
 
-    public DiagramData getLastBestIndividual(Run runId){
+    public DiagramData getLastBestIndividual(Run runId) {
         return diagramRepository.findByRunId(runId);
     }
 
-    public DiagramData findByRunId(Run runId){
+    public DiagramData findByRunId(Run runId) {
         return diagramRepository.findByRunId(runId);
     }
 
-    public DiagramData saveDiagram(DiagramData diagramData) {
-        return diagramRepository.save(diagramData);
+    public void saveDiagram(DiagramData diagramData) {
+        diagramRepository.save(diagramData);
     }
 
-    public void saveRun(Run run){
+    public void saveRun(Run run) {
         runRepository.save(run);
-    }
-
-    public void saveDiagramPairList(List<DiagramPair> diagramPairList) {
-        for(DiagramPair dp : diagramPairList)
-        diagramPairRepository.save(dp);
     }
 
     public void saveDiagramPair(DiagramPair diagramPair) {
         diagramPairRepository.save(diagramPair);
     }
 
-    public void deleteDiagram(DiagramData diagramDataId){
+    public void deleteDiagram(DiagramData diagramDataId) {
         diagramRepository.delete(diagramDataId);
-    }
-
-    public void flushDiagramData() {
-        diagramRepository.flush();
-    }
-
-    public void flushDiagramPair() {
-        diagramPairRepository.flush();
     }
 }

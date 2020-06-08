@@ -1,24 +1,26 @@
 package com.gramevapp.web.model;
 
 import com.gramevapp.config.FieldMatch;
-import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @FieldMatch.List({
         @FieldMatch(first = "password",
-                second = "confirmPassword", message = "The password fields must match")
+                second = "confirmPassword", message = "The password fields must match"),
+        @FieldMatch(first = "confirmPassword",
+                second = "password", message = "The password fields must match")
 })
 
 public class UserUpdatePasswordDto {
-    @NotEmpty(message = "The old password is incorrect")
+    @NotNull(message = "The old password is incorrect")
     private String oldPassword;
 
-    @NotEmpty
+    @NotNull
     @Size(min = 6, max = 50, message = "Your new password must between 6 and 15 characters")
     private String password;
 
-    @NotEmpty
+    @NotNull
     @Size(min = 6, max = 50, message = "Your new password must between 6 and 15 characters")
     private String confirmPassword;
 

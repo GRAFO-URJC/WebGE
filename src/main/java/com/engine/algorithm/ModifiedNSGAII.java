@@ -1,8 +1,5 @@
 package com.engine.algorithm;
 
-import java.util.HashMap;
-import java.util.HashSet;
-
 import jeco.core.algorithm.moga.NSGAII;
 import jeco.core.operator.crossover.CrossoverOperator;
 import jeco.core.operator.mutation.MutationOperator;
@@ -11,6 +8,9 @@ import jeco.core.problem.Problem;
 import jeco.core.problem.Solution;
 import jeco.core.problem.Solutions;
 import jeco.core.problem.Variable;
+
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * NSGAII algorithm modified to provide the observer the current population.
@@ -55,7 +55,7 @@ public class ModifiedNSGAII extends NSGAII<Variable<Integer>> {
 
         Solutions<Variable<Integer>> sols = removeRepetitions(this.getCurrentSolution());
         Solutions<Variable<Integer>> finalSols = this.reduce(sols, 10);
-        
+
         // Report final front to plot:
         if (this.countObservers() > 0) {
             double[][] objs = generateObjectivesMatrix(finalSols);
@@ -64,7 +64,7 @@ public class ModifiedNSGAII extends NSGAII<Variable<Integer>> {
             this.setChanged();
             this.notifyObservers(obsData);
         }
-        
+
         return finalSols;
     }
 
@@ -83,7 +83,7 @@ public class ModifiedNSGAII extends NSGAII<Variable<Integer>> {
         return filteredSols;
     }
 
-    
+
     protected double[][] generateObjectivesMatrix(Solutions<Variable<Integer>> sols) {
         double[][] objs = new double[sols.size()][problem.getNumberOfObjectives()];
         for (int i = 0; i < sols.size(); i++) {

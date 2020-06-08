@@ -60,7 +60,7 @@
                                 <div th:classappend="${#fields.hasErrors('experimentName')}? 'has-error':'experimentName error'">
                                     <input type="text" class="form-control" id="experimentName" name="experimentName"
                                            th:value="${configuration.getExperimentName()}"
-                                           placeholder="Name of the experiment"/>
+                                           placeholder="Name of the experiment" required/>
                                 </div>
                             </div>
                         </div>
@@ -166,7 +166,7 @@
                             <div class="row form-group text-center">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
                                     <label for="tournament">Objective function:</label>
-                                    <select class="form-control" name="objective">
+                                    <select class="form-control" name="objective" id="objective">
                                         <option value="RMSE">Root Mean Squared Error (RMSE)</option>
                                         <!--<option value="CEG">Clarke Error Grid (CEG)</option>
                                         <option value="RMSECEG">Bi-objective: RMSE y CEG</option>
@@ -239,36 +239,23 @@
                             <div class="row form-group center-block">
                                 <div class="col-sm-12 col-md-12 col-lg-8">
                                     <input type="text" class="form-control" name="dataTypeName" id="dataTypeName"
-                                           th:value="${configuration.getDataTypeName()}"
                                            placeholder="Name of dataset"
                                            readonly/>
                                 </div>
                             </div>
                             <div class="row form-group">
-                                <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <div th:classappend="${#fields.hasErrors('dataTypeDescription')}? 'has-error':'dataTypeDescription error'">
-                                        <input type="text" class="form-control" name="dataTypeDescription"
-                                               id="dataTypeDescription"
-                                               th:value="${configuration.getDataTypeDescription()}"
-                                               placeholder="Description of the file" readonly/>
-                                    </div>
+                                <div class="col-sm-12 col-md-12 col-lg-12"><input type="text" class="form-control"
+                                                                                  name="dataTypeDescription"
+                                                                                  id="dataTypeDescription"
+                                                                                  placeholder="Description of the file"
+                                                                                  readonly/>
                                 </div>
                             </div>
 
-                            <!-- Data Type table to load -->
-                            <div style="display: none">
-                                <input type="hidden" th:name="defaultExpDataTypeId" th:id="defaultExpDataTypeId"
-                                       th:value="${configuration.getDefaultExpDataTypeId()}"/>
-                                <input class="hiddenRadio" type="radio" th:name="radioDataType"
-                                       th:id="radioDataTypeHidden"
-                                       checked="checked"/>
-                            </div>
-                            <!-- END Data Type table to load -->
-
                             <div class="row form-group text-center">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
-                                <textarea rows="5" class="form-control" th:text="${configuration.getinfo()}" name="info"
-                                          id="info" readonly/>
+                                <textarea rows="5" class="form-control" name="info"
+                                          id="info" readonly></textarea>
                                 </div>
                             </div>
                         </div>
@@ -281,7 +268,8 @@
 
                             <div class="row form-group center-block">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <select id="testDatasetId" name="testDatasetId" onchange="updateTestDatasetContent()">
+                                    <select id="testDatasetId" name="testDatasetId"
+                                            onchange="updateTestDatasetContent()">
                                         <option value="">Select a dataset ...</option>
                                         <option th:each="dataset,ite : ${datasetList}" th:value="${ite.index}"
                                                 th:text="${dataset.getDataTypeName() + ' - ' + dataset.getDataTypeDescription()}"
@@ -293,8 +281,8 @@
 
                             <div class="row form-group center-block">
                                 <div class="col-sm-12 col-md-12 col-lg-8">
-                                    <input type="text" class="form-control" name="testDataTypeName" id="testDataTypeName"
-                                           th:value="${configuration.getTestDataTypeName()}"
+                                    <input type="text" class="form-control" name="testDataTypeName"
+                                           id="testDataTypeName"
                                            placeholder="Name of dataset"
                                            readonly/>
                                 </div>
@@ -303,15 +291,14 @@
                                 <div class="col-sm-12 col-md-12 col-lg-12">
                                     <input type="text" class="form-control" name="testDataTypeDescription"
                                            id="testDataTypeDescription"
-                                           th:value="${configuration.getTestDataTypeDescription()}"
                                            placeholder="Description of the file" readonly/>
                                 </div>
                             </div>
 
                             <div class="row form-group text-center">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
-                                <textarea rows="5" class="form-control" th:text="${configuration.getTestInfo()}" name="testInfo"
-                                          id="testInfo" readonly/>
+                                <textarea rows="5" class="form-control" name="testInfo"
+                                          id="testInfo" readonly></textarea>
                                 </div>
                             </div>
                         </div>
@@ -325,7 +312,7 @@
                         <div class="row text-center">
                             <div class="col-sm-12 col-md-4 col-lg-4" style="margin-bottom:2px">
                                 <button type="submit" id="saveExperimentButton" name="saveExperimentButton"
-                                        onclick="saveOrRunButton=true;"
+                                        onclick="saveButton=true;"
                                         class="btn-primary btn-lg btn">Save experiment
                                 </button>
                             </div>
@@ -339,7 +326,7 @@
                             <div class="col-sm-12 col-md-4 col-lg-4">
                                 <button type="submit" id="runExperimentButton" name="runExperimentButton"
                                         class="btn-primary btn-lg btn"
-                                        onclick="saveOrRunButton=true;">Save and run experiment
+                                        onclick="runButton=true;">Save and run experiment
                                 </button>
                             </div>
                         </div>
@@ -354,7 +341,7 @@
 
     </div>
     <!-- RUN SECTION -->
-    <div class="container" th:if="${not #lists.isEmpty(runList)}">
+    <div class="container" th:if="${runList!=null && not #lists.isEmpty(runList)}">
         <div id="runForms" class="panel panel-default">
             <header class="panel-heading">
                 <h2>List of runs</h2>
@@ -395,19 +382,18 @@
                                                        th:text="${run.getStatus()}"/></td>
                                 <td scope="row"><label th:name="iniDate" th:id="iniDate"
                                                        th:text="${run.getIniDateFormated()}"/></td>
-                                <td scope="row"><label th:name="lastDate" th:id="lastDate"
+                                <td scope="row"><label th:name="lastDate" th:id="lastDate+${iterStat.index}"
                                                        th:text="${run.getModificationDateFormated()}"/></td>
                                 <td scope="row"><label th:name="model" th:id="model+${iterStat.index}"
                                                        th:text="${run.getModel()}"/></td>
                                 <td scope="row" th:id="'showPlot'+${iterStat.index}" class="">
                                     <a th:href="@{/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}"
-                                       target="_blank" class="btn-default btn-sm btn loadButton">Show plot
-                                        execution</a>
+                                       target="_blank" class="btn-default btn-sm btn loadButton">Plot</a>
                                 </td>
                                 <td scope="row" th:id="'showDelete'+${iterStat.index}">
                                     <a th:id="'showTestStats'+${iterStat.index}"
                                        th:href="@{/experiment/runList(runId=${run.getId()}, showTestStatsPlotButton='showTestStatsPlotButton')}"
-                                       target="_blank" class="btn-default btn-sm btn loadButton">Show stats</a>
+                                       target="_blank" class="btn-default btn-sm btn loadButton">Stats</a>
                                     <button type="button" th:name="${run.id}"
                                             th:id="${'deleteRun' + iterStat.index}"
                                             onclick="confirmDelete(this.id, this.name)"
@@ -432,6 +418,44 @@
     <script th:inline="javascript">
 
         let cloneButton = false;
+        let datasetListInfo = [];
+        let data = {};
+        let indexesShow = [];
+        let indexesHide = [];
+        let experimentInformation;
+        let runButton = false;
+        let saveButton = false;
+
+        $(document).ready(function () {
+            /*<![CDATA[*/
+            experimentInformation = [[${configuration}]];
+            /*]]>*/
+
+            saveDatasetInfo();
+            updateGrammarContent();
+            updateDatasetContent()
+            updateTestDatasetContent()
+
+            $('[name="status"]').each(function (index) {
+                if (($(this).text() == "FINISHED") || ($(this).text() == "STOPPED") || ($(this).text() == "FAILED")) {
+                    indexesShow[index] = index;
+                }
+                if (($(this).text() == "RUNNING") || ($(this).text() == "INITIALIZING") || ($(this).text() == "WAITING")) {
+                    indexesHide[index] = index;
+                    showRunStatus("runExperimentButton" + index);
+                }
+            });
+
+            indexesShow.forEach(function (element, index) {
+                $("#runExperimentButton" + indexesShow[index]).removeClass("hidden");
+                $("#showDelete" + indexesShow[index]).removeClass("hidden");
+            });
+
+            indexesHide.forEach(function (element, index) {
+                $("#showDelete" + indexesHide[index]).addClass("hidden");
+                $("#runExperimentButton" + indexesShow[index]).addClass("hidden");
+            });
+        });
 
         // Updates the content of the textarea including the text of the selected grammar.
         function updateGrammarContent() {
@@ -463,11 +487,9 @@
                 $('#testDataTypeName').val("");
                 $('#testDataTypeDescription').val("");
                 $('#testInfo').val("");
+                $('#testExperimentDataTypeId').val("");
             }
         }
-
-        let datasetListInfo = [];
-        let data = {};
 
         function saveDatasetInfo() {
             /*<![CDATA[*/
@@ -476,7 +498,7 @@
             data.idDataset =/*[[${dataset.getId()}]]*/;
             data.dataTypeName =/*[[${dataset.getDataTypeName()}]]*/;
             data.dataTypeDescription =/*[[${dataset.getDataTypeDescription()}]]*/;
-            data.info =/*[[${dataset.getinfo()}]]*/;
+            data.info =/*[[${dataset.getInfo()}]]*/;
             datasetListInfo.push(data);
             /*[/]*/
             /*]]>*/
@@ -487,15 +509,6 @@
             document.body.removeChild(event.target);
         }
 
-        function check(iterStat) {
-            var cleanIterStat = iterStat.substring("radioDataType".length, iterStat.length);
-
-            if (document.getElementById('radioDataType' + cleanIterStat).checked) {
-                $("#radioDataTypeHidden").remove();
-            }
-        }
-
-        // <![CDATA[
         function checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat) {
             $.ajax({
                 url: encodeURI("/rest/runStatus/"),
@@ -511,13 +524,14 @@
                     let statusStr = data['status'];
                     let bestIndividualStr = data['bestIndividual'];
                     let currentGenerationStr = data['currentGeneration'];
-                    let modelStr = data['model'] == "" ? "Waiting for finish" : data['model'];
-
+                    let lastDate =  data['modificationDateFormated'];
+                    let modelStr = data['model'] === "" ? "Waiting for finish" : data['model'];
 
                     $(status).text(statusStr);
                     $(bestIndividual).text(bestIndividualStr);
                     $(currentGeneration).text(currentGenerationStr);
                     $(model).text(modelStr);
+                    $('#lastDate'+iterStat).text(lastDate);
                 },
                 complete: function (data) {
                     let runId = $("#runId" + iterStat);
@@ -536,13 +550,15 @@
                     if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED")) {
                         $("#showDelete" + iterStat).removeClass("hidden");
                         $("#runExperimentButton" + iterStat).removeClass("hidden");
-
+                        if ($(model).text() === "Waiting for finish") {
+                            setTimeout(function () {
+                                checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat);
+                            }, 1000);
+                        }
                     }
                 }
             });
         };
-
-        // ]]>
 
         function showRunStatus(iterStat) {
             let cleanIterStat = iterStat.substring("runExperimentButton".length, iterStat.length);
@@ -559,45 +575,14 @@
             }, 1000);
         }
 
-        var indexesShow = [];
-        var indexesHide = [];
-
-        $(document).ready(function () {
-
-            saveDatasetInfo();
-            updateGrammarContent();
-            updateDatasetContent()
-            updateTestDatasetContent()
-
-            $('[name="status"]').each(function (index) {
-                if (($(this).text() == "FINISHED") || ($(this).text() == "STOPPED") || ($(this).text() == "FAILED")) {
-                    indexesShow[index] = index;
-                }
-                if (($(this).text() == "RUNNING") || ($(this).text() == "INITIALIZING") || ($(this).text() == "WAITING")) {
-                    indexesHide[index] = index;
-                    showRunStatus("runExperimentButton" + index);
-                }
-            });
-
-            indexesShow.forEach(function (element, index) {
-                $("#runExperimentButton" + indexesShow[index]).removeClass("hidden");
-                $("#showDelete" + indexesShow[index]).removeClass("hidden");
-            });
-
-            indexesHide.forEach(function (element, index) {
-                $("#showDelete" + indexesHide[index]).addClass("hidden");
-                $("#runExperimentButton" + indexesShow[index]).addClass("hidden");
-            });
-        });
-
         function confirmDelete(iterStat, runId) {
-            var result = confirm("Are you sure to delete this run ?");
+            let result = confirm("Are you sure to delete this run ?");
             if (result)
                 deleteRow(iterStat, runId);
         }
 
         function deleteRow(iterStat, runId) {
-            var cleanIterStat = iterStat.substring("deleteRun".length, iterStat.length);
+            let cleanIterStat = iterStat.substring("deleteRun".length, iterStat.length);
 
             $.ajax({
                 url: encodeURI("/experiment/expRepoSelected"),
@@ -614,83 +599,48 @@
                     $("#trAux" + cleanIterStat).remove();
                 }
             });
-        };
-
-
-        //https://stackoverflow.com/questions/4492385/how-to-convert-simple-array-into-two-
-        // dimensional-array-matrix-with-javascript/39838921
-        function listToMatrix(list, elementsPerSubArray) {
-            var matrix = [], i, k;
-
-            for (i = 0, k = -1; i < list.length; i++) {
-                if (i % elementsPerSubArray === 0) {
-                    k++;
-                    matrix[k] = [];
-                }
-
-                matrix[k].push(list[i]);
-            }
-
-            return matrix;
-        }
-
-        //https://dev.to/asfo/exportando-un-json-a-csv-con-javascript-2246
-        //change things for customize
-        function convertToCSV(objArray) {
-            const array = typeof objArray != "object" ? JSON.parse(objArray) : objArray;
-            let str = "";
-
-            for (let i = 0; i < array.length; i++) {
-                let line = "";
-                for (let index in array[i]) {
-                    if (line != "") line += ";  ";
-
-                    line += array[i][index];
-                }
-
-                str += line + "\r\n";
-            }
-
-            return str;
-        }
-
-        function exportCSVFile(items, fileName) {
-
-            const jsonObject = JSON.stringify(items);
-
-            const csv = convertToCSV(jsonObject);
-
-            const exportName = fileName + ".csv" || "export.csv";
-
-            const blob = new Blob([csv], {type: "text/csv;charset=utf-8;"});
-            if (navigator.msSaveBlob) {
-                navigator.msSaveBlob(blob, exportName);
-            } else {
-                const link = document.createElement("a");
-                if (link.download !== undefined) {
-                    const url = URL.createObjectURL(blob);
-                    link.setAttribute("href", url);
-                    link.setAttribute("download", exportName);
-                    link.style.visibility = "hidden";
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                }
-            }
         }
 
         function checkDeletePreviousRun() {
-            if (document.getElementById("runForms") && !cloneButton) {
-                return confirm('Do you really want to save/run it? This will delete the previous runs...');
+            if (document.getElementById("runForms") && !cloneButton && !(saveButton && checkExperimentInformationEqual())) {
+                return confirm('Do you really want to run it? This will delete the previous runs...');
             } else {
                 return true;
             }
         }
 
-        let saveOrRunButton = false;
+        function checkExperimentInformationEqual() {
+            let experimentName = $('#experimentName').val();
+            let experimentDescription = $('#experimentDescription').val();
+            let generations = $('#generations').val();
+            let crossoverProb = $('#crossoverProb').val();
+            let populationSize = $('#populationSize').val();
+            let mutationProb = $('#mutationProb').val();
+            let maxWraps = $('#maxWraps').val();
+            let numCodons = $('#numCodons').val();
+            let tournament = $('#tournament').val();
+            let numberRuns = $('#numberRuns').val();
+            let objective = $('#objective').val();
+            let grammarId = $('#grammarId').val();
+            let datasetId = $('#experimentDataTypeId').val();
+            return (experimentInformation['experimentName'] === experimentName &&
+                experimentInformation['experimentDescription'] === experimentDescription &&
+                experimentInformation['generations'] == generations &&
+                experimentInformation['crossoverProb'] == crossoverProb &&
+                experimentInformation['populationSize'] == populationSize &&
+                experimentInformation['mutationProb'] == mutationProb &&
+                experimentInformation['maxWraps'] == maxWraps &&
+                experimentInformation['numCodons'] == numCodons &&
+                experimentInformation['tournament'] == tournament &&
+                experimentInformation['numberRuns'] == numberRuns &&
+                experimentInformation['objective'] === objective &&
+                experimentInformation['defaultGrammarId'] == grammarId &&
+                experimentInformation['defaultExpDataTypeId'] == datasetId);
+        }
+
 
         window.onbeforeunload = function (e) {
-            if (document.getElementById("cloneMessage") && !saveOrRunButton) {
+            if (document.getElementById("cloneMessage") && !runButton && !saveButton) {
                 e = e || window.event;
 
                 // For IE and Firefox prior to version 4

@@ -5,14 +5,16 @@ import com.gramevapp.web.other.DateFormat;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.Calendar;
-import java.util.Date;
+import java.sql.Date;
+import java.util.Objects;
 
 @Entity
 @Table(name = "run")
 @DynamicUpdate
 public class Run {
-    public enum Status {INITIALIZING, WAITING, RUNNING, STOPPED, FINISHED, FAILED;}
+    public enum Status {INITIALIZING, WAITING, RUNNING, STOPPED, FINISHED, FAILED}
 
 
     @Id
@@ -57,13 +59,11 @@ public class Run {
     @Column(name = "EXPERIMENT_DESCRIPTION")
     private String experimentDescription;
 
-    @Column(name = "iniDate")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date iniDate;
+    @Column(name = "ini_date")
+    private Timestamp iniDate;
 
-    @Column(name = "modificationDate")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date modificationDate;
+    @Column(name = "modification_date")
+    private Timestamp modificationDate;
 
     @Column
     private Long defaultGrammarId;
@@ -102,54 +102,7 @@ public class Run {
             fetch = FetchType.LAZY)
     private RunExecutionReport RunExecutionReport;
 
-    public Run(Run run) {
-        this(run.getExperimentId(), run.getDiagramData(), run.getBestIndividual(), run.getCurrentGeneration(), run.getIdProperties(), run.getStatus(), run.getIniDate(), run.getModificationDate(), run.getExperimentName(), run.getExperimentDescription(), run.getDefaultRunId(), run.getGenerations(), run.getPopulationSize(), run.getMaxWraps(), run.getTournament(), run.getCrossoverProb(), run.getMutationProb(), run.getInitialization(), run.getObjective(), run.getResults(), run.getNumCodons(), run.getNumberRuns());
-    }
-
-    public Run(Experiment experimentId, DiagramData diagramData, Double bestIndividual, Integer currentGeneration, Long idProperties, Status status, Date iniDate, Date modificationDate, String experimentName, String experimentDescription, Long defaultRunId, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String objective, String results, Integer numCodons, Integer numberRuns) {
-        this.experimentId = experimentId;
-        this.diagramData = diagramData;
-        this.bestIndividual = bestIndividual;
-        this.currentGeneration = currentGeneration;
-        this.idProperties = idProperties;
-        this.status = status;
-        this.iniDate = iniDate;
-        this.modificationDate = modificationDate;
-        this.experimentName = experimentName;
-        this.experimentDescription = experimentDescription;
-        this.defaultRunId = defaultRunId;
-        this.generations = generations;
-        this.populationSize = populationSize;
-        this.maxWraps = maxWraps;
-        this.tournament = tournament;
-        this.crossoverProb = crossoverProb;
-        this.mutationProb = mutationProb;
-        this.initialization = initialization;
-        this.objective = objective;
-        this.results = results;
-        this.numCodons = numCodons;
-        this.numberRuns = numberRuns;
-    }
-
     public Run() {
-    }
-
-    public Run(Status status) {
-        // DATE TIMESTAMP
-        Calendar calendar = Calendar.getInstance();
-        java.sql.Date currentTimestamp = new java.sql.Date(calendar.getTime().getTime());
-
-        this.iniDate = currentTimestamp;
-        this.modificationDate = currentTimestamp;
-        this.status = status;
-    }
-
-    public Run(Status status, String experimentName, String experimentDescription, Date iniDate, Date modificationDate) {
-        this.experimentName = experimentName;
-        this.experimentDescription = experimentDescription;
-        this.status = status;
-        this.iniDate = iniDate;
-        this.modificationDate = modificationDate;
     }
 
     public Long getId() {
@@ -180,10 +133,10 @@ public class Run {
     }
 
     private boolean sameAs(Experiment newExperiment) {
-        return this.experimentId == null ? newExperiment == null : experimentId.equals(newExperiment);
+        return Objects.equals(experimentId, newExperiment);
     }
 
-    public Date getIniDate() {
+    public Timestamp getIniDate() {
         return iniDate;
     }
 
@@ -196,7 +149,7 @@ public class Run {
     }
 
 
-    public void setIniDate(Date iniDate) {
+    public void setIniDate(Timestamp iniDate) {
         this.iniDate = iniDate;
     }
 
@@ -208,11 +161,11 @@ public class Run {
         this.status = status;
     }
 
-    public Date getModificationDate() {
+    public Timestamp getModificationDate() {
         return modificationDate;
     }
 
-    public void setModificationDate(Date modificationDate) {
+    public void setModificationDate(Timestamp modificationDate) {
         this.modificationDate = modificationDate;
     }
 
@@ -382,25 +335,6 @@ public class Run {
 
     public void setThreaId(Long threaId) {
         this.threaId = threaId;
-    }
-
-    public void updateRun(Long grammar, Long expDataType, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date modificationDate) {
-        this.defaultExpDataTypeId = expDataType;
-        this.defaultGrammarId = grammar;
-        this.experimentName = experimentName;
-        this.experimentDescription = experimentDescription;
-        this.generations = generations;
-        this.populationSize = populationSize;
-        this.maxWraps = maxWraps;
-        this.tournament = tournament;
-        this.crossoverProb = crossoverProb;
-        this.mutationProb = mutationProb;
-        this.initialization = initialization;
-        this.results = results;
-        this.numCodons = numCodons;
-        this.numberRuns = numberRuns;
-        this.modificationDate = modificationDate;
-        this.objective = objective;
     }
 
     public String getModel() {

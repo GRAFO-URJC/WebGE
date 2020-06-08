@@ -1,6 +1,5 @@
 package com.gramevapp.web.restController;
 
-import com.gramevapp.web.controller.ExperimentController;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;
@@ -24,7 +23,7 @@ public class RunRestController {
     public @ResponseBody
     Run getRunStatus(String runId, String status) {
 
-        if (runId == "")
+        if (runId.equals(""))
             return null;
 
         Run run = runService.findByRunId(Long.parseLong(runId));
@@ -35,16 +34,13 @@ public class RunRestController {
             if (run.getDiagramData().getBestIndividual() <= 0.0) {
                 run.setBestIndividual(0.0);
             }
-            run.setModel(ExperimentController.getRunnables().get(run.getThreaId()).getModel());
             this.setStatus(run, Run.Status.FINISHED);
         }
 
         if (run.getDiagramData().getStopped()) {
-            run.setModel(ExperimentController.getRunnables().get(run.getThreaId()).getModel());
             this.setStatus(run, Run.Status.STOPPED);
         }
         if (run.getDiagramData().getFailed()) {
-            run.setModel(ExperimentController.getRunnables().get(run.getThreaId()).getModel());
             this.setStatus(run, Run.Status.FAILED);
         }
 

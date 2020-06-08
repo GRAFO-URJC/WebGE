@@ -1,15 +1,16 @@
 package com.gramevapp.web.model;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
 public class FileModelDto {
 
-    @NotEmpty
+    @NotNull
+    @Size(min = 1)
     MultipartFile typeFile = new MultipartFile() {
         @Override
         public String getName() {
@@ -37,17 +38,17 @@ public class FileModelDto {
         }
 
         @Override
-        public byte[] getBytes() throws IOException {
+        public byte[] getBytes() {
             return new byte[0];
         }
 
         @Override
-        public InputStream getInputStream() throws IOException {
+        public InputStream getInputStream() {
             return null;
         }
 
         @Override
-        public void transferTo(File file) throws IOException, IllegalStateException {
+        public void transferTo(File file) throws IllegalStateException {
 
         }
     };

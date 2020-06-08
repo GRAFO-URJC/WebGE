@@ -6,12 +6,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.io.IOException;
-
 @Controller
 public class HomeController {
     @GetMapping("/")
-    public String root() throws IOException {
+    public String root() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         // https://stackoverflow.com/questions/26101738/why-is-the-anonymoususer-authenticated-in-spring-security
