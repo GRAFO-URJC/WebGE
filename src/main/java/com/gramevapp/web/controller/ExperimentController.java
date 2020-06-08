@@ -227,7 +227,7 @@ public class ExperimentController {
         List<ExperimentDataType> expDataTypeList = run.getExperimentId().getIdExpDataTypeList();
 
         ConfigExperimentDto configExpDto = fillConfigExpDto(new ConfigExperimentDto(),
-                run.getExperimentId(), run, grammar, expDataType);
+                run.getExperimentId(), run, grammar);
 
         model.addAttribute("configuration", configExpDto);
         model.addAttribute("runList", runList);
@@ -285,6 +285,7 @@ public class ExperimentController {
 
         if (configExpDto.getId() != null) {
             exp = experimentService.findExperimentById(configExpDto.getId());
+            fillConfigExpDto(configExpDto, exp, null, updGrammar);
             // check if only test was changed
             boolean sameExp = exp.getExperimentName().equals(configExpDto.getExperimentName()) &&
                     exp.getExperimentDescription().equals(configExpDto.getExperimentDescription()) &&
@@ -299,7 +300,11 @@ public class ExperimentController {
                     exp.getDefaultGrammar().equals(Long.valueOf(grammarId)) &&
                     exp.getDefaultExpDataType().equals(Long.valueOf(experimentDataTypeId));
             if (sameExp) {
-                exp.setDefaultTestExpDataTypeId(Long.valueOf(testExperimentDataTypeId));
+                if (!testExperimentDataTypeId.equals("")) {
+                    exp.setDefaultTestExpDataTypeId(Long.valueOf(testExperimentDataTypeId));
+                } else {
+                    exp.setDefaultTestExpDataTypeId(null);
+                }
                 experimentService.saveExperiment(exp);
                 modelAddData(model, user, grammarRepository.findGrammarById(Long.valueOf(grammarId)),
                         experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
@@ -423,12 +428,11 @@ public class ExperimentController {
         Experiment exp = experimentService.findExperimentByUserIdAndExpId(user, Long.parseLong(id));
 
         Grammar grammar = experimentService.findGrammarById(exp.getDefaultGrammar());
-        ExperimentDataType expDataType = experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType());
         List<Run> runList = exp.getIdRunList();
 
         ConfigExperimentDto configExpDto = fillConfigExpDto(new ConfigExperimentDto(), exp,
                 exp.getIdRunList().isEmpty() ? null : runService.findByRunId(exp.getDefaultRunId()),
-                grammar, expDataType);
+                grammar);
 
         modelAddData(model, user, grammar, experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()),
                 exp.getIdExpDataTypeList(), exp.getDefaultTestExpDataTypeId());
@@ -618,7 +622,7 @@ public class ExperimentController {
         properties.load(propertiesReader);
         properties.setProperty(TRAINING_PATH_PROP, prop.getTrainingPath());
         RunnableExpGramEv obj = new RunnableExpGramEv(properties, diagramData, run,
-                experimentService.findExperimentDataTypeById(run.getDefaultExpDataTypeId()),runService);
+                experimentService.findExperimentDataTypeById(run.getDefaultExpDataTypeId()), runService);
         Thread.UncaughtExceptionHandler h = (th, ex) -> {
             run.setStatus(Run.Status.FAILED);
             run.getDiagramData().setFailed(true);
@@ -935,7 +939,7 @@ public class ExperimentController {
         return longRunId;
     }
 
-    public ConfigExperimentDto fillConfigExpDto(ConfigExperimentDto configExpDto, Experiment exp, Run run, Grammar grammar, ExperimentDataType expDataType) {
+    public ConfigExperimentDto fillConfigExpDto(ConfigExperimentDto configExpDto, Experiment exp, Run run, Grammar grammar) {
         if (run == null) {
             configExpDto.setDefaultRunId(exp.getDefaultRunId());
             setConfigExpDtoWIthExperiment(configExpDto, exp.getExperimentName(),
