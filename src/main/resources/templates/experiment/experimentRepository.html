@@ -59,7 +59,7 @@
                                                 experiment
                                             </button>
                                             <button type="button" th:name="${exp.id}"
-                                                    th:id="${'deleteExperiment' + iterStat.index}"
+                                                    th:id="${iterStat.index}"
                                                     onclick="confirmDelete(this.id, this.name)"
                                                     class="btn-default btn btn-sm"
                                                     rel="tooltip"
@@ -131,7 +131,7 @@
                                                 <tbody>
 
                                                 <th:block th:each="run, iterStat : ${exp.getIdRunList()}">
-                                                    <tr th:id="'tr' + ${iterStat.index}">
+                                                    <tr>
                                                         <td scope="row"><label th:text="${run.getId()}"
                                                                                th:id="'runId'+${iterStat.index}"/></td>
                                                         <td scope="row"><label th:name="runName" th:id="runName"
@@ -211,14 +211,13 @@
         });
 
         function confirmDelete(iterStat, expId) {
-            var result = confirm("Are you sure to delete this experiment ?");
+            let result = confirm("Are you sure to delete this experiment ?");
             if (result)
                 deleteRow(iterStat, expId);
         }
 
 
         function deleteRow(iterStat, expId) {
-            var cleanIterStat = iterStat.substring("deleteExperiment".length, iterStat.length);   // Dará error, si hay listado con mas de 9 obj, no pillará el id de 10, pq sólo mira hasta el último
 
             $.ajax({
                 url: encodeURI("/experiment/expRepoSelected"),
@@ -230,9 +229,9 @@
                 async: true,
                 type: "POST",
                 dataType: "json",
-                success: function (data) {
-                    $("#tr" + cleanIterStat).remove();
-                    $("#trAux" + cleanIterStat).remove();
+                success: function () {
+                    $("#tr" + iterStat).remove();
+                    $("#trAux" + iterStat).remove();
                 }
             });
         };
