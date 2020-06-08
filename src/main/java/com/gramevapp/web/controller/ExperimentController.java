@@ -991,11 +991,10 @@ public class ExperimentController {
 
                     if (matcher.find()) {
                         //j.c.algorithm.ga.SimpleGeneticAlgorithm
-                        infoFormated += matcher.group() + "\r\n";
+                        infoFormated += matcher.group()+"\r\n";
                     } else {
                         //c.engine.algorithm.SymbolicRegressionGE
                         infoFormated += logInfo.substring(logInfo.indexOf(messageSkip) + messageSkip.length());
-
                     }
                     pattern =
                             Pattern.compile("Thread-[0-9]+");
@@ -1006,7 +1005,7 @@ public class ExperimentController {
                         if (runExecutionReport.getExecutionReport() == null) {
                             runExecutionReport.setExecutionReport("");
                         }
-                        runExecutionReport.setExecutionReport(runExecutionReport.getExecutionReport() + "\n" + infoFormated);
+                        runExecutionReport.setExecutionReport(runExecutionReport.getExecutionReport() + infoFormated);
                         runService.saveRunExecutionReport(runExecutionReport);
                     }
 
