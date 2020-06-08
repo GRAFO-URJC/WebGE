@@ -27,7 +27,7 @@ public class ExperimentService {
     @Autowired
     private PropertiesRepository propertiesRepository;
 
-    public void saveDataType(ExperimentDataType expDataType) {
+    public void saveDataType(Dataset expDataType) {
         experimentDataTypeRepository.save(expDataType);
     }
 
@@ -47,8 +47,8 @@ public class ExperimentService {
         return grammarRepository.findGrammarById(grammarId);
     }
 
-    public ExperimentDataType findDataTypeById(Long dataTypeId) {
-        Optional<ExperimentDataType> check = experimentDataTypeRepository.findById(dataTypeId);
+    public Dataset findDataTypeById(Long dataTypeId) {
+        Optional<Dataset> check = experimentDataTypeRepository.findById(dataTypeId);
         return check.orElse(null);
     }
 
@@ -57,8 +57,8 @@ public class ExperimentService {
         return check.orElse(null);
     }
 
-    public ExperimentDataType findExperimentDataTypeById(Long id) {
-        Optional<ExperimentDataType> check = experimentDataTypeRepository.findById(id);
+    public Dataset findExperimentDataTypeById(Long id) {
+        Optional<Dataset> check = experimentDataTypeRepository.findById(id);
         return check.orElse(null);
     }
 
@@ -75,7 +75,7 @@ public class ExperimentService {
         return propertiesRepository.save(expProperties);
     }
 
-    public List<ExperimentDataType> findAllExperimentDataTypeByUserId(Long userId) {
+    public List<Dataset> findAllExperimentDataTypeByUserId(Long userId) {
         return experimentDataTypeRepository.findAllByUserIdUserId(userId);
     }
 
