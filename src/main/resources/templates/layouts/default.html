@@ -66,7 +66,7 @@
                             class="glyphicon glyphicon-th-list"></span></a></li>
                     <li><a th:href="@{/user/profile}" rel="tooltip" title="User profile"><span th:text="${
                     session.userDetails!=null?
-                    session.userDetails.getFirstName()+
+                    '   '+session.userDetails.getFirstName()+
                     ' '+session.userDetails.getLastName():''}"
                             class="glyphicon glyphicon-user">
                     </span>
