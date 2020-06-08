@@ -142,7 +142,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         Evaluator evaluatorForFunction = new Evaluator();
 
         String replacePart;
-        for (int i = (content.length-1); i > 0; i--) {
+        for (int i = (content.length - 1); i > 0; i--) {
             replacePart = "X" + i;
             newFunction = newFunction.replaceAll(replacePart, content[i]);
         }
@@ -285,6 +285,15 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         }
         Run newRun = runService.findByRunId(run.getId());
         newRun.setModel(this.getModel());
+        Run.Status status = null;
+        if(run.getDiagramData().getFinished()){
+            status=Run.Status.FINISHED;
+        }else if(run.getDiagramData().getFailed()){
+            status=Run.Status.FAILED;
+        }else if(run.getDiagramData().getStopped()){
+            status=Run.Status.STOPPED;
+        }
+        newRun.setStatus(status);
         runService.saveRun(newRun);
 
     }
