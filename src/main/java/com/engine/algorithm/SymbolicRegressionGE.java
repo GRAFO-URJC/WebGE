@@ -25,10 +25,10 @@ import net.sourceforge.jeval.Evaluator;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.util.*;
+import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -283,6 +283,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             logger.info(s);
             executionReport.add(s);
         }
+        obs.getLock().lock();
         Run newRun = runService.findByRunId(run.getId());
         newRun.setModel(this.getModel());
         Run.Status status = null;
@@ -294,7 +295,9 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             status=Run.Status.STOPPED;
         }
         newRun.setStatus(status);
+        newRun.setModificationDate(new Timestamp(System.currentTimeMillis()));
         runService.saveRun(newRun);
+        obs.getLock().lock();
 
     }
 

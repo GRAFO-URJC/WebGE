@@ -12,8 +12,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
+import java.sql.Date;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 
@@ -48,27 +50,29 @@ public class DataSetController {
         for (Dataset experimentDataType : datasetList) {
             disabled.add(experimentDataTypeListInUse.contains(experimentDataType));
             StringBuilder stringBuilder = new StringBuilder();
-            String info = experimentDataType.getinfo();
+            String info = experimentDataType.getInfo();
             List<String> currentDataset = new ArrayList<>();
-            int maxSize = info.split("\\n").length / 35;
-            if (maxSize == 0) {
-                maxSize = 12;
-            }
-            int count = 0;
-            for (int i = 0; i < info.length(); i++) {
-                if (info.charAt(i) == '\n') {
-                    count++;
-                } else {
-                    stringBuilder.append(info.charAt(i));
+            if (info != null && !info.equals("")) {
+                int maxSize = info.split("\\n").length / 35;
+                if (maxSize == 0) {
+                    maxSize = 12;
                 }
-                if (count == maxSize) {
+                int count = 0;
+                for (int i = 0; i < info.length(); i++) {
+                    if (info.charAt(i) == '\n') {
+                        count++;
+                    } else {
+                        stringBuilder.append(info.charAt(i));
+                    }
+                    if (count == maxSize) {
+                        currentDataset.add(stringBuilder.toString());
+                        count = 0;
+                        stringBuilder = new StringBuilder();
+                    }
+                }
+                if (count != 0 && !stringBuilder.toString().equals("\r") && !stringBuilder.toString().equals("\n")) {
                     currentDataset.add(stringBuilder.toString());
-                    count = 0;
-                    stringBuilder = new StringBuilder();
                 }
-            }
-            if (count != 0 && !stringBuilder.toString().equals("\r") && !stringBuilder.toString().equals("\n")) {
-                currentDataset.add(stringBuilder.toString());
             }
             datasetInformation.add(currentDataset);
         }
@@ -90,9 +94,9 @@ public class DataSetController {
     }
 
     @RequestMapping(value = "/dataset/saveDataset", method = RequestMethod.POST)
-    public String saveGrammar(Model model, @ModelAttribute("experimentDataType") @Valid Dataset experimentDataType) {
+    public String saveDataset(Model model, @ModelAttribute("experimentDataType") @Valid Dataset experimentDataType) {
         experimentDataType.setDataTypeType("training");
-        experimentDataType.setCreationDate(new Date(System.currentTimeMillis()));
+        experimentDataType.setCreationDate(new Timestamp(System.currentTimeMillis()));
         experimentDataType.setUserIdUserId(userService.getLoggedInUser().getId());
         experimentService.saveDataType(experimentDataType);
         return datasetList(model);

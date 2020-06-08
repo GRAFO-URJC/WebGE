@@ -4,7 +4,8 @@ import com.gramevapp.web.other.DateFormat;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.sql.Date;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "grammar")
@@ -23,8 +24,7 @@ public class Grammar {
     private String grammarDescription;
 
     @Column(name = "creation_date")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date creationDate = null;
+    private Timestamp creationDate = null;
 
     @Column(columnDefinition = "TEXT")
     // https://stackoverflow.com/questions/31833337/hibernate-could-not-execute-statement-sql-n-a-saving-nested-object
@@ -33,7 +33,7 @@ public class Grammar {
     @Column(name = "user_id")
     private Long userId;
 
-    public Date getCreationDate() {
+    public Timestamp getCreationDate() {
         return creationDate;
     }
 
@@ -72,7 +72,7 @@ public class Grammar {
         this.fileText = fileText;
     }
 
-    public void setCreationDate(Date creationDate) {
+    public void setCreationDate(Timestamp creationDate) {
         this.creationDate = creationDate;
     }
 

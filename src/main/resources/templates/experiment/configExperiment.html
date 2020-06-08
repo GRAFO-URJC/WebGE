@@ -382,7 +382,7 @@
                                                        th:text="${run.getStatus()}"/></td>
                                 <td scope="row"><label th:name="iniDate" th:id="iniDate"
                                                        th:text="${run.getIniDateFormated()}"/></td>
-                                <td scope="row"><label th:name="lastDate" th:id="lastDate"
+                                <td scope="row"><label th:name="lastDate" th:id="lastDate+${iterStat.index}"
                                                        th:text="${run.getModificationDateFormated()}"/></td>
                                 <td scope="row"><label th:name="model" th:id="model+${iterStat.index}"
                                                        th:text="${run.getModel()}"/></td>
@@ -499,7 +499,7 @@
             data.idDataset =/*[[${dataset.getId()}]]*/;
             data.dataTypeName =/*[[${dataset.getDataTypeName()}]]*/;
             data.dataTypeDescription =/*[[${dataset.getDataTypeDescription()}]]*/;
-            data.info =/*[[${dataset.getinfo()}]]*/;
+            data.info =/*[[${dataset.getInfo()}]]*/;
             datasetListInfo.push(data);
             /*[/]*/
             /*]]>*/
@@ -525,13 +525,14 @@
                     let statusStr = data['status'];
                     let bestIndividualStr = data['bestIndividual'];
                     let currentGenerationStr = data['currentGeneration'];
+                    let lastDate =  data['modificationDateFormated'];
                     let modelStr = data['model'] === "" ? "Waiting for finish" : data['model'];
-
 
                     $(status).text(statusStr);
                     $(bestIndividual).text(bestIndividualStr);
                     $(currentGeneration).text(currentGenerationStr);
                     $(model).text(modelStr);
+                    $('#lastDate'+iterStat).text(lastDate);
                 },
                 complete: function (data) {
                     let runId = $("#runId" + iterStat);

@@ -9,8 +9,9 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.context.ApplicationContext;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 
 @Entity
@@ -111,12 +112,10 @@ public class Experiment {
     private Integer numberRuns = 1;
 
     @Column(name = "creation_date")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date creationDate = null;
+    private Timestamp creationDate = null;
 
     @Column(name = "update_date")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date modificationDate = null;
+    private Timestamp modificationDate = null;
 
     public Experiment() {
         this.idExpDataTypeList = new ArrayList<>();
@@ -132,7 +131,10 @@ public class Experiment {
         this.idRunList = idRunList;
     }
 
-    public Experiment(User userId, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date creationDate, Date modificationDate) {
+    public Experiment(User userId, String experimentName, String experimentDescription, Integer generations, Integer populationSize,
+                      Integer maxWraps, Integer tournament, Double crossoverProb,
+                      Double mutationProb, String initialization, String results, Integer numCodons,
+                      Integer numberRuns, String objective, Timestamp creationDate, Timestamp modificationDate) {
         this.userId = userId;
         this.experimentName = experimentName;
         this.experimentDescription = experimentDescription;
@@ -152,28 +154,6 @@ public class Experiment {
         this.idGrammarList = new ArrayList<>();
         this.idRunList = new ArrayList<>();
 
-        this.modificationDate = modificationDate;
-        this.creationDate = creationDate;
-    }
-
-    public Experiment(User userId, String experimentName, String experimentDescription, List<Grammar> idGrammarList, List<Dataset> idExpDataTypeList, List<Run> idRunList, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date creationDate, Date modificationDate) {
-        this.userId = userId;
-        this.experimentName = experimentName;
-        this.experimentDescription = experimentDescription;
-        this.idGrammarList = idGrammarList;
-        this.idExpDataTypeList = idExpDataTypeList;
-        this.idRunList = idRunList;
-        this.generations = generations;
-        this.populationSize = populationSize;
-        this.maxWraps = maxWraps;
-        this.tournament = tournament;
-        this.crossoverProb = crossoverProb;
-        this.mutationProb = mutationProb;
-        this.initialization = initialization;
-        this.results = results;
-        this.numCodons = numCodons;
-        this.numberRuns = numberRuns;
-        this.objective = objective;
         this.modificationDate = modificationDate;
         this.creationDate = creationDate;
     }
@@ -381,19 +361,19 @@ public class Experiment {
         this.results = results;
     }
 
-    public Date getCreationDate() {
+    public Timestamp getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(Date creationDate) {
+    public void setCreationDate(Timestamp creationDate) {
         this.creationDate = creationDate;
     }
 
-    public Date getModificationDate() {
+    public Timestamp getModificationDate() {
         return modificationDate;
     }
 
-    public void setModificationDate(Date modificationDate) {
+    public void setModificationDate(Timestamp modificationDate) {
         this.modificationDate = modificationDate;
     }
 
@@ -403,25 +383,6 @@ public class Experiment {
 
     public void setDefaultRunId(Long defaultRunId) {
         this.defaultRunId = defaultRunId;
-    }
-
-    public void updateExperiment(Long grammar, Long expDataType, String experimentName, String experimentDescription, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double crossoverProb, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Date modificationDate) {
-        this.defaultExpDataType = expDataType;
-        this.defaultGrammar = grammar;
-        this.experimentName = experimentName;
-        this.experimentDescription = experimentDescription;
-        this.generations = generations;
-        this.populationSize = populationSize;
-        this.maxWraps = maxWraps;
-        this.tournament = tournament;
-        this.crossoverProb = crossoverProb;
-        this.mutationProb = mutationProb;
-        this.initialization = initialization;
-        this.results = results;
-        this.numCodons = numCodons;
-        this.numberRuns = numberRuns;
-        this.modificationDate = modificationDate;
-        this.objective = objective;
     }
 
     @Override

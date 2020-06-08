@@ -4,7 +4,8 @@ import com.gramevapp.web.other.DateFormat;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.sql.Date;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "dataset")
@@ -33,8 +34,7 @@ public class Dataset {
 
     // https://softwareyotrasdesvirtudes.com/2012/09/20/anotaciones-en-jpa-para-sobrevivir-a-una-primera-persistenica/
     @Column(name = "creation_date")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date creationDate = null;
+    private Timestamp creationDate = null;
 
     public Dataset() {
 
@@ -65,10 +65,6 @@ public class Dataset {
         this.dataTypeName = dataTypeName;
     }
 
-    public String getinfo() {
-        return info;
-    }
-
     public String getDataTypeDescription() {
         return dataTypeDescription;
     }
@@ -77,11 +73,11 @@ public class Dataset {
         this.dataTypeDescription = dataTypeDescription;
     }
 
-    public Date getCreationDate() {
+    public Timestamp getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(Date creationDate) {
+    public void setCreationDate(Timestamp creationDate) {
         this.creationDate = creationDate;
     }
 
@@ -97,4 +93,11 @@ public class Dataset {
         return DateFormat.formatDate(creationDate);
     }
 
+    public String getInfo() {
+        return info;
+    }
+
+    public void setInfo(String info) {
+        this.info = info;
+    }
 }
