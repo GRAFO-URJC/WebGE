@@ -1,12 +1,9 @@
 package com.gramevapp.web.model;
 
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.Date;
 
-public class ExperimentDataTypeDto {
+public class DatasetDto {
     public enum Type {validation, test, training}
 
     private Long dataTypeId;
@@ -23,11 +20,7 @@ public class ExperimentDataTypeDto {
     @Size(min = 1)
     private Type dataTypeType;        // Validation, test, training
 
-    // https://softwareyotrasdesvirtudes.com/2012/09/20/anotaciones-en-jpa-para-sobrevivir-a-una-primera-persistenica/
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date modificationDate = null;
-
-    public ExperimentDataTypeDto() {
+    public DatasetDto() {
     }
 
     public Type getDataTypeType() {
@@ -60,14 +53,6 @@ public class ExperimentDataTypeDto {
 
     public void setDataTypeDescription(String dataTypeDescription) {
         this.dataTypeDescription = dataTypeDescription;
-    }
-
-    public Date getModificationDate() {
-        return modificationDate;
-    }
-
-    public void setModificationDate(Date modificationDate) {
-        this.modificationDate = modificationDate;
     }
 
     public Long getDataTypeId() {

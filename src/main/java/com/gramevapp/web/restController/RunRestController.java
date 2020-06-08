@@ -1,6 +1,5 @@
 package com.gramevapp.web.restController;
 
-import com.gramevapp.web.controller.ExperimentController;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;
