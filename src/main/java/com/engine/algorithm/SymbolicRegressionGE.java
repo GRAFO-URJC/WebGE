@@ -142,7 +142,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         Evaluator evaluatorForFunction = new Evaluator();
 
         String replacePart;
-        for (int i = 1; i < content.length; i++) {
+        for (int i = (content.length-1); i > 0; i--) {
             replacePart = "X" + i;
             newFunction = newFunction.replaceAll(replacePart, content[i]);
         }
