@@ -4,7 +4,6 @@ import com.gramevapp.web.other.DateFormat;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
-import java.sql.Date;
 import java.sql.Timestamp;
 
 @Entity

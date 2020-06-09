@@ -6,8 +6,6 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.Calendar;
-import java.sql.Date;
 import java.util.Objects;
 
 @Entity
