@@ -50,14 +50,11 @@ public class ConfigExperimentDto {
     @Max(value = 100)
     @NotNull
     private Integer numberRuns = 1;
-    private Long defaultGrammarId;
     private Long defaultExpDataTypeId;
     private Long testDefaultExpDataTypeId;
-    private String grammarName;
-    private String grammarDescription;
     @NotNull(message = "Grammar area text cannot be empty")
     @Size(min = 1)
-    private String fileText; // This is the text on the file - That's written in an areaText - So we can take it as a String
+    private String grammar; // This is the text on the file - That's written in an areaText - So we can take it as a String
     private String dataTypeType = "training";   // Validation, test, training
 
     private Long diagramDataId;
@@ -90,14 +87,6 @@ public class ConfigExperimentDto {
 
     public void setDiagramDataId(Long diagramDataId) {
         this.diagramDataId = diagramDataId;
-    }
-
-    public Long getDefaultGrammarId() {
-        return defaultGrammarId;
-    }
-
-    public void setDefaultGrammarId(Long defaultGrammarId) {
-        this.defaultGrammarId = defaultGrammarId;
     }
 
     public Long getDefaultExpDataTypeId() {
@@ -221,31 +210,6 @@ public class ConfigExperimentDto {
     }
 
 
-    public String getGrammarName() {
-        return grammarName;
-    }
-
-    public void setGrammarName(String grammarName) {
-        this.grammarName = grammarName;
-    }
-
-    public String getGrammarDescription() {
-        return grammarDescription;
-    }
-
-    public void setGrammarDescription(String grammarDescription) {
-        this.grammarDescription = grammarDescription;
-    }
-
-    public String getFileText() {
-        return fileText;
-    }
-
-    public void setFileText(String fileText) {
-        this.fileText = fileText;
-    }
-
-
     public String getDataTypeType() {
         return dataTypeType;
     }
@@ -270,4 +234,11 @@ public class ConfigExperimentDto {
         this.testDefaultExpDataTypeId = testDefaultExpDataTypeId;
     }
 
+    public String getGrammar() {
+        return grammar;
+    }
+
+    public void setGrammar(String grammar) {
+        this.grammar = grammar;
+    }
 }
