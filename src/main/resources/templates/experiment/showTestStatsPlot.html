@@ -26,20 +26,88 @@
                         <h2>Run <span th:text="${'#'+index+' '}"></span>
                             <i><span th:text="${expDetails.getExperimentName()}"></span></i></h2>
                     </ul>
-                    <ul class="nav navbar-nav navbar-right">
-                        <li class="nav-item active" style="float: right">
-                            <a class="active nav-link" id="showTraining" data-toggle="tab" href="#trainingContent"
-                               role="tab" aria-controls="trainingContent" aria-selected="true"><h4>Training</h4></a>
-                        </li>
-                        <li class="nav-item" style="float: right">
-                            <a class="nav-link" id="showTest" data-toggle="tab" href="#testContent" role="tab"
-                               aria-controls="testContent" aria-selected="false"><h4>Test</h4></a>
-                        </li>
-                    </ul>
                 </div>
             </nav>
             <div class="tab-content">
+                <div id="details" style="margin-left: 20px;">
+                    <div class="row form-group text-left" style="margin-bottom: 0;">
+                        <div class="col-sm-6 col-md-6 col-lg-6">
+                            <h3>
+                                <label th:id="experimentName"
+                                       th:text="${expDetails.getExperimentName()+' RUN#'+index}"/>
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="row form-group text-left" style="margin-bottom: 0;">
+                        <div class="col-sm-1 col-md-1 col-lg-1">
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-6">
+                            <h3>
+                                <b>Model: </b><label th:id="runId" th:text="${model}"/>
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="row form-group text-left">
+                        <div class="col-sm-1 col-md-1 col-lg-1">
+                        </div>
+                        <div class="col-sm-11 col-md-11 col-lg-11">
+                            <h3>
+                                <label><b>Stats</b></label>
+                            </h3>
+                        </div>
+                        <div class="col-sm-2 col-md-2 col-lg-2">
+                        </div>
+                        <div class="col-sm-8 col-md-8 col-lg-8">
+                            <table class="table table-bordered" style="font-size: 20px">
+                                <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Training</th>
+                                    <th th:if="${noTest==null}" scope="col">Test</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <th scope="row">AVG Error</th>
+                                    <td th:text="${AvgError}"></td>
+                                    <td th:if="${noTest==null}" th:text="${testAvgError}"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">RSME</th>
+                                    <td th:text="${RMSE}"></td>
+                                    <td th:if="${noTest==null}" th:text="${testRMSE}"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Absolute error</th>
+                                    <td th:text="${absoluteError}"></td>
+                                    <td th:if="${noTest==null}" th:text="${testAbsoluteError}"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">R<sup>2</sup></th>
+                                    <td th:text="${RSquare}"></td>
+                                    <td th:if="${noTest==null}" th:text="${testRSquare}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
+                <ul class="nav navbar-nav navbar-right" th:if="${noTest==null}">
+                    <a class="nav-link" id="showTest" data-toggle="tab" href="#testContent" role="tab"
+                       aria-controls="testContent" aria-selected="false">
+                        <button type="button" id="testButton" class="btn btn-primary btn-lg">Test</button>
+                    </a>
+                    <a class="active nav-link" id="showTraining" data-toggle="tab" href="#trainingContent"
+                       role="tab" aria-controls="trainingContent" aria-selected="true">
+                        <button type="button" id="trainingButton" class="btn active btn-primary btn-lg active">
+                            Training
+                        </button>
+                    </a>
+                </ul>
+                <br>
+                <br>
+                <br>
                 <section class="panel-body">
                     <div class="row form-group">
                         <div class="tab-pane fade show active in" id="trainingContent" role="tabpanel"
@@ -59,62 +127,6 @@
                             </div>
                         </div>
 
-                        <div id="details" style="margin-left: 20px;">
-                            <div class="row form-group text-left" style="margin-bottom: 0;margin-top: 40px;">
-                                <div class="col-sm-6 col-md-6 col-lg-6">
-                                    <h3>
-                                        <label th:id="experimentName"
-                                               th:text="${expDetails.getExperimentName()+' RUN#'+index}"/>
-                                    </h3>
-                                </div>
-                            </div>
-                            <div class="row form-group text-left" style="margin-bottom: 0;">
-                                <div class="col-sm-6 col-md-6 col-lg-6">
-                                    <h3>
-                                        <b>Model: </b><label th:id="runId" th:text="${model}"/>
-                                    </h3>
-                                </div>
-                            </div>
-                            <div class="row form-group text-left">
-                                <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <h3>
-                                        <label><b>Stats:</b></label>
-                                    </h3>
-                                </div>
-                                <div class="col-sm-2 col-md-2 col-lg-2">
-                                </div>
-                                <div class="col-sm-5 col-md-5 col-lg-5">
-                                    <h4>
-                                        <label><b>AVG Error: </b></label>
-                                        <label id="AvgError" th:text="${AvgError}"/>
-                                    </h4>
-                                </div>
-
-                                <div class="col-sm-5 col-md-5 col-lg-5">
-                                    <h4>
-                                        <label><b>RMSE: </b></label>
-                                        <label id="RMSE" th:text="${RMSE}"/>
-                                    </h4>
-                                </div>
-
-                                <div class="col-sm-2 col-md-2 col-lg-2">
-                                </div>
-                                <div class="col-sm-5 col-md-5 col-lg-5">
-                                    <h4>
-                                        <label><b>AbsoluteError: </b></label>
-                                        <label id="absoluteError" th:text="${absoluteError}"/>
-                                    </h4>
-                                </div>
-
-                                <div class="col-sm-5 col-md-5 col-lg-5">
-                                    <h4>
-                                        <label><b>R<sup>2</sup>: </b></label>
-                                        <label id="RSquare" th:text="${RSquare}"/>
-                                    </h4>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
                 </section>
             </div>
@@ -128,8 +140,9 @@
     <script th:inline="javascript">
         let yColumnDataPoints = [], modelColumnDataPoints = [];
         let testChart = null, chart;
+        let once = false;
 
-        function reloadPlotD3() {
+        function loadTrainingPlot() {
             chart = new CanvasJS.Chart("chartContainer", {
                 animationEnabled: true,
                 backgroundColor: "transparent",
@@ -183,7 +196,9 @@
             let listFunctionResult = [[${listFunctionResult}]];
             /*]]>*/
             loadChart(yColumnDataPoints, modelColumnDataPoints, chart, listYLine, listFunctionResult);
+        }
 
+        function loadTestPlot() {
             if (document.getElementById("testChartContainer")) {
                 let testYColumnDataPoints = [], testModelColumnDataPoints = [];
                 /*<![CDATA[*/
@@ -260,38 +275,33 @@
         }
 
         $(document).ready(function () {
-            reloadPlotD3();
+            loadTrainingPlot();
         });
 
         $(".nav .nav-link").on("click", function () {
             if (this.id == "showTraining") {
+                $("#trainingButton").addClass("active");
+                $("#testButton").removeClass("active");
                 $("#trainingContent").removeClass("hidden");
                 $("#testContent").addClass("hidden");
                 $("#testContent").addClass("hidden");
                 $("#testContent").css("height", "");
                 if (document.getElementById("noTest")) {
                     $("#details").removeClass("hidden");
-                } else {
-                    /*<![CDATA[*/
-                    $('#AvgError').text([[${AvgError}]]);
-                    $('#RMSE').text([[${RMSE}]]);
-                    $('#absoluteError').text([[${absoluteError}]]);
-                    $('#RSquare').text([[${RSquare}]]);
-                    /*]]>*/
                 }
             } else {
+                $("#trainingButton").removeClass("active");
+                $("#testButton").addClass("active");
                 $("#trainingContent").addClass("hidden");
                 $("#testContent").removeClass("hidden");
                 $("#testContent").css("height", "360px");
                 if (document.getElementById("noTest")) {
                     $("#details").addClass("hidden");
                 } else {
-                    /*<![CDATA[*/
-                    $('#AvgError').text([[${testAvgError}]]);
-                    $('#RMSE').text([[${testRMSE}]]);
-                    $('#absoluteError').text([[${testAbsoluteError}]]);
-                    $('#RSquare').text([[${testRSquare}]]);
-                    /*]]>*/
+                    if (!once) {
+                        loadTestPlot();
+                        once = true;
+                    }
                 }
             }
         });
