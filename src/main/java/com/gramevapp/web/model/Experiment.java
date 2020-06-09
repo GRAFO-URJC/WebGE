@@ -11,7 +11,6 @@ import org.springframework.context.ApplicationContext;
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.sql.Date;
 import java.util.List;
 
 @Entity
