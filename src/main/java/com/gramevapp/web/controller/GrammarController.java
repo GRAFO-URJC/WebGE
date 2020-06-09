@@ -34,20 +34,10 @@ public class GrammarController {
     @RequestMapping(value = "/grammar/grammarRepository", method = RequestMethod.GET)
     public String grammarRepository(Model model) {
         User user = userService.getLoggedInUser();
-        HashSet<Long> grammarsIdInUse = new HashSet<>();
-        for (Experiment experiment : experimentService.findByUser(user)) {
-            grammarsIdInUse.add(experiment.getDefaultGrammar());
-        }
         List<Grammar> grammarList = grammarRepository.findByUserId(user.getId());
-        List<Boolean> disabled = new ArrayList<>();
-
-        for (Grammar grammar : grammarList) {
-            disabled.add(grammarsIdInUse.contains(grammar.getId()));
-        }
 
         model.addAttribute("grammarList", grammarList);
         model.addAttribute("user", user);
-        model.addAttribute("grammarListDisabled", disabled);
 
         return "grammar/grammarRepository";
     }
@@ -90,10 +80,22 @@ public class GrammarController {
     }
 
     @RequestMapping(value = "/grammar/saveGrammar", method = RequestMethod.POST)
-    public String saveGrammar(Model model, @ModelAttribute("grammar") @Valid Grammar gr) {
+    public String saveGrammar(Model model, @ModelAttribute("grammar") Grammar gr) {
         gr.setCreationDate(new Timestamp(System.currentTimeMillis()));
         grammarRepository.save(gr);
         return grammarRepository(model);
     }
 
+    @RequestMapping(value = "/grammar/ajaxSaveGrammar", method = RequestMethod.POST)
+    @ResponseBody
+    public String ajaxSaveGrammar(@RequestParam("grammarName") String grammarName,
+                                  @RequestParam("grammarDescription") String grammarDescription,
+                                  @RequestParam("grammarContent") String grammarContent
+                                  ) {
+        User user = userService.getLoggedInUser();
+        Grammar grammar= new Grammar(grammarName,grammarDescription,grammarContent);
+        grammar.setUserId(user.getId());
+        grammarRepository.save(grammar);
+        return "";
+    }
 }

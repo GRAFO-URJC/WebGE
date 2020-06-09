@@ -39,6 +39,13 @@ public class Grammar {
     public Grammar() {
     }
 
+    public Grammar(String grammarName, String grammarDescription, String fileText) {
+        this.creationDate = new Timestamp(System.currentTimeMillis());
+        this.grammarName=grammarName;
+        this.grammarDescription=grammarDescription;
+        this.fileText=fileText;
+    }
+
     public Long getId() {
         return id;
     }

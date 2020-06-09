@@ -64,9 +64,6 @@ public class Run {
     private Timestamp modificationDate;
 
     @Column
-    private Long defaultGrammarId;
-
-    @Column
     private Long defaultExpDataTypeId;
 
     @Column
@@ -213,14 +210,6 @@ public class Run {
 
     public void setExperimentDescription(String experimentDescription) {
         this.experimentDescription = experimentDescription;
-    }
-
-    public Long getDefaultGrammarId() {
-        return defaultGrammarId;
-    }
-
-    public void setDefaultGrammarId(Long defaultGrammarId) {
-        this.defaultGrammarId = defaultGrammarId;
     }
 
     public Long getDefaultExpDataTypeId() {
