@@ -126,7 +126,7 @@ public class ExperimentController {
                 , user,
                 (testExperimentDataTypeId.equals("")) ? null : experimentService.
                         findExperimentDataTypeById(Long.valueOf(testExperimentDataTypeId))
-                , expDataType, configExpDto, configExpDto.getGrammar(), run, run.getId());
+                , expDataType, configExpDto, configExpDto.getFileText(), run, run.getId());
         experimentService.saveExperiment(exp);
         // END - Experiment section
 
@@ -275,7 +275,7 @@ public class ExperimentController {
                     exp.getTournament().equals(configExpDto.getTournament()) &&
                     exp.getNumberRuns().equals(configExpDto.getNumberRuns()) &&
                     exp.getObjective().equals(configExpDto.getObjective()) &&
-                    exp.getDefaultGrammar().equals(configExpDto.getGrammar()) &&
+                    exp.getDefaultGrammar().equals(configExpDto.getFileText()) &&
                     exp.getDefaultExpDataType().equals(Long.valueOf(experimentDataTypeId));
             if (sameExp) {
                 if (!testExperimentDataTypeId.equals("")) {
@@ -283,6 +283,7 @@ public class ExperimentController {
                 } else {
                     exp.setDefaultTestExpDataTypeId(null);
                 }
+                exp.setModificationDate(new Timestamp(System.currentTimeMillis()));
                 experimentService.saveExperiment(exp);
                 modelAddData(model, user,
                         experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
@@ -294,7 +295,7 @@ public class ExperimentController {
         }
 
 
-        exp = experimentSection(exp, user, testExperimentDataType, expDataType, configExpDto, configExpDto.getGrammar(),
+        exp = experimentSection(exp, user, testExperimentDataType, expDataType, configExpDto, configExpDto.getFileText(),
                 null, null);
         // END - Experiment section
 
@@ -791,7 +792,7 @@ public class ExperimentController {
         exp.setDefaultGrammar(grammar);
         exp.setDefaultExpDataType(expDataType.getId());
         exp.setDefaultTestExpDataTypeId(testExpDataType != null ? testExpDataType.getId() : null);
-
+        exp.setModificationDate(new Timestamp(System.currentTimeMillis()));
         return exp;
     }
 
@@ -892,7 +893,7 @@ public class ExperimentController {
 
         configExpDto.setId(exp.getId());
         configExpDto.setDefaultExpDataTypeId(exp.getDefaultExpDataType());
-        configExpDto.setGrammar(grammar);
+        configExpDto.setFileText(grammar);
 
         return configExpDto;
     }

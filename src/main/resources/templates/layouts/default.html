@@ -8,10 +8,11 @@
         function tableDefinition(id, idTableBody, target1, target2, targetChill) {
             table = $(id).DataTable({
                 "paging": true,
+                "order": [ 3, "desc" ],
                 "columnDefs": [{
                     "targets": [target1, target2],
                     "orderable": false
-                }]
+                }],
             });
             $('.dataTables_length').addClass('bs-select');
 

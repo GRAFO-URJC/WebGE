@@ -27,7 +27,7 @@
                                 <th scope="col">#</th>
                                 <th scope="col">Experiment name</th>
                                 <th scope="col">Experiment description</th>
-                                <th scope="col">Creation date</th>
+                                <th scope="col">Last modification date</th>
                                 <th scope="col">Controls</th>
                                 <th scope="col"></th>
                                 <th scope="col" style="display:none;">Experiment information</th>
@@ -44,7 +44,7 @@
                                                            th:text="${exp.experimentDescription}" id="description"/>
                                     </td>
                                     <td scope="row"><label th:name="creationDate" th:id="creationDate"
-                                                           th:text="${exp.getCreationDateFormated()}"
+                                                           th:text="${exp.getModificationDateFormated()}"
                                                            id="creationDate"/>
                                     </td>
                                     <td scope="row" class="details-control">
