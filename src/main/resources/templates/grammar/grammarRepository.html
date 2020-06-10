@@ -140,7 +140,7 @@
 
 
         function deleteRow(iterStat, grId) {
-            var cleanIterStat = iterStat.substring("deleteGrammar".length, iterStat.length);   // Dará error, si hay listado con mas de 9 obj, no pillará el id de 10, pq sólo mira hasta el último
+            let cleanIterStat = iterStat.substring("deleteGrammar".length, iterStat.length);   // Dará error, si hay listado con mas de 9 obj, no pillará el id de 10, pq sólo mira hasta el último
 
             $.ajax({
                 url: encodeURI("/grammar/grammarRepoSelected"),
@@ -156,19 +156,18 @@
                     if (data == -1) {
                         alert("Grammar is used in experiment, cannot be deleted.")
                     } else {
-                        $("#tr" + cleanIterStat).remove();
-                        $("#trAux" + cleanIterStat).remove();
+                        table.row($("#tr" + cleanIterStat)).remove().draw();
                     }
                 }
             });
-        };
+        }
 
 
         function downloadGrammar(elemName) {
-            var textToWrite = document.getElementById(elemName).value;
-            var textFileAsBlob = new Blob([textToWrite], {type: 'text/plain'});
+            let textToWrite = document.getElementById(elemName).value;
+            let textFileAsBlob = new Blob([textToWrite], {type: 'text/plain'});
 
-            var downloadLink = document.createElement("a");
+            let downloadLink = document.createElement("a");
             downloadLink.download = "grammar.bnf";
             downloadLink.innerHTML = "Download File";
 

@@ -227,8 +227,7 @@
                 type: "POST",
                 dataType: "json",
                 success: function () {
-                    $("#tr" + iterStat).remove();
-                    $("#trAux" + iterStat).remove();
+                    table.row($("#tr" + iterStat)).remove().draw();
                 }
             });
         };

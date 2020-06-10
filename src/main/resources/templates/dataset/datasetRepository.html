@@ -203,8 +203,7 @@
                     if (data == -1) {
                         alert("Dataset is used in experiment, cannot be deleted.")
                     } else {
-                        $("#tr" + cleanIterStat).remove();
-                        $("#trAux" + cleanIterStat).remove();
+                        table.row($("#tr" + cleanIterStat)).remove().draw();
                     }
                 }
             });
