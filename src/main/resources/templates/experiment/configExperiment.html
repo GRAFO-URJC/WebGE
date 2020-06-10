@@ -133,7 +133,7 @@
                                 <div class="col-sm-12 col-md-6 col-lg-4">
                                     <label for="generations">Generations:</label>
                                     <div th:classappend="${#fields.hasErrors('generations')}? 'has-error':'generations error'">
-                                        <input type="number" class="text-center" th:min="100"
+                                        <input type="number" class="text-center" style="width: 100%" th:min="100"
                                                th:value="${configuration.getGenerations()}" name="generations"
                                                id="generations"/>
                                     </div>
@@ -142,6 +142,7 @@
                                     <label for="crossoverProb">Crossover Prob.:</label>
                                     <div th:classappend="${#fields.hasErrors('crossoverProb')}? 'has-error':'crossoverProb error'">
                                         <input type="number" class="text-center" th:min="0" th:max="1" th:step="0.01"
+                                               style="width: 100%"
                                                th:value="${configuration.getCrossoverProb()}" name="crossoverProb"
                                                id="crossoverProb"/>
                                     </div>
@@ -149,15 +150,15 @@
                                 <div class="col-sm-12 col-md-6 col-lg-4">
                                     <label for="populationSize">Population size:</label>
                                     <div th:classappend="${#fields.hasErrors('populationSize')}? 'has-error':'populationSize error'">
-                                        <input type="number" class="text-center" th:min="0"
+                                        <input type="number" class="text-center" th:min="0" style="width: 100%"
                                                th:value="${configuration.getPopulationSize()}" name="populationSize"
                                                id="populationSize"/>
                                     </div>
                                 </div>
                                 <div class="col-sm-12 col-md-6 col-lg-4">
                                     <label for="mutationProb">Mutation Prob.:</label>
-                                    <div th:classappend="${#fields.hasErrors('mutationProb')}? 'has-error':'mutationProb error'">
-                                        <input type="number" class="text-center" th:min="0" th:max="1" th:step="0.01"
+                                    <div style="width: 100%" th:classappend="${#fields.hasErrors('mutationProb')}? 'has-error':'mutationProb error'">
+                                        <input style="width: 100%" type="number" class="text-center" th:min="0" th:max="1" th:step="0.01"
                                                th:value="${configuration.getMutationProb()}" name="mutationProb"
                                                id="mutationProb"/>
                                     </div>
@@ -165,7 +166,7 @@
                                 <div class="col-sm-12 col-md-6 col-lg-4">
                                     <label for="maxWraps">Max wraps:</label>
                                     <div th:classappend="${#fields.hasErrors('maxWraps')}? 'has-error':'maxWraps error'">
-                                        <input type="number" class="text-center" th:min="0"
+                                        <input type="number" class="text-center" th:min="0" style="width: 100%"
                                                th:value="${configuration.getMaxWraps()}" value="3" name="maxWraps"
                                                id="maxWraps"/>
                                     </div>
@@ -173,7 +174,7 @@
                                 <div class="col-sm-12 col-md-6 col-lg-4">
                                     <label for="numCodons">Num. Codons:</label>
                                     <div th:classappend="${#fields.hasErrors('numCodons')}? 'has-error':'numCodons error'">
-                                        <input type="number" class="text-center" th:min="0"
+                                        <input type="number" class="text-center" th:min="0" style="width: 100%"
                                                th:value="${configuration.getNumCodons()}" value="100" name="numCodons"
                                                id="numCodons"/>
                                     </div>
@@ -240,7 +241,7 @@
                             <div class="row form-group">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
                                     <textarea rows="8" class="form-control" name="fileText"
-                                              id="fileText" th:inline="text" style="resize: none;"
+                                              id="fileText" th:inline="text" style="resize: none;height: 100px"
                                               th:text="${configExp.getFileText()}" placeholder="Grammar content"
                                               required></textarea>
                                 </div>
