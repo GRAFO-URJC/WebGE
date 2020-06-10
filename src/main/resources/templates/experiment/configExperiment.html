@@ -475,7 +475,6 @@
         let runButton = false;
         let saveButton = false;
         let grammarList;
-        const el = document.createElement('textarea');
         let grammarTooltip = document.getElementById("grammarTooltip");
 
         function storeGrammar() {
@@ -537,11 +536,7 @@
 
         function copyGrammar() {
             if (grammarList[$("#grammarSelect").val()]) {
-                el.value = grammarList[$("#grammarSelect").val()].fileText;
-                document.body.appendChild(el);
-                el.select();
-                document.execCommand('copy');
-                document.body.removeChild(el);
+                $("#fileText").text(grammarList[$("#grammarSelect").val()].fileText);
                 grammarTooltip.innerHTML = "Copied";
             }
         }
