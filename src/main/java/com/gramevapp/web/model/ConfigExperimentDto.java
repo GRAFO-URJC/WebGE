@@ -54,7 +54,7 @@ public class ConfigExperimentDto {
     private Long testDefaultExpDataTypeId;
     @NotNull(message = "Grammar area text cannot be empty")
     @Size(min = 1)
-    private String grammar; // This is the text on the file - That's written in an areaText - So we can take it as a String
+    private String fileText; // This is the text on the file - That's written in an areaText - So we can take it as a String
     private String dataTypeType = "training";   // Validation, test, training
 
     private Long diagramDataId;
@@ -234,11 +234,11 @@ public class ConfigExperimentDto {
         this.testDefaultExpDataTypeId = testDefaultExpDataTypeId;
     }
 
-    public String getGrammar() {
-        return grammar;
+    public String getFileText() {
+        return fileText;
     }
 
-    public void setGrammar(String grammar) {
-        this.grammar = grammar;
+    public void setFileText(String fileText) {
+        this.fileText = fileText;
     }
 }
