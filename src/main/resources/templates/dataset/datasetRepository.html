@@ -16,98 +16,103 @@
                     <div class="row">
                         <div class="col-sm-9"><h2>My datasets</h2></div>
                         <div class="col-sm-3">
-                            <form action="/dataset/datasetDetail">
-                                <button type="submit" class="btn-default btn btn-sm">New dataset</button>
-                            </form>
+                            <h2>
+                                <div class="navbar-right">
+                                    <form action="/dataset/datasetDetail">
+                                        <button type="submit" class=" btn btn-default  btn-lg">
+                                            <h4 style="margin-top: 0;margin-bottom: 0;">New dataset</h4>
+                                        </button>
+                                    </form>
+                                </div>
+                            </h2>
                         </div>
                     </div>
                 </header>
 
                 <section class="panel-body center-block">
-                    <div th:if="${not #lists.isEmpty(datasetList)}">
-                        <table class="table table-hover " id="datasetRepository">
-                            <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Dataset name</th>
-                                <th scope="col">Dataset description</th>
-                                <th scope="col">Creation date</th>
-                                <th scope="col" class="details-control">Controls</th>
-                                <th scope="col"></th>
-                                <th scope="col" style="display: none"></th>
+                    <table class="table table-hover " id="datasetRepository" style="width: 100%">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Dataset name</th>
+                            <th scope="col">Dataset description</th>
+                            <th scope="col">Creation date</th>
+                            <th scope="col" class="details-control"></th>
+                            <th scope="col"></th>
+                            <th scope="col" class="hidden"></th>
+                        </tr>
+                        </thead>
+                        <tbody id="datasetTbody">
+                        <th:block th:each="dataset, iterStat : ${datasetList}">
+                            <tr th:id="'tr' + ${iterStat.index}">
+                                <td scope="row"><label th:name="id" th:id="id" th:text="${dataset.getId()}"
+                                                       id="id"/></td>
+                                <td scope="row"><label th:name="name" th:id="name"
+                                                       th:text="${dataset.getDataTypeName()}"
+                                                       id="name"/></td>
+                                <td scope="row"><label th:name="description" th:id="description"
+                                                       th:text="${dataset.getDataTypeDescription()}"
+                                                       id="description"/></td>
+                                <td scope="row"><label th:name="creationDate" th:id="creationDate"
+                                                       th:text="${dataset.getCreationDateFormated()}"
+                                                       id="creationDate"/>
+                                </td>
+                                <td scope="row" class="details-control">
+                                    <button type="button">Display dataset</button>
+                                </td>
+                                <td>
+                                    <button type="button" th:name="${dataset.getId()}"
+                                            th:id="${'downloadDataset' + dataset.getId()}"
+                                            th:attr="onclick=|downloadDataset('fileText${dataset.getId()}')|"
+                                            class="btn-default btn btn-sm"
+                                            rel="tooltip"
+                                            title="Download dataset"
+                                    ><span
+                                            class="glyphicon glyphicon-download"></span></button>
+                                    <button type="button" th:name="${dataset.getId()}"
+                                            th:id="${'deleteDataset' + iterStat.index}"
+                                            onclick="confirmDelete(this.id, this.name)"
+                                            class="btn-default btn btn-sm"
+                                            rel="tooltip"
+                                            title="Delete dataset"
+                                            th:disabled="${datasetListDisabled.get(iterStat.index)}"
+                                    ><span
+                                            class="glyphicon glyphicon-trash small"></span></button>
+
+                                </td>
+                                <!--dataset information-->
+                                <!-- https://stackoverflow.com/questions/26459838/splitting-a-string-every-n-lines-using-regex -->
+                                <td class="hidden">
+
+                                    <div th:if="${datasetInformationList.get(iterStat.index).size()>1}">
+                                        <nav aria-label="Page navigation example">
+                                            <ul class="pagination">
+                                                </li>
+                                                <th:block
+                                                        th:each="datasetInfo, iter : ${datasetInformationList.get(iterStat.index)}">
+                                                    <li class="page-item"><a class="page-link"
+                                                                             href="#"
+                                                                             th:value="${datasetInfo}"
+                                                                             th:text="${iter.index+1}"
+                                                                             th:name="${iterStat.index}"
+                                                                             onclick="changeTextareInfo(this)">
+                                                    </a></li>
+                                                </th:block>
+                                            </ul>
+                                        </nav>
+                                    </div>
+
+                                    <textarea readonly rows="8" class="form-control"
+                                              th:text="${datasetInformationList.get(iterStat.index).get(0)}"
+                                              placeholder="Dataset content" name="fileText"
+                                              th:id="fileText + ${dataset.getId()}" th:inline="text"
+                                              style="resize: none;"/>
+
+                                </td>
                             </tr>
-                            </thead>
-                            <tbody id="datasetTbody">
-                            <th:block th:each="dataset, iterStat : ${datasetList}">
-                                <tr th:id="'tr' + ${iterStat.index}">
-                                    <td scope="row"><label th:name="id" th:id="id" th:text="${dataset.getId()}"
-                                                           id="id"/></td>
-                                    <td scope="row"><label th:name="name" th:id="name"
-                                                           th:text="${dataset.getDataTypeName()}"
-                                                           id="name"/></td>
-                                    <td scope="row"><label th:name="description" th:id="description"
-                                                           th:text="${dataset.getDataTypeDescription()}"
-                                                           id="description"/></td>
-                                    <td scope="row"><label th:name="creationDate" th:id="creationDate"
-                                                           th:text="${dataset.getCreationDateFormated()}" id="creationDate"/>
-                                    </td>
-                                    <td scope="row" class="details-control">
-                                        <button type="button">Display dataset</button>
-                                    </td>
-                                    <td>
-                                        <button type="button" th:name="${dataset.getId()}"
-                                                th:id="${'downloadDataset' + dataset.getId()}"
-                                                th:attr="onclick=|downloadDataset('fileText${dataset.getId()}')|"
-                                                class="btn-default btn btn-sm"
-                                                rel="tooltip"
-                                                title="Download dataset"
-                                        ><span
-                                                class="glyphicon glyphicon-download"></span></button>
-                                        <button type="button" th:name="${dataset.getId()}"
-                                                th:id="${'deleteDataset' + iterStat.index}"
-                                                onclick="confirmDelete(this.id, this.name)"
-                                                class="btn-default btn btn-sm"
-                                                rel="tooltip"
-                                                title="Delete dataset"
-                                                th:disabled="${datasetListDisabled.get(iterStat.index)}"
-                                        ><span
-                                                class="glyphicon glyphicon-trash small"></span></button>
-
-                                    </td>
-                                    <!--dataset information-->
-                                    <!-- https://stackoverflow.com/questions/26459838/splitting-a-string-every-n-lines-using-regex -->
-                                    <td style="display: none;">
-
-                                        <div th:if="${datasetInformationList.get(iterStat.index).size()>1}">
-                                            <nav aria-label="Page navigation example">
-                                                <ul class="pagination">
-                                                    </li>
-                                                    <th:block
-                                                            th:each="datasetInfo, iter : ${datasetInformationList.get(iterStat.index)}">
-                                                        <li class="page-item"><a class="page-link"
-                                                                                 href="#"
-                                                                                 th:value="${datasetInfo}"
-                                                                                 th:text="${iter.index+1}"
-                                                                                 th:name="${iterStat.index}"
-                                                                                 onclick="changeTextareInfo(this)">
-                                                        </a></li>
-                                                    </th:block>
-                                                </ul>
-                                            </nav>
-                                        </div>
-
-                                        <textarea readonly rows="8" class="form-control"
-                                                  th:text="${datasetInformationList.get(iterStat.index).get(0)}"
-                                                  placeholder="Dataset content" name="fileText"
-                                                  th:id="fileText + ${dataset.getId()}" th:inline="text"
-                                                  style="resize: none;"/>
-
-                                    </td>
-                                </tr>
-                            </th:block>
-                            </tbody>
-                        </table>
-                    </div>
+                        </th:block>
+                        </tbody>
+                    </table>
                 </section>
             </div>
         </div>
@@ -139,7 +144,7 @@
 
     <script>
         $(document).ready(function () {
-            tableDefinition('#datasetRepository', "#datasetTbody", 4, 5, 6);
+            tableDefinition('#datasetRepository', "#datasetTbody", 4, 5, 6, 3);
         })
 
         function downloadDataset(elemName) {

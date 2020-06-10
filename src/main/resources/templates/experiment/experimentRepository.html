@@ -20,152 +20,136 @@
                 </header>
 
                 <section class="panel-body center-block">
-                    <div th:if="${not #lists.isEmpty(experimentList)}">
-                        <table class="table table-hover display" id="expRepository">
-                            <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Experiment name</th>
-                                <th scope="col">Experiment description</th>
-                                <th scope="col">Last modification date</th>
-                                <th scope="col">Controls</th>
-                                <th scope="col"></th>
-                                <th scope="col" style="display:none;">Experiment information</th>
-                            </tr>
-                            </thead>
-                            <tbody id="expTableBody">
-                            <th:block th:each="exp, iterStat : ${experimentList}">
-                                <tr th:id="'tr' + ${iterStat.index}">
-                                    <td scope="row"><label th:name="id" th:id="id" th:text="${exp.id}" id="id"/>
-                                    </td>
-                                    <td scope="row"><label th:name="name" th:id="name"
-                                                           th:text="${exp.experimentName}" id="name"/></td>
-                                    <td scope="row"><label th:name="description" th:id="description"
-                                                           th:text="${exp.experimentDescription}" id="description"/>
-                                    </td>
-                                    <td scope="row"><label th:name="creationDate" th:id="creationDate"
-                                                           th:text="${exp.getModificationDateFormated()}"
-                                                           id="creationDate"/>
-                                    </td>
-                                    <td scope="row" class="details-control">
-                                        <button type="button">More information</button>
-                                    </td>
-                                    <td scope="row">
-                                        <form th:action="@{/experiment/expRepoSelected}" th:object="${expRepository}"
-                                              method="GET">
-                                            <input type="text" class="hidden" th:name="id"
-                                                   th:value="${exp.getId()}"/>
-                                            <button type="submit"
-                                                    th:name="loadExperimentButton" class="btn-default btn btn-sm">Load
-                                                experiment
-                                            </button>
-                                            <button type="button" th:name="${exp.id}"
-                                                    th:id="${iterStat.index}"
-                                                    onclick="confirmDelete(this.id, this.name)"
-                                                    class="btn-default btn btn-sm"
-                                                    rel="tooltip"
-                                                    title="Delete experiment"
-                                            ><span class="glyphicon glyphicon-trash small"></span></button>
-                                        </form>
-                                    </td>
-                                    <!--with extra information-->
-                                    <td scope="control" style="display:none;">
+                    <table class="table table-hover display" id="expRepository" style="width: 100%">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Experiment name</th>
+                            <th scope="col">Experiment description</th>
+                            <th scope="col">Last modification date</th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                            <th scope="col" class="hidden">Experiment information</th>
+                        </tr>
+                        </thead>
+                        <tbody id="expTableBody">
+                        <th:block th:each="exp, iterStat : ${experimentList}">
+                            <tr th:id="'tr' + ${iterStat.index}">
+                                <td scope="row"><label th:name="id" th:id="id" th:text="${exp.id}" id="id"/>
+                                </td>
+                                <td scope="row"><label th:name="name" th:id="name"
+                                                       th:text="${exp.experimentName}" id="name"/></td>
+                                <td scope="row"><label th:name="description" th:id="description"
+                                                       th:text="${exp.experimentDescription}" id="description"/>
+                                </td>
+                                <td scope="row"><label th:name="creationDate" th:id="creationDate"
+                                                       th:text="${exp.getModificationDateFormated()}"
+                                                       id="creationDate"/>
+                                </td>
+                                <td scope="row" class="details-control">
+                                    <button type="button" class="btn-default btn btn-sm">More information</button>
+                                </td>
+                                <td scope="row">
+                                    <form th:action="@{/experiment/expRepoSelected}" th:object="${expRepository}"
+                                          method="GET">
+                                        <input type="text" class="hidden" th:name="id"
+                                               th:value="${exp.getId()}"/>
+                                        <button type="submit"
+                                                th:name="loadExperimentButton" class="btn-default btn btn-sm">Load
+                                            experiment
+                                        </button>
+                                        <button type="button" th:name="${exp.id}"
+                                                th:id="${iterStat.index}"
+                                                onclick="confirmDelete(this.id, this.name)"
+                                                class="btn-default btn btn-sm"
+                                                rel="tooltip"
+                                                title="Delete experiment"
+                                        ><span class="glyphicon glyphicon-trash small"></span></button>
+                                    </form>
+                                </td>
+                                <!--with extra information-->
+                                <td scope="control" class="hidden">
+                                    <div
+                                            th:with="expRunConfiguration=${exp.getIdRunList().isEmpty()?
+                                             exp:exp.getIdRunList().get(exp.getIdRunList().size()-1)}">
+                                        <b>Generations:</b>
+                                        <label th:text="${exp.getIdRunList().isEmpty()?
+                                            '0':expRunConfiguration.getGenerations()}"></label>
+                                        ; <b>Crossover Prob:</b>
+                                        <label th:text="${expRunConfiguration.getCrossoverProb()}"></label>
+                                        ; <b>Population Size:</b>
+                                        <label th:text="${expRunConfiguration.getPopulationSize()}"></label>
+                                        ; <b>Mutation Prob:</b>
+                                        <label th:text="${expRunConfiguration.getMutationProb()}"></label>
+                                        ; <b>Max Wraps:</b>
+                                        <label th:text="${expRunConfiguration.getMaxWraps()}"></label>
+                                        ; <b>Num Codons:</b>
+                                        <label th:text="${expRunConfiguration.getNumCodons()}"></label>
+                                        ; <b>Tournament:</b>
+                                        <label th:text="${expRunConfiguration.getTournament()}"></label>
+                                        ; <b>Number Runs:</b>
+                                        <label th:text="${expRunConfiguration.getNumberRuns()}"></label>
+                                        ; <b>Objective:</b>
+                                        <label th:text="${expRunConfiguration.getObjective()}"></label>
+                                        </span>
 
-                                        <p>
-                                            <span class="glyphicon glyphicon-chevron-right"> The experiment has
-                                            <label th:text="${exp.getIdExpDataTypeList().size()}"></label>
-                                                <i>data type file/s</i>
-                                            </span>
-                                        </p>
-                                        <div th:if="${not #lists.isEmpty(exp.getIdRunList())}"
-                                             th:with="expRunConfiguration=${exp.getIdRunList().get(exp.getIdRunList().size()-1)}">
-                                            <p>
-                                            <span class="glyphicon glyphicon-chevron-right"> Experiment last configuration in use:
-                                            </p>
-                                            <b>Generations:</b>
-                                            <label th:text="${expRunConfiguration.getGenerations()}"></label>
-                                            ;<b>Crossover Prob:</b>
-                                            <label th:text="${expRunConfiguration.getCrossoverProb()}"></label>
-                                            ;<b>Population Size:</b>
-                                            <label th:text="${expRunConfiguration.getPopulationSize()}"></label>
-                                            ;<b>Mutation Prob:</b>
-                                            <label th:text="${expRunConfiguration.getMutationProb()}"></label>
-                                            ;<b>Max Wraps:</b>
-                                            <label th:text="${expRunConfiguration.getMaxWraps()}"></label>
-                                            ;<b>Num Codons:</b>
-                                            <label th:text="${expRunConfiguration.getNumCodons()}"></label>
-                                            ;<b>Tournament:</b>
-                                            <label th:text="${expRunConfiguration.getTournament()}"></label>
-                                            ;<b>Number Runs:</b>
-                                            <label th:text="${expRunConfiguration.getNumberRuns()}"></label>
-                                            ;<b><b>Objective:</b>
-                                            <label th:text="${expRunConfiguration.getObjective()}"></label>
-                                            </span>
+                                    </div>
+                                    <div th:if="${not #lists.isEmpty(exp.getIdRunList())}">
+                                        <table class="table table-hover">
 
-                                        </div>
-                                        <p>
-                                            <span class="glyphicon glyphicon-chevron-right"> The experiment has
-                                            <label th:text="${exp.getIdRunList().size()}"></label>
-                                                <i>runs</i>
-                                            </span>
-                                        </p>
-                                        <div th:if="${not #lists.isEmpty(exp.getIdRunList())}">
-                                            <table class="table table-hover">
+                                            <thead>
+                                            <tr>
+                                                <th scope="col"># Run</th>
+                                                <th scope="col">Run name</th>
+                                                <th scope="col">Best solution</th>
+                                                <th scope="col">Current generation</th>
+                                                <th scope="col">Status</th>
+                                                <th scope="col">Creation date</th>
+                                                <th scope="col">Last modification date</th>
+                                                <th scope="col">Model</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
 
-                                                <thead>
-                                                <tr>
-                                                    <th scope="col"># Run</th>
-                                                    <th scope="col">Run name</th>
-                                                    <th scope="col">Best solution</th>
-                                                    <th scope="col">Current generation</th>
-                                                    <th scope="col">Status</th>
-                                                    <th scope="col">Creation date</th>
-                                                    <th scope="col">Last modification date</th>
-                                                    <th scope="col">Model</th>
+                                            <th:block th:each="run, iterStat : ${exp.getIdRunList()}">
+                                                <tr th:if="${run.getDiagramData()!=null}">
+                                                    <td scope="row"><label th:text="${iterStat.index+1}"
+                                                                           th:id="'runId'+${iterStat.index}"/></td>
+                                                    <td scope="row"><label th:name="runName" th:id="runName"
+                                                                           th:text="${run.getExperimentName()}"/>
+                                                    </td>
+                                                    <td scope="row"><label th:name="bestIndividual"
+                                                                           th:id="'bestIndividual'+${iterStat.index}"
+                                                                           th:text="${run.getDiagramData().bestIndividual}"/>
+                                                    </td>
+                                                    <td scope="row"><label th:name="currentGeneration"
+                                                                           th:id="'currentGeneration'+${iterStat.index}"
+                                                                           th:text="${run.getDiagramData().currentGeneration}"/>
+                                                    </td>
+                                                    <td scope="row"><label th:name="status"
+                                                                           th:id="'status'+${iterStat.index}"
+                                                                           th:text="${run.getStatus()}"/></td>
+                                                    <td scope="row"><label th:name="iniDate" th:id="iniDate"
+                                                                           th:text="${run.getIniDateFormated()}"/>
+                                                    </td>
+                                                    <td scope="row"><label th:name="lastDate" th:id="lastDate"
+                                                                           th:text="${run.getModificationDateFormated()}"/>
+                                                    </td>
+                                                    <td scope="row"><label th:name="model"
+                                                                           th:id="model+${iterStat.index}"
+                                                                           th:text="${run.getModel()}"/></td>
                                                 </tr>
-                                                </thead>
-                                                <tbody>
+                                            </th:block>
+                                            </tbody>
+                                        </table>
 
-                                                <th:block th:each="run, iterStat : ${exp.getIdRunList()}">
-                                                    <tr th:if="${run.getDiagramData()!=null}">
-                                                        <td scope="row"><label th:text="${run.getId()}"
-                                                                               th:id="'runId'+${iterStat.index}"/></td>
-                                                        <td scope="row"><label th:name="runName" th:id="runName"
-                                                                               th:text="${run.getExperimentName()}"/>
-                                                        </td>
-                                                        <td scope="row"><label th:name="bestIndividual"
-                                                                               th:id="'bestIndividual'+${iterStat.index}"
-                                                                               th:text="${run.getDiagramData().bestIndividual}"/>
-                                                        </td>
-                                                        <td scope="row"><label th:name="currentGeneration"
-                                                                               th:id="'currentGeneration'+${iterStat.index}"
-                                                                               th:text="${run.getDiagramData().currentGeneration}"/>
-                                                        </td>
-                                                        <td scope="row"><label th:name="status"
-                                                                               th:id="'status'+${iterStat.index}"
-                                                                               th:text="${run.getStatus()}"/></td>
-                                                        <td scope="row"><label th:name="iniDate" th:id="iniDate"
-                                                                               th:text="${run.getIniDateFormated()}"/>
-                                                        </td>
-                                                        <td scope="row"><label th:name="lastDate" th:id="lastDate"
-                                                                               th:text="${run.getModificationDateFormated()}"/>
-                                                        </td>
-                                                        <td scope="row"><label th:name="model"
-                                                                               th:id="model+${iterStat.index}"
-                                                                               th:text="${run.getModel()}"/></td>
-                                                    </tr>
-                                                </th:block>
-                                                </tbody>
-                                            </table>
+                                    </div>
+                                </td>
+                            </tr>
 
-                                        </div>
-                                    </td>
-                                </tr>
-
-                            </th:block>
-                            </tbody>
-                        </table>
-                    </div>
+                        </th:block>
+                        </tbody>
+                    </table>
                 </section>
             </div>
         </div>
@@ -203,8 +187,7 @@
 
     <script>
         $(document).ready(function () {
-            tableDefinition('#expRepository', "#expTableBody", 4, 5, 6);
-
+            tableDefinition('#expRepository', "#expTableBody", 4, 5, 6, 3);
         });
 
         function confirmDelete(iterStat, expId) {

@@ -5,17 +5,17 @@
     <script>
         let table;
 
-        function tableDefinition(id, idTableBody, target1, target2, targetChill) {
+        function tableDefinition(id, idTableBody, target1, target2, targetChill, order) {
             table = $(id).DataTable({
+                responsive: true,
                 "paging": true,
-                "order": [ 3, "desc" ],
+                "order": [ order, "desc" ],
                 "columnDefs": [{
                     "targets": [target1, target2],
                     "orderable": false
                 }],
             });
             $('.dataTables_length').addClass('bs-select');
-
 
             $(idTableBody).on('click', 'td.details-control', function () {
                 let tr = $(this).closest('tr');
