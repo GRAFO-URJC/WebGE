@@ -263,7 +263,6 @@ public class ExperimentController {
 
         if (configExpDto.getId() != null) {
             exp = experimentService.findExperimentById(configExpDto.getId());
-            fillConfigExpDto(configExpDto, exp, null, exp.getDefaultGrammar());
             // check if only test was changed
             boolean sameExp = exp.getExperimentName().equals(configExpDto.getExperimentName()) &&
                     exp.getExperimentDescription().equals(configExpDto.getExperimentDescription()) &&
