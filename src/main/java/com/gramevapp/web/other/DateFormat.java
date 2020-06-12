@@ -2,8 +2,6 @@ package com.gramevapp.web.other;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.sql.Date;
 
 public class DateFormat {
     public static String formatDate(Timestamp timestamp) {

@@ -4,7 +4,6 @@ import com.gramevapp.web.other.DateFormat;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
-import java.sql.Date;
 import java.sql.Timestamp;
 
 @Entity
@@ -38,6 +37,13 @@ public class Grammar {
     }
 
     public Grammar() {
+    }
+
+    public Grammar(String grammarName, String grammarDescription, String fileText) {
+        this.creationDate = new Timestamp(System.currentTimeMillis());
+        this.grammarName=grammarName;
+        this.grammarDescription=grammarDescription;
+        this.fileText=fileText;
     }
 
     public Long getId() {

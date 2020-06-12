@@ -11,7 +11,6 @@ import org.springframework.context.ApplicationContext;
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.sql.Date;
 import java.util.List;
 
 @Entity
@@ -43,21 +42,8 @@ public class Experiment {
     @Column(name = "EXPERIMENT_DESCRIPTION") // Reference for user relation and ExpDataType and Grammar
     private String experimentDescription;
 
-    @JsonBackReference
-    @ManyToMany
-    @JoinTable(
-            name = "grammar_list",
-            joinColumns = {
-                    @JoinColumn(name = "EXPERIMENT_ID")
-            },
-            inverseJoinColumns = {
-                    @JoinColumn(name = "GRAMMAR_ID", referencedColumnName = "GRAMMAR_ID")
-            }
-    )
-    private List<Grammar> idGrammarList;
-
     @Column
-    private Long defaultGrammar;
+    private String defaultGrammar;
 
     @JsonBackReference
     @ManyToMany
@@ -119,16 +105,7 @@ public class Experiment {
 
     public Experiment() {
         this.idExpDataTypeList = new ArrayList<>();
-        this.idGrammarList = new ArrayList<>();
         this.idRunList = new ArrayList<>();
-    }
-
-    public Experiment(User userId, String experimentName, List<Grammar> idGrammarList, List<Dataset> idExpDataTypeList, List<Run> idRunList) {
-        this.userId = userId;
-        this.experimentName = experimentName;
-        this.idGrammarList = idGrammarList;
-        this.idExpDataTypeList = idExpDataTypeList;
-        this.idRunList = idRunList;
     }
 
     public Experiment(User userId, String experimentName, String experimentDescription, Integer generations, Integer populationSize,
@@ -151,7 +128,6 @@ public class Experiment {
         this.objective = objective;
 
         this.idExpDataTypeList = new ArrayList<>();
-        this.idGrammarList = new ArrayList<>();
         this.idRunList = new ArrayList<>();
 
         this.modificationDate = modificationDate;
@@ -166,14 +142,12 @@ public class Experiment {
         this.objective = objective;
     }
 
-    public Long getDefaultGrammar() {
+    public String getDefaultGrammar() {
         return defaultGrammar;
     }
 
-    public void setDefaultGrammar(Long defaultGrammarId) {
-        this.defaultGrammar = defaultGrammarId;
-        ApplicationContext context = BeanUtil.getAppContext();
-        ExperimentService experimentService = (ExperimentService) context.getBean("experimentService");
+    public void setDefaultGrammar(String defaultGrammar) {
+        this.defaultGrammar = defaultGrammar;
     }
 
     public Long getDefaultExpDataType() {
@@ -234,14 +208,6 @@ public class Experiment {
         this.experimentDescription = experimentDescription;
     }
 
-    public List<Grammar> getIdGrammarList() {
-        return idGrammarList;
-    }
-
-    public void setIdGrammarList(List<Grammar> idGrammarList) {
-        this.idGrammarList = idGrammarList;
-    }
-
     //https://github.com/SomMeri/org.meri.jpa.tutorial/blob/master/src/main/java/org/meri/jpa/relationships/entities/bestpractice/SafePerson.java
     public void addRun(Run run) {
         if (this.idRunList.contains(run))
@@ -255,18 +221,6 @@ public class Experiment {
             return;
         idRunList.remove(run);
         run.setExperimentId(null);
-    }
-
-    public void addGrammar(Grammar grammar) {
-        if (this.idGrammarList.contains(grammar))
-            return;
-        this.idGrammarList.add(grammar);
-    }
-
-    public void removeGrammar(Grammar grammar) {
-        if (!idGrammarList.contains(grammar))
-            return;
-        idGrammarList.remove(grammar);
     }
 
     public void addExperimentDataType(Dataset expData) {

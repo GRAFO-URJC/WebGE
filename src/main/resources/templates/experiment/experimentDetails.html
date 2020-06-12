@@ -36,11 +36,13 @@
                                    th:value="${expDetails.getRunId()}"/>
 
                             <!-- Stop button -->
-                            <div class="row text-center" th:id="stopDiv">
-                                <div class="col-sm-12 col-md-12 col-lg-12" style="padding:15px">
+                            <div class="row text-center" th:id="stopDiv"
+                                 th:if="${!expDetails.getStatus().toString().equals('FINISHED')}">
+                                <div class="col-sm-12 col-md-12 col-lg-12" style="padding:15px"
+                                     >
                                     <button type="submit" th:id="stopRunExperimentButton"
-                                            th:name="stopRunExperimentButton" class="btn-danger btn-lg btn">Stop
-                                        execution
+                                            th:name="stopRunExperimentButton" class="btn-danger btn-lg btn">
+                                        Stop execution
                                     </button>
                                 </div>
                             </div>
@@ -58,47 +60,23 @@
                     </div>
                 </div>
 
-                <div class="col-sm-12 col-md-12 col-lg-12">
-                    <hr/>
-                </div>
-
                 <!-- Show Diagram Plot details -->
+
                 <div class="row form-group text-center" style="margin-bottom: 0;">
-                    <div class="col-sm-6 col-md-6 col-lg-6">
-                        <h4>
-                            <label>Run name: </label>
-                            <label th:id="experimentName" th:text="${expDetails.getExperimentName()}"/>
-                        </h4>
-                    </div>
-                    <div class="col-sm-6 col-md-6 col-lg-6">
-                        <h4>
-                            <label>Run description: </label>
-                            <label th:id="experimentDescription" th:text="${expDetails.getExperimentDescription()}"/>
-                        </h4>
-                    </div>
-                </div>
-                <div class="row form-group text-center" style="margin-bottom: 0;">
-                    <div class="col-sm-6 col-md-6 col-lg-6">
-                        <h4>
-                            <label>Run id: </label>
-                            <label th:id="runId" th:text="${expDetails.getRunId()}"/>
-                        </h4>
-                    </div>
-                    <div class="col-sm-6 col-md-6 col-lg-6">
+
+                    <div class="col-sm-4 col-md-4 col-lg-4">
                         <h4>
                             <label>Run status: </label>
                             <label th:id="status" th:text="${expDetails.getStatus()}"/>
                         </h4>
                     </div>
-                </div>
-                <div class="row form-group text-center" style="margin-bottom: 0;">
-                    <div class="col-sm-6 col-md-6 col-lg-6">
+                    <div class="col-sm-4 col-md-4 col-lg-4">
                         <h4>
-                            <label>Best individual: </label>
+                            <label>Best model quality: </label>
                             <label th:id="bestIndividual" th:text="${expDetails.getBestIndividual()}"/>
                         </h4>
                     </div>
-                    <div class="col-sm-6 col-md-6 col-lg-6">
+                    <div class="col-sm-4 col-md-4 col-lg-4">
                         <h4>
                             <label>Current generation: </label>
                             <label th:id="currentGeneration" th:text="${expDetails.getCurrentGeneration()}"/>
@@ -122,6 +100,9 @@
             isFinnish,
             isStopped,
             isFailed;
+        /*<![CDATA[*/
+        let runIdSaved = [[${expDetails.getRunId()}]];
+        /*]]>*/
 
         let chart = new CanvasJS.Chart("chartContainer", {
             animationEnabled: true,
@@ -194,8 +175,8 @@
                 complete: function (data) {
                     setTimeout(function () {
                         if (!isFinnish && !isStopped && !isFailed) {
-                            reloadPlotD3($("#runId").text());
-                            checkRunStatus($("#runId").text());
+                            reloadPlotD3(runIdSaved);
+                            checkRunStatus(runIdSaved);
                         }
                     }, 1000);
                 }
@@ -232,7 +213,7 @@
         $(document).ready(function () {
 
             setTimeout(function () {
-                reloadPlotD3($("#runId").text());
+                reloadPlotD3(runIdSaved);
             }, 100);
         });
 
