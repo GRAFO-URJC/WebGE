@@ -6,6 +6,45 @@
       lang="en">
 <head>
     <title>Experiment testing area</title>
+    <style>
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 140px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 150%;
+            left: 50%;
+            margin-left: -75px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
 </head>
 
 <!--
@@ -94,7 +133,7 @@
                                 <div class="col-sm-12 col-md-6 col-lg-4">
                                     <label for="generations">Generations:</label>
                                     <div th:classappend="${#fields.hasErrors('generations')}? 'has-error':'generations error'">
-                                        <input type="number" class="text-center" th:min="100"
+                                        <input type="number" class="text-center" style="width: 100%" th:min="100"
                                                th:value="${configuration.getGenerations()}" name="generations"
                                                id="generations"/>
                                     </div>
@@ -103,6 +142,7 @@
                                     <label for="crossoverProb">Crossover Prob.:</label>
                                     <div th:classappend="${#fields.hasErrors('crossoverProb')}? 'has-error':'crossoverProb error'">
                                         <input type="number" class="text-center" th:min="0" th:max="1" th:step="0.01"
+                                               style="width: 100%"
                                                th:value="${configuration.getCrossoverProb()}" name="crossoverProb"
                                                id="crossoverProb"/>
                                     </div>
@@ -110,15 +150,15 @@
                                 <div class="col-sm-12 col-md-6 col-lg-4">
                                     <label for="populationSize">Population size:</label>
                                     <div th:classappend="${#fields.hasErrors('populationSize')}? 'has-error':'populationSize error'">
-                                        <input type="number" class="text-center" th:min="0"
+                                        <input type="number" class="text-center" th:min="0" style="width: 100%"
                                                th:value="${configuration.getPopulationSize()}" name="populationSize"
                                                id="populationSize"/>
                                     </div>
                                 </div>
                                 <div class="col-sm-12 col-md-6 col-lg-4">
                                     <label for="mutationProb">Mutation Prob.:</label>
-                                    <div th:classappend="${#fields.hasErrors('mutationProb')}? 'has-error':'mutationProb error'">
-                                        <input type="number" class="text-center" th:min="0" th:max="1" th:step="0.01"
+                                    <div style="width: 100%" th:classappend="${#fields.hasErrors('mutationProb')}? 'has-error':'mutationProb error'">
+                                        <input style="width: 100%" type="number" class="text-center" th:min="0" th:max="1" th:step="0.01"
                                                th:value="${configuration.getMutationProb()}" name="mutationProb"
                                                id="mutationProb"/>
                                     </div>
@@ -126,7 +166,7 @@
                                 <div class="col-sm-12 col-md-6 col-lg-4">
                                     <label for="maxWraps">Max wraps:</label>
                                     <div th:classappend="${#fields.hasErrors('maxWraps')}? 'has-error':'maxWraps error'">
-                                        <input type="number" class="text-center" th:min="0"
+                                        <input type="number" class="text-center" th:min="0" style="width: 100%"
                                                th:value="${configuration.getMaxWraps()}" value="3" name="maxWraps"
                                                id="maxWraps"/>
                                     </div>
@@ -134,7 +174,7 @@
                                 <div class="col-sm-12 col-md-6 col-lg-4">
                                     <label for="numCodons">Num. Codons:</label>
                                     <div th:classappend="${#fields.hasErrors('numCodons')}? 'has-error':'numCodons error'">
-                                        <input type="number" class="text-center" th:min="0"
+                                        <input type="number" class="text-center" th:min="0" style="width: 100%"
                                                th:value="${configuration.getNumCodons()}" value="100" name="numCodons"
                                                id="numCodons"/>
                                     </div>
@@ -157,21 +197,11 @@
                                 </div>
                             </div>
 
-                            <!--0 -> Root Mean Squared Error (RMSE)
-                            1 -> Clarke Error Grid (CEG)
-                            2 -> Bi-objective: RMSE & RMSE
-                            3 -> R Square (R^2)
-                            4 -> Absolute Error (Abs. Error)
-                            5 -> Mean Absolute Relative Deviation (MARD) -->
                             <div class="row form-group text-center">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
                                     <label for="tournament">Objective function:</label>
                                     <select class="form-control" name="objective" id="objective">
                                         <option value="RMSE">Root Mean Squared Error (RMSE)</option>
-                                        <!--<option value="CEG">Clarke Error Grid (CEG)</option>
-                                        <option value="RMSECEG">Bi-objective: RMSE y CEG</option>
-                                        <option value="R2">R Square (R^2)</option>
-                                        <option value="MARD">Mean Absolute Relative Deviation (MARD)</option>-->
                                     </select>
                                 </div>
                             </div>
@@ -180,36 +210,55 @@
 
                         <!-- Grammar file -->
                         <div class="col-sm-12 col-md-6 col-lg-6 center-block">
-                            <input type="hidden" name="grammarName" value="To remove"/>
-                            <input type="hidden" name="fileText" value="To remove"/>
                             <div class="jumbotron row form-group">
                                 <h4>Grammar</h4>
                             </div>
-                            <div class="row form-group center-block">
-                                <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <select id="grammarId" name="grammarId" onchange="updateGrammarContent()" required>
+                            <div class="row form-group">
+                                <div class="col-sm-3 col-md-3 col-lg-3">
+                                    <label>Copy from: </label>
+                                </div>
+                                <div class="col-sm-7 col-md-7 col-lg-7">
+                                    <select id="grammarSelect" name="grammarSelect">
                                         <option value="">Select a grammar ...</option>
-                                        <option th:each="gr : ${grammarList}" th:value="${gr.getId()}"
+                                        <option th:each="gr,iterStat : ${grammarList}" th:value="${iterStat.index}"
                                                 th:text="${gr.getGrammarName() + ' - ' + gr.getGrammarDescription()}"
-                                                th:selected="(${(grammar !=null) && (grammar.getId() == gr.getId())})"/>
+                                                data-toggle="tooltip"
+                                                th:title="${gr.getFileText()}"/>
                                     </select>
                                 </div>
-                            </div>
+                                <div class="col-sm-2 col-md-2 col-lg-2">
 
-                            <br/>
-
-                            <div class="row form-group">
-                                <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <textarea rows="8" disabled class="form-control" name="grammarContainer"
-                                              id="grammarContainer" th:inline="text" style="resize: none;"></textarea>
-                                    <div style="display: none">
-                                        <textarea id="grammarContentEmpty"></textarea>
-                                        <textarea th:each="gr : ${grammarList}" th:id="'grammarContent' + ${gr.getId()}"
-                                                  th:text="${gr.getFileText()}"></textarea>
+                                    <div class="tooltip">
+                                        <button id="copyGrammarButton"
+                                                type="button"
+                                                onclick="copyGrammar()" onmouseout="onGrammar()">
+                                            <span class="tooltiptext" id="grammarTooltip">Copy to clipboard</span>
+                                            Copy
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-                            <br/>
+                            <div class="row form-group">
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <textarea rows="8" class="form-control" name="fileText"
+                                              id="fileText" th:inline="text" style="resize: none;height: 100px"
+                                              th:text="${configExp.getFileText()}" placeholder="Grammar content"
+                                              required></textarea>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                    <input id="grammarName" placeholder="Grammar name"/>
+                                </div>
+                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                    <button type="button" onclick="storeGrammar()">Store as new grammar</button>
+                                </div>
+                                <div class="col-sm-12 col-md-12 col-lg-12" style="margin-top: 5px">
+                                    <input id="grammarDescription" placeholder="Grammar description(optional)"
+                                           style="width: 100%"/>
+                                </div>
+                            </div>
+
 
                         </div>
                         <!-- END Grammar file -->
@@ -425,14 +474,42 @@
         let experimentInformation;
         let runButton = false;
         let saveButton = false;
+        let grammarList;
+        let grammarTooltip = document.getElementById("grammarTooltip");
+
+        function storeGrammar() {
+            let grammarName = $("#grammarName").val();
+            let grammarDescription = $("#grammarDescription").val();
+            let grammarContent = $("#fileText").val();
+            if (grammarContent == "" || grammarName == "") {
+                alert("Grammar name and content cannot be empty");
+                return;
+            }
+            $.ajax({
+                url: encodeURI("/grammar/ajaxSaveGrammar"),
+                data: {
+                    'grammarName': grammarName,
+                    'grammarDescription': grammarDescription,
+                    'grammarContent': grammarContent,
+                },
+                async: true,
+                type: "POST",
+                success: function () {
+                    alert("New grammar saved");
+                },
+                error: function () {
+                    alert("Fail on save new grammar");
+                }
+            });
+        }
 
         $(document).ready(function () {
             /*<![CDATA[*/
             experimentInformation = [[${configuration}]];
+            grammarList = [[${grammarList}]];
             /*]]>*/
 
             saveDatasetInfo();
-            updateGrammarContent();
             updateDatasetContent()
             updateTestDatasetContent()
 
@@ -457,9 +534,15 @@
             });
         });
 
-        // Updates the content of the textarea including the text of the selected grammar.
-        function updateGrammarContent() {
-            $("#grammarContainer").val($("#grammarContent" + $("#grammarId").val()).val());
+        function copyGrammar() {
+            if (grammarList[$("#grammarSelect").val()]) {
+                $("#fileText").text(grammarList[$("#grammarSelect").val()].fileText);
+                grammarTooltip.innerHTML = "Copied";
+            }
+        }
+
+        function onGrammar() {
+            grammarTooltip.innerHTML = "Copy to clipboard";
         }
 
         function updateDatasetContent() {
@@ -524,14 +607,14 @@
                     let statusStr = data['status'];
                     let bestIndividualStr = data['bestIndividual'];
                     let currentGenerationStr = data['currentGeneration'];
-                    let lastDate =  data['modificationDateFormated'];
+                    let lastDate = data['modificationDateFormated'];
                     let modelStr = data['model'] === "" ? "Waiting for finish" : data['model'];
 
                     $(status).text(statusStr);
                     $(bestIndividual).text(bestIndividualStr);
                     $(currentGeneration).text(currentGenerationStr);
                     $(model).text(modelStr);
-                    $('#lastDate'+iterStat).text(lastDate);
+                    $('#lastDate' + iterStat).text(lastDate);
                 },
                 complete: function (data) {
                     let runId = $("#runId" + iterStat);
@@ -621,7 +704,7 @@
             let tournament = $('#tournament').val();
             let numberRuns = $('#numberRuns').val();
             let objective = $('#objective').val();
-            let grammarId = $('#grammarId').val();
+            let grammar = $('#fileText').text();
             let datasetId = $('#experimentDataTypeId').val();
             return (experimentInformation['experimentName'] === experimentName &&
                 experimentInformation['experimentDescription'] === experimentDescription &&
@@ -634,7 +717,7 @@
                 experimentInformation['tournament'] == tournament &&
                 experimentInformation['numberRuns'] == numberRuns &&
                 experimentInformation['objective'] === objective &&
-                experimentInformation['defaultGrammarId'] == grammarId &&
+                grammar.split(/[\s]+/).join() == experimentInformation['filetext'].split(/[\s]+/).join() &&
                 experimentInformation['defaultExpDataTypeId'] == datasetId);
         }
 

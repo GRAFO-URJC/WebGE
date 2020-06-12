@@ -6,8 +6,6 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.Calendar;
-import java.sql.Date;
 import java.util.Objects;
 
 @Entity
@@ -64,9 +62,6 @@ public class Run {
 
     @Column(name = "modification_date")
     private Timestamp modificationDate;
-
-    @Column
-    private Long defaultGrammarId;
 
     @Column
     private Long defaultExpDataTypeId;
@@ -215,14 +210,6 @@ public class Run {
 
     public void setExperimentDescription(String experimentDescription) {
         this.experimentDescription = experimentDescription;
-    }
-
-    public Long getDefaultGrammarId() {
-        return defaultGrammarId;
-    }
-
-    public void setDefaultGrammarId(Long defaultGrammarId) {
-        this.defaultGrammarId = defaultGrammarId;
     }
 
     public Long getDefaultExpDataTypeId() {
