@@ -218,7 +218,7 @@
                                     <label>Copy from: </label>
                                 </div>
                                 <div class="col-sm-7 col-md-7 col-lg-7">
-                                    <select id="grammarSelect" name="grammarSelect">
+                                    <select id="grammarSelect" name="grammarSelect" style="width: 100%">
                                         <option value="">Select a grammar ...</option>
                                         <option th:each="gr,iterStat : ${grammarList}" th:value="${iterStat.index}"
                                                 th:text="${gr.getGrammarName() + ' - ' + gr.getGrammarDescription()}"
@@ -232,7 +232,7 @@
                                         <button id="copyGrammarButton"
                                                 type="button"
                                                 onclick="copyGrammar()" onmouseout="onGrammar()">
-                                            <span class="tooltiptext" id="grammarTooltip">Copy to clipboard</span>
+                                            <span class="tooltiptext" id="grammarTooltip">Copy to textarea</span>
                                             Copy
                                         </button>
                                     </div>
@@ -536,13 +536,13 @@
 
         function copyGrammar() {
             if (grammarList[$("#grammarSelect").val()]) {
-                $("#fileText").text(grammarList[$("#grammarSelect").val()].fileText);
+                $("#fileText").val(grammarList[$("#grammarSelect").val()].fileText);
                 grammarTooltip.innerHTML = "Copied";
             }
         }
 
         function onGrammar() {
-            grammarTooltip.innerHTML = "Copy to clipboard";
+            grammarTooltip.innerHTML = "Copy to textarea";
         }
 
         function updateDatasetContent() {
