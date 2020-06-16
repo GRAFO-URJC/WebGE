@@ -1,10 +1,12 @@
 package com.gramevapp.web.service;
 
-import com.gramevapp.web.model.*;
+import com.gramevapp.web.model.Dataset;
+import com.gramevapp.web.model.Experiment;
+import com.gramevapp.web.model.Grammar;
+import com.gramevapp.web.model.User;
 import com.gramevapp.web.repository.ExperimentDataTypeRepository;
 import com.gramevapp.web.repository.ExperimentRepository;
 import com.gramevapp.web.repository.GrammarRepository;
-import com.gramevapp.web.repository.PropertiesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +25,6 @@ public class ExperimentService {
 
     @Autowired
     private ExperimentDataTypeRepository experimentDataTypeRepository;
-
-    @Autowired
-    private PropertiesRepository propertiesRepository;
 
     public void saveDataType(Dataset expDataType) {
         experimentDataTypeRepository.save(expDataType);
@@ -60,19 +59,6 @@ public class ExperimentService {
     public Dataset findExperimentDataTypeById(Long id) {
         Optional<Dataset> check = experimentDataTypeRepository.findById(id);
         return check.orElse(null);
-    }
-
-    public ExpProperties findPropertiesById(Long propertiesId) {
-        Optional<ExpProperties> check = propertiesRepository.findById(propertiesId);
-        return check.orElse(null);
-    }
-
-    public void deleteExpProperties(ExpProperties expProperties) {
-        propertiesRepository.delete(expProperties);
-    }
-
-    public ExpProperties saveExpProperties(ExpProperties expProperties) {
-        return propertiesRepository.save(expProperties);
     }
 
     public List<Dataset> findAllExperimentDataTypeByUserId(Long userId) {

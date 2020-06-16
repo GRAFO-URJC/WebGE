@@ -1,10 +1,8 @@
 package com.gramevapp.web.service;
 
-import com.gramevapp.web.model.ExpProperties;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.model.RunExecutionReport;
 import com.gramevapp.web.repository.ExperimentRepository;
-import com.gramevapp.web.repository.PropertiesRepository;
 import com.gramevapp.web.repository.RunExecutionReportRepository;
 import com.gramevapp.web.repository.RunRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +17,6 @@ public class RunService {
 
     @Autowired
     ExperimentRepository experimentRepository;
-
-    @Autowired
-    PropertiesRepository expPropertiesRepository;
 
     @Autowired
     RunExecutionReportRepository runExecutionReportRepository;
@@ -39,10 +34,6 @@ public class RunService {
 
     public void deleteRun(Run run) {
         runRepository.delete(run);
-    }
-
-    public void deleteExpProperties(ExpProperties expProperties) {
-        expPropertiesRepository.delete(expProperties);
     }
 
     public RunExecutionReport getRunExecutionReport(Long id) {

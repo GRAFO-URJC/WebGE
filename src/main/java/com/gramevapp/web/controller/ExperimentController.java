@@ -33,6 +33,7 @@ public class ExperimentController {
     private HashMap<Long, Thread> threadMap = new HashMap<>();
     private static HashMap<String, Long> threadRunMap = new HashMap<>();
     private static HashMap<Long, RunnableExpGramEv> runnables = new HashMap<>();
+    private static final String LOGGER_BASE_PATH = "resources/files/logs/population";
 
     @Autowired
     private ExperimentService experimentService;
@@ -57,6 +58,8 @@ public class ExperimentController {
     private final String GRAMMAR_DIR_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "grammar" + File.separator + "";
     private final String DATATYPE_DIR_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "dataType" + File.separator + "";
     private final String PROPERTIES_DIR_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "properties" + File.separator + "";
+    private static final String WORK_DIR = "resources/files";
+    private static final String CLASS_PATH_SEPARATOR = "\\;";
 
     private void modelAddData(Model model, User user, Dataset experimentDataType,
                               List<Dataset> experimentDataTypeList, Long testExperimentDataTypeId) {
@@ -79,7 +82,7 @@ public class ExperimentController {
         model.addAttribute("user", user);
         model.addAttribute("configExp", new ConfigExperimentDto());
         model.addAttribute("disabledClone", true);
-        modelAddData(model, user,  null, null, null);
+        modelAddData(model, user, null, null, null);
 
         return "experiment/configExperiment";
     }
@@ -135,11 +138,12 @@ public class ExperimentController {
         // END - Grammar File SECTION
 
         // Create ExpPropertiesDto file
-        expPropertiesSet(fileModelDto, configExpDto, user, expDataType, exp, grammarFilePath, run);
+        String propPath = expPropertiesSet(fileModelDto, configExpDto, user,
+                expDataType, grammarFilePath, run);
 
         List<Thread> threads = new ArrayList<>();
         // Run experiment in new thread
-        threads.add(runExperimentDetails(user, run, run.getDiagramData()));
+        threads.add(runExperimentDetails(run, run.getDiagramData(), propPath));
         //check if need to run more runs
         for (int i = 1; i < configExpDto.getNumberRuns(); i++) {
             // RUN SECTION
@@ -150,12 +154,13 @@ public class ExperimentController {
 
             newRun.setDefaultExpDataTypeId(expDataType.getId());
             // Create ExpPropertiesDto file
-            expPropertiesSet(fileModelDto, configExpDto, user, expDataType, exp, grammarFilePath, newRun);
+            propPath = expPropertiesSet(fileModelDto, configExpDto,
+                    user, expDataType, grammarFilePath, newRun);
 
             newRun.setStatus(Run.Status.WAITING);
 
             // Run experiment in new thread
-            threads.add(runExperimentDetails(user, newRun, newRun.getDiagramData()));
+            threads.add(runExperimentDetails(newRun, newRun.getDiagramData(), propPath));
         }
         experimentService.saveExperiment(exp);
 
@@ -176,21 +181,13 @@ public class ExperimentController {
         return "redirect:/experiment/redirectConfigExperiment";
     }
 
-    protected void expPropertiesSet(@ModelAttribute("typeFile") FileModelDto fileModelDto, @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto, User user , Dataset expDataType, Experiment exp, String grammarFilePath, Run newRun) throws IOException {
-        ExpPropertiesDto newPropertiesDto = new ExpPropertiesDto(user,
-                0.0, configExpDto.getTournament(), 0,
-                configExpDto.getCrossoverProb(), grammarFilePath, 0,
-                1, configExpDto.getMutationProb(), false, 1,
-                configExpDto.getNumCodons(), configExpDto.getPopulationSize(),
-                configExpDto.getGenerations(), false, configExpDto.getMaxWraps(),
-                500, configExpDto.getExperimentName(),
-                configExpDto.getExperimentDescription());
-        fileConfig(expDataType, user, newPropertiesDto, configExpDto,
-                newRun, exp);
-
+    protected String expPropertiesSet(@ModelAttribute("typeFile") FileModelDto fileModelDto,
+                                      @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
+                                      User user, Dataset expDataType, String grammarFilePath, Run newRun) throws IOException {
         DiagramData newDiagramData = new DiagramData();
         newDiagramData.setRunId(newRun);
         diagramDataService.saveDiagram(newDiagramData);
+        return fileConfig(expDataType, user, configExpDto, grammarFilePath);
     }
 
     @GetMapping("/experiment/redirectConfigExperiment")
@@ -234,7 +231,7 @@ public class ExperimentController {
                                  BindingResult result) throws IllegalStateException, IOException {
 
         User user = userService.getLoggedInUser();
-        modelAddData(model, user,  null, null, null);
+        modelAddData(model, user, null, null, null);
 
         if (result.hasErrors()) {
             model.addAttribute("configuration", configExpDto);
@@ -329,32 +326,17 @@ public class ExperimentController {
     }
 
 
-    private void fileConfig(Dataset expDataType, User user, ExpPropertiesDto propertiesDto,
-                            ConfigExperimentDto configExpDto,
-                            Run run, Experiment exp) throws IOException {
+    private String fileConfig(Dataset expDataType, User user,
+                              ConfigExperimentDto configExpDto, String grammarFilePath) throws IOException {
         // Reader - FILE DATA TYPE - Convert MultipartFile into Generic Java File - Then convert it to Reader
-        String dataTypeDirectoryPath = DATATYPE_DIR_PATH;
-        if (expDataType.getDataTypeType().equals("validation")) {
-            dataTypeDirectoryPath += "validation\\" + user.getId();
-            propertiesDto.setValidationPath(dataTypeDirectoryPath);
-            propertiesDto.setValidation(true);
-        } else if (expDataType.getDataTypeType().equals("test")) {
-            dataTypeDirectoryPath += "test\\" + user.getId();
-            propertiesDto.setTestPath(dataTypeDirectoryPath);
-            propertiesDto.setTest(true);
-        } else {
-            dataTypeDirectoryPath += "training\\" + user.getId();
-            propertiesDto.setTrainingPath(dataTypeDirectoryPath + File.separator + configExpDto.getExperimentName()
-                    + "_" + expDataType.getId() + ".csv");
-            propertiesDto.setTraining(true);
-        }
 
         File dir = new File(PROPERTIES_DIR_PATH + user.getId());
         if (!dir.exists())
             dir.mkdirs();
 
-        String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + configExpDto.getExperimentName().replaceAll("\\s+", "") + "_" + propertiesDto.getId() + ".properties";
-        createPropertiesFile(propertiesFilePath, propertiesDto, configExpDto.getExperimentName());  // Write in property file
+        String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + configExpDto.getExperimentName().replaceAll("\\s+", "") + "_" + UUID.randomUUID() + ".properties";
+        createPropertiesFile(propertiesFilePath, configExpDto.getExperimentName(),
+                configExpDto, user, grammarFilePath, DATATYPE_DIR_PATH + "training\\" + user.getId(), expDataType);  // Write in property file
         // END - Create ExpPropertiesDto file
 
         // Execute program with experiment info
@@ -365,11 +347,8 @@ public class ExperimentController {
         properties.load(propertiesReader);
 
         properties.setProperty(TRAINING_PATH_PROP, "");
-
-        ExpProperties expPropertiesEntity = experimentService.saveExpProperties(new ExpProperties());
-        createExpPropertiesEntity(expPropertiesEntity, properties, exp, run, propertiesDto);
-
         propertiesReader.close();
+        return propertiesFilePath;
     }
 
 
@@ -446,7 +425,6 @@ public class ExperimentController {
             runIt.setExperimentId(null);
             runIt.getDiagramData().setRunId(null);
             runService.removeExecutionReport(runService.getRunExecutionReport(runIt.getId()));
-            experimentService.deleteExpProperties(experimentService.findPropertiesById(runIt.getIdProperties()));
             diagramDataService.deleteDiagram(runIt.getDiagramData());
         }
 
@@ -568,16 +546,13 @@ public class ExperimentController {
         result.add(UtilStats.computeAbsoluteError(yDoubleArray, functionResultDoubleArray));
     }
 
-    private Thread runExperimentDetails(User user, Run run, DiagramData diagramData) throws IOException {
-        ExpProperties prop = experimentService.findPropertiesById(run.getIdProperties());
-        String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + run.getExperimentName().replaceAll("\\s+", "") + "_" + prop.getUuidPropDto() + ".properties";
-
-        File propertiesFile = new File(propertiesFilePath);
+    private Thread runExperimentDetails(Run run, DiagramData diagramData, String propPath) throws IOException {
+        File propertiesFile = new File(propPath);
         Reader propertiesReader = new FileReader(propertiesFile);
 
         Properties properties = new Properties();
         properties.load(propertiesReader);
-        properties.setProperty(TRAINING_PATH_PROP, prop.getTrainingPath());
+        properties.setProperty(TRAINING_PATH_PROP, propPath);
         RunnableExpGramEv obj = new RunnableExpGramEv(properties, diagramData, run,
                 experimentService.findExperimentDataTypeById(run.getDefaultExpDataTypeId()), runService);
         Thread.UncaughtExceptionHandler h = (th, ex) -> {
@@ -600,93 +575,43 @@ public class ExperimentController {
         return th;
     }
 
-    private void createPropertiesFile(String propertiesFilePath, ExpPropertiesDto propertiesDto, String expName ) throws IOException {
+    private void createPropertiesFile(String propertiesFilePath, String expName,
+                                      ConfigExperimentDto configExpDto, User user, String grammarFilePath,
+                                      String dataTypeDirectoryPath, Dataset expDataType) throws IOException {
         File propertiesNewFile = new File(propertiesFilePath);
         if (!propertiesNewFile.exists()) {
             propertiesNewFile.createNewFile();
         }
-
         PrintWriter propertiesWriter = new PrintWriter(propertiesNewFile);
 
         propertiesWriter.println("# ExpPropertiesDto for " + expName);
-        propertiesWriter.println("LoggerBasePath=" + propertiesDto.getLoggerBasePath().replace("\\", "/"));
-        propertiesWriter.println("ErrorThreshold=" + propertiesDto.getErrorThreshold());
-        propertiesWriter.println("TournamentSize=" + propertiesDto.getTournamentSize());
-        propertiesWriter.println("WorkDir=" + propertiesDto.getWorkDir().replace("\\", "/"));
-        propertiesWriter.println("RealDataCopied=" + propertiesDto.getRealDataCopied());
-        propertiesWriter.println("CrossoverProb=" + propertiesDto.getCrossoverProb());
-        propertiesWriter.println("BnfPathFile=" + propertiesDto.getBnfPathFile().substring(2).replace("\\", "/"));
-        propertiesWriter.println("Objectives=" + propertiesDto.getObjectives());
-        propertiesWriter.println("ClassPathSeparator=" + propertiesDto.getClassPathSeparator());
-        propertiesWriter.println("Executions=" + propertiesDto.getExecutions());
-        propertiesWriter.println("LoggerLevel=" + propertiesDto.getLoggerLevel());
-        propertiesWriter.println("MutationProb=" + propertiesDto.getMutationProb());
-        propertiesWriter.println("NormalizeData=" + propertiesDto.getNormalizedData());
-        propertiesWriter.println("LogPopulation=" + propertiesDto.getLogPopulation());
-        propertiesWriter.println("ChromosomeLength=" + propertiesDto.getChromosomeLength());
-        propertiesWriter.println("NumIndividuals=" + propertiesDto.getNumIndividuals());
-        propertiesWriter.println("NumGenerations=" + propertiesDto.getNumGenerations());
-        propertiesWriter.println("ViewResults=" + propertiesDto.getViewResults());
-        propertiesWriter.println("MaxWraps=" + propertiesDto.getMaxWraps());
-        propertiesWriter.println("ModelWidth=" + propertiesDto.getModelWidth());
+        propertiesWriter.println("LoggerBasePath=" + (LOGGER_BASE_PATH + File.separator + user.getId()).replace("\\", "/"));
+        propertiesWriter.println("ErrorThreshold=" + 0.0);
+        propertiesWriter.println("TournamentSize=" + configExpDto.getTournament());
+        propertiesWriter.println("WorkDir=" + WORK_DIR.replace("\\", "/"));
+        propertiesWriter.println("RealDataCopied=" + 0);
+        propertiesWriter.println("CrossoverProb=" + configExpDto.getCrossoverProb());
+        propertiesWriter.println("BnfPathFile=" + grammarFilePath.substring(2).replace("\\", "/"));
+        propertiesWriter.println("Objectives=" + 0);
+        propertiesWriter.println("ClassPathSeparator=" + CLASS_PATH_SEPARATOR);
+        propertiesWriter.println("Executions=" + 1);
+        propertiesWriter.println("LoggerLevel=");
+        propertiesWriter.println("MutationProb=" + configExpDto.getMutationProb());
+        propertiesWriter.println("NormalizeData=" + false);
+        propertiesWriter.println("LogPopulation=" + 1);
+        propertiesWriter.println("ChromosomeLength=" + configExpDto.getNumCodons());
+        propertiesWriter.println("NumIndividuals=" + configExpDto.getPopulationSize());
+        propertiesWriter.println("NumGenerations=" + configExpDto.getGenerations());
+        propertiesWriter.println("ViewResults=" + false);
+        propertiesWriter.println("MaxWraps=" + configExpDto.getMaxWraps());
+        propertiesWriter.println("ModelWidth=" + 500);
+        propertiesWriter.println("TrainingPath=" + (dataTypeDirectoryPath + File.separator + configExpDto.getExperimentName()
+                + "_" + expDataType.getId() + ".csv").substring(2).replace("\\", "/"));
 
-        if (propertiesDto.getTraining())
-            propertiesWriter.println("TrainingPath=" + propertiesDto.getTrainingPath().substring(2).replace("\\", "/"));
-        else if (propertiesDto.getValidation()) {
-            propertiesWriter.println("TrainingPath=" + propertiesDto.getTrainingPath().substring(2).replace("\\", "/")); // TEMPORAL UNTIL KNOW IF WE NEED THIS OR NOT
-            propertiesWriter.println("ValidationPath=" + propertiesDto.getValidationPath().substring(2).replace("\\", "/"));
-        } else {
-            propertiesWriter.println("TrainingPath=" + propertiesDto.getTrainingPath().substring(2).replace("\\", "/"));
-            propertiesWriter.println("TestPath=" + propertiesDto.getTestPath().substring(2).replace("\\", "/"));
-            // ("\\", "/")
-        }
         propertiesWriter.close();
     }
 
-    private void createExpPropertiesEntity(ExpProperties expProp, Properties properties,
-                                           Experiment experiment,
-                                           Run run, ExpPropertiesDto propDto) {
-        expProp.setUuidPropDto(propDto.getId().toString());
-
-        expProp.setIdExp(experiment.getId());
-        if (run != null) {
-            expProp.setIdRun(run.getId());
-            run.setIdProperties(expProp.getId());
-        }
-
-
-        expProp.setLoggerBasePath(properties.getProperty("LoggerBasePath"));
-        expProp.setErrorThreshold(Double.parseDouble(properties.getProperty("ErrorThreshold")));
-        expProp.setTournamentSize(Integer.parseInt(properties.getProperty("TournamentSize")));
-        expProp.setWorkDir(properties.getProperty("WorkDir"));
-        expProp.setRealDataCopied(Integer.parseInt(properties.getProperty("RealDataCopied")));
-        expProp.setCrossoverProb(Double.parseDouble(properties.getProperty("CrossoverProb")));
-        expProp.setBnfPathFile(properties.getProperty("BnfPathFile"));
-        expProp.setObjectives(Integer.parseInt(properties.getProperty("Objectives")));
-        expProp.setClassPathSeparator(properties.getProperty("ClassPathSeparator"));
-        expProp.setExecutions(Integer.parseInt(properties.getProperty("Executions")));
-        expProp.setLoggerLevel(properties.getProperty("LoggerLevel"));
-        expProp.setMutationProb(Double.parseDouble(properties.getProperty("MutationProb")));
-        expProp.setNormalizedData(Boolean.parseBoolean(properties.getProperty("NormalizeData")));
-        expProp.setLogPopulation(Integer.parseInt(properties.getProperty("LogPopulation")));
-        expProp.setChromosomeLength(Integer.parseInt(properties.getProperty("ChromosomeLength")));
-        expProp.setNumIndividuals(Integer.parseInt(properties.getProperty("NumIndividuals")));
-        expProp.setNumGenerations(Integer.parseInt(properties.getProperty("NumGenerations")));
-        expProp.setViewResults(Boolean.parseBoolean(properties.getProperty("ViewResults")));
-        expProp.setMaxWraps(Integer.parseInt(properties.getProperty("MaxWraps")));
-        expProp.setModelWidth(Integer.parseInt(properties.getProperty("ModelWidth")));
-
-        expProp.setTrainingPath("");
-
-        expProp.setExperimentName(experiment.getExperimentName());
-        expProp.setExperimentDescription(experiment.getExperimentDescription());
-        expProp.setInitialization(experiment.getInitialization());
-        expProp.setResults(experiment.getResults());
-        expProp.setNumberRuns(experiment.getNumberRuns());
-
-    }
-
-    private void runSection(Run run,ConfigExperimentDto configExpDto) {
+    private void runSection(Run run, ConfigExperimentDto configExpDto) {
         run.setDefaultRunId(run.getId());
         run.setStatus(Run.Status.INITIALIZING);
 
@@ -865,8 +790,6 @@ public class ExperimentController {
             }
         }
 
-        if (experimentService.findPropertiesById(run.getIdProperties()) != null)
-            runService.deleteExpProperties(experimentService.findPropertiesById(run.getIdProperties()));
         if (experiment.getDefaultRunId().equals(longRunId)) {
             experiment.setDefaultRunId(null);
             experimentService.saveExperiment(experiment);
@@ -942,7 +865,7 @@ public class ExperimentController {
 
                     if (matcher.find()) {
                         //j.c.algorithm.ga.SimpleGeneticAlgorithm
-                        infoFormated += matcher.group()+"\r\n";
+                        infoFormated += matcher.group() + "\r\n";
                     } else {
                         //c.engine.algorithm.SymbolicRegressionGE
                         infoFormated += logInfo.substring(logInfo.indexOf(messageSkip) + messageSkip.length());
