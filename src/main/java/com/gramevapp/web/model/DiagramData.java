@@ -53,15 +53,6 @@ public class DiagramData {
         this.listPair = new ArrayList<>();
     }
 
-    public DiagramData(double bestIndividual) {
-        this.bestIndividual = bestIndividual;
-    }
-
-    public DiagramData(Run runId, Long longUserId) {
-        this.runId = runId;
-        this.listPair = new ArrayList<>();
-    }
-
     public DiagramData(Integer currentGeneration, double bestIndividual, Run runId) {
         this.bestIndividual = bestIndividual;
         this.runId = runId;

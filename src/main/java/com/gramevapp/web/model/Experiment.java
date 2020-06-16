@@ -77,11 +77,7 @@ public class Experiment {
     @Column
     private Double mutationProb = 0.5;
     @Column
-    private String initialization = "";       // Random OR Sensible
-    @Column
     private String objective;
-    @Column
-    private String results = "";             // Text file with the results of the experiments
     @Column
     private Integer numCodons = 10;
     @Column
@@ -100,7 +96,7 @@ public class Experiment {
 
     public Experiment(User user, String experimentName, String experimentDescription, Integer generations, Integer populationSize,
                       Integer maxWraps, Integer tournament, Double crossoverProb,
-                      Double mutationProb, String initialization, String results, Integer numCodons,
+                      Double mutationProb, Integer numCodons,
                       Integer numberRuns, String objective, Timestamp creationDate, Timestamp modificationDate) {
         this.userId = user.getId();
         this.experimentName = experimentName;
@@ -111,8 +107,6 @@ public class Experiment {
         this.tournament = tournament;
         this.crossoverProb = crossoverProb;
         this.mutationProb = mutationProb;
-        this.initialization = initialization;
-        this.results = results;
         this.numCodons = numCodons;
         this.numberRuns = numberRuns;
         this.objective = objective;
@@ -289,22 +283,6 @@ public class Experiment {
         this.mutationProb = mutationProb;
     }
 
-    public String getInitialization() {
-        return initialization;
-    }
-
-    public void setInitialization(String initialization) {
-        this.initialization = initialization;
-    }
-
-    public String getResults() {
-        return results;
-    }
-
-    public void setResults(String results) {
-        this.results = results;
-    }
-
     public Timestamp getCreationDate() {
         return creationDate;
     }
@@ -347,9 +325,7 @@ public class Experiment {
         experiment.tournament = this.tournament;
         experiment.crossoverProb = this.crossoverProb;
         experiment.mutationProb = this.mutationProb;
-        experiment.initialization = this.initialization;
         experiment.objective = this.objective;
-        experiment.results = this.results;
         experiment.numCodons = this.numCodons;
         experiment.numberRuns = this.numberRuns;
 
