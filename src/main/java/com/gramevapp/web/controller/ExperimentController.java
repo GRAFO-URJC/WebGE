@@ -681,7 +681,6 @@ public class ExperimentController {
             if (longDefaultRunId != null) {
                 exp.setDefaultRunId(longDefaultRunId);          // Doesn't exists -> We set up the run id obtained before
             }
-            user.addExperiment(exp);       // We add it only if doesn't exist
 
         } else {  // The experiment data type configuration already exist
             exp.setUserId(user);

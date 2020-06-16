@@ -35,15 +35,11 @@ public class ExperimentService {
     }
 
     public List<Experiment> findByUser(User user) {
-        return experimentRepository.findByUserId(user);
+        return experimentRepository.findByUserId(user.getId());
     }
 
     public Experiment findExperimentByUserIdAndExpId(User user, Long expId) {
         return experimentRepository.findByUserIdAndId(user, expId);
-    }
-
-    public Grammar findGrammarById(Long grammarId) {
-        return grammarRepository.findGrammarById(grammarId);
     }
 
     public Dataset findDataTypeById(Long dataTypeId) {
