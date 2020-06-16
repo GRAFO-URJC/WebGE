@@ -38,10 +38,6 @@ public class ExperimentService {
         return experimentRepository.findByUserId(user.getId());
     }
 
-    public Experiment findExperimentByUserIdAndExpId(User user, Long expId) {
-        return experimentRepository.findByUserIdAndId(user, expId);
-    }
-
     public Dataset findDataTypeById(Long dataTypeId) {
         Optional<Dataset> check = experimentDataTypeRepository.findById(dataTypeId);
         return check.orElse(null);

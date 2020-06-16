@@ -48,14 +48,7 @@ public class Run {
     private Integer currentGeneration = 0;
 
     @Column
-    private Long idProperties;
-
-    @Column
     private Status status;
-    @Column(name = "EXPERIMENT_NAME")
-    private String experimentName;
-    @Column(name = "EXPERIMENT_DESCRIPTION")
-    private String experimentDescription;
 
     @Column(name = "ini_date")
     private Timestamp iniDate;
@@ -63,34 +56,6 @@ public class Run {
     @Column(name = "modification_date")
     private Timestamp modificationDate;
 
-    @Column
-    private Long defaultExpDataTypeId;
-
-    @Column
-    private Long defaultRunId;
-
-    @Column
-    private Integer generations = 1000;
-    @Column
-    private Integer populationSize = 50;
-    @Column
-    private Integer maxWraps = 3;
-    @Column
-    private Integer tournament = 2;
-    @Column
-    private Double crossoverProb = 0.5;
-    @Column
-    private Double mutationProb = 0.5;
-    @Column
-    private String initialization = "";       // Random OR Sensible
-    @Column
-    private String objective;
-    @Column
-    private String results = "";             // Text file with the results of the experiments
-    @Column
-    private Integer numCodons = 10;
-    @Column
-    private Integer numberRuns = 1;
     @Column
     private String model = "";
     @OneToOne(mappedBy = "run", cascade = CascadeType.ALL,
@@ -143,7 +108,6 @@ public class Run {
         return DateFormat.formatDate(modificationDate);
     }
 
-
     public void setIniDate(Timestamp iniDate) {
         this.iniDate = iniDate;
     }
@@ -164,22 +128,6 @@ public class Run {
         this.modificationDate = modificationDate;
     }
 
-    public Long getIdProperties() {
-        return idProperties;
-    }
-
-    public void setIdProperties(Long idProperties) {
-        this.idProperties = idProperties;
-    }
-
-    public DiagramData getDiagramData() {
-        return diagramData;
-    }
-
-    public void setDiagramData(DiagramData diagramData) {
-        this.diagramData = diagramData;
-    }
-
     public Double getBestIndividual() {
         return bestIndividual;
     }
@@ -194,126 +142,6 @@ public class Run {
 
     public void setCurrentGeneration(Integer currentGeneration) {
         this.currentGeneration = currentGeneration;
-    }
-
-    public String getExperimentName() {
-        return experimentName;
-    }
-
-    public void setExperimentName(String experimentName) {
-        this.experimentName = experimentName;
-    }
-
-    public String getExperimentDescription() {
-        return experimentDescription;
-    }
-
-    public void setExperimentDescription(String experimentDescription) {
-        this.experimentDescription = experimentDescription;
-    }
-
-    public Long getDefaultExpDataTypeId() {
-        return defaultExpDataTypeId;
-    }
-
-    public void setDefaultExpDataTypeId(Long defaultExpDataTypeId) {
-        this.defaultExpDataTypeId = defaultExpDataTypeId;
-    }
-
-    public Long getDefaultRunId() {
-        return defaultRunId;
-    }
-
-    public void setDefaultRunId(Long defaultRunId) {
-        this.defaultRunId = defaultRunId;
-    }
-
-    public Integer getGenerations() {
-        return generations;
-    }
-
-    public void setGenerations(Integer generations) {
-        this.generations = generations;
-    }
-
-    public Integer getPopulationSize() {
-        return populationSize;
-    }
-
-    public void setPopulationSize(Integer populationSize) {
-        this.populationSize = populationSize;
-    }
-
-    public Integer getMaxWraps() {
-        return maxWraps;
-    }
-
-    public void setMaxWraps(Integer maxWraps) {
-        this.maxWraps = maxWraps;
-    }
-
-    public Integer getTournament() {
-        return tournament;
-    }
-
-    public void setTournament(Integer tournament) {
-        this.tournament = tournament;
-    }
-
-    public Double getCrossoverProb() {
-        return crossoverProb;
-    }
-
-    public void setCrossoverProb(Double crossoverProb) {
-        this.crossoverProb = crossoverProb;
-    }
-
-    public Double getMutationProb() {
-        return mutationProb;
-    }
-
-    public void setMutationProb(Double mutationProb) {
-        this.mutationProb = mutationProb;
-    }
-
-    public String getInitialization() {
-        return initialization;
-    }
-
-    public void setInitialization(String initialization) {
-        this.initialization = initialization;
-    }
-
-    public String getObjective() {
-        return objective;
-    }
-
-    public void setObjective(String objective) {
-        this.objective = objective;
-    }
-
-    public String getResults() {
-        return results;
-    }
-
-    public void setResults(String results) {
-        this.results = results;
-    }
-
-    public Integer getNumCodons() {
-        return numCodons;
-    }
-
-    public void setNumCodons(Integer numCodons) {
-        this.numCodons = numCodons;
-    }
-
-    public Integer getNumberRuns() {
-        return numberRuns;
-    }
-
-    public void setNumberRuns(Integer numberRuns) {
-        this.numberRuns = numberRuns;
     }
 
     public Long getThreaId() {
@@ -338,5 +166,13 @@ public class Run {
 
     public void setRunExecutionReport(com.gramevapp.web.model.RunExecutionReport runExecutionReport) {
         RunExecutionReport = runExecutionReport;
+    }
+
+    public DiagramData getDiagramData() {
+        return diagramData;
+    }
+
+    public void setDiagramData(DiagramData diagramData) {
+        this.diagramData = diagramData;
     }
 }

@@ -74,23 +74,23 @@
                                              exp:exp.getIdRunList().get(exp.getIdRunList().size()-1)}">
                                         <b>Generations:</b>
                                         <label th:text="${exp.getIdRunList().isEmpty()?
-                                            '0':expRunConfiguration.getGenerations()}"></label>
+                                            '0':exp.getGenerations()}"></label>
                                         ; <b>Crossover Prob:</b>
-                                        <label th:text="${expRunConfiguration.getCrossoverProb()}"></label>
+                                        <label th:text="${exp.getCrossoverProb()}"></label>
                                         ; <b>Population Size:</b>
-                                        <label th:text="${expRunConfiguration.getPopulationSize()}"></label>
+                                        <label th:text="${exp.getPopulationSize()}"></label>
                                         ; <b>Mutation Prob:</b>
-                                        <label th:text="${expRunConfiguration.getMutationProb()}"></label>
+                                        <label th:text="${exp.getMutationProb()}"></label>
                                         ; <b>Max Wraps:</b>
-                                        <label th:text="${expRunConfiguration.getMaxWraps()}"></label>
+                                        <label th:text="${exp.getMaxWraps()}"></label>
                                         ; <b>Num Codons:</b>
-                                        <label th:text="${expRunConfiguration.getNumCodons()}"></label>
+                                        <label th:text="${exp.getNumCodons()}"></label>
                                         ; <b>Tournament:</b>
-                                        <label th:text="${expRunConfiguration.getTournament()}"></label>
+                                        <label th:text="${exp.getTournament()}"></label>
                                         ; <b>Number Runs:</b>
-                                        <label th:text="${expRunConfiguration.getNumberRuns()}"></label>
+                                        <label th:text="${exp.getNumberRuns()}"></label>
                                         ; <b>Objective:</b>
-                                        <label th:text="${expRunConfiguration.getObjective()}"></label>
+                                        <label th:text="${exp.getObjective()}"></label>
                                         </span>
 
                                     </div>
@@ -100,7 +100,6 @@
                                             <thead>
                                             <tr>
                                                 <th scope="col"># Run</th>
-                                                <th scope="col">Run name</th>
                                                 <th scope="col">Best solution</th>
                                                 <th scope="col">Current generation</th>
                                                 <th scope="col">Status</th>
@@ -110,14 +109,10 @@
                                             </tr>
                                             </thead>
                                             <tbody>
-
                                             <th:block th:each="run, iterStat : ${exp.getIdRunList()}">
                                                 <tr th:if="${run.getDiagramData()!=null}">
                                                     <td scope="row"><label th:text="${iterStat.index+1}"
                                                                            th:id="'runId'+${iterStat.index}"/></td>
-                                                    <td scope="row"><label th:name="runName" th:id="runName"
-                                                                           th:text="${run.getExperimentName()}"/>
-                                                    </td>
                                                     <td scope="row"><label th:name="bestIndividual"
                                                                            th:id="'bestIndividual'+${iterStat.index}"
                                                                            th:text="${run.getDiagramData().bestIndividual}"/>

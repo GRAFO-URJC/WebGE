@@ -120,7 +120,6 @@ public class ExperimentController {
                 findExperimentDataTypeById(Long.valueOf(experimentDataTypeId));
 
         experimentDataTypeSection(expDataType);
-        run.setDefaultExpDataTypeId(expDataType.getId());
         // END - Experiment Data Type SECTION
 
         // Experiment section:
@@ -151,8 +150,6 @@ public class ExperimentController {
             runSection(newRun, configExpDto);
             exp.getIdRunList().add(newRun);
             newRun.setExperimentId(exp);
-
-            newRun.setDefaultExpDataTypeId(expDataType.getId());
             // Create ExpPropertiesDto file
             propPath = expPropertiesSet(fileModelDto, configExpDto,
                     user, expDataType, grammarFilePath, newRun);
@@ -211,7 +208,7 @@ public class ExperimentController {
         List<Dataset> expDataTypeList = run.getExperimentId().getIdExpDataTypeList();
 
         ConfigExperimentDto configExpDto = fillConfigExpDto(new ConfigExperimentDto(),
-                run.getExperimentId(), run, experiment.getDefaultGrammar());
+                run.getExperimentId(), experiment.getDefaultGrammar());
 
         model.addAttribute("configuration", configExpDto);
         model.addAttribute("runList", runList);
@@ -372,12 +369,11 @@ public class ExperimentController {
         if (id == null)
             return "redirect:experiment/experimentRepository";
 
-        Experiment exp = experimentService.findExperimentByUserIdAndExpId(user, Long.parseLong(id));
+        Experiment exp = experimentService.findExperimentById(Long.parseLong(id));
 
         List<Run> runList = exp.getIdRunList();
 
         ConfigExperimentDto configExpDto = fillConfigExpDto(new ConfigExperimentDto(), exp,
-                exp.getIdRunList().isEmpty() ? null : runService.findByRunId(exp.getDefaultRunId()),
                 exp.getDefaultGrammar());
 
         modelAddData(model, user, experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()),
@@ -452,8 +448,6 @@ public class ExperimentController {
         experimentDetailsDto.setTournament(run.getExperimentId().getTournament());
         experimentDetailsDto.setCrossoverProb(run.getExperimentId().getCrossoverProb());
         experimentDetailsDto.setMutationProb(run.getExperimentId().getMutationProb());
-        experimentDetailsDto.setInitialization(run.getExperimentId().getInitialization());
-        experimentDetailsDto.setResults(run.getExperimentId().getResults());
         experimentDetailsDto.setNumCodons(run.getExperimentId().getNumCodons());
         experimentDetailsDto.setNumberRuns(run.getExperimentId().getNumberRuns());
         experimentDetailsDto.setDefaultExpDataTypeId(run.getExperimentId().getDefaultExpDataType());
@@ -488,7 +482,7 @@ public class ExperimentController {
         List<Double> listFunctionResult = new ArrayList<>();
         List<Double> trainingResult = new ArrayList<>();
         String[] splitContent =
-                experimentService.findExperimentDataTypeById(run.getDefaultExpDataTypeId()).getInfo().split("\r\n");
+                experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()).getInfo().split("\r\n");
 
         processExperimentDataTypeInfo(splitContent, listYLine, listFunctionResult, trainingResult, run);
 
@@ -554,7 +548,7 @@ public class ExperimentController {
         properties.load(propertiesReader);
         properties.setProperty(TRAINING_PATH_PROP, propPath);
         RunnableExpGramEv obj = new RunnableExpGramEv(properties, diagramData, run,
-                experimentService.findExperimentDataTypeById(run.getDefaultExpDataTypeId()), runService);
+                experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService);
         Thread.UncaughtExceptionHandler h = (th, ex) -> {
             run.setStatus(Run.Status.FAILED);
             run.getDiagramData().setFailed(true);
@@ -612,26 +606,11 @@ public class ExperimentController {
     }
 
     private void runSection(Run run, ConfigExperimentDto configExpDto) {
-        run.setDefaultRunId(run.getId());
         run.setStatus(Run.Status.INITIALIZING);
 
         run.setIniDate(new Timestamp(System.currentTimeMillis()));
         run.setModificationDate(new Timestamp(System.currentTimeMillis()));
 
-        run.setExperimentName(configExpDto.getExperimentName());
-        run.setExperimentDescription(configExpDto.getExperimentDescription());
-
-        run.setGenerations(configExpDto.getGenerations());
-        run.setPopulationSize(configExpDto.getPopulationSize());
-        run.setMaxWraps(configExpDto.getMaxWraps());
-        run.setTournament(configExpDto.getTournament());
-        run.setCrossoverProb(configExpDto.getCrossoverProb());
-        run.setMutationProb(configExpDto.getMutationProb());
-        run.setInitialization(configExpDto.getInitialization());
-        run.setObjective(configExpDto.getObjective());
-        run.setResults(configExpDto.getResults());
-        run.setNumCodons(configExpDto.getNumCodons());
-        run.setNumberRuns(configExpDto.getNumberRuns());
         RunExecutionReport runExecutionReport = new RunExecutionReport();
         runExecutionReport.setId(run.getId());
         runService.saveRunExecutionReport(runExecutionReport);
@@ -676,7 +655,7 @@ public class ExperimentController {
         if (exp == null) {   // We create it
             exp = new Experiment(user, configExpDto.getExperimentName(), configExpDto.getExperimentDescription(), configExpDto.getGenerations(),
                     configExpDto.getPopulationSize(), configExpDto.getMaxWraps(), configExpDto.getTournament(), configExpDto.getCrossoverProb(), configExpDto.getMutationProb(),
-                    configExpDto.getInitialization(), configExpDto.getResults(), configExpDto.getNumCodons(), configExpDto.getNumberRuns(), configExpDto.getObjective(),
+                    configExpDto.getNumCodons(), configExpDto.getNumberRuns(), configExpDto.getObjective(),
                     new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis()));
             if (longDefaultRunId != null) {
                 exp.setDefaultRunId(longDefaultRunId);          // Doesn't exists -> We set up the run id obtained before
@@ -693,8 +672,6 @@ public class ExperimentController {
             exp.setTournament(configExpDto.getTournament());
             exp.setCrossoverProb(configExpDto.getCrossoverProb());
             exp.setMutationProb(configExpDto.getMutationProb());
-            exp.setInitialization(configExpDto.getInitialization());
-            exp.setResults(configExpDto.getResults());
             exp.setNumCodons(configExpDto.getNumCodons());
             exp.setNumberRuns(configExpDto.getNumberRuns());
             exp.setObjective(configExpDto.getObjective());
@@ -796,21 +773,13 @@ public class ExperimentController {
         return longRunId;
     }
 
-    public ConfigExperimentDto fillConfigExpDto(ConfigExperimentDto configExpDto, Experiment exp, Run run, String grammar) {
-        if (run == null) {
-            configExpDto.setDefaultRunId(exp.getDefaultRunId());
-            setConfigExpDtoWIthExperiment(configExpDto, exp.getExperimentName(),
-                    exp.getExperimentDescription(), exp.getCrossoverProb(), exp.getGenerations(),
-                    exp.getPopulationSize(), exp.getMaxWraps(), exp.getTournament(), exp.getMutationProb(),
-                    exp.getInitialization(), exp.getResults(), exp.getNumCodons(), exp.getNumberRuns(), exp.getObjective(), exp);
-        } else {
-            configExpDto.setDefaultRunId(run.getId());
-            setConfigExpDtoWIthExperiment(configExpDto, run.getExperimentName(),
-                    run.getExperimentDescription(), run.getCrossoverProb(), run.getGenerations(),
-                    run.getPopulationSize(), run.getMaxWraps(), run.getTournament(),
-                    run.getMutationProb(), run.getInitialization(), run.getResults(), run.getNumCodons(),
-                    run.getNumberRuns(), run.getObjective(), exp);
-        }
+    public ConfigExperimentDto fillConfigExpDto(ConfigExperimentDto configExpDto, Experiment exp, String grammar) {
+
+        configExpDto.setDefaultRunId(exp.getDefaultRunId());
+        setConfigExpDtoWIthExperiment(configExpDto, exp.getExperimentName(),
+                exp.getExperimentDescription(), exp.getCrossoverProb(), exp.getGenerations(),
+                exp.getPopulationSize(), exp.getMaxWraps(), exp.getTournament(), exp.getMutationProb(),
+                exp.getNumCodons(), exp.getNumberRuns(), exp.getObjective());
 
         configExpDto.setId(exp.getId());
         configExpDto.setDefaultExpDataTypeId(exp.getDefaultExpDataType());
@@ -819,7 +788,10 @@ public class ExperimentController {
         return configExpDto;
     }
 
-    private void setConfigExpDtoWIthExperiment(ConfigExperimentDto configExpDto, String experimentName, String experimentDescription, Double crossoverProb, Integer generations, Integer populationSize, Integer maxWraps, Integer tournament, Double mutationProb, String initialization, String results, Integer numCodons, Integer numberRuns, String objective, Experiment exp) {
+    private void setConfigExpDtoWIthExperiment(ConfigExperimentDto configExpDto, String experimentName, String experimentDescription,
+                                               Double crossoverProb, Integer generations, Integer populationSize, Integer maxWraps,
+                                               Integer tournament, Double mutationProb,
+                                               Integer numCodons, Integer numberRuns, String objective) {
         configExpDto.setExperimentName(experimentName);
         configExpDto.setExperimentDescription(experimentDescription);
         configExpDto.setCrossoverProb(crossoverProb);
@@ -829,8 +801,6 @@ public class ExperimentController {
         configExpDto.setTournament(tournament);
         configExpDto.setCrossoverProb(crossoverProb);
         configExpDto.setMutationProb(mutationProb);
-        configExpDto.setInitialization(initialization);
-        configExpDto.setResults(results);
         configExpDto.setNumCodons(numCodons);
         configExpDto.setNumberRuns(numberRuns);
         configExpDto.setObjective(objective);
