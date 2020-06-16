@@ -23,18 +23,8 @@ public class Experiment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JsonManagedReference
-    @ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "users_experiments",
-            joinColumns = {
-                    @JoinColumn(name = "experiment_id", nullable = false)
-            },
-            inverseJoinColumns = {
-                    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
-            }
-    )
-    private User userId;
+    @Column(name = "userId")
+    private Long userId;
 
     @Column(name = "EXPERIMENT_NAME") // Reference for user relation and ExpDataType and Grammar
     private String experimentName;
@@ -108,11 +98,11 @@ public class Experiment {
         this.idRunList = new ArrayList<>();
     }
 
-    public Experiment(User userId, String experimentName, String experimentDescription, Integer generations, Integer populationSize,
+    public Experiment(User user, String experimentName, String experimentDescription, Integer generations, Integer populationSize,
                       Integer maxWraps, Integer tournament, Double crossoverProb,
                       Double mutationProb, String initialization, String results, Integer numCodons,
                       Integer numberRuns, String objective, Timestamp creationDate, Timestamp modificationDate) {
-        this.userId = userId;
+        this.userId = user.getId();
         this.experimentName = experimentName;
         this.experimentDescription = experimentDescription;
         this.generations = generations;
@@ -184,12 +174,12 @@ public class Experiment {
         this.numberRuns = numberRuns;
     }
 
-    public User getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(User userId) {
-        this.userId = userId;
+    public void setUserId(User user) {
+        this.userId = user.getId();
     }
 
     public String getExperimentName() {
