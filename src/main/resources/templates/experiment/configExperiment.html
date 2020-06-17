@@ -604,6 +604,7 @@
                 type: "GET",
                 dataType: "json",
                 success: function (data) {
+                    console.log(data)
                     let statusStr = data['status'];
                     let bestIndividualStr = data['bestIndividual'];
                     let currentGenerationStr = data['currentGeneration'];
