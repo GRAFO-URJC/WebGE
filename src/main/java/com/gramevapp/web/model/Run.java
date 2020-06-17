@@ -6,6 +6,8 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -33,10 +35,9 @@ public class Run {
     )
     private Experiment experimentId;
 
-    @JsonIgnore
-    @OneToOne(cascade = CascadeType.ALL,
+    @OneToMany(cascade = CascadeType.ALL,
             mappedBy = "runId")
-    private DiagramData diagramData;
+    private List<DiagramData> diagramData = new ArrayList<>();
 
     @Column
     private Long threaId;
@@ -169,10 +170,17 @@ public class Run {
     }
 
     public DiagramData getDiagramData() {
+        if (diagramData.isEmpty()) {
+            return null;
+        }
+        return diagramData.get(diagramData.size() - 1);
+    }
+
+    public List<DiagramData> getDiagramDataList() {
         return diagramData;
     }
 
-    public void setDiagramData(DiagramData diagramData) {
-        this.diagramData = diagramData;
+    public void addDiagramData(DiagramData diagramData) {
+        this.diagramData.add(diagramData);
     }
 }
