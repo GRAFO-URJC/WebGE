@@ -400,18 +400,7 @@ public class ExperimentController {
             // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
             Thread th = threadMap.get(threadId);
             if (th != null) {
-                runIt.getDiagramData().setStopped(true);
                 runIt.setStatus(Run.Status.STOPPED);
-
-                Iterator<DiagramPair> it = runIt.getDiagramData().getListPair().iterator();
-                ArrayList<DiagramPair> lPairAux = new ArrayList<>();
-                while (it.hasNext()) {
-                    DiagramPair value = it.next();
-                    it.remove();
-                    lPairAux.add(value);
-                }
-                runIt.getDiagramData().getListPair().removeAll(lPairAux);
-                diagramDataService.saveDiagram(runIt.getDiagramData());
                 runService.saveRun(runIt);
 
                 th.interrupt();
@@ -419,9 +408,7 @@ public class ExperimentController {
             }
             listRunIt.remove();
             runIt.setExperimentId(null);
-            runIt.getDiagramData().setRunId(null);
             runService.removeExecutionReport(runService.getRunExecutionReport(runIt.getId()));
-            diagramDataService.deleteDiagram(runIt.getDiagramData());
         }
 
         Iterator<Dataset> listDataTypeIt = expConfig.getIdExpDataTypeList().iterator();
@@ -435,41 +422,15 @@ public class ExperimentController {
         return idExp;
     }
 
-    private ExperimentDetailsDto setExperimentDetailDto(Run run, DiagramData diagramData) {
-        ExperimentDetailsDto experimentDetailsDto = new ExperimentDetailsDto();
-        experimentDetailsDto.setExperimentId(run.getExperimentId().getId());
-        experimentDetailsDto.setExperimentName(run.getExperimentId().getExperimentName());
-        experimentDetailsDto.setExperimentDescription(run.getExperimentId().getExperimentDescription());
-        experimentDetailsDto.setRunId(run.getId());
-        experimentDetailsDto.setStatus(run.getStatus());
-        experimentDetailsDto.setGenerations(run.getExperimentId().getGenerations());
-        experimentDetailsDto.setPopulationSize(run.getExperimentId().getPopulationSize());
-        experimentDetailsDto.setMaxWraps(run.getExperimentId().getMaxWraps());
-        experimentDetailsDto.setTournament(run.getExperimentId().getTournament());
-        experimentDetailsDto.setCrossoverProb(run.getExperimentId().getCrossoverProb());
-        experimentDetailsDto.setMutationProb(run.getExperimentId().getMutationProb());
-        experimentDetailsDto.setNumCodons(run.getExperimentId().getNumCodons());
-        experimentDetailsDto.setNumberRuns(run.getExperimentId().getNumberRuns());
-        experimentDetailsDto.setDefaultExpDataTypeId(run.getExperimentId().getDefaultExpDataType());
-        experimentDetailsDto.setIniDate(run.getIniDate().toString());
-        experimentDetailsDto.setLastDate(run.getModificationDate().toString());
-        if (diagramData != null) {
-            experimentDetailsDto.setBestIndividual(diagramData.getBestIndividual());
-            experimentDetailsDto.setCurrentGeneration(diagramData.getCurrentGeneration());
-        }
-        experimentDetailsDto.setExecutionReport(runService.getRunExecutionReport(run.getId()).getExecutionReport());
-        return experimentDetailsDto;
-    }
-
     @GetMapping(value = "/experiment/runList", params = "showPlotExecutionButton")
     public String showPlotExecutionExperiment(Model model,
                                               @RequestParam(value = "runId") String runId) {
         Long longRunId = Long.parseLong(runId);
         Run run = runService.findByRunId(longRunId);
-        DiagramData diagramData = diagramDataService.findByRunId(run);
 
-        ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, diagramData);
-        model.addAttribute("expDetails", experimentDetailsDto);
+        model.addAttribute("expDetails", run.getExperimentId());
+        model.addAttribute("runId", run.getId());
+        model.addAttribute("run", run);
 
         return "experiment/experimentDetails";
     }
@@ -551,7 +512,6 @@ public class ExperimentController {
                 experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService);
         Thread.UncaughtExceptionHandler h = (th, ex) -> {
             run.setStatus(Run.Status.FAILED);
-            run.getDiagramData().setFailed(true);
             RunExecutionReport runExecutionReport = runService.getRunExecutionReport(run.getId());
             runExecutionReport.setExecutionReport(runExecutionReport.getExecutionReport() + "\nUncaught exception: " + ex);
             runService.saveRunExecutionReport(runExecutionReport);
@@ -722,7 +682,6 @@ public class ExperimentController {
         Thread th = threadMap.get(threadId);
         if (th == null) {
             run.setStatus(Run.Status.FAILED);
-            run.getDiagramData().setFailed(true);
 
             redirectAttrs.addAttribute("runId", run.getId()).addFlashAttribute("Stop", "Stop execution failed");
             redirectAttrs.addAttribute("showPlotExecutionButton", "showPlotExecutionButton");
@@ -730,15 +689,16 @@ public class ExperimentController {
         }
         th.interrupt();
         runnables.get(threadId).stopExecution();
-
-        run.setStatus(Run.Status.STOPPED);
         run.getDiagramData().setStopped(true);
         diagramDataService.saveDiagram(run.getDiagramData());
+
+        run.setStatus(Run.Status.STOPPED);
         runService.saveRun(run);
 
-        ExperimentDetailsDto experimentDetailsDto = setExperimentDetailDto(run, run.getDiagramData());
+        model.addAttribute("expDetails", run.getExperimentId());
+        model.addAttribute("runId", run.getId());
+        model.addAttribute("run", run);
 
-        model.addAttribute("expDetails", experimentDetailsDto);
         return "experiment/experimentDetails";
     }
 
@@ -757,8 +717,6 @@ public class ExperimentController {
         while (runIt.hasNext() && !found) {
             Run runAux = runIt.next();
             if (runAux.getId().longValue() == run.getId().longValue()) {
-                runAux.getDiagramData().setRunId(null);
-                diagramDataService.deleteDiagram(runAux.getDiagramData());
                 runAux.setExperimentId(null);
                 if (runAux.getId().longValue() == experiment.getDefaultRunId().longValue())
                     experiment.setDefaultRunId(Long.parseLong("0"));
@@ -770,6 +728,7 @@ public class ExperimentController {
             experiment.setDefaultRunId(null);
             experimentService.saveExperiment(experiment);
         }
+        runService.deleteRun(run);
         return longRunId;
     }
 

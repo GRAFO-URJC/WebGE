@@ -1,7 +1,6 @@
 package com.engine.algorithm;
 
 import com.gramevapp.web.model.DiagramData;
-import com.gramevapp.web.model.DiagramPair;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.other.BeanUtil;
 import com.gramevapp.web.service.DiagramDataService;
@@ -48,25 +47,20 @@ public class RunGeObserver implements Observer {
         DiagramDataService dataDataService = (DiagramDataService) context.getBean("diagramDataService");
         RunService runService = (RunService) context.getBean("runService");
 
-        // value.getDiagramData().getListPair().remove(value);
-        DiagramPair diagramPair = new DiagramPair(currBest, currGen);
 
         if (this.diagramData.getRunId().getStatus().equals(Run.Status.INITIALIZING)) {
             Run run = runService.findByRunId(this.diagramData.getRunId().getId());
             run.setStatus(Run.Status.RUNNING);
-            this.diagramData.setRunId(run);
             dataDataService.saveRun(run);
         }
-
-        this.diagramData.addListPair(diagramPair);
 
         if (currPercent == 100 || currBest <= 0.0)
             this.diagramData.setFinished(true);
 
         this.diagramData.setBestIndividual(Math.max(currBest, 0.0));
         this.diagramData.setCurrentGeneration(currGen);
-        dataDataService.saveDiagramPair(diagramPair);
-        dataDataService.saveDiagram(this.diagramData);
+        this.diagramData.setId(null);
+        this.diagramData=dataDataService.saveDiagram(this.diagramData);
 
         lock.lock();
         Run updateRun= runService.findByRunId(this.diagramData.getRunId().getId());
