@@ -115,7 +115,7 @@
             panEnabled: true,
 
             title: {
-                text: "Diagram data flow showing best individual at the moment"
+                text: "Best individual"
             },
             data: [{
                 markerSize: 4,
@@ -131,7 +131,7 @@
                 tickThickness: 0.5,
             },
             axisY: {
-                title: "Best individual",
+                title: "Objective function",
                 maximum: 1,
                 minimum: 0,
                 lineThickness: 1,
@@ -207,7 +207,7 @@
                     $("#status").text(statusStr);
                     if (($('#status').text() == "FINISHED") || ($('#status').text() == "STOPPED") || ($('#status').text() == "FAILED")) {
                         $("#stopDiv").remove();
-                        chart.title.set("text", "Diagram data flow showing best individual");
+                        chart.title.set("text", "Best individual");
                     }
                 }
             });
