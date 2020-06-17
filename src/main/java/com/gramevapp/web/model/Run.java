@@ -24,15 +24,6 @@ public class Run {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "RUNS_LIST",
-            joinColumns = {
-                    @JoinColumn(name = "RUN_ID")
-            },
-            inverseJoinColumns = {
-                    @JoinColumn(name = "EXPERIMENT_ID", referencedColumnName = "EXPERIMENT_ID")
-            }
-    )
     private Experiment experimentId;
 
     @OneToMany(cascade = CascadeType.ALL,
