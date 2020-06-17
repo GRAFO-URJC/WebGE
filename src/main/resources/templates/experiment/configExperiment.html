@@ -628,7 +628,7 @@
                         $("#showDelete" + iterStat).addClass("hidden");
                         setTimeout(function () {
                             checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat);
-                        }, 1000);
+                        }, 2000);
                     }
 
                     if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED")) {
@@ -637,7 +637,7 @@
                         if ($(model).text() === "Waiting for finish") {
                             setTimeout(function () {
                                 checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat);
-                            }, 1000);
+                            }, 2000);
                         }
                     }
                 }
@@ -656,7 +656,7 @@
 
             setTimeout(function () {
                 checkRunStatus(runId, status, bestIndividual, currentGeneration, model, cleanIterStat)
-            }, 1000);
+            }, 2000);
         }
 
         function confirmDelete(iterStat, runId) {
