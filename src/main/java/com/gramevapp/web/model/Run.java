@@ -28,6 +28,7 @@ public class Run {
 
     @OneToMany(cascade = CascadeType.ALL,
             mappedBy = "runId")
+    @OrderColumn(name = "currentGeneration")
     private List<DiagramData> diagramData = new ArrayList<>();
 
     @Column
