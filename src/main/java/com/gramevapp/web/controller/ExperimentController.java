@@ -276,7 +276,7 @@ public class ExperimentController {
                 } else {
                     exp.setDefaultTestExpDataTypeId(null);
                 }
-                exp.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                exp.setModificationDate(new Timestamp(new Date().getTime()));
                 experimentService.saveExperiment(exp);
                 modelAddData(model, user,
                         experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
@@ -571,8 +571,8 @@ public class ExperimentController {
     private void runSection(Run run, ConfigExperimentDto configExpDto) {
         run.setStatus(Run.Status.INITIALIZING);
 
-        run.setIniDate(new Timestamp(System.currentTimeMillis()));
-        run.setModificationDate(new Timestamp(System.currentTimeMillis()));
+        run.setIniDate(new Timestamp(new Date().getTime()));
+        run.setModificationDate(new Timestamp(new Date().getTime()));
 
         RunExecutionReport runExecutionReport = new RunExecutionReport();
         runExecutionReport.setId(run.getId());
@@ -607,7 +607,7 @@ public class ExperimentController {
     }
 
     private void experimentDataTypeSection(Dataset expDataType) {
-        expDataType.setCreationDate(new Timestamp(System.currentTimeMillis()));
+        expDataType.setCreationDate(new Timestamp(new Date().getTime()));
         expDataType.setDataTypeType("training");
     }
 
@@ -619,7 +619,7 @@ public class ExperimentController {
             exp = new Experiment(user, configExpDto.getExperimentName(), configExpDto.getExperimentDescription(), configExpDto.getGenerations(),
                     configExpDto.getPopulationSize(), configExpDto.getMaxWraps(), configExpDto.getTournament(), configExpDto.getCrossoverProb(), configExpDto.getMutationProb(),
                     configExpDto.getNumCodons(), configExpDto.getNumberRuns(), configExpDto.getObjective(),
-                    new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis()));
+                    new Timestamp(new Date().getTime()), new Timestamp(new Date().getTime()));
             if (longDefaultRunId != null) {
                 exp.setDefaultRunId(longDefaultRunId);          // Doesn't exists -> We set up the run id obtained before
             }
@@ -639,8 +639,8 @@ public class ExperimentController {
             exp.setNumberRuns(configExpDto.getNumberRuns());
             exp.setObjective(configExpDto.getObjective());
 
-            exp.setCreationDate(new Timestamp(System.currentTimeMillis()));
-            exp.setModificationDate(new Timestamp(System.currentTimeMillis()));
+            exp.setCreationDate(new Timestamp(new Date().getTime()));
+            exp.setModificationDate(new Timestamp(new Date().getTime()));
 
             removeRuns(exp);
 
@@ -655,7 +655,7 @@ public class ExperimentController {
         exp.setDefaultGrammar(grammar);
         exp.setDefaultExpDataType(expDataType.getId());
         exp.setDefaultTestExpDataTypeId(testExpDataType != null ? testExpDataType.getId() : null);
-        exp.setModificationDate(new Timestamp(System.currentTimeMillis()));
+        exp.setModificationDate(new Timestamp(new Date().getTime()));
         return exp;
     }
 
