@@ -82,10 +82,12 @@
                                     </form>
                                 </td>
                                 <td class="hidden" colspan="6">
-                                            <textarea disabled rows="8" class="form-control" th:text="${gr.fileText}"
-                                                      placeholder="Grammar content" name="fileText"
-                                                      th:id="fileText + ${gr.getId()}" th:inline="text"
-                                                      style="resize: none;"/>
+
+                                    <textarea
+                                            readonly rows="8" th:text="${gr.fileText}"
+                                            placeholder="Grammar content" name="fileText"
+                                            th:id="fileText + ${gr.getId()}"
+                                            style="resize: none; width: 100%;background-color:#eeeeee"/>
 
                                 </td>
                             </tr>
