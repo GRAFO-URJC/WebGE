@@ -27,8 +27,8 @@ public class Run {
     private Experiment experimentId;
 
     @OneToMany(cascade = CascadeType.ALL,
-            mappedBy = "runId")
-    @OrderColumn(name = "currentGeneration")
+            mappedBy = "runId",fetch = FetchType.EAGER)
+    @OrderBy("current_generation ASC")
     private List<DiagramData> diagramData = new ArrayList<>();
 
     @Column

@@ -138,11 +138,11 @@ public class ExperimentController {
 
         // Create ExpPropertiesDto file
         String propPath = expPropertiesSet(fileModelDto, configExpDto, user,
-                expDataType, grammarFilePath, run);
+                expDataType, grammarFilePath);
 
         List<Thread> threads = new ArrayList<>();
         // Run experiment in new thread
-        threads.add(runExperimentDetails(run, run.getDiagramData(), propPath));
+        threads.add(runExperimentDetails(run, propPath));
         //check if need to run more runs
         for (int i = 1; i < configExpDto.getNumberRuns(); i++) {
             // RUN SECTION
@@ -152,12 +152,12 @@ public class ExperimentController {
             newRun.setExperimentId(exp);
             // Create ExpPropertiesDto file
             propPath = expPropertiesSet(fileModelDto, configExpDto,
-                    user, expDataType, grammarFilePath, newRun);
+                    user, expDataType, grammarFilePath);
 
             newRun.setStatus(Run.Status.WAITING);
 
             // Run experiment in new thread
-            threads.add(runExperimentDetails(newRun, newRun.getDiagramData(), propPath));
+            threads.add(runExperimentDetails(newRun, propPath));
         }
         experimentService.saveExperiment(exp);
 
@@ -180,10 +180,7 @@ public class ExperimentController {
 
     protected String expPropertiesSet(@ModelAttribute("typeFile") FileModelDto fileModelDto,
                                       @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
-                                      User user, Dataset expDataType, String grammarFilePath, Run newRun) throws IOException {
-        DiagramData newDiagramData = new DiagramData();
-        newDiagramData.setRunId(newRun);
-        diagramDataService.saveDiagram(newDiagramData);
+                                      User user, Dataset expDataType, String grammarFilePath) throws IOException {
         return fileConfig(expDataType, user, configExpDto, grammarFilePath);
     }
 
@@ -504,14 +501,14 @@ public class ExperimentController {
         result.add(UtilStats.computeAbsoluteError(yDoubleArray, functionResultDoubleArray));
     }
 
-    private Thread runExperimentDetails(Run run, DiagramData diagramData, String propPath) throws IOException {
+    private Thread runExperimentDetails(Run run, String propPath) throws IOException {
         File propertiesFile = new File(propPath);
         Reader propertiesReader = new FileReader(propertiesFile);
 
         Properties properties = new Properties();
         properties.load(propertiesReader);
         properties.setProperty(TRAINING_PATH_PROP, propPath);
-        RunnableExpGramEv obj = new RunnableExpGramEv(properties, diagramData, run,
+        RunnableExpGramEv obj = new RunnableExpGramEv(properties, run,
                 experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService);
         Thread.UncaughtExceptionHandler h = (th, ex) -> {
             run.setStatus(Run.Status.FAILED);

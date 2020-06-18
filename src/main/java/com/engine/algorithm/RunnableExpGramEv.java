@@ -12,16 +12,14 @@ import static com.engine.util.Common.OBJECTIVES_PROP;
 public class RunnableExpGramEv implements Runnable {
 
     private final Properties properties;
-    private final DiagramData diagramData;
     private final Run runElement;
     private SymbolicRegressionGE ge;
     private Dataset experimentDataType;
     private RunService runService;
 
-    public RunnableExpGramEv(Properties properties, DiagramData diagramData, Run runElement, Dataset experimentDataType,
+    public RunnableExpGramEv(Properties properties, Run runElement, Dataset experimentDataType,
                              RunService runService) {
         this.properties = properties;
-        this.diagramData = diagramData;
         this.runElement = runElement;
         this.experimentDataType = experimentDataType;
         this.runService = runService;
@@ -37,16 +35,13 @@ public class RunnableExpGramEv implements Runnable {
         }
 
         runElement.setStatus(Run.Status.INITIALIZING);
-        runElement.setBestIndividual(diagramData.getBestIndividual());
-        runElement.setCurrentGeneration(diagramData.getCurrentGeneration());
+        runElement.setBestIndividual(0.0);
+        runElement.setCurrentGeneration(0);
 
         ge = new SymbolicRegressionGE(properties, numObjectives);
 
         RunGeObserver observer = new RunGeObserver();
-        diagramData.setFinished(false);
-        diagramData.setStopped(false);
-        diagramData.setFailed(false);
-        observer.setDiagramData(diagramData);
+        observer.setDiagramData(runElement);
 
         ge.runGE(observer, experimentDataType.getInfo(), runElement, runService);
     }
