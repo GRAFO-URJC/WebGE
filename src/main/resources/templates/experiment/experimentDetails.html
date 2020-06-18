@@ -33,13 +33,13 @@
                     <form th:action="@{/experiment/stopRun}" method="POST" role="form">
                         <div class="row center-block form-horizontal">
                             <input type="hidden" th:id="runIdStop" th:name="runIdStop"
-                                   th:value="${expDetails.getRunId()}"/>
+                                   th:value="${runId}"/>
 
                             <!-- Stop button -->
                             <div class="row text-center" th:id="stopDiv"
-                                 th:if="${!expDetails.getStatus().toString().equals('FINISHED')}">
+                                 th:if="${run.getStatus().toString().equals('RUNNING')}">
                                 <div class="col-sm-12 col-md-12 col-lg-12" style="padding:15px"
-                                     >
+                                >
                                     <button type="submit" th:id="stopRunExperimentButton"
                                             th:name="stopRunExperimentButton" class="btn-danger btn-lg btn">
                                         Stop execution
@@ -55,7 +55,8 @@
                     <div class="col-sm-12 col-md-12 col-lg-12">
                         <h4>Execution report</h4>
                         <textarea id="executionReportTextArea" class="form-control"
-                                style="height: 120px; width: 100%;font-size: 12px;font-size: 11px" th:text="${expDetails.getExecutionReport()}"
+                                  style="height: 120px; width: 100%;font-size: 12px;font-size: 11px"
+                                  th:text="${run.getRunExecutionReport().getExecutionReport()}"
                                   disabled></textarea>
                     </div>
                 </div>
@@ -67,19 +68,19 @@
                     <div class="col-sm-4 col-md-4 col-lg-4">
                         <h4>
                             <label>Run status: </label>
-                            <label th:id="status" th:text="${expDetails.getStatus()}"/>
+                            <label th:id="status" th:text="${run.getStatus()}"/>
                         </h4>
                     </div>
                     <div class="col-sm-4 col-md-4 col-lg-4">
                         <h4>
                             <label>Best model quality: </label>
-                            <label th:id="bestIndividual" th:text="${expDetails.getBestIndividual()}"/>
+                            <label th:id="bestIndividual" th:text="${run.getBestIndividual()}"/>
                         </h4>
                     </div>
                     <div class="col-sm-4 col-md-4 col-lg-4">
                         <h4>
                             <label>Current generation: </label>
-                            <label th:id="currentGeneration" th:text="${expDetails.getCurrentGeneration()}"/>
+                            <label th:id="currentGeneration" th:text="${run.getCurrentGeneration()}"/>
                         </h4>
                     </div>
                 </div>
@@ -92,16 +93,15 @@
 
     <script>
         let executionReportTextArea = document.getElementById("executionReportTextArea");
-        let dataLoaderCount = 0;
-        // <![CDATA[
         let dataPoints = [],
             xPoint,
             yPoint,
             isFinnish,
             isStopped,
-            isFailed;
+            isFailed,
+            dataLoaderCount = 0;
         /*<![CDATA[*/
-        let runIdSaved = [[${expDetails.getRunId()}]];
+        let runIdSaved = [[${runId}]];
         /*]]>*/
 
         let chart = new CanvasJS.Chart("chartContainer", {
@@ -115,7 +115,7 @@
             panEnabled: true,
 
             title: {
-                text: "Diagram data flow showing best individual at the moment"
+                text: "Best individual"
             },
             data: [{
                 markerSize: 4,
@@ -131,7 +131,7 @@
                 tickThickness: 0.5,
             },
             axisY: {
-                title: "Best individual",
+                title: "Objective function",
                 maximum: 1,
                 minimum: 0,
                 lineThickness: 1,
@@ -152,33 +152,36 @@
                 dataType: "json",
                 data: {
                     'runId': runId,
+                    'count': dataLoaderCount,
                 },
                 success: function (data) {
-                    let diagramPairList = data['listPair'];
 
-                    for (dataLoaderCount; dataLoaderCount < diagramPairList.length; dataLoaderCount++) {
-                        xPoint = diagramPairList[dataLoaderCount]['currentGeneration'];
-                        yPoint = diagramPairList[dataLoaderCount]['bestIndividual'];
+                    let loaderCount = 0;
+                    for (loaderCount; loaderCount < data.length; loaderCount++) {
+                        xPoint = data[loaderCount]['currentGeneration'];
+                        yPoint = data[loaderCount]['bestIndividual'];
 
                         dataPoints.push({x: parseInt(xPoint), y: parseFloat(yPoint)});
-
+                        dataLoaderCount++
                     }
-
-                    isFinnish = data['finished'];
-                    isStopped = data['stopped'];
-                    isFailed = data['failed'];
+                    if (loaderCount === 0) {
+                        loaderCount = 1;
+                    }
+                    isFinnish = data[loaderCount - 1]['finished'];
+                    isStopped = data[loaderCount - 1]['stopped'];
+                    isFailed = data[loaderCount - 1]['failed'];
 
                     chart.render();
-                    executionReportTextArea.textContent=data['runId']['runExecutionReport']['executionReport'];
+                    executionReportTextArea.textContent = data[loaderCount - 1]['runExecutionReport'];
                     executionReportTextArea.scrollTop = executionReportTextArea.scrollHeight;
                 },
-                complete: function (data) {
+                complete: function () {
                     setTimeout(function () {
                         if (!isFinnish && !isStopped && !isFailed) {
                             reloadPlotD3(runIdSaved);
                             checkRunStatus(runIdSaved);
                         }
-                    }, 1000);
+                    }, 2000);
                 }
             });
         }
@@ -204,14 +207,13 @@
                     $("#status").text(statusStr);
                     if (($('#status').text() == "FINISHED") || ($('#status').text() == "STOPPED") || ($('#status').text() == "FAILED")) {
                         $("#stopDiv").remove();
-                        chart.title.set("text", "Diagram data flow showing best individual");
+                        chart.title.set("text", "Best individual");
                     }
                 }
             });
         };
 
         $(document).ready(function () {
-
             setTimeout(function () {
                 reloadPlotD3(runIdSaved);
             }, 100);

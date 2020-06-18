@@ -50,32 +50,7 @@ public class User implements Serializable {
             })
     private List<Role> roles;
 
-    @JsonBackReference
-    @OneToMany(fetch = FetchType.LAZY,
-            mappedBy = "userId",
-            targetEntity = Experiment.class,
-            orphanRemoval = true)
-    private List<Experiment> listExperiments;
-
     public User() {
-        this.listExperiments = new ArrayList<>();
-    }
-
-    public User(String username, String password, List<Role> roles) {
-        this.username = username;
-        this.password = password;
-        this.roles = roles;
-
-        this.listExperiments = new ArrayList<>();
-    }
-
-    public User(String username, String password, String email, List<Role> roles) {
-        this.username = username;
-        this.password = password;
-        this.email = email;
-        this.roles = roles;
-
-        this.listExperiments = new ArrayList<>();
     }
 
     public Boolean getEnabled() {
@@ -150,19 +125,6 @@ public class User implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public List<Experiment> getListExperiments() {
-        return listExperiments;
-    }
-
-    public void setListExperiments(List<Experiment> listExperiments) {
-        this.listExperiments = listExperiments;
-    }
-
-    public void addExperiment(Experiment experiment) {
-        this.listExperiments.add(experiment);
-        experiment.setUserId(this);
     }
 
     public String getInstitution() {

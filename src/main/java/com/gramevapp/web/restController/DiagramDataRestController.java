@@ -1,6 +1,7 @@
 package com.gramevapp.web.restController;
 
 import com.gramevapp.web.model.DiagramData;
+import com.gramevapp.web.model.DiagramDataDto;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.model.User;
 import com.gramevapp.web.service.DiagramDataService;
@@ -11,6 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @RestController("diagramDataRestController")
@@ -27,23 +31,13 @@ public class DiagramDataRestController {
 
     @RequestMapping(value = "/user/rest/diagramFlow/", method = RequestMethod.GET,
             produces = "application/json")
-    public @ResponseBody
-    DiagramData getLastBestIndividual(String runId) {
-        User user = userService.getLoggedInUser();
-        if (user == null)
-            System.out.println("User not authenticated");
-        Long longRunId = Long.parseLong(runId);
-        Run run = runService.findByRunId(longRunId);
-
-        DiagramData diagramData = diagramDataService.getLastBestIndividual(run);
-        diagramData.getListPair().sort((o1, o2) -> {
-            if (o1.getCurrentGeneration() > o2.getCurrentGeneration()) {
-                return 1;
-            } else if (o1.getCurrentGeneration() == o2.getCurrentGeneration()) {
-                return 0;
-            }
-            return -1;
-        });
-        return diagramData;
+    @ResponseBody
+    public List<DiagramDataDto> getDiagramDataInfo(String runId, int count) {
+        List<DiagramData> diagramDataList = runService.findByRunId(Long.parseLong(runId)).getDiagramDataList();
+        List<DiagramDataDto> diagramDataDtoList = new ArrayList<>();
+        for(;count<diagramDataList.size();count++){
+            diagramDataDtoList.add(new DiagramDataDto(diagramDataList.get(count)));
+        }
+        return diagramDataDtoList;
     }
 }

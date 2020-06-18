@@ -604,6 +604,7 @@
                 type: "GET",
                 dataType: "json",
                 success: function (data) {
+                    console.log(data)
                     let statusStr = data['status'];
                     let bestIndividualStr = data['bestIndividual'];
                     let currentGenerationStr = data['currentGeneration'];
@@ -627,7 +628,7 @@
                         $("#showDelete" + iterStat).addClass("hidden");
                         setTimeout(function () {
                             checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat);
-                        }, 1000);
+                        }, 2000);
                     }
 
                     if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED")) {
@@ -636,7 +637,7 @@
                         if ($(model).text() === "Waiting for finish") {
                             setTimeout(function () {
                                 checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat);
-                            }, 1000);
+                            }, 2000);
                         }
                     }
                 }
@@ -655,7 +656,7 @@
 
             setTimeout(function () {
                 checkRunStatus(runId, status, bestIndividual, currentGeneration, model, cleanIterStat)
-            }, 1000);
+            }, 2000);
         }
 
         function confirmDelete(iterStat, runId) {
@@ -723,20 +724,11 @@
 
 
         window.onbeforeunload = function (e) {
-            if (document.getElementById("cloneMessage") && !runButton && !saveButton) {
-                e = e || window.event;
-
-                // For IE and Firefox prior to version 4
-                if (e) {
-                    e.returnValue = 'Sure?';
-                }
-
-                // For Safari
+            if ((document.getElementById("cloneMessage") && !runButton && !saveButton)
+                ||(!checkExperimentInformationEqual() && !runButton && !saveButton)) {
                 return 'Sure?';
             }
-
-
-        };
+        }
 
     </script>
 </div>
