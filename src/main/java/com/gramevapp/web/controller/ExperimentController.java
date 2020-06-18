@@ -236,12 +236,12 @@ public class ExperimentController {
         }
 
         Experiment exp = null;
-        model.addAttribute("configuration", configExpDto);
-        model.addAttribute("expConfig", configExpDto);
 
         // Experiment Data Type SECTION
         Dataset expDataType;
         if (experimentDataTypeId.equals("-1")) {
+            model.addAttribute("configuration", configExpDto);
+            model.addAttribute("expConfig", configExpDto);
             result.rejectValue("typeFile", "error.typeFile", "Choose one file");
             return "experiment/configExperiment";
         } else {
@@ -293,12 +293,15 @@ public class ExperimentController {
         // END - Experiment section
 
         removeRuns(exp);
-
         experimentService.saveExperiment(exp);
+        configExpDto.setId(exp.getId());
 
         modelAddData(model, user,
                 experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
                 exp.getIdExpDataTypeList(), testExperimentDataType == null ? null : testExperimentDataType.getId());
+
+        model.addAttribute("configuration", configExpDto);
+        model.addAttribute("expConfig", configExpDto);
         return "experiment/configExperiment";
 
     }
