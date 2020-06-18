@@ -54,10 +54,11 @@
                 <div class="row form-group">
                     <div class="col-sm-12 col-md-12 col-lg-12">
                         <h4>Execution report</h4>
-                        <textarea id="executionReportTextArea" class="form-control"
-                                  style="height: 120px; width: 100%;font-size: 12px;font-size: 11px"
+                        <textarea id="executionReportTextArea"
+                                  style="resize: none; width: 100%;background-color:#eeeeee;
+height: 120px;font-size: 11px"
                                   th:text="${run.getRunExecutionReport().getExecutionReport()}"
-                                  disabled></textarea>
+                                  readonly></textarea>
                     </div>
                 </div>
 
