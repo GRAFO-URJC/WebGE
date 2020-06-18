@@ -26,10 +26,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -246,10 +243,10 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             logger.info("Run #" + i);
             logger.info("========");
 
-            double startTime = System.currentTimeMillis();
+            double startTime = new Date().getTime();
             algorithm.initialize();
             solutions = algorithm.execute();
-            double time = (System.currentTimeMillis() - startTime) / 1000;
+            double time = (new Date().getTime() - startTime) / 1000;
             logger.info("Execution time: " + time + " seconds.");
 
             executionReport.clear();
@@ -296,7 +293,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             status=Run.Status.STOPPED;
         }
         newRun.setStatus(status);
-        newRun.setModificationDate(new Timestamp(System.currentTimeMillis()));
+        newRun.setModificationDate(new Timestamp(new Date().getTime()));
         runService.saveRun(newRun);
         obs.getLock().lock();
 

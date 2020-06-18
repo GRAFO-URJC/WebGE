@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
@@ -64,7 +65,7 @@ public class RunGeObserver implements Observer {
 
         lock.lock();
         Run updateRun= runService.findByRunId(this.diagramData.getRunId().getId());
-        updateRun.setModificationDate(new Timestamp(System.currentTimeMillis()));
+        updateRun.setModificationDate(new Timestamp(new Date().getTime()));
         runService.saveRun(updateRun);
         lock.unlock();
     }

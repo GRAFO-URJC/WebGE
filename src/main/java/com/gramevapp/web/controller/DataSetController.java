@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -94,7 +95,7 @@ public class DataSetController {
     @RequestMapping(value = "/dataset/saveDataset", method = RequestMethod.POST)
     public String saveDataset(Model model, @ModelAttribute("experimentDataType") @Valid Dataset experimentDataType) {
         experimentDataType.setDataTypeType("training");
-        experimentDataType.setCreationDate(new Timestamp(System.currentTimeMillis()));
+        experimentDataType.setCreationDate(new Timestamp(new Date().getTime()));
         experimentDataType.setUserIdUserId(userService.getLoggedInUser().getId());
         experimentService.saveDataType(experimentDataType);
         return datasetList(model);
