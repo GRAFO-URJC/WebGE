@@ -4,7 +4,9 @@ Grammatical Evolution (GE) is a metaheuristic from the Genetic Programming famil
 
 Several GE implementations can be found at GitHub. Our first implementation, made in Java, can be found here: https://github.com/ABSysGroup/jeco.
 
-The main idea of this project is to create a web environment for Grammatical Evolution experimentation where, by means of a web interface, researchers will be able to configure, run and analyze their experiments with GE.
+The main idea of this project is to create a web environment for Grammatical Evolution experimentation for **symbolic regression problems**. Hence,by means of a web interface, researchers will be able to configure, run and analyze their experiments with GE.
+
+GitHub repository available in https://github.com/GRAFO-URJC/WebGE
 
 Other nice implementations of GE, but based in Python:
  * PonyGE : https://github.com/PonyGE/PonyGE2
