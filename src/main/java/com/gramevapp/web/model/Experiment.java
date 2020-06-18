@@ -59,6 +59,7 @@ public class Experiment {
             cascade = CascadeType.ALL,
             mappedBy = "experimentId",
             orphanRemoval = true)
+    @OrderColumn(name="id")
     private List<Run> idRunList;
 
     @Column
