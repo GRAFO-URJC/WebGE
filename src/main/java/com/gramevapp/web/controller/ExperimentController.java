@@ -431,6 +431,7 @@ public class ExperimentController {
         model.addAttribute("expDetails", run.getExperimentId());
         model.addAttribute("runId", run.getId());
         model.addAttribute("run", run);
+        model.addAttribute("index", run.getExperimentId().getIdRunList().indexOf(run) + 1);
 
         return "experiment/experimentDetails";
     }
@@ -698,6 +699,7 @@ public class ExperimentController {
         model.addAttribute("expDetails", run.getExperimentId());
         model.addAttribute("runId", run.getId());
         model.addAttribute("run", run);
+        model.addAttribute("index", run.getExperimentId().getIdRunList().indexOf(run) + 1);
 
         return "experiment/experimentDetails";
     }
