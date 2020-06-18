@@ -29,7 +29,7 @@ public class AdminController extends UserCommon {
         HashMap<User, Run> summaryExperiment = new HashMap<>();
         List<Experiment> experimentList = experimentService.findAll();
         for (Experiment experiment : experimentList) {
-            User u = experiment.getUserId();
+            User u = userService.getById(experiment.getUserId());
             if (experiment.getDefaultRunId() != null && runService.findByRunId(experiment.getDefaultRunId()) != null) {
                 Run newRunCompare = runService.findByRunId(experiment.getDefaultRunId());
                 Run run = summaryExperiment.get(u);

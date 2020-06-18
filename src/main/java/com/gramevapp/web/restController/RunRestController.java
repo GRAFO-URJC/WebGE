@@ -1,6 +1,7 @@
 package com.gramevapp.web.restController;
 
 import com.gramevapp.web.model.Run;
+import com.gramevapp.web.model.RunDto;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +21,8 @@ public class RunRestController {
 
     @RequestMapping(value = "/rest/runStatus/", method = RequestMethod.GET,
             produces = "application/json")
-    public @ResponseBody
-    Run getRunStatus(String runId, String status) {
+    @ResponseBody
+    public RunDto getRunStatus(String runId, String status) {
 
         if (runId.equals(""))
             return null;
@@ -44,7 +45,7 @@ public class RunRestController {
             this.setStatus(run, Run.Status.FAILED);
         }
 
-        return run;
+        return new RunDto(run);
     }
 
     private void setStatus(Run run, Run.Status runStatus) {
