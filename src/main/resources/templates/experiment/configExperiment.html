@@ -157,8 +157,10 @@
                                 </div>
                                 <div class="col-sm-12 col-md-6 col-lg-4">
                                     <label for="mutationProb">Mutation Prob.:</label>
-                                    <div style="width: 100%" th:classappend="${#fields.hasErrors('mutationProb')}? 'has-error':'mutationProb error'">
-                                        <input style="width: 100%" type="number" class="text-center" th:min="0" th:max="1" th:step="0.01"
+                                    <div style="width: 100%"
+                                         th:classappend="${#fields.hasErrors('mutationProb')}? 'has-error':'mutationProb error'">
+                                        <input style="width: 100%" type="number" class="text-center" th:min="0"
+                                               th:max="1" th:step="0.01"
                                                th:value="${configuration.getMutationProb()}" name="mutationProb"
                                                id="mutationProb"/>
                                     </div>
@@ -422,10 +424,12 @@
                                            th:id="'runId'+${iterStat.index}" hidden/></td>
                                 <td scope="row"><label th:name="bestIndividual"
                                                        th:id="'bestIndividual'+${iterStat.index}"
-                                                       th:text="${run.getDiagramData().bestIndividual}"/></td>
+                                                       th:text="${run.getDiagramData()!=null?
+                                                       run.getDiagramData().bestIndividual:'0'}"/></td>
                                 <td scope="row"><label th:name="currentGeneration"
                                                        th:id="'currentGeneration'+${iterStat.index}"
-                                                       th:text="${run.getDiagramData().currentGeneration}"/>
+                                                       th:text="${run.getDiagramData()!=null?
+                                                       run.getDiagramData().currentGeneration:'0'}"/>
                                 </td>
                                 <td scope="row"><label th:name="status" th:id="'status'+${iterStat.index}"
                                                        th:text="${run.getStatus()}"/></td>
@@ -725,7 +729,7 @@
 
         window.onbeforeunload = function (e) {
             if ((document.getElementById("cloneMessage") && !runButton && !saveButton)
-                ||(!checkExperimentInformationEqual() && !runButton && !saveButton)) {
+                || (!checkExperimentInformationEqual() && !runButton && !saveButton)) {
                 return 'Sure?';
             }
         }
