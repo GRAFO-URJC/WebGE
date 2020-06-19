@@ -85,12 +85,9 @@
                                 </td>
                                 <!--with extra information-->
                                 <td scope="control" class="hidden">
-                                    <div
-                                            th:with="expRunConfiguration=${exp.getIdRunList().isEmpty()?
-                                             exp:exp.getIdRunList().get(exp.getIdRunList().size()-1)}">
+                                    <div>
                                         <b>Generations:</b>
-                                        <label th:text="${exp.getIdRunList().isEmpty()?
-                                            '0':exp.getGenerations()}"></label>
+                                        <label th:text="${exp.getGenerations()}"></label>
                                         ; <b>Crossover Prob:</b>
                                         <label th:text="${exp.getCrossoverProb()}"></label>
                                         ; <b>Population Size:</b>
