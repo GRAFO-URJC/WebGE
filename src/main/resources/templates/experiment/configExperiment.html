@@ -439,7 +439,7 @@
                                                        th:text="${run.getModificationDateFormated()}"/></td>
                                 <td scope="row"><label th:name="model" th:id="model+${iterStat.index}"
                                                        th:text="${run.getModel()}"/></td>
-                                <td scope="row" th:id="'showPlot'+${iterStat.index}" class="">
+                                <td scope="row" th:id="'showPlot'+${iterStat.index}" class="hidden">
                                     <a th:href="@{/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}"
                                        target="_blank" class="btn-default btn-sm btn loadButton">Plot</a>
                                 </td>
@@ -530,6 +530,7 @@
             indexesShow.forEach(function (element, index) {
                 $("#runExperimentButton" + indexesShow[index]).removeClass("hidden");
                 $("#showDelete" + indexesShow[index]).removeClass("hidden");
+                $("#showPlot" + indexesShow[index]).removeClass("hidden");
             });
 
             indexesHide.forEach(function (element, index) {
@@ -621,6 +622,10 @@
                     let status = "#status" + iterStat;
                     let currentGeneration = "#currentGeneration" + iterStat;
                     let bestIndividual = "#bestIndividual" + iterStat;
+
+                    if($(status).text()==="RUNNING"){
+                        $("#showPlot" + iterStat).removeClass("hidden");
+                    }
 
                     if (($(status).text() != "FINISHED") && ($(status).text() != "STOPPED") && ($(status).text() != "FAILED")) {
                         $("#runExperimentButton" + iterStat).addClass("hidden");
