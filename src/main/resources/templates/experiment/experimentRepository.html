@@ -36,7 +36,7 @@
 
 
                 <section class="panel-body center-block">
-                    <table class="table table-hover display" id="expRepository" style="width: 100%">
+                    <table class="table" id="expRepository" style="width: 100%;border-collapse: collapse;">
                         <thead>
                         <tr>
                             <th scope="col">#</th>
@@ -63,7 +63,8 @@
                                                        id="creationDate"/>
                                 </td>
                                 <td scope="row" class="details-control">
-                                    <button type="button" class="btn-default btn btn-sm">More information</button>
+                                    <button type="button" class="btn-default btn btn-sm">More information
+                                    </button>
                                 </td>
                                 <td scope="row">
                                     <form th:action="@{/experiment/expRepoSelected}" th:object="${expRepository}"
@@ -108,8 +109,9 @@
 
                                     </div>
                                     <div th:if="${not #lists.isEmpty(exp.getIdRunList())}">
-                                        <table class="table table-hover">
-
+                                        <table class="table table-hover"
+                                               th:name="runTable+${iterStat.index}"
+                                               th:id="runTable+${iterStat.index}">
                                             <thead>
                                             <tr>
                                                 <th scope="col"># Run</th>
@@ -151,10 +153,20 @@
                                             </tbody>
                                         </table>
 
+                                        <h3><b>Runs stats:</b></h3>
+                                        <h4>
+                                            <b>AVG:</b><label th:name="runsAVG+${iterStat.index}"
+                                                              th:id="runsAVG+${iterStat.index}"></label>
+                                            <b>Std.Dev:</b><label th:name="runsDeviation+${iterStat.index}"
+                                                                  th:id="runsDeviation+${iterStat.index}"></label>
+                                            <b>Min:</b><label th:name="minBestSolution+${iterStat.index}"
+                                                              th:id="minBestSolution+${iterStat.index}"></label>
+                                            <b>Max:</b><label th:name="maxBestSolution+${iterStat.index}"
+                                                              th:id="maxBestSolution+${iterStat.index}"></label>
+                                        </h4>
                                     </div>
                                 </td>
                             </tr>
-
                         </th:block>
                         </tbody>
                     </table>
@@ -195,6 +207,17 @@
 
     <script>
         $(document).ready(function () {
+            let index = 0;
+            let runTable = document.getElementById("runTable" + index)
+            while(runTable){
+                calculateRunsStats(runTable, '#runsAVG' + index,
+                    '#runsDeviation' + index,
+                    '#maxBestSolution' + index,
+                    '#minBestSolution' + index);
+                index++;
+                runTable = document.getElementById("runTable" + index)
+            }
+
             tableDefinition('#expRepository', "#expTableBody", 4, 5, 6, 3);
         });
 
@@ -202,6 +225,11 @@
             let result = confirm("Are you sure to delete this experiment ?");
             if (result)
                 deleteRow(iterStat, expId);
+        }
+
+        function calculateStats(index) {
+
+
         }
 
 

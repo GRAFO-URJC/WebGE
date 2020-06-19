@@ -553,40 +553,8 @@
                 $("#runExperimentButton" + indexesShow[index]).addClass("hidden");
             });
 
-            calculateRunsStats();
+            calculateRunsStats(runTable,'#runsAVG','#runsDeviation','#maxBestSolution','#minBestSolution');
         });
-
-        function calculateRunsStats() {
-            if(runTable!=null){
-                let runsDatas = [];
-                for (let i = 1, row; row = runTable.rows[i]; i++) {
-                    if (row.cells[3].innerText !== "RUNNING" && row.cells[3].innerText !== "WAITING"
-                        && row.cells[3].innerText !== "INITIALIZING") {
-                        runsDatas.push(Number(row.cells[1].innerText))
-                        haveValue = true;
-                    }
-                }
-                if (runsDatas.length > 0) {
-                    let avgValue = runsDatas.reduce((a, b) => a + b, 0) / runsDatas.length;
-                    let max = 0, min = -1, stdDeviation = 0;
-                    runsDatas.forEach(function (data) {
-                        if (data > max) {
-                            max = data;
-                        }
-                        if (data < min || min == -1) {
-                            min = data;
-                        }
-                        stdDeviation += Math.pow((data - avgValue), 2);
-                    })
-                    stdDeviation = Math.sqrt(stdDeviation / runsDatas.length);
-                    $('#runsAVG').text(avgValue)
-                    $('#runsDeviation').text(stdDeviation)
-                    $('#maxBestSolution').text(max)
-                    $('#minBestSolution').text(min)
-                }
-
-            }
-        }
 
         function copyGrammar() {
             if (grammarList[$("#grammarSelect").val()]) {
@@ -693,7 +661,7 @@
                                 checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat);
                             }, 2000);
                         }
-                        calculateRunsStats();
+                        calculateRunsStats(runTable,'#runsAVG','#runsDeviation','#maxBestSolution','#minBestSolution');
                     }
                 }
             });
@@ -786,8 +754,6 @@
             let objective = $('#objective').val();
             let grammar = $('#fileText').val();
             let datasetId = $('#experimentDataTypeId').val();
-            console.log(experimentInformation['defaultExpDataTypeId'])
-            console.log(datasetId)
             return (experimentInformation['experimentName'] === experimentName &&
                 experimentInformation['experimentDescription'] === experimentDescription &&
                 experimentInformation['generations'] == generations &&
