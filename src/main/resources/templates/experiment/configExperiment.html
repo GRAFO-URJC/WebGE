@@ -591,11 +591,6 @@
             /*]]>*/
         }
 
-        function destroyClickedElement(event) {
-            // remove the link from the DOM
-            document.body.removeChild(event.target);
-        }
-
         function checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat) {
             $.ajax({
                 url: encodeURI("/rest/runStatus/"),
