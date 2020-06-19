@@ -684,8 +684,10 @@ public class ExperimentController {
         if (th == null) {
             run.setStatus(Run.Status.FAILED);
 
-            redirectAttrs.addAttribute("runId", run.getId()).addFlashAttribute("Stop", "Stop execution failed");
-            redirectAttrs.addAttribute("showPlotExecutionButton", "showPlotExecutionButton");
+            if (redirectAttrs != null) {
+                redirectAttrs.addAttribute("runId", run.getId()).addFlashAttribute("Stop", "Stop execution failed");
+                redirectAttrs.addAttribute("showPlotExecutionButton", "showPlotExecutionButton");
+            }
             return "redirect:experiment/runList";
         }
         th.interrupt();
@@ -696,12 +698,21 @@ public class ExperimentController {
         run.setStatus(Run.Status.STOPPED);
         runService.saveRun(run);
 
-        model.addAttribute("expDetails", run.getExperimentId());
-        model.addAttribute("runId", run.getId());
-        model.addAttribute("run", run);
-        model.addAttribute("index", run.getExperimentId().getIdRunList().indexOf(run) + 1);
+        if (model != null) {
+            model.addAttribute("expDetails", run.getExperimentId());
+            model.addAttribute("runId", run.getId());
+            model.addAttribute("run", run);
+            model.addAttribute("index", run.getExperimentId().getIdRunList().indexOf(run) + 1);
+        }
 
         return "experiment/experimentDetails";
+    }
+
+    @PostMapping(value = "/experiment/stopRunAjax")
+    @ResponseBody
+    public boolean ajaxStopRunExperiment(@RequestParam("runIdStop") String runIdStop) {
+        this.stopRunExperiment(null, runIdStop, null);
+        return true;
     }
 
     @RequestMapping(value = "/experiment/expRepoSelected", method = RequestMethod.POST, params = "deleteRun")

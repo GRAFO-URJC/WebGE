@@ -282,11 +282,13 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             executionReport.add(s);
         }
         obs.getLock().lock();
-        Run newRun = runService.findByRunId(run.getId());
-        newRun.setModel(this.getModel());
-        newRun.setStatus(Run.Status.FINISHED);
-        newRun.setModificationDate(new Timestamp(new Date().getTime()));
-        runService.saveRun(newRun);
+        run = runService.findByRunId(run.getId());
+        run.setModel(this.getModel());
+        if (run.getStatus() != null && !run.getStatus().equals(Run.Status.STOPPED)) {
+            run.setStatus(Run.Status.FINISHED);
+        }
+        run.setModificationDate(new Timestamp(new Date().getTime()));
+        runService.saveRun(run);
         obs.getLock().lock();
 
     }
