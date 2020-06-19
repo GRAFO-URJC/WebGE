@@ -59,7 +59,7 @@
                                                        id="creationDate"/>
                                 </td>
                                 <td scope="row" class="details-control">
-                                    <button type="button">Display dataset</button>
+                                    <button type="button" class="btn-default btn btn-sm">Display dataset</button>
                                 </td>
                                 <td>
                                     <button type="button" th:name="${dataset.getId()}"
@@ -146,7 +146,7 @@
     <script th:inline="javascript">
 
         /*<![CDATA[*/
-        let allDataSet=[[${datasetList}]]
+        let allDataSet = [[${datasetList}]]
         /*]]>*/
         $(document).ready(function () {
             tableDefinition('#datasetRepository', "#datasetTbody", 4, 5, 6, 3);
