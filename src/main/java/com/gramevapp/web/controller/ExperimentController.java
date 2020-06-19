@@ -173,9 +173,9 @@ public class ExperimentController {
         });
         thread.start();
 
-        redirectAttrs.addAttribute("idRun", run.getId()).addFlashAttribute("configuration",
-                "Experiment is being created");
-        return "redirect:/experiment/redirectConfigExperiment";
+        redirectAttrs.addAttribute("id", exp.getId());
+        redirectAttrs.addAttribute("loadExperimentButton", "loadExperimentButton");
+        return "redirect:/experiment/expRepoSelected";
     }
 
     protected String expPropertiesSet(@ModelAttribute("typeFile") FileModelDto fileModelDto,
@@ -184,37 +184,6 @@ public class ExperimentController {
         return fileConfig(expDataType, user, configExpDto, grammarFilePath);
     }
 
-    @GetMapping("/experiment/redirectConfigExperiment")
-    public String redirectViewConfigExperiment(Model model,
-                                               @ModelAttribute("idRun") String idRun) {
-
-        User user = userService.getLoggedInUser();
-        Run run = runService.findByRunId(Long.parseLong(idRun));
-
-        if (run == null) { // Run eliminated
-            model.addAttribute("grammar", new Grammar());
-            model.addAttribute("type", new Dataset());
-            model.addAttribute("configuration", new ConfigExperimentDto());
-            model.addAttribute("user", user);
-            return "experiment/configExperiment";
-        }
-        Dataset expDataType = experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType());
-        Experiment experiment = experimentService.findExperimentById(run.getExperimentId().getId());
-
-        List<Run> runList = run.getExperimentId().getIdRunList();
-        List<Dataset> expDataTypeList = run.getExperimentId().getIdExpDataTypeList();
-
-        ConfigExperimentDto configExpDto = fillConfigExpDto(new ConfigExperimentDto(),
-                run.getExperimentId(), experiment.getDefaultGrammar());
-
-        model.addAttribute("configuration", configExpDto);
-        model.addAttribute("runList", runList);
-        model.addAttribute("dataTypeList", expDataTypeList);
-        model.addAttribute("configExp", configExpDto);
-        modelAddData(model, user, expDataType, expDataTypeList, experiment.getDefaultTestExpDataTypeId());
-
-        return "experiment/configExperiment";
-    }
 
     @RequestMapping(value = "/experiment/start", method = RequestMethod.POST, params = "saveExperimentButton")
     public String saveExperiment(Model model,
@@ -226,9 +195,9 @@ public class ExperimentController {
 
         User user = userService.getLoggedInUser();
         modelAddData(model, user, null, null, null);
+        model.addAttribute("configuration", configExpDto);
 
         if (result.hasErrors()) {
-            model.addAttribute("configuration", configExpDto);
             return "experiment/configExperiment";
         }
 
@@ -254,6 +223,8 @@ public class ExperimentController {
 
         if (configExpDto.getId() != null) {
             exp = experimentService.findExperimentById(configExpDto.getId());
+            configExpDto = fillConfigExpDto(configExpDto, exp,
+                    exp.getDefaultGrammar());
             // check if only test was changed
             boolean sameExp = exp.getExperimentName().equals(configExpDto.getExperimentName()) &&
                     exp.getExperimentDescription().equals(configExpDto.getExperimentDescription()) &&
@@ -297,7 +268,6 @@ public class ExperimentController {
                 experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
                 exp.getIdExpDataTypeList(), testExperimentDataType == null ? null : testExperimentDataType.getId());
 
-        model.addAttribute("configuration", configExpDto);
         model.addAttribute("expConfig", configExpDto);
         return "experiment/configExperiment";
 
@@ -310,7 +280,6 @@ public class ExperimentController {
                                   @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto) throws IllegalStateException {
         User user = userService.getLoggedInUser();
         configExpDto.setId(null);
-        configExpDto.setDefaultRunId(null);
 
         model.addAttribute("configuration", configExpDto);
         model.addAttribute("expConfig", configExpDto);
@@ -747,7 +716,6 @@ public class ExperimentController {
 
     public ConfigExperimentDto fillConfigExpDto(ConfigExperimentDto configExpDto, Experiment exp, String grammar) {
 
-        configExpDto.setDefaultRunId(exp.getDefaultRunId());
         setConfigExpDtoWIthExperiment(configExpDto, exp.getExperimentName(),
                 exp.getExperimentDescription(), exp.getCrossoverProb(), exp.getGenerations(),
                 exp.getPopulationSize(), exp.getMaxWraps(), exp.getTournament(), exp.getMutationProb(),

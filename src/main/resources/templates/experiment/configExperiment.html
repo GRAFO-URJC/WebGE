@@ -66,10 +66,6 @@
             <section class="panel-body">
                 <form th:action="@{/experiment/start}" th:object="${configExp}" enctype="multipart/form-data"
                       role="form" method="POST" onsubmit="return checkDeletePreviousRun();">
-                    <div th:if="${configuration.getDefaultRunId() != null}">
-                        <input type="hidden" th:name="defaultRunId" th:id="defaultRunId"
-                               th:value="${configuration.getDefaultRunId()}"/>
-                    </div>
 
                     <div class="row center-block text-center form-horizontal">
                         <div class="col-sm-6 col-md-offset-3 col-lg-offset-3">
@@ -399,78 +395,86 @@
             </header>
 
             <section class="panel-body">
-                <div>
-                    <table class="table table-hover" id="expTypeTable">
-                        <thead>
-                        <tr>
-                            <th scope="col"># Run</th>
-                            <th scope="col">Best solution</th>
-                            <th scope="col">Current generation</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Creation date</th>
-                            <th scope="col">Last modification date</th>
-                            <th scope="col">Model</th>
-                            <th scope="col"></th>
-                            <th scope="col"></th>
-                        </tr>
-                        </thead>
-                        <tbody>
+                <table class="table table-hover" id="expTypeTable">
+                    <thead>
+                    <tr>
+                        <th scope="col"># Run</th>
+                        <th scope="col">Best solution</th>
+                        <th scope="col">Current generation</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Creation date</th>
+                        <th scope="col">Last modification date</th>
+                        <th scope="col">Model</th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
 
-                        <th:block th:each="run, iterStat : ${runList}">
-                            <tr th:id="'tr' + ${iterStat.index}">
-                                <td scope="row">
-                                    <label th:text="${iterStat.index+1}"/>
-                                    <label th:text="${run.getId()}"
-                                           th:id="'runId'+${iterStat.index}" hidden/></td>
-                                <td scope="row"><label th:name="bestIndividual"
-                                                       th:id="'bestIndividual'+${iterStat.index}"
-                                                       th:text="${run.getDiagramData()!=null?
+                    <th:block th:each="run, iterStat : ${runList}">
+                        <tr th:id="'tr' + ${iterStat.index}">
+                            <td scope="row">
+                                <label th:text="${iterStat.index+1}"/>
+                                <label th:text="${run.getId()}"
+                                       th:id="'runId'+${iterStat.index}" hidden/></td>
+                            <td scope="row"><label th:name="bestIndividual"
+                                                   th:id="'bestIndividual'+${iterStat.index}"
+                                                   th:text="${run.getDiagramData()!=null?
                                                        run.getDiagramData().bestIndividual:'0'}"/></td>
-                                <td scope="row"><label th:name="currentGeneration"
-                                                       th:id="'currentGeneration'+${iterStat.index}"
-                                                       th:text="${run.getDiagramData()!=null?
+                            <td scope="row"><label th:name="currentGeneration"
+                                                   th:id="'currentGeneration'+${iterStat.index}"
+                                                   th:text="${run.getDiagramData()!=null?
                                                        run.getDiagramData().currentGeneration:'0'}"/>
-                                </td>
-                                <td scope="row"><label th:name="status" th:id="'status'+${iterStat.index}"
-                                                       th:text="${run.getStatus()}"/></td>
-                                <td scope="row"><label th:name="iniDate" th:id="iniDate"
-                                                       th:text="${run.getIniDateFormated()}"/></td>
-                                <td scope="row"><label th:name="lastDate" th:id="lastDate+${iterStat.index}"
-                                                       th:text="${run.getModificationDateFormated()}"/></td>
-                                <td scope="row"><label th:name="model" th:id="model+${iterStat.index}"
-                                                       th:text="${run.getModel()}"/></td>
-                                <td scope="row" th:id="${'stopRunSection' + iterStat.index}"
-                                    th:class="${run.getStatus().toString().equals('RUNNING')?'':'hidden'}">
-                                    <button type="button" th:name="${run.id}"
-                                            th:id="${'stopRun' + iterStat.index}"
-                                            onclick="stopRun(this.id, this.name)"
-                                            class="btn-default btn btn-sm"
-                                            rel="tooltip"
-                                            title="Stop run execution"
-                                    >Stop run</button>
-                                </td>
-                                <td scope="row" th:id="'showPlot'+${iterStat.index}" class="hidden">
-                                    <a th:href="@{/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}"
-                                       target="_blank" class="btn-default btn-sm btn loadButton">Plot</a>
-                                </td>
-                                <td scope="row" th:id="'showDelete'+${iterStat.index}">
-                                    <a th:id="'showTestStats'+${iterStat.index}"
-                                       th:href="@{/experiment/runList(runId=${run.getId()}, showTestStatsPlotButton='showTestStatsPlotButton')}"
-                                       target="_blank" class="btn-default btn-sm btn loadButton">Stats</a>
-                                    <button type="button" th:name="${run.id}"
-                                            th:id="${'deleteRun' + iterStat.index}"
-                                            onclick="confirmDelete(this.id, this.name)"
-                                            class="btn-default btn btn-sm"
-                                            rel="tooltip"
-                                            title="Delete run"
-                                    ><span
-                                            class="glyphicon glyphicon-trash small"></span></button>
-                                </td>
-                            </tr>
+                            </td>
+                            <td scope="row"><label th:name="status" th:id="'status'+${iterStat.index}"
+                                                   th:text="${run.getStatus()}"/></td>
+                            <td scope="row"><label th:name="iniDate" th:id="iniDate"
+                                                   th:text="${run.getIniDateFormated()}"/></td>
+                            <td scope="row"><label th:name="lastDate" th:id="lastDate+${iterStat.index}"
+                                                   th:text="${run.getModificationDateFormated()}"/></td>
+                            <td scope="row"><label th:name="model" th:id="model+${iterStat.index}"
+                                                   th:text="${run.getModel()}"/></td>
+                            <td scope="row" th:id="${'stopRunSection' + iterStat.index}"
+                                th:class="${run.getStatus().toString().equals('RUNNING')?'':'hidden'}">
+                                <button type="button" th:name="${run.id}"
+                                        th:id="${'stopRun' + iterStat.index}"
+                                        onclick="stopRun(this.id, this.name)"
+                                        class="btn-default btn btn-sm"
+                                        rel="tooltip"
+                                        title="Stop run execution"
+                                >Stop run
+                                </button>
+                            </td>
+                            <td scope="row" th:id="'showPlot'+${iterStat.index}" class="hidden">
+                                <a th:href="@{/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}"
+                                   target="_blank" class="btn-default btn-sm btn loadButton">Plot</a>
+                            </td>
+                            <td scope="row" th:id="'showDelete'+${iterStat.index}">
+                                <a th:id="'showTestStats'+${iterStat.index}"
+                                   th:href="@{/experiment/runList(runId=${run.getId()}, showTestStatsPlotButton='showTestStatsPlotButton')}"
+                                   target="_blank" class="btn-default btn-sm btn loadButton">Stats</a>
+                                <button type="button" th:name="${run.id}"
+                                        th:id="${'deleteRun' + iterStat.index}"
+                                        onclick="confirmDelete(this.id, this.name)"
+                                        class="btn-default btn btn-sm"
+                                        rel="tooltip"
+                                        title="Delete run"
+                                ><span
+                                        class="glyphicon glyphicon-trash small"></span></button>
+                            </td>
+                        </tr>
 
-                        </th:block>
-                        </tbody>
-                    </table>
+                    </th:block>
+                    </tbody>
+                </table>
+                <div id="runStats">
+                    <h3><b>Runs stats:</b></h3>
+                    <h4>
+                        <b>AVG:</b><label id="runsAVG">Waiting runs</label>
+                        <b>Std.Dev:</b><label id="runsDeviation">Waiting runs</label>
+                        <b>Min:</b><label id="minBestSolution">Waiting runs</label>
+                        <b>Max:</b><label id="maxBestSolution">Waiting runs</label>
+                    </h4>
                 </div>
             </section>
         </div>
@@ -490,6 +494,7 @@
         let saveButton = false;
         let grammarList;
         let grammarTooltip = document.getElementById("grammarTooltip");
+        let runTable = document.getElementById("expTypeTable");
 
         function storeGrammar() {
             let grammarName = $("#grammarName").val();
@@ -547,7 +552,41 @@
                 $("#showDelete" + indexesHide[index]).addClass("hidden");
                 $("#runExperimentButton" + indexesShow[index]).addClass("hidden");
             });
+
+            calculateRunsStats();
         });
+
+        function calculateRunsStats() {
+            if(runTable!=null){
+                let runsDatas = [];
+                for (let i = 1, row; row = runTable.rows[i]; i++) {
+                    if (row.cells[3].innerText !== "RUNNING" && row.cells[3].innerText !== "WAITING"
+                        && row.cells[3].innerText !== "INITIALIZING") {
+                        runsDatas.push(Number(row.cells[1].innerText))
+                        haveValue = true;
+                    }
+                }
+                if (runsDatas.length > 0) {
+                    let avgValue = runsDatas.reduce((a, b) => a + b, 0) / runsDatas.length;
+                    let max = 0, min = -1, stdDeviation = 0;
+                    runsDatas.forEach(function (data) {
+                        if (data > max) {
+                            max = data;
+                        }
+                        if (data < min || min == -1) {
+                            min = data;
+                        }
+                        stdDeviation += Math.pow((data - avgValue), 2);
+                    })
+                    stdDeviation = Math.sqrt(stdDeviation / runsDatas.length);
+                    $('#runsAVG').text(avgValue)
+                    $('#runsDeviation').text(stdDeviation)
+                    $('#maxBestSolution').text(max)
+                    $('#minBestSolution').text(min)
+                }
+
+            }
+        }
 
         function copyGrammar() {
             if (grammarList[$("#grammarSelect").val()]) {
@@ -632,7 +671,7 @@
                     let currentGeneration = "#currentGeneration" + iterStat;
                     let bestIndividual = "#bestIndividual" + iterStat;
 
-                    if($(status).text()==="RUNNING"){
+                    if ($(status).text() === "RUNNING") {
                         $("#showPlot" + iterStat).removeClass("hidden");
                         $("#stopRunSection" + iterStat).removeClass("hidden");
                     }
@@ -654,6 +693,7 @@
                                 checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat);
                             }, 2000);
                         }
+                        calculateRunsStats();
                     }
                 }
             });
@@ -681,7 +721,7 @@
         }
 
         function stopRun(iterStat, runId) {
-            if (confirm("Are you sure to stop this run ?")){
+            if (confirm("Are you sure to stop this run ?")) {
                 let cleanIterStat = iterStat.substring("stopRun".length, iterStat.length);
 
                 $.ajax({
@@ -729,6 +769,10 @@
         }
 
         function checkExperimentInformationEqual() {
+            //if content null element mean the is a new experiment
+            if(experimentInformation['experimentName']===null){
+                return true;
+            }
             let experimentName = $('#experimentName').val();
             let experimentDescription = $('#experimentDescription').val();
             let generations = $('#generations').val();
@@ -740,8 +784,10 @@
             let tournament = $('#tournament').val();
             let numberRuns = $('#numberRuns').val();
             let objective = $('#objective').val();
-            let grammar = $('#fileText').text();
+            let grammar = $('#fileText').val();
             let datasetId = $('#experimentDataTypeId').val();
+            console.log(experimentInformation['defaultExpDataTypeId'])
+            console.log(datasetId)
             return (experimentInformation['experimentName'] === experimentName &&
                 experimentInformation['experimentDescription'] === experimentDescription &&
                 experimentInformation['generations'] == generations &&
@@ -753,10 +799,9 @@
                 experimentInformation['tournament'] == tournament &&
                 experimentInformation['numberRuns'] == numberRuns &&
                 experimentInformation['objective'] === objective &&
-                grammar.split(/[\s]+/).join() == experimentInformation['filetext'].split(/[\s]+/).join() &&
+                grammar.split(/[\s]+/).join() == experimentInformation['fileText'].split(/[\s]+/).join() &&
                 experimentInformation['defaultExpDataTypeId'] == datasetId);
         }
-
 
         window.onbeforeunload = function (e) {
             if ((document.getElementById("cloneMessage") && !runButton && !saveButton)

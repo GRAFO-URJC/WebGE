@@ -57,9 +57,6 @@ public class ConfigExperimentDto {
     private String fileText; // This is the text on the file - That's written in an areaText - So we can take it as a String
     private String dataTypeType = "training";   // Validation, test, training
 
-    private Long diagramDataId;
-    private Long defaultRunId;
-
     /**
      * 0 -> Root Mean Squared Error (RMSE)
      * 1 -> Clarke Error Grid (CEG)
@@ -79,14 +76,6 @@ public class ConfigExperimentDto {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getDiagramDataId() {
-        return diagramDataId;
-    }
-
-    public void setDiagramDataId(Long diagramDataId) {
-        this.diagramDataId = diagramDataId;
     }
 
     public Long getDefaultExpDataTypeId() {
@@ -216,14 +205,6 @@ public class ConfigExperimentDto {
 
     public void setDataTypeType(String dataTypeType) {
         this.dataTypeType = dataTypeType;
-    }
-
-    public Long getDefaultRunId() {
-        return defaultRunId;
-    }
-
-    public void setDefaultRunId(Long defaultRunId) {
-        this.defaultRunId = defaultRunId;
     }
 
     public Long getTestDefaultExpDataTypeId() {
