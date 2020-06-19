@@ -3,6 +3,12 @@
 <head>
     <div th:include="fragments/header :: head" th:remove="tag"></div>
     <script>
+
+        function destroyClickedElement(event) {
+            // remove the link from the DOM
+            document.body.removeChild(event.target);
+        }
+        
         let table;
 
         function tableDefinition(id, idTableBody, target1, target2, targetChill, order) {
