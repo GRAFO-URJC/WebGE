@@ -38,7 +38,9 @@ public class RunRestController {
                 if (run.getDiagramData().getBestIndividual() <= 0.0) {
                     run.setBestIndividual(0.0);
                 }
-                this.setStatus(run, Run.Status.FINISHED);
+                if(!run.getStatus().equals(Run.Status.STOPPED)){
+                    this.setStatus(run, Run.Status.FINISHED);
+                }
             }
 
             if (run.getDiagramData().getStopped()) {
@@ -53,7 +55,9 @@ public class RunRestController {
     }
 
     private void setStatus(Run run, Run.Status runStatus) {
-        run.setStatus(runStatus);
+        if(!run.getStatus().equals(Run.Status.STOPPED)){
+            run.setStatus(runStatus);
+        }
         runService.saveRun(run);
     }
 

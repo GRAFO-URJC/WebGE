@@ -439,6 +439,16 @@
                                                        th:text="${run.getModificationDateFormated()}"/></td>
                                 <td scope="row"><label th:name="model" th:id="model+${iterStat.index}"
                                                        th:text="${run.getModel()}"/></td>
+                                <td scope="row" th:id="${'stopRunSection' + iterStat.index}"
+                                    th:class="${run.getStatus().toString().equals('RUNNING')?'':'hidden'}">
+                                    <button type="button" th:name="${run.id}"
+                                            th:id="${'stopRun' + iterStat.index}"
+                                            onclick="stopRun(this.id, this.name)"
+                                            class="btn-default btn btn-sm"
+                                            rel="tooltip"
+                                            title="Stop run execution"
+                                    >Stop run</button>
+                                </td>
                                 <td scope="row" th:id="'showPlot'+${iterStat.index}" class="hidden">
                                     <a th:href="@{/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}"
                                        target="_blank" class="btn-default btn-sm btn loadButton">Plot</a>
@@ -604,7 +614,6 @@
                 type: "GET",
                 dataType: "json",
                 success: function (data) {
-                    console.log(data)
                     let statusStr = data['status'];
                     let bestIndividualStr = data['bestIndividual'];
                     let currentGenerationStr = data['currentGeneration'];
@@ -617,7 +626,7 @@
                     $(model).text(modelStr);
                     $('#lastDate' + iterStat).text(lastDate);
                 },
-                complete: function (data) {
+                complete: function () {
                     let runId = $("#runId" + iterStat);
                     let status = "#status" + iterStat;
                     let currentGeneration = "#currentGeneration" + iterStat;
@@ -625,6 +634,7 @@
 
                     if($(status).text()==="RUNNING"){
                         $("#showPlot" + iterStat).removeClass("hidden");
+                        $("#stopRunSection" + iterStat).removeClass("hidden");
                     }
 
                     if (($(status).text() != "FINISHED") && ($(status).text() != "STOPPED") && ($(status).text() != "FAILED")) {
@@ -637,6 +647,7 @@
 
                     if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED")) {
                         $("#showDelete" + iterStat).removeClass("hidden");
+                        $("#stopRunSection" + iterStat).addClass("hidden");
                         $("#runExperimentButton" + iterStat).removeClass("hidden");
                         if ($(model).text() === "Waiting for finish") {
                             setTimeout(function () {
@@ -667,6 +678,26 @@
             let result = confirm("Are you sure to delete this run ?");
             if (result)
                 deleteRow(iterStat, runId);
+        }
+
+        function stopRun(iterStat, runId) {
+            if (confirm("Are you sure to stop this run ?")){
+                let cleanIterStat = iterStat.substring("stopRun".length, iterStat.length);
+
+                $.ajax({
+                    url: encodeURI("/experiment/stopRunAjax"),
+                    data: {
+                        'runIdStop': runId,
+                    },
+                    cache: false,
+                    async: true,
+                    type: "POST",
+                    dataType: "json",
+                    success: function () {
+                        $("#stopRunSection" + cleanIterStat).addClass("hidden");
+                    }
+                });
+            }
         }
 
         function deleteRow(iterStat, runId) {
