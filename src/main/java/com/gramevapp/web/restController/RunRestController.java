@@ -28,8 +28,9 @@ public class RunRestController {
             return null;
 
         Run run = runService.findByRunId(Long.parseLong(runId));
-        run.setCurrentGeneration(run.getDiagramData().getCurrentGeneration());
-        run.setBestIndividual(run.getDiagramData().getBestIndividual());
+
+        run.setCurrentGeneration(run.getDiagramData() != null ? run.getDiagramData().getCurrentGeneration() : 0);
+        run.setBestIndividual(run.getDiagramData() != null ? run.getDiagramData().getBestIndividual() : 0.0);
 
         if (run.getDiagramData().getFinished() || run.getDiagramData().getBestIndividual() <= 0.0 && !status.equals("WAITING")) {
             if (run.getDiagramData().getBestIndividual() <= 0.0) {
