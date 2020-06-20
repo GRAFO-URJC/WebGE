@@ -463,19 +463,18 @@
                                         class="glyphicon glyphicon-trash small"></span></button>
                             </td>
                         </tr>
-
                     </th:block>
+                    <tr>
+                        <td colspan="9">
+                            <b>AVG:</b><label id="runsAVG">Waiting runs</label>
+                            <b>Std.Dev:</b><label id="runsDeviation">Waiting runs</label>
+                            <b>Min:</b><label id="minBestSolution">Waiting runs</label>
+                            <b>Max:</b><label id="maxBestSolution">Waiting runs</label>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
-                <div id="runStats">
-                    <h3><b>Runs stats:</b></h3>
-                    <h4>
-                        <b>AVG:</b><label id="runsAVG">Waiting runs</label>
-                        <b>Std.Dev:</b><label id="runsDeviation">Waiting runs</label>
-                        <b>Min:</b><label id="minBestSolution">Waiting runs</label>
-                        <b>Max:</b><label id="maxBestSolution">Waiting runs</label>
-                    </h4>
-                </div>
+
             </section>
         </div>
     </div>
@@ -553,7 +552,7 @@
                 $("#runExperimentButton" + indexesShow[index]).addClass("hidden");
             });
 
-            calculateRunsStats(runTable,'#runsAVG','#runsDeviation','#maxBestSolution','#minBestSolution');
+            calculateRunsStats(runTable, '#runsAVG', '#runsDeviation', '#maxBestSolution', '#minBestSolution');
         });
 
         function copyGrammar() {
@@ -661,7 +660,7 @@
                                 checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat);
                             }, 2000);
                         }
-                        calculateRunsStats(runTable,'#runsAVG','#runsDeviation','#maxBestSolution','#minBestSolution');
+                        calculateRunsStats(runTable, '#runsAVG', '#runsDeviation', '#maxBestSolution', '#minBestSolution');
                     }
                 }
             });
@@ -738,7 +737,7 @@
 
         function checkExperimentInformationEqual() {
             //if content null element mean the is a new experiment
-            if(experimentInformation['experimentName']===null){
+            if (experimentInformation['experimentName'] === null) {
                 return true;
             }
             let experimentName = $('#experimentName').val();
