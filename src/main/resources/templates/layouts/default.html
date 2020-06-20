@@ -8,10 +8,12 @@
             if(runTable!=null){
                 let runsDatas = [];
                 for (let i = 1, row; row = runTable.rows[i]; i++) {
-                    if (row.cells[3].innerText !== "RUNNING" && row.cells[3].innerText !== "WAITING"
-                        && row.cells[3].innerText !== "INITIALIZING") {
-                        runsDatas.push(Number(row.cells[1].innerText))
-                        haveValue = true;
+                    if(row.cells[3]){
+                        if (row.cells[3].innerText !== "RUNNING" && row.cells[3].innerText !== "WAITING"
+                            && row.cells[3].innerText !== "INITIALIZING") {
+                            runsDatas.push(Number(row.cells[1].innerText))
+                            haveValue = true;
+                        }
                     }
                 }
                 if (runsDatas.length > 0) {
