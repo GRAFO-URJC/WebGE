@@ -262,7 +262,7 @@ public class ExperimentController {
 
         removeRuns(exp);
         experimentService.saveExperiment(exp);
-        configExpDto.setId(exp.getId());
+        fillConfigExpDto(configExpDto,exp,exp.getDefaultGrammar());
 
         modelAddData(model, user,
                 experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
