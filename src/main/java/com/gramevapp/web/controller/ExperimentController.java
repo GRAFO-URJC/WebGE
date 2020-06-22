@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.*;
 import java.sql.Timestamp;
@@ -262,7 +263,7 @@ public class ExperimentController {
 
         removeRuns(exp);
         experimentService.saveExperiment(exp);
-        fillConfigExpDto(configExpDto,exp,exp.getDefaultGrammar());
+        fillConfigExpDto(configExpDto, exp, exp.getDefaultGrammar());
 
         modelAddData(model, user,
                 experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
@@ -459,8 +460,12 @@ public class ExperimentController {
             yValue = Double.parseDouble(contentSplit[0]);
             modelValue = SymbolicRegressionGE.calculateFunctionValuedResultWithCSVData(run.getModel(),
                     contentSplit);
-            listYLine.add(yValue);
-            listFunctionResult.add(modelValue);
+            if (listYLine != null) {
+                listYLine.add(yValue);
+            }
+            if (listFunctionResult != null) {
+                listFunctionResult.add(modelValue);
+            }
             yDoubleArray[i - 1] = yValue;
             functionResultDoubleArray[i - 1] = modelValue;
         }
@@ -797,6 +802,39 @@ public class ExperimentController {
                 super.write(buf, off, len);
             }
         });
+    }
+
+    @RequestMapping(value = "/runResultsInfo", method = RequestMethod.GET)
+    @ResponseBody
+    public RunResultsDto getRunResultsInfo(@RequestParam("expId") String expId) throws EvaluationException {
+        Experiment experiment = experimentService.findExperimentById(Long.valueOf(expId));
+        boolean haveTest = experiment.getDefaultTestExpDataTypeId() != null;
+        RunResultsDto runResultsDto = new RunResultsDto(experiment.getIdRunList().size(),
+                haveTest);
+        int index = 0;
+        for (Run run : experiment.getIdRunList()) {
+            runResultsDto.getRunIndex()[index] = index + 1;
+            runResultsDto.getModel()[index] = run.getModel();
+            List<Double> result = new ArrayList<>();
+            processExperimentDataTypeInfo(experimentService.findExperimentDataTypeById(experiment.getDefaultExpDataType()).getInfo().split("\r\n"),
+                    null, null, result, run);
+            runResultsDto.getTrainingRMSE()[index] = result.get(0);
+            runResultsDto.getTrainingAVG()[index] = result.get(1);
+            runResultsDto.getTrainingR2()[index] = result.get(2);
+            runResultsDto.getTrainingAbs()[index] = result.get(3);
+
+            if (haveTest) {
+                result = new ArrayList<>();
+                processExperimentDataTypeInfo(experimentService.findExperimentDataTypeById(experiment.getDefaultTestExpDataTypeId()).getInfo().split("\r\n"),
+                        null, null, result, run);
+                runResultsDto.getTestRMSE()[index] = result.get(0);
+                runResultsDto.getTestAVG()[index] = result.get(1);
+                runResultsDto.getTestR2()[index] = result.get(2);
+                runResultsDto.getTestAbs()[index] = result.get(3);
+            }
+            index++;
+        }
+        return runResultsDto;
     }
 
 }

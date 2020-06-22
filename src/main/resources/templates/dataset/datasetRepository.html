@@ -163,7 +163,6 @@
             rows.forEach(function (rowArray) {
                 let row = rowArray.join(";");
                 csvContent += row;
-
             });
             let textFileAsBlob = new Blob([csvContent], {type: 'text/csv'});
 
