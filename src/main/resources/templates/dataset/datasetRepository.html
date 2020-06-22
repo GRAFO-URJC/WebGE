@@ -62,6 +62,15 @@
                                     <button type="button" class="btn-default btn btn-sm">Display dataset</button>
                                 </td>
                                 <td>
+                                    <button type="button"
+                                            th:id="${'foldDataset' + dataset.getId()}"
+                                            th:onclick="'foldExperiment('+${dataset.getId()}+')'"
+                                            th:disabled="${dataset.getInfo().contains('K-Fold')}"
+                                            class="btn-default btn btn-sm"
+                                            rel="tooltip"
+                                            title="Fold dataset">
+                                        K-Fold
+                                    </button>
                                     <button type="button" th:name="${dataset.getId()}"
                                             th:id="${'downloadDataset' + dataset.getId()}"
                                             th:onclick="'downloadDataset('+${iterStat.index}+')'"
@@ -105,7 +114,7 @@
 
                                     <textarea readonly rows="8" class="form-control"
                                               th:text="${datasetInformationList.get(iterStat.index).get(0)}"
-                                              placeholder="Dataset content" name="fileText"
+                                              th:name="fileText+ ${dataset.getId()}"
                                               th:id="fileText + ${dataset.getId()}" th:inline="text"
                                               style="resize: none;"></textarea>
 
@@ -150,6 +159,7 @@
         /*]]>*/
         $(document).ready(function () {
             tableDefinition('#datasetRepository', "#datasetTbody", 4, 5, 6, 3);
+            dataSetPage =true;
         })
 
         function downloadDataset(elemName) {
@@ -194,7 +204,6 @@
             }
         }
 
-
         function deleteRow(iterStat, datasetId) {
             let cleanIterStat = iterStat.substring("deleteGrammar".length, iterStat.length);   // Dará error, si hay listado con mas de 9 obj, no pillará el id de 10, pq sólo mira hasta el último
 
@@ -216,6 +225,26 @@
                     }
                 }
             });
+        }
+            let foldedId = [];
+
+        function foldExperiment(datasetId) {
+            let kFoldNumber = prompt("Please enter fold value", "10");
+            if (kFoldNumber != null) {
+                $.ajax({
+                    url: encodeURI("/foldDataset"),
+                    data: {
+                        'datasetId': datasetId,
+                        'kFoldNumber': Number.parseInt(kFoldNumber)
+                    },
+                    type: "POST",
+                    success: function (data) {
+                        $("#foldDataset"+datasetId).prop("disabled","true")
+                        document.getElementById("fileText"+datasetId).value = data;
+                        foldedId.push("fileText"+datasetId.toString());
+                    }
+                });
+            }
         }
     </script>
 
