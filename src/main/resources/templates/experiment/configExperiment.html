@@ -472,9 +472,9 @@
                     <tr>
                         <td colspan="9">
                             <b>AVG:</b><label id="runsAVG">Waiting runs</label>
-                            <b>Std.Dev:</b><label id="runsDeviation">Waiting runs</label>
-                            <b>Min:</b><label id="minBestSolution">Waiting runs</label>
-                            <b>Max:</b><label id="maxBestSolution">Waiting runs</label>
+                            <b style="margin-left: 15px">Std.Dev:</b><label id="runsDeviation">Waiting runs</label>
+                            <b style="margin-left: 15px">Min:</b><label id="minBestSolution">Waiting runs</label>
+                            <b style="margin-left: 15px">Max:</b><label id="maxBestSolution">Waiting runs</label>
                         </td>
                     </tr>
                     </tbody>
@@ -800,7 +800,6 @@
         }
 
         function checkShowAlert(identifier) {
-            console.log(1)
             if (countModify > 0) {
                 $("#messageModify").removeClass("hidden");
                 $("#" + identifier).css("border-color", "#c09853")
