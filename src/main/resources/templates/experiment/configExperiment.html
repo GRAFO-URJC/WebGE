@@ -56,6 +56,10 @@
     <!-- Main -->
     <div class="container">
         <div id="forms" class="panel panel-default">
+            <div class="alert alert-info hidden" id="messageModify">
+                <label id="messageModifyText">
+                </label>
+            </div>
             <div th:if="${messageClone}" class="alert alert-info">
                 <label th:text="${messageClone}" id="cloneMessage"></label>
             </div>
@@ -92,8 +96,8 @@
                                    th:text="${error}">Validation error
                                 </p>
                                 <!-- END error handling -->
-                                <div th:classappend="${#fields.hasErrors('experimentName')}? 'has-error':'experimentName error'">
-                                    <input type="text" class="form-control" id="experimentName" name="experimentName"
+                                <div th:classappend="${#fields.hasErrors('experimentName')}? 'has-error':''">
+                                    <input type="text" class="form-control " id="experimentName" name="experimentName"
                                            th:value="${configuration.getExperimentName()}"
                                            placeholder="Name of the experiment" required/>
                                 </div>
@@ -272,14 +276,15 @@
                             </div>
 
                             <div class="row form-group center-block">
-                                <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <select id="datasetId" name="datasetId" onchange="updateDatasetContent()" required>
+                                <div class="col-sm-12 col-md-12 col-lg-12 ">
+                                    <select id="datasetId" name="datasetId"
+                                            onchange="updateDatasetContent()" required>
                                         <option value="">Select a dataset ...</option>
                                         <option th:each="dataset,ite : ${datasetList}" th:value="${ite.index}"
                                                 th:text="${dataset.getDataTypeName() + ' - ' + dataset.getDataTypeDescription()}"
                                                 th:selected="(${(experimentDataType !=null) && (experimentDataType.getId() == dataset.getId())})"/>
                                     </select>
-                                    <input id="experimentDataTypeId" name="experimentDataTypeId" hidden="true" />
+                                    <input id="experimentDataTypeId" name="experimentDataTypeId" hidden="true"/>
                                 </div>
                             </div>
 
@@ -483,6 +488,7 @@
 
     <script th:inline="javascript">
 
+        let countModify = 0;
         let cloneButton = false;
         let datasetListInfo = [];
         let data = {};
@@ -553,6 +559,25 @@
             });
 
             calculateRunsStats(runTable, '#runsAVG', '#runsDeviation', '#maxBestSolution', '#minBestSolution');
+            //all input check
+            $("input").change(function () {
+                if (this.id != "grammarName" && this.id != "grammarDescription") {
+                    countModify = this.value == experimentInformation[this.id] ? countModify - 1 : countModify + 1;
+                    checkShowAlert(this.id)
+                }
+            })
+            //grammar check
+            $("#fileText").change(function () {
+                countModify = experimentInformation[this.id].split(/[\s]+/).join() === this.value.split(/[\s]+/).join() ?
+                    countModify - 1 : countModify + 1;
+                checkShowAlert(this.id)
+            })
+            //dataset check
+            $("#datasetId").change(function () {
+                countModify = experimentInformation['defaultExpDataTypeId'] == $('#experimentDataTypeId').val() ?
+                    countModify - 1 : countModify + 1;
+                checkShowAlert(this.id);
+            })
         });
 
         function copyGrammar() {
@@ -749,8 +774,8 @@
             let objective = $('#objective').val();
             let grammar = $('#fileText').val();
             let datasetId = $('#experimentDataTypeId').val();
-            experimentInformation['defaultExpDataTypeId']=
-                experimentInformation['defaultExpDataTypeId']==null?"":experimentInformation['defaultExpDataTypeId'];
+            experimentInformation['defaultExpDataTypeId'] =
+                experimentInformation['defaultExpDataTypeId'] == null ? "" : experimentInformation['defaultExpDataTypeId'];
 
             return (experimentInformation['experimentName'] === experimentName &&
                 experimentInformation['experimentDescription'] === experimentDescription &&
@@ -772,6 +797,18 @@
                 || (!checkExperimentInformationEqual() && !runButton && !saveButton)) {
                 return 'Sure?';
             }
+        }
+
+        function checkShowAlert(identifier) {
+            console.log(1)
+            if (countModify > 0) {
+                $("#messageModify").removeClass("hidden");
+                $("#" + identifier).css("border-color", "#c09853")
+            } else {
+                $("#messageModify").addClass("hidden");
+                $("#" + identifier).css("border-color", "")
+            }
+            $("#messageModifyText").text("The experiment has been modified, " + countModify + " marked.")
         }
 
     </script>
