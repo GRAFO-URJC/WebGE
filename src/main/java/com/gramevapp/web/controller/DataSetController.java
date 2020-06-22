@@ -7,6 +7,7 @@ import com.gramevapp.web.service.ExperimentService;
 import com.gramevapp.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -90,11 +91,11 @@ public class DataSetController {
 
     @RequestMapping(value = "/dataset/saveDataset", method = RequestMethod.POST)
     public String saveDataset(Model model, @ModelAttribute("experimentDataType") @Valid Dataset experimentDataType,
-                              @RequestParam("checkFold") String checkFold, @RequestParam("kFoldNumber") int kFoldNumber) {
+                              @Param("checkFold") String checkFold, @Param("kFoldNumber") int kFoldNumber) {
         experimentDataType.setDataTypeType("training");
         experimentDataType.setCreationDate(new Timestamp(new Date().getTime()));
         experimentDataType.setUserIdUserId(userService.getLoggedInUser().getId());
-        if (checkFold.equals("true")) {
+        if (checkFold != null && checkFold.equals("true")) {
             List<Integer> kFoldValues = new ArrayList<>();
             for (int i = 0; i < kFoldNumber; i++) {
                 kFoldValues.add(i);
