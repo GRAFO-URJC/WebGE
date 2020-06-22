@@ -93,6 +93,11 @@
             read.onload = function (eve) {
                 let cont = eve.target.result;
                 document.getElementById('info').value = cont;
+                if(cont.toString().includes("K-Fold")){
+                    $("#checkFold").prop("disabled","true");
+                }else{
+                    $("#checkFold").prop("disabled","false");
+                }
             };
             read.onerror = function (eve) {
                 console.error("File could not be read! Code " + eve.target.error.code);
