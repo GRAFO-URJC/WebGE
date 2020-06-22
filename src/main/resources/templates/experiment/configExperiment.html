@@ -279,7 +279,7 @@
                                                 th:text="${dataset.getDataTypeName() + ' - ' + dataset.getDataTypeDescription()}"
                                                 th:selected="(${(experimentDataType !=null) && (experimentDataType.getId() == dataset.getId())})"/>
                                     </select>
-                                    <input id="experimentDataTypeId" name="experimentDataTypeId" hidden="true"/>
+                                    <input id="experimentDataTypeId" name="experimentDataTypeId" hidden="true" />
                                 </div>
                             </div>
 
@@ -736,10 +736,6 @@
         }
 
         function checkExperimentInformationEqual() {
-            //if content null element mean the is a new experiment
-            if (experimentInformation['experimentName'] === null) {
-                return true;
-            }
             let experimentName = $('#experimentName').val();
             let experimentDescription = $('#experimentDescription').val();
             let generations = $('#generations').val();
@@ -753,6 +749,9 @@
             let objective = $('#objective').val();
             let grammar = $('#fileText').val();
             let datasetId = $('#experimentDataTypeId').val();
+            experimentInformation['defaultExpDataTypeId']=
+                experimentInformation['defaultExpDataTypeId']==null?"":experimentInformation['defaultExpDataTypeId'];
+
             return (experimentInformation['experimentName'] === experimentName &&
                 experimentInformation['experimentDescription'] === experimentDescription &&
                 experimentInformation['generations'] == generations &&
