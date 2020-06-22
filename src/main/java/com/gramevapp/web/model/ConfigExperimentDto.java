@@ -10,8 +10,8 @@ import javax.validation.constraints.Size;
 public class ConfigExperimentDto {
     private Long id;
 
-    private String experimentName;
-    private String experimentDescription;
+    private String experimentName="";
+    private String experimentDescription="";
     @Min(value = 100)
     @Max(value = 100000)
     @NotNull
@@ -36,9 +36,6 @@ public class ConfigExperimentDto {
     @Max(value = 100)
     @NotNull
     private Double mutationProb = 0.5;
-    @NotNull(message = "Initialization cannot be empty")
-    @Size(min = 1)
-    private String initialization = " ";       // Random OR Sensible
     @NotNull(message = "Results cannot be empty")
     @Size(min = 1)
     private String results = " ";             // Text file with the results of the experiments
@@ -54,7 +51,7 @@ public class ConfigExperimentDto {
     private Long testDefaultExpDataTypeId;
     @NotNull(message = "Grammar area text cannot be empty")
     @Size(min = 1)
-    private String fileText; // This is the text on the file - That's written in an areaText - So we can take it as a String
+    private String fileText=""; // This is the text on the file - That's written in an areaText - So we can take it as a String
     private String dataTypeType = "training";   // Validation, test, training
 
     /**
@@ -67,8 +64,7 @@ public class ConfigExperimentDto {
      */
     @NotNull
     @Size(min = 1)
-    private String objective;
-    private MultipartFile typeFile;
+    private String objective="RMSE";
 
     public Long getId() {
         return id;
@@ -92,14 +88,6 @@ public class ConfigExperimentDto {
 
     public void setObjective(String objective) {
         this.objective = objective;
-    }
-
-    public MultipartFile getTypeFile() {
-        return typeFile;
-    }
-
-    public void setTypeFile(MultipartFile typeFile) {
-        this.typeFile = typeFile;
     }
 
     public String getExperimentName() {
@@ -164,14 +152,6 @@ public class ConfigExperimentDto {
 
     public void setMutationProb(Double mutationProb) {
         this.mutationProb = mutationProb;
-    }
-
-    public String getInitialization() {
-        return initialization;
-    }
-
-    public void setInitialization(String initialization) {
-        this.initialization = initialization;
     }
 
     public String getResults() {
