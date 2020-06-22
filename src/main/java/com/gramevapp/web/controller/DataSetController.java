@@ -96,20 +96,7 @@ public class DataSetController {
         experimentDataType.setCreationDate(new Timestamp(new Date().getTime()));
         experimentDataType.setUserIdUserId(userService.getLoggedInUser().getId());
         if (checkFold != null && checkFold.equals("true")) {
-            List<Integer> kFoldValues = new ArrayList<>();
-            for (int i = 0; i < kFoldNumber; i++) {
-                kFoldValues.add(i);
-            }
-            Collections.shuffle(kFoldValues);
-            String[] splitDatasetInfo = experimentDataType.getInfo().split("\\r\\n");
-            String newDataSetInfo = "";
-            newDataSetInfo += splitDatasetInfo[0] + ";K-Fold\r\n";
-            for (int i = 1; i < splitDatasetInfo.length; i++) {
-                if (!splitDatasetInfo[i].equals("")) {
-                    newDataSetInfo += splitDatasetInfo[i] + ";" + kFoldValues.get(i % kFoldValues.size()) + "\r\n";
-                }
-            }
-            experimentDataType.setInfo(newDataSetInfo);
+            foldDataset(experimentDataType, kFoldNumber);
         }
         experimentService.saveDataType(experimentDataType);
         return datasetList(model);
@@ -129,5 +116,30 @@ public class DataSetController {
         }
 
         return idDataset;
+    }
+    @RequestMapping(value = "/foldDataset", method = RequestMethod.POST)
+    @ResponseBody
+    public String ajaxFoldDataset(@RequestParam("datasetId") String datasetId,@RequestParam("kFoldNumber") int kFoldNumber) {
+        Dataset dataset = experimentService.findExperimentDataTypeById( Long.parseLong(datasetId));
+        foldDataset(dataset, kFoldNumber);
+        experimentService.saveDataType(dataset);
+        return dataset.getInfo();
+    }
+
+    private void foldDataset(Dataset experimentDataType,int kFoldNumber){
+        List<Integer> kFoldValues = new ArrayList<>();
+        for (int i = 0; i < kFoldNumber; i++) {
+            kFoldValues.add(i);
+        }
+        Collections.shuffle(kFoldValues);
+        String[] splitDatasetInfo = experimentDataType.getInfo().split("\\r\\n");
+        String newDataSetInfo = "";
+        newDataSetInfo += splitDatasetInfo[0] + ";K-Fold\r\n";
+        for (int i = 1; i < splitDatasetInfo.length; i++) {
+            if (!splitDatasetInfo[i].equals("")) {
+                newDataSetInfo += splitDatasetInfo[i] + ";" + kFoldValues.get(i % kFoldValues.size()) + "\r\n";
+            }
+        }
+        experimentDataType.setInfo(newDataSetInfo);
     }
 }
