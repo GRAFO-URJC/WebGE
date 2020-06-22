@@ -475,6 +475,8 @@
                             <b style="margin-left: 15px">Std.Dev:</b><label id="runsDeviation">Waiting runs</label>
                             <b style="margin-left: 15px">Min:</b><label id="minBestSolution">Waiting runs</label>
                             <b style="margin-left: 15px">Max:</b><label id="maxBestSolution">Waiting runs</label>
+                            <button style="margin-left: 15px" class="btn-default btn btn-sm" th:onclick="'downloadExperimentRunResults('+${configExp.getId()}+')'">Download results
+                            </button>
                         </td>
                     </tr>
                     </tbody>
