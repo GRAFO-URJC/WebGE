@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @Controller
 public class DataSetController {
@@ -83,7 +80,6 @@ public class DataSetController {
         return "dataset/datasetRepository";
     }
 
-
     @RequestMapping(value = "/dataset/datasetDetail")
     public String createDataset(Model model) {
         User user = userService.getLoggedInUser();
@@ -93,10 +89,27 @@ public class DataSetController {
     }
 
     @RequestMapping(value = "/dataset/saveDataset", method = RequestMethod.POST)
-    public String saveDataset(Model model, @ModelAttribute("experimentDataType") @Valid Dataset experimentDataType) {
+    public String saveDataset(Model model, @ModelAttribute("experimentDataType") @Valid Dataset experimentDataType,
+                              @RequestParam("checkFold") String checkFold, @RequestParam("kFoldNumber") int kFoldNumber) {
         experimentDataType.setDataTypeType("training");
         experimentDataType.setCreationDate(new Timestamp(new Date().getTime()));
         experimentDataType.setUserIdUserId(userService.getLoggedInUser().getId());
+        if (checkFold.equals("true")) {
+            List<Integer> kFoldValues = new ArrayList<>();
+            for (int i = 0; i < kFoldNumber; i++) {
+                kFoldValues.add(i);
+            }
+            Collections.shuffle(kFoldValues);
+            String[] splitDatasetInfo = experimentDataType.getInfo().split("\\r\\n");
+            String newDataSetInfo = "";
+            newDataSetInfo += splitDatasetInfo[0] + ";K-Fold\r\n";
+            for (int i = 1; i < splitDatasetInfo.length; i++) {
+                if (!splitDatasetInfo[i].equals("")) {
+                    newDataSetInfo += splitDatasetInfo[i] + ";" + kFoldValues.get(i % kFoldValues.size()) + "\r\n";
+                }
+            }
+            experimentDataType.setInfo(newDataSetInfo);
+        }
         experimentService.saveDataType(experimentDataType);
         return datasetList(model);
     }
