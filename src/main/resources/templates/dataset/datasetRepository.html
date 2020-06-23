@@ -69,7 +69,7 @@
                                             class="btn-default btn btn-sm"
                                             rel="tooltip"
                                             title="Fold dataset">
-                                        K-Fold
+                                        Fold
                                     </button>
                                     <button type="button" th:name="${dataset.getId()}"
                                             th:id="${'downloadDataset' + dataset.getId()}"
@@ -242,6 +242,7 @@
                         $("#foldDataset"+datasetId).prop("disabled","true")
                         document.getElementById("fileText"+datasetId).value = data;
                         foldedId.push("fileText"+datasetId.toString());
+                        alert("Folded complete");
                     }
                 });
             }
