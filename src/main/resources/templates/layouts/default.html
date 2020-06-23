@@ -118,8 +118,8 @@
                             data['trainingAbs'][count].toString().replace(".", ",") + ";" + data['trainingR2'][count].toString().replace(".", ",") + ";"
 
                         if (data['testAVG'] !== null) {
-                            csvContent += data['trainingAVG'][count].toString().replace(".", ",") + ";" + data['trainingRMSE'][count].toString().replace(".", ",") + ";" +
-                                data['trainingAbs'][count].toString().replace(".", ",") + ";" + data['trainingR2'][count].toString().replace(".", ",") + ";"
+                            csvContent += data['testAVG'][count].toString().replace(".", ",") + ";" + data['testRMSE'][count].toString().replace(".", ",") + ";" +
+                                data['testAbs'][count].toString().replace(".", ",") + ";" + data['testR2'][count].toString().replace(".", ",") + ";"
                         }
 
                         csvContent += "\n";
