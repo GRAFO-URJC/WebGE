@@ -114,12 +114,12 @@
 
                     for (let count = 0; count < data['model'].length; count++) {
                         csvContent += data['runIndex'][count] + ";" + data['model'][count] + ";" +
-                            data['trainingAVG'][count].toString().replace(".", ",") + ";" + data['trainingRMSE'][count].toString().replace(".", ",") + ";" +
-                            data['trainingAbs'][count].toString().replace(".", ",") + ";" + data['trainingR2'][count].toString().replace(".", ",") + ";"
+                            data['trainingAVG'][count] + ";" + data['trainingRMSE'][count] + ";" +
+                            data['trainingAbs'][count] + ";" + data['trainingR2'][count] + ";"
 
                         if (data['testAVG'] !== null) {
-                            csvContent += data['testAVG'][count].toString().replace(".", ",") + ";" + data['testRMSE'][count].toString().replace(".", ",") + ";" +
-                                data['testAbs'][count].toString().replace(".", ",") + ";" + data['testR2'][count].toString().replace(".", ",") + ";"
+                            csvContent += data['testAVG'][count] + ";" + data['testRMSE'][count] + ";" +
+                                data['testAbs'][count] + ";" + data['testR2'][count] + ";"
                         }
 
                         csvContent += "\n";
