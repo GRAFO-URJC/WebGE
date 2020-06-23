@@ -31,6 +31,9 @@ public class Dataset {
     @Column
     private Long userIdUserId;
 
+    @Column(name = "fold_size")
+    private Integer foldSize = 0;
+
     // https://softwareyotrasdesvirtudes.com/2012/09/20/anotaciones-en-jpa-para-sobrevivir-a-una-primera-persistenica/
     @Column(name = "creation_date")
     private Timestamp creationDate = null;
@@ -98,5 +101,13 @@ public class Dataset {
 
     public void setInfo(String info) {
         this.info = info;
+    }
+
+    public int getFoldSize() {
+        return foldSize;
+    }
+
+    public void setFoldSize(int foldSize) {
+        this.foldSize = foldSize;
     }
 }
