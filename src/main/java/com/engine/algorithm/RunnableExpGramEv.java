@@ -16,13 +16,15 @@ public class RunnableExpGramEv implements Runnable {
     private SymbolicRegressionGE ge;
     private Dataset experimentDataType;
     private RunService runService;
+    private int crossRunIdentifier;
 
     public RunnableExpGramEv(Properties properties, Run runElement, Dataset experimentDataType,
-                             RunService runService) {
+                             RunService runService, int crossRunIdentifier) {
         this.properties = properties;
         this.runElement = runElement;
         this.experimentDataType = experimentDataType;
         this.runService = runService;
+        this.crossRunIdentifier = crossRunIdentifier;
     }
 
     @Override
@@ -42,8 +44,24 @@ public class RunnableExpGramEv implements Runnable {
 
         RunGeObserver observer = new RunGeObserver();
         observer.setDiagramData(runElement);
+        String datasetInfo = experimentDataType.getInfo();
+        if (datasetInfo.contains("K-Fold")) {
+            String[] splitInfo = datasetInfo.split("\r\n");
+            datasetInfo = "";
+            datasetInfo += splitInfo[0].substring(0, splitInfo[0].length() - ";K-Fold".length()) + "\r\n";
+            //index last ;
+            int indexFold, identifier;
+            for (int i = 1; i < splitInfo.length; i++) {
+                indexFold = splitInfo[i].lastIndexOf(';');
+                identifier = Integer.parseInt(splitInfo[i].substring(indexFold + 1));
+                //check if have cross
+                if (crossRunIdentifier < 0 || identifier != crossRunIdentifier) {
+                    datasetInfo += splitInfo[i].substring(0, indexFold) + "\r\n";
+                }
+            }
+        }
 
-        ge.runGE(observer, experimentDataType.getInfo(), runElement, runService);
+        ge.runGE(observer, datasetInfo, runElement, runService);
     }
 
     public void stopExecution() {
