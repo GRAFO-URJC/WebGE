@@ -54,6 +54,7 @@ public class ConfigExperimentDto {
     private String fileText=""; // This is the text on the file - That's written in an areaText - So we can take it as a String
     private String dataTypeType = "training";   // Validation, test, training
     private String crossExperiment = "false";
+    private boolean contentFold = false;
 
     /**
      * 0 -> Root Mean Squared Error (RMSE)
@@ -210,5 +211,13 @@ public class ConfigExperimentDto {
 
     public void setCrossExperiment(String crossExperiment) {
         this.crossExperiment = crossExperiment;
+    }
+
+    public boolean isContentFold() {
+        return contentFold;
+    }
+
+    public void setContentFold(boolean contentFold) {
+        this.contentFold = contentFold;
     }
 }

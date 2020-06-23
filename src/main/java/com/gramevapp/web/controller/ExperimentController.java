@@ -133,9 +133,7 @@ public class ExperimentController {
         String grammarFilePath = grammarFileSection(user, configExpDto, exp.getDefaultGrammar());
         // END - Grammar File SECTION
 
-        // RUN SECTION
         Run run;
-        // Create ExpPropertiesDto file
         String propPath;
 
         List<Thread> threads = new ArrayList<>();
@@ -147,9 +145,9 @@ public class ExperimentController {
             run.setStatus(Run.Status.WAITING);
             // Create ExpPropertiesDto file
             propPath = expPropertiesSet(configExpDto,
-                    user, expDataType, grammarFilePath, exp.isCrossExperiment());
+                    user, expDataType, grammarFilePath);
             // Run experiment in new thread
-            threads.add(runExperimentDetails(run, propPath));
+            threads.add(runExperimentDetails(run, propPath, exp.isCrossExperiment() ? i : -1));
         }
         experimentService.saveExperiment(exp);
 
@@ -171,8 +169,27 @@ public class ExperimentController {
     }
 
     protected String expPropertiesSet(ConfigExperimentDto configExpDto,
-                                      User user, Dataset expDataType, String grammarFilePath, boolean crossRun) throws IOException {
-        return fileConfig(expDataType, user, configExpDto, grammarFilePath);
+                                      User user, Dataset expDataType, String grammarFilePath) throws IOException {
+        // Reader - FILE DATA TYPE - Convert MultipartFile into Generic Java File - Then convert it to Reader
+        File dir = new File(PROPERTIES_DIR_PATH + user.getId());
+        if (!dir.exists())
+            dir.mkdirs();
+
+        String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + configExpDto.getExperimentName().replaceAll("\\s+", "") + "_" + UUID.randomUUID() + ".properties";
+        createPropertiesFile(propertiesFilePath, configExpDto.getExperimentName(),
+                configExpDto, user, grammarFilePath, DATATYPE_DIR_PATH + "training\\" + user.getId(), expDataType);  // Write in property file
+        // END - Create ExpPropertiesDto file
+
+        // Execute program with experiment info
+        File propertiesFile = new File(propertiesFilePath);
+        Reader propertiesReader = new FileReader(propertiesFile);
+
+        Properties properties = new Properties();
+        properties.load(propertiesReader);
+
+        properties.setProperty(TRAINING_PATH_PROP, "");
+        propertiesReader.close();
+        return propertiesFilePath;
     }
 
 
@@ -215,7 +232,7 @@ public class ExperimentController {
         if (configExpDto.getId() != null) {
             exp = experimentService.findExperimentById(configExpDto.getId());
             configExpDto = fillConfigExpDto(configExpDto, exp,
-                    exp.getDefaultGrammar());
+                    exp.getDefaultGrammar(), expDataType);
             // check if only test was changed
             boolean sameExp = exp.getExperimentName().equals(configExpDto.getExperimentName()) &&
                     exp.getExperimentDescription().equals(configExpDto.getExperimentDescription()) &&
@@ -252,7 +269,7 @@ public class ExperimentController {
 
         removeRuns(exp);
         experimentService.saveExperiment(exp);
-        fillConfigExpDto(configExpDto, exp, exp.getDefaultGrammar());
+        fillConfigExpDto(configExpDto, exp, exp.getDefaultGrammar(),expDataType);
 
         modelAddData(model, user,
                 experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
@@ -281,33 +298,6 @@ public class ExperimentController {
         return "experiment/configExperiment";
     }
 
-
-    private String fileConfig(Dataset expDataType, User user,
-                              ConfigExperimentDto configExpDto, String grammarFilePath) throws IOException {
-        // Reader - FILE DATA TYPE - Convert MultipartFile into Generic Java File - Then convert it to Reader
-
-        File dir = new File(PROPERTIES_DIR_PATH + user.getId());
-        if (!dir.exists())
-            dir.mkdirs();
-
-        String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + configExpDto.getExperimentName().replaceAll("\\s+", "") + "_" + UUID.randomUUID() + ".properties";
-        createPropertiesFile(propertiesFilePath, configExpDto.getExperimentName(),
-                configExpDto, user, grammarFilePath, DATATYPE_DIR_PATH + "training\\" + user.getId(), expDataType);  // Write in property file
-        // END - Create ExpPropertiesDto file
-
-        // Execute program with experiment info
-        File propertiesFile = new File(propertiesFilePath);
-        Reader propertiesReader = new FileReader(propertiesFile);
-
-        Properties properties = new Properties();
-        properties.load(propertiesReader);
-
-        properties.setProperty(TRAINING_PATH_PROP, "");
-        propertiesReader.close();
-        return propertiesFilePath;
-    }
-
-
     @RequestMapping(value = "/experiment/experimentRepository", method = RequestMethod.GET)
     public String experimentRepository(Model model) {
 
@@ -333,7 +323,7 @@ public class ExperimentController {
         List<Run> runList = exp.getIdRunList();
 
         ConfigExperimentDto configExpDto = fillConfigExpDto(new ConfigExperimentDto(), exp,
-                exp.getDefaultGrammar());
+                exp.getDefaultGrammar(),experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()));
 
         modelAddData(model, user, experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()),
                 exp.getIdExpDataTypeList(), exp.getDefaultTestExpDataTypeId());
@@ -465,7 +455,7 @@ public class ExperimentController {
         result.add(UtilStats.computeAbsoluteError(yDoubleArray, functionResultDoubleArray));
     }
 
-    private Thread runExperimentDetails(Run run, String propPath) throws IOException {
+    private Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier) throws IOException {
         File propertiesFile = new File(propPath);
         Reader propertiesReader = new FileReader(propertiesFile);
 
@@ -473,7 +463,8 @@ public class ExperimentController {
         properties.load(propertiesReader);
         properties.setProperty(TRAINING_PATH_PROP, propPath);
         RunnableExpGramEv obj = new RunnableExpGramEv(properties, run,
-                experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService);
+                experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService,
+                crossRunIdentifier);
         Thread.UncaughtExceptionHandler h = (th, ex) -> {
             run.setStatus(Run.Status.FAILED);
             RunExecutionReport runExecutionReport = runService.getRunExecutionReport(run.getId());
@@ -680,7 +671,8 @@ public class ExperimentController {
         return longRunId;
     }
 
-    public ConfigExperimentDto fillConfigExpDto(ConfigExperimentDto configExpDto, Experiment exp, String grammar) {
+    public ConfigExperimentDto fillConfigExpDto(ConfigExperimentDto configExpDto, Experiment exp, String grammar,
+                                                Dataset dataset) {
 
         setConfigExpDtoWIthExperiment(configExpDto, exp.getExperimentName(),
                 exp.getExperimentDescription(), exp.getCrossoverProb(), exp.getGenerations(),
@@ -691,6 +683,7 @@ public class ExperimentController {
         configExpDto.setDefaultExpDataTypeId(exp.getDefaultExpDataType());
         configExpDto.setFileText(grammar);
         configExpDto.setCrossExperiment(exp.isCrossExperiment() ? "true" : "false");
+        configExpDto.setContentFold(dataset.getInfo().contains("K-Fold"));
 
         return configExpDto;
     }

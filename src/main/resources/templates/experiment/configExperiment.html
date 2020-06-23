@@ -286,10 +286,11 @@
                                     </select>
                                     <input id="experimentDataTypeId" name="experimentDataTypeId" hidden="true"/>
                                 </div>
-                                <div th:class="${configExp.getCrossExperiment().equals('true')?'col-sm-8 col-md-8 col-lg-8 '
-                                :'col-sm-8 col-md-8 col-lg-8 hidden'}" id="crossExperiment">
-                                    <input id="crossExperimentValue" name="crossExperimentValue" type="checkbox"
-                                           th:value="${configExp.getCrossExperiment().equals('true')}">
+                                <div th:class="${configExp.getCrossExperiment().equals('true')||configExp.isContentFold()?'col-sm-8 col-md-8 col-lg-8 '
+                                :'col-sm-8 col-md-8 col-lg-8 hidden'}" id="crossExperimentSection">
+                                    <input id="crossExperiment" name="crossExperiment" type="checkbox"
+                                           th:value="${configExp.getCrossExperiment().equals('true')}"
+                                    th:checked="${configExp.getCrossExperiment().equals('true')}">
                                     Fold experiment
                                 </div>
                             </div>
@@ -319,7 +320,8 @@
                         </div>
                         <!-- END Training Test Validation files -->
                         <!-- Test Test files -->
-                        <div class="col-sm-12 col-md-12 col-lg-12 center-block">
+                        <div th:class="${configExp.getCrossExperiment().equals('true')?'col-sm-12 col-md-12 col-lg-12 center-block hidden'
+                                :'col-sm-12 col-md-12 col-lg-12 center-block'}" id="testDatasetPart">
                             <div class="jumbotron row form-group">
                                 <h4>Test Dataset</h4>
                             </div>
@@ -823,13 +825,18 @@
         //dataset check
         $("#datasetId").change(function () {
             if (datasetListInfo[$("#datasetId option:selected").val()].info.includes("K-Fold")) {
-                $("#crossExperiment").removeClass("hidden");
+                $("#crossExperimentSection").removeClass("hidden");
             } else {
-                $("#crossExperiment").addClass("hidden");
+                $("#crossExperimentSection").addClass("hidden");
             }
         })
-        $("#crossExperimentValue").change(function () {
+        $("#crossExperiment").change(function () {
             this.value = this.checked;
+            if(this.checked){
+                $("#testDatasetPart").addClass("hidden");
+            }else{
+                $("#testDatasetPart").removeClass("hidden");
+            }
         })
 
     </script>
