@@ -269,7 +269,7 @@ public class ExperimentController {
 
         removeRuns(exp);
         experimentService.saveExperiment(exp);
-        fillConfigExpDto(configExpDto, exp, exp.getDefaultGrammar(),expDataType);
+        fillConfigExpDto(configExpDto, exp, exp.getDefaultGrammar(), expDataType);
 
         modelAddData(model, user,
                 experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
@@ -323,7 +323,7 @@ public class ExperimentController {
         List<Run> runList = exp.getIdRunList();
 
         ConfigExperimentDto configExpDto = fillConfigExpDto(new ConfigExperimentDto(), exp,
-                exp.getDefaultGrammar(),experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()));
+                exp.getDefaultGrammar(), experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()));
 
         modelAddData(model, user, experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()),
                 exp.getIdExpDataTypeList(), exp.getDefaultTestExpDataTypeId());
@@ -389,6 +389,7 @@ public class ExperimentController {
     public String showRunTestStatsExperiment(Model model,
                                              @RequestParam(value = "runId") String runId) throws EvaluationException {
         Run run = runService.findByRunId(Long.parseLong(runId));
+        int crossRunIdentifier = run.getExperimentId().getIdRunList().indexOf(run);
         List<Double> listYLine = new ArrayList<>();
         List<Double> listFunctionResult = new ArrayList<>();
         List<Double> trainingResult = new ArrayList<>();
@@ -407,11 +408,28 @@ public class ExperimentController {
         model.addAttribute("index", run.getExperimentId().getIdRunList().indexOf(run) + 1);
         model.addAttribute("model", run.getModel());
 
-        if (run.getExperimentId().getDefaultTestExpDataTypeId() != null) {
+        if (run.getExperimentId().getDefaultTestExpDataTypeId() != null || run.getExperimentId().isCrossExperiment()) {
             List<Double> testListYLine = new ArrayList<>();
             List<Double> testListFunctionResult = new ArrayList<>();
             List<Double> testResult = new ArrayList<>();
-            splitContent = experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultTestExpDataTypeId()).getInfo().split("\r\n");
+            if (run.getExperimentId().isCrossExperiment()) {
+                List<String> splitContentList = new ArrayList<>();
+                splitContent = experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()).getInfo().split("\r\n");
+                splitContent[0] = splitContent[0].substring(0, splitContent[0].length() - ";K-Fold".length()) + "\r\n";
+                splitContentList.add(splitContent[0]);
+                //index last ;
+                int indexFold;
+                for (int i = 1; i < splitContent.length; i++) {
+                    indexFold = splitContent[i].lastIndexOf(';');
+                    if (Integer.parseInt(splitContent[i].substring(indexFold + 1)) == crossRunIdentifier) {
+                        splitContent[i] = splitContent[i].substring(0, indexFold) + "\r\n";
+                        splitContentList.add(splitContent[i]);
+                    }
+                }
+                splitContent= splitContentList.toArray(new String[0]);
+            }else{
+                splitContent = experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultTestExpDataTypeId()).getInfo().split("\r\n");
+            }
 
             processExperimentDataTypeInfo(splitContent, testListYLine, testListFunctionResult, testResult, run);
             model.addAttribute("testRMSE", testResult.get(0));
