@@ -147,7 +147,7 @@ public class ExperimentController {
             propPath = expPropertiesSet(configExpDto,
                     user, expDataType, grammarFilePath);
             // Run experiment in new thread
-            threads.add(runExperimentDetails(run, propPath, exp.isCrossExperiment() ? i + 1 : -1));
+            threads.add(runExperimentDetails(run, propPath, exp.isCrossExperiment() ? (i + 1) / expDataType.getFoldSize() : -1));
         }
         experimentService.saveExperiment(exp);
 
@@ -389,7 +389,7 @@ public class ExperimentController {
     public String showRunTestStatsExperiment(Model model,
                                              @RequestParam(value = "runId") String runId) throws EvaluationException {
         Run run = runService.findByRunId(Long.parseLong(runId));
-        int crossRunIdentifier = run.getExperimentId().getIdRunList().indexOf(run);
+        int crossRunIdentifier = run.getExperimentId().getIdRunList().indexOf(run) + 1;
         List<Double> listYLine = new ArrayList<>();
         List<Double> listFunctionResult = new ArrayList<>();
         List<Double> trainingResult = new ArrayList<>();
