@@ -104,6 +104,9 @@ public class Dataset {
     }
 
     public int getFoldSize() {
+        if (foldSize == null) {
+            this.foldSize = 0;
+        }
         return foldSize;
     }
 

@@ -69,7 +69,9 @@
 
             <section class="panel-body">
                 <form th:action="@{/experiment/start}" th:object="${configExp}" enctype="multipart/form-data"
-                      role="form" method="POST" onsubmit="return checkDeletePreviousRun();">
+                      role="form" method="POST" onsubmit="
+                      checkNumberRuns();
+                      return checkDeletePreviousRun();">
 
                     <div class="row center-block text-center form-horizontal">
                         <div class="col-sm-6 col-md-offset-3 col-lg-offset-3">
@@ -192,7 +194,7 @@
                                 <div class="col-sm-12 col-md-6 col-lg-6">
                                     <label for="numberRuns">Number of runs:</label>
                                     <div th:classappend="${#fields.hasErrors('numberRuns')}? 'has-error':'numberRuns error'">
-                                        <input type="number" class="text-center" th:min="0"
+                                        <input type="number" class="text-center" min="1"
                                                th:value="${configuration.getNumberRuns()}" value="1" name="numberRuns"
                                                id="numberRuns"/>
                                     </div>
@@ -645,6 +647,7 @@
             data.dataTypeName =/*[[${dataset.getDataTypeName()}]]*/;
             data.dataTypeDescription =/*[[${dataset.getDataTypeDescription()}]]*/;
             data.info =/*[[${dataset.getInfo()}]]*/;
+            data.foldSize =/*[[${dataset.getFoldSize()}]]*/;
             datasetListInfo.push(data);
             /*[/]*/
             /*]]>*/
@@ -769,7 +772,15 @@
             });
         }
 
+        function checkNumberRuns() {
+            let numberRuns = document.getElementById("numberRuns");
+            if (document.getElementById("crossExperiment").checked && numberRuns.value < datasetListInfo[$("#datasetId option:selected").val()].foldSize) {
+                numberRuns.value = datasetListInfo[$("#datasetId option:selected").val()].foldSize;
+            }
+        }
+
         function checkDeletePreviousRun() {
+
             if (document.getElementById("runForms") && !cloneButton && !(saveButton && checkExperimentInformationEqual())) {
                 return confirm('Do you really want to run it? This will delete the previous runs...');
             } else {
@@ -837,7 +848,7 @@
 
             if ($("#datasetId option:selected").val() === checkedCrossValidationValue) {
                 document.getElementById("crossExperiment").checked = true;
-            }else{
+            } else {
                 document.getElementById("crossExperiment").checked = false;
             }
 
@@ -846,7 +857,11 @@
             this.value = this.checked;
             if (this.checked) {
                 $("#testDatasetPart").addClass("hidden");
+                $("#numberRuns").val(datasetListInfo[$("#datasetId option:selected").val()].foldSize);
+                document.getElementById("numberRuns").min = datasetListInfo[$("#datasetId option:selected").val()].foldSize;
+                alert("Number of runs set to " + datasetListInfo[$("#datasetId option:selected").val()].foldSize);
             } else {
+                document.getElementById("numberRuns").min = 0
                 $("#testDatasetPart").removeClass("hidden");
             }
         })
