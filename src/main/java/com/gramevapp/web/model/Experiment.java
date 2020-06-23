@@ -35,7 +35,7 @@ public class Experiment {
     private String defaultGrammar;
 
     @Column
-    private boolean crossExperiment = false;
+    private Boolean crossExperiment = false;
 
     @JsonBackReference
     @ManyToMany
