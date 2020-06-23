@@ -276,7 +276,7 @@
                             </div>
 
                             <div class="row form-group center-block">
-                                <div class="col-sm4 col-md-4 col-lg-4">
+                                <div class="col-sm12 col-md-12 col-lg-12">
                                     <select id="datasetId" name="datasetId"
                                             onchange="updateDatasetContent()" required>
                                         <option value="">Select a dataset ...</option>
@@ -286,8 +286,8 @@
                                     </select>
                                     <input id="experimentDataTypeId" name="experimentDataTypeId" hidden="true"/>
                                 </div>
-                                <div th:class="${configExp.getCrossExperiment().equals('true')||configExp.isContentFold()?'col-sm-8 col-md-8 col-lg-8 '
-                                :'col-sm-8 col-md-8 col-lg-8 hidden'}" id="crossExperimentSection">
+                                <div th:class="${configExp.getCrossExperiment().equals('true')||configExp.isContentFold()?'col-sm-12 col-md-12 col-lg-12 '
+                                :'col-sm-12 col-md-12 col-lg-12 hidden'}" id="crossExperimentSection">
                                     <input id="crossExperiment" name="crossExperiment" type="checkbox"
                                            th:value="${configExp.getCrossExperiment().equals('true')}"
                                            th:checked="${configExp.getCrossExperiment().equals('true')}">
