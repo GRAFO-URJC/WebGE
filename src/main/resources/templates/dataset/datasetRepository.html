@@ -73,7 +73,7 @@
                                     </button>
                                     <button type="button" th:name="${dataset.getId()}"
                                             th:id="${'downloadDataset' + dataset.getId()}"
-                                            th:onclick="'downloadDataset('+${iterStat.index}+')'"
+                                            onclick="downloadDataset(this)"
                                             class="btn-default btn btn-sm"
                                             rel="tooltip"
                                             title="Download dataset"
@@ -154,16 +154,13 @@
 
     <script th:inline="javascript">
 
-        /*<![CDATA[*/
-        let allDataSet = [[${datasetList}]]
-        /*]]>*/
         $(document).ready(function () {
             tableDefinition('#datasetRepository', "#datasetTbody", 4, 5, 6, 3);
             dataSetPage =true;
         })
 
-        function downloadDataset(elemName) {
-            let textToWrite = allDataSet[elemName].info.split(/[\n]/);
+        function downloadDataset(button) {
+            let textToWrite = $('#fileText'+button.name).val().split(/\n/);
             const rows = [];
             textToWrite.forEach(function (value) {
                 rows.push(value.split(";"));
@@ -172,7 +169,7 @@
 
             rows.forEach(function (rowArray) {
                 let row = rowArray.join(";");
-                csvContent += row;
+                csvContent += row+"\r\n";
             });
             let textFileAsBlob = new Blob([csvContent], {type: 'text/csv'});
 
