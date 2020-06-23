@@ -34,7 +34,6 @@
                     <table class="table table-hover " id="datasetRepository" style="width: 100%">
                         <thead>
                         <tr>
-                            <th scope="col">#</th>
                             <th scope="col">Dataset name</th>
                             <th scope="col">Dataset description</th>
                             <th scope="col">Creation date</th>
@@ -46,8 +45,6 @@
                         <tbody id="datasetTbody">
                         <th:block th:each="dataset, iterStat : ${datasetList}">
                             <tr th:id="'tr' + ${iterStat.index}">
-                                <td scope="row"><label th:name="id" th:id="id" th:text="${dataset.getId()}"
-                                                       id="id"/></td>
                                 <td scope="row"><label th:name="name" th:id="name"
                                                        th:text="${dataset.getDataTypeName()}"
                                                        id="name"/></td>
@@ -155,7 +152,7 @@
     <script th:inline="javascript">
 
         $(document).ready(function () {
-            tableDefinition('#datasetRepository', "#datasetTbody", 4, 5, 6, 3);
+            tableDefinition('#datasetRepository', "#datasetTbody", 3, 4, 5, 2);
             dataSetPage =true;
         })
 

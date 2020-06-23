@@ -69,7 +69,7 @@
                     });
                 } else {
                     if (dataSetPage) {
-                        let datasetId = row.data()[6].match(/(fileText[0-9]+)/)[0];
+                        let datasetId = row.data()[5].match(/(fileText[0-9]+)/)[0];
                         if (datasetId != null && foldedId.includes(datasetId)) {
                             row.data()[targetChill] =
                                 " <textarea readonly rows=\"8\" class=\"form-control\"\n" +
