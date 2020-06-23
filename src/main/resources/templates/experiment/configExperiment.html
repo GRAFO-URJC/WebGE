@@ -290,7 +290,7 @@
                                 :'col-sm-8 col-md-8 col-lg-8 hidden'}" id="crossExperimentSection">
                                     <input id="crossExperiment" name="crossExperiment" type="checkbox"
                                            th:value="${configExp.getCrossExperiment().equals('true')}"
-                                    th:checked="${configExp.getCrossExperiment().equals('true')}">
+                                           th:checked="${configExp.getCrossExperiment().equals('true')}">
                                     Fold experiment
                                 </div>
                             </div>
@@ -512,6 +512,7 @@
         let grammarList;
         let grammarTooltip = document.getElementById("grammarTooltip");
         let runTable = document.getElementById("expTypeTable");
+        let checkedCrossValidationValue = -1;
 
         function storeGrammar() {
             let grammarName = $("#grammarName").val();
@@ -590,6 +591,10 @@
                     countModify - 1 : countModify + 1;
                 checkShowAlert(this.id);
             })
+
+            if (document.getElementById("crossExperiment").checked) {
+                checkedCrossValidationValue = $("#datasetId option:selected").val();
+            }
         });
 
         function copyGrammar() {
@@ -829,12 +834,19 @@
             } else {
                 $("#crossExperimentSection").addClass("hidden");
             }
+
+            if ($("#datasetId option:selected").val() === checkedCrossValidationValue) {
+                document.getElementById("crossExperiment").checked = true;
+            }else{
+                document.getElementById("crossExperiment").checked = false;
+            }
+
         })
         $("#crossExperiment").change(function () {
             this.value = this.checked;
-            if(this.checked){
+            if (this.checked) {
                 $("#testDatasetPart").addClass("hidden");
-            }else{
+            } else {
                 $("#testDatasetPart").removeClass("hidden");
             }
         })
