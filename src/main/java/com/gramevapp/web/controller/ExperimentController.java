@@ -395,6 +395,27 @@ public class ExperimentController {
         List<Double> trainingResult = new ArrayList<>();
         String[] splitContent =
                 experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()).getInfo().split("\r\n");
+        String[] testSplitContent = null;
+
+        if (run.getExperimentId().isCrossExperiment()) {
+            List<String> splitContentList = new ArrayList<>();
+            List<String> testSplitContentList = new ArrayList<>();
+            splitContent[0] = splitContent[0].substring(0, splitContent[0].length() - ";K-Fold".length()) + "\r\n";
+            splitContentList.add(splitContent[0]);
+            testSplitContentList.add(splitContent[0]);
+            //index last ;
+            int indexFold;
+            for (int i = 1; i < splitContent.length; i++) {
+                indexFold = splitContent[i].lastIndexOf(';');
+                if (Integer.parseInt(splitContent[i].substring(indexFold + 1)) != crossRunIdentifier) {
+                    splitContentList.add(splitContent[i].substring(0, indexFold) + "\r\n");
+                } else {
+                    testSplitContentList.add(splitContent[i].substring(0, indexFold) + "\r\n");
+                }
+            }
+            splitContent = splitContentList.toArray(new String[0]);
+            testSplitContent = testSplitContentList.toArray(new String[0]);
+        }
 
         processExperimentDataTypeInfo(splitContent, listYLine, listFunctionResult, trainingResult, run);
 
@@ -413,21 +434,8 @@ public class ExperimentController {
             List<Double> testListFunctionResult = new ArrayList<>();
             List<Double> testResult = new ArrayList<>();
             if (run.getExperimentId().isCrossExperiment()) {
-                List<String> splitContentList = new ArrayList<>();
-                splitContent = experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()).getInfo().split("\r\n");
-                splitContent[0] = splitContent[0].substring(0, splitContent[0].length() - ";K-Fold".length()) + "\r\n";
-                splitContentList.add(splitContent[0]);
-                //index last ;
-                int indexFold;
-                for (int i = 1; i < splitContent.length; i++) {
-                    indexFold = splitContent[i].lastIndexOf(';');
-                    if (Integer.parseInt(splitContent[i].substring(indexFold + 1)) == crossRunIdentifier) {
-                        splitContent[i] = splitContent[i].substring(0, indexFold) + "\r\n";
-                        splitContentList.add(splitContent[i]);
-                    }
-                }
-                splitContent= splitContentList.toArray(new String[0]);
-            }else{
+                splitContent = testSplitContent;
+            } else {
                 splitContent = experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultTestExpDataTypeId()).getInfo().split("\r\n");
             }
 
