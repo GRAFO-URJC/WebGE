@@ -112,10 +112,6 @@ public class ExperimentController {
             return "experiment/configExperiment";
         }
 
-        // RUN SECTION
-        Run run = runService.saveRun(new Run());
-        runSection(run, configExpDto);
-
         // Experiment Data Type SECTION
         Dataset expDataType = experimentService.
                 findExperimentDataTypeById(Long.valueOf(experimentDataTypeId));
@@ -129,7 +125,7 @@ public class ExperimentController {
                 , user,
                 (testExperimentDataTypeId.equals("")) ? null : experimentService.
                         findExperimentDataTypeById(Long.valueOf(testExperimentDataTypeId))
-                , expDataType, configExpDto, configExpDto.getFileText(), run, run.getId());
+                , expDataType, configExpDto, configExpDto.getFileText());
         experimentService.saveExperiment(exp);
         // END - Experiment section
 
@@ -137,28 +133,23 @@ public class ExperimentController {
         String grammarFilePath = grammarFileSection(user, configExpDto, exp.getDefaultGrammar());
         // END - Grammar File SECTION
 
+        // RUN SECTION
+        Run run;
         // Create ExpPropertiesDto file
-        String propPath = expPropertiesSet(fileModelDto, configExpDto, user,
-                expDataType, grammarFilePath);
+        String propPath;
 
         List<Thread> threads = new ArrayList<>();
-        // Run experiment in new thread
-        threads.add(runExperimentDetails(run, propPath));
         //check if need to run more runs
-        for (int i = 1; i < configExpDto.getNumberRuns(); i++) {
+        for (int i = 0; i < configExpDto.getNumberRuns(); i++) {
             // RUN SECTION
-            Run newRun = runService.saveRun(new Run());
-            runSection(newRun, configExpDto);
-            exp.getIdRunList().add(newRun);
-            newRun.setExperimentId(exp);
+            run = runService.saveRun(new Run());
+            runSection(run, exp);
+            run.setStatus(Run.Status.WAITING);
             // Create ExpPropertiesDto file
-            propPath = expPropertiesSet(fileModelDto, configExpDto,
-                    user, expDataType, grammarFilePath);
-
-            newRun.setStatus(Run.Status.WAITING);
-
+            propPath = expPropertiesSet(configExpDto,
+                    user, expDataType, grammarFilePath, exp.isCrossExperiment());
             // Run experiment in new thread
-            threads.add(runExperimentDetails(newRun, propPath));
+            threads.add(runExperimentDetails(run, propPath));
         }
         experimentService.saveExperiment(exp);
 
@@ -179,9 +170,8 @@ public class ExperimentController {
         return "redirect:/experiment/expRepoSelected";
     }
 
-    protected String expPropertiesSet(@ModelAttribute("typeFile") FileModelDto fileModelDto,
-                                      @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
-                                      User user, Dataset expDataType, String grammarFilePath) throws IOException {
+    protected String expPropertiesSet(ConfigExperimentDto configExpDto,
+                                      User user, Dataset expDataType, String grammarFilePath, boolean crossRun) throws IOException {
         return fileConfig(expDataType, user, configExpDto, grammarFilePath);
     }
 
@@ -257,8 +247,7 @@ public class ExperimentController {
         }
 
 
-        exp = experimentSection(exp, user, testExperimentDataType, expDataType, configExpDto, configExpDto.getFileText(),
-                null, null);
+        exp = experimentSection(exp, user, testExperimentDataType, expDataType, configExpDto, configExpDto.getFileText());
         // END - Experiment section
 
         removeRuns(exp);
@@ -540,11 +529,12 @@ public class ExperimentController {
         propertiesWriter.close();
     }
 
-    private void runSection(Run run, ConfigExperimentDto configExpDto) {
+    private void runSection(Run run, Experiment exp) {
         run.setStatus(Run.Status.INITIALIZING);
-
         run.setIniDate(new Timestamp(new Date().getTime()));
         run.setModificationDate(new Timestamp(new Date().getTime()));
+        exp.getIdRunList().add(run);
+        run.setExperimentId(exp);
 
         RunExecutionReport runExecutionReport = new RunExecutionReport();
         runExecutionReport.setId(run.getId());
@@ -585,16 +575,12 @@ public class ExperimentController {
 
     private Experiment experimentSection(Experiment exp, User user, Dataset testExpDataType,
                                          Dataset expDataType,
-                                         ConfigExperimentDto configExpDto, String grammar, Run run,
-                                         Long longDefaultRunId) {
+                                         ConfigExperimentDto configExpDto, String grammar) {
         if (exp == null) {   // We create it
             exp = new Experiment(user, configExpDto.getExperimentName(), configExpDto.getExperimentDescription(), configExpDto.getGenerations(),
                     configExpDto.getPopulationSize(), configExpDto.getMaxWraps(), configExpDto.getTournament(), configExpDto.getCrossoverProb(), configExpDto.getMutationProb(),
                     configExpDto.getNumCodons(), configExpDto.getNumberRuns(), configExpDto.getObjective(),
                     new Timestamp(new Date().getTime()), new Timestamp(new Date().getTime()));
-            if (longDefaultRunId != null) {
-                exp.setDefaultRunId(longDefaultRunId);          // Doesn't exists -> We set up the run id obtained before
-            }
 
         } else {  // The experiment data type configuration already exist
             exp.setUserId(user);
@@ -616,18 +602,13 @@ public class ExperimentController {
 
             removeRuns(exp);
 
-            if (run != null) {
-                exp.setDefaultRunId(run.getId());          // Doesn't exists -> We set up the run id obtained before
-            }
-        }
-        if (run != null) {
-            exp.addRun(run);
         }
         exp.addExperimentDataType(expDataType);
         exp.setDefaultGrammar(grammar);
         exp.setDefaultExpDataType(expDataType.getId());
         exp.setDefaultTestExpDataTypeId(testExpDataType != null ? testExpDataType.getId() : null);
         exp.setModificationDate(new Timestamp(new Date().getTime()));
+        exp.setCrossExperiment(configExpDto.getCrossExperiment().equals("true"));
         return exp;
     }
 
@@ -693,28 +674,8 @@ public class ExperimentController {
     public
     @ResponseBody
     Long deleteRun(@RequestParam("runId") String runId) {
-        boolean found = false;
-
         Long longRunId = Long.parseLong(runId);
         Run run = runService.findByRunId(longRunId);
-        Experiment experiment = run.getExperimentId();
-
-        List<Run> lRun = run.getExperimentId().getIdRunList();
-        Iterator<Run> runIt = lRun.iterator();
-        while (runIt.hasNext() && !found) {
-            Run runAux = runIt.next();
-            if (runAux.getId().longValue() == run.getId().longValue()) {
-                runAux.setExperimentId(null);
-                if (runAux.getId().longValue() == experiment.getDefaultRunId().longValue())
-                    experiment.setDefaultRunId(Long.parseLong("0"));
-                found = true;
-            }
-        }
-
-        if (experiment.getDefaultRunId().equals(longRunId)) {
-            experiment.setDefaultRunId(null);
-            experimentService.saveExperiment(experiment);
-        }
         runService.deleteRun(run);
         return longRunId;
     }
@@ -729,6 +690,7 @@ public class ExperimentController {
         configExpDto.setId(exp.getId());
         configExpDto.setDefaultExpDataTypeId(exp.getDefaultExpDataType());
         configExpDto.setFileText(grammar);
+        configExpDto.setCrossExperiment(exp.isCrossExperiment() ? "true" : "false");
 
         return configExpDto;
     }

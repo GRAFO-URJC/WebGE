@@ -276,7 +276,7 @@
                             </div>
 
                             <div class="row form-group center-block">
-                                <div class="col-sm-12 col-md-12 col-lg-12 ">
+                                <div class="col-sm4 col-md-4 col-lg-4">
                                     <select id="datasetId" name="datasetId"
                                             onchange="updateDatasetContent()" required>
                                         <option value="">Select a dataset ...</option>
@@ -285,6 +285,12 @@
                                                 th:selected="(${(experimentDataType !=null) && (experimentDataType.getId() == dataset.getId())})"/>
                                     </select>
                                     <input id="experimentDataTypeId" name="experimentDataTypeId" hidden="true"/>
+                                </div>
+                                <div th:class="${configExp.getCrossExperiment().equals('true')?'col-sm-8 col-md-8 col-lg-8 '
+                                :'col-sm-8 col-md-8 col-lg-8 hidden'}" id="crossExperiment">
+                                    <input id="crossExperimentValue" name="crossExperimentValue" type="checkbox"
+                                           th:value="${configExp.getCrossExperiment().equals('true')}">
+                                    Fold experiment
                                 </div>
                             </div>
 
@@ -475,7 +481,9 @@
                             <b style="margin-left: 15px">Std.Dev:</b><label id="runsDeviation">Waiting runs</label>
                             <b style="margin-left: 15px">Min:</b><label id="minBestSolution">Waiting runs</label>
                             <b style="margin-left: 15px">Max:</b><label id="maxBestSolution">Waiting runs</label>
-                            <button style="margin-left: 15px" class="btn-default btn btn-sm" th:onclick="'downloadExperimentRunResults('+${configExp.getId()}+')'">Download results
+                            <button style="margin-left: 15px" class="btn-default btn btn-sm"
+                                    th:onclick="'downloadExperimentRunResults('+${configExp.getId()}+')'">Download
+                                results
                             </button>
                         </td>
                     </tr>
@@ -811,6 +819,18 @@
             }
             $("#messageModifyText").text("The experiment has been modified, " + countModify + " marked.")
         }
+
+        //dataset check
+        $("#datasetId").change(function () {
+            if (datasetListInfo[$("#datasetId option:selected").val()].info.includes("K-Fold")) {
+                $("#crossExperiment").removeClass("hidden");
+            } else {
+                $("#crossExperiment").addClass("hidden");
+            }
+        })
+        $("#crossExperimentValue").change(function () {
+            this.value = this.checked;
+        })
 
     </script>
 </div>
