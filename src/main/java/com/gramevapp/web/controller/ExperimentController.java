@@ -147,7 +147,7 @@ public class ExperimentController {
             propPath = expPropertiesSet(configExpDto,
                     user, expDataType, grammarFilePath);
             // Run experiment in new thread
-            threads.add(runExperimentDetails(run, propPath, exp.isCrossExperiment() ? i : -1));
+            threads.add(runExperimentDetails(run, propPath, exp.isCrossExperiment() ? i + 1 : -1));
         }
         experimentService.saveExperiment(exp);
 

@@ -97,6 +97,7 @@ public class DataSetController {
         experimentDataType.setUserIdUserId(userService.getLoggedInUser().getId());
         if (checkFold != null && checkFold.equals("true")) {
             foldDataset(experimentDataType, kFoldNumber);
+            experimentDataType.setFoldSize(kFoldNumber);
         }
         experimentService.saveDataType(experimentDataType);
         return datasetList(model);
@@ -128,9 +129,10 @@ public class DataSetController {
 
     private void foldDataset(Dataset experimentDataType,int kFoldNumber){
         List<Integer> kFoldValues = new ArrayList<>();
-        for (int i = 0; i < kFoldNumber; i++) {
+        for (int i = 1; i <= kFoldNumber; i++) {
             kFoldValues.add(i);
         }
+        experimentDataType.setFoldSize(kFoldNumber);
         Collections.shuffle(kFoldValues);
         String[] splitDatasetInfo = experimentDataType.getInfo().split("\\r\\n");
         String newDataSetInfo = "";
