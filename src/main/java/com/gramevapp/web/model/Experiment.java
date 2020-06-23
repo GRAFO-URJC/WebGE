@@ -341,6 +341,9 @@ public class Experiment {
     }
 
     public boolean isCrossExperiment() {
+        if (crossExperiment == null) {
+            crossExperiment = false;
+        }
         return crossExperiment;
     }
 
