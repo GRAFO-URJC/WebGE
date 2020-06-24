@@ -4,17 +4,58 @@
     <div th:include="fragments/header :: head" th:remove="tag"></div>
     <script>
         let table;
+        let dataSetPage = false;
+
+        function calculateRunsStats(runTable, runsAVG, runsDeviation, maxBestSolution, minBestSolution) {
+            if (runTable != null) {
+                let runsDatas = [];
+                for (let i = 1, row; row = runTable.rows[i]; i++) {
+                    if (row.cells[3]) {
+                        if (row.cells[3].innerText !== "RUNNING" && row.cells[3].innerText !== "WAITING"
+                            && row.cells[3].innerText !== "INITIALIZING") {
+                            runsDatas.push(Number(row.cells[1].innerText))
+                            haveValue = true;
+                        }
+                    }
+                }
+                if (runsDatas.length > 0) {
+                    let avgValue = runsDatas.reduce((a, b) => a + b, 0) / runsDatas.length;
+                    let max = 0, min = -1, stdDeviation = 0;
+                    runsDatas.forEach(function (data) {
+                        if (data > max) {
+                            max = data;
+                        }
+                        if (data < min || min == -1) {
+                            min = data;
+                        }
+                        stdDeviation += Math.pow((data - avgValue), 2);
+                    })
+                    stdDeviation = Math.sqrt(stdDeviation / runsDatas.length);
+                    $(runsAVG).text(avgValue)
+                    $(runsDeviation).text(stdDeviation)
+                    $(maxBestSolution).text(max)
+                    $(minBestSolution).text(min)
+                }
+
+            }
+        }
+
+        function destroyClickedElement(event) {
+            // remove the link from the DOM
+            document.body.removeChild(event.target);
+        }
 
         function tableDefinition(id, idTableBody, target1, target2, targetChill, order) {
             table = $(id).DataTable({
                 responsive: true,
                 "paging": true,
-                "order": [ order, "desc" ],
+                "order": [order, "desc"],
                 "columnDefs": [{
                     "targets": [target1, target2],
-                    "orderable": false
+                    "orderable": false,
                 }],
             });
+
             $('.dataTables_length').addClass('bs-select');
 
             $(idTableBody).on('click', 'td.details-control', function () {
@@ -27,6 +68,16 @@
                         //tr.removeClass('shown');
                     });
                 } else {
+                    if (dataSetPage) {
+                        let datasetId = row.data()[5].match(/(fileText[0-9]+)/)[0];
+                        if (datasetId != null && foldedId.includes(datasetId)) {
+                            row.data()[targetChill] =
+                                " <textarea readonly rows=\"8\" class=\"form-control\"\n" +
+                                "                                              style=\"resize: none;\">" +
+                                document.getElementById(datasetId).value
+                                + "</textarea>";
+                        }
+                    }
                     // Open this row
                     row.child(format(row.data(), targetChill)).show();
                     tr.addClass('shown');
@@ -40,6 +91,62 @@
             return '<div class="slider" style="display: none;">' +
                 d[target] +
                 '</div>';
+        }
+
+        function downloadExperimentRunResults(id) {
+            $.ajax({
+                url: encodeURI("/runResultsInfo"),
+                data: {
+                    'expId': id.toString(),
+                },
+                cache: false,
+                async: true,
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    let csvContent = "Run;Model;Training - AVG. Error; Training - RMSE; Training - Abs. Error;" +
+                        "Training R^2;";
+                    if (data['testAVG'] !== null) {
+                        csvContent += "Test - AVG. Error; Test - RMSE; Test - Abs. Error;" +
+                            "Test R^2;";
+                    }
+                    csvContent += "\n";
+
+                    for (let count = 0; count < data['model'].length; count++) {
+                        csvContent += data['runIndex'][count] + ";" + data['model'][count] + ";" +
+                            data['trainingAVG'][count] + ";" + data['trainingRMSE'][count] + ";" +
+                            data['trainingAbs'][count] + ";" + data['trainingR2'][count] + ";"
+
+                        if (data['testAVG'] !== null) {
+                            csvContent += data['testAVG'][count] + ";" + data['testRMSE'][count] + ";" +
+                                data['testAbs'][count] + ";" + data['testR2'][count] + ";"
+                        }
+
+                        csvContent += "\n";
+                    }
+
+                    let textFileAsBlob = new Blob([csvContent], {type: 'text/csv'});
+                    let downloadLink = document.createElement("a");
+                    downloadLink.download = "runResults.csv";
+                    downloadLink.innerHTML = "Download File";
+
+                    if (window.webkitURL != null) {
+                        // Chrome allows the link to be clicked without actually adding it to the DOM.
+                        downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+                    } else {
+                        // Firefox requires the link to be added to the DOM before it can be clicked.
+                        downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+                        downloadLink.onclick = destroyClickedElement;
+                        downloadLink.style.display = "none";
+                        document.body.appendChild(downloadLink);
+                    }
+
+                    downloadLink.click();
+                },
+                error: function () {
+                    alert("Wait all runs finished.");
+                }
+            });
         }
     </script>
 </head>
@@ -69,7 +176,7 @@
                     session.userDetails!=null?
                     '   '+session.userDetails.getFirstName()+
                     ' '+session.userDetails.getLastName():''}"
-                            class="glyphicon glyphicon-user">
+                                                                                               class="glyphicon glyphicon-user">
                     </span>
                     </a></li>
 

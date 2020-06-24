@@ -1,7 +1,6 @@
 package com.gramevapp.web.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.gramevapp.web.other.BeanUtil;
 import com.gramevapp.web.other.DateFormat;
 import com.gramevapp.web.service.ExperimentService;
@@ -35,6 +34,9 @@ public class Experiment {
     @Column
     private String defaultGrammar;
 
+    @Column
+    private Boolean crossExperiment = false;
+
     @JsonBackReference
     @ManyToMany
     @JoinTable(
@@ -59,10 +61,8 @@ public class Experiment {
             cascade = CascadeType.ALL,
             mappedBy = "experimentId",
             orphanRemoval = true)
+    @OrderColumn(name = "id")
     private List<Run> idRunList;
-
-    @Column
-    private Long defaultRunId;
 
     @Column
     private Integer generations = 1000;
@@ -299,14 +299,6 @@ public class Experiment {
         this.modificationDate = modificationDate;
     }
 
-    public Long getDefaultRunId() {
-        return defaultRunId;
-    }
-
-    public void setDefaultRunId(Long defaultRunId) {
-        this.defaultRunId = defaultRunId;
-    }
-
     @Override
     public String toString() {
         return String.valueOf(this.id);
@@ -346,5 +338,16 @@ public class Experiment {
 
     public void setDefaultTestExpDataTypeId(Long defaultTestExpDataTypeId) {
         this.defaultTestExpDataTypeId = defaultTestExpDataTypeId;
+    }
+
+    public boolean isCrossExperiment() {
+        if (crossExperiment == null) {
+            crossExperiment = false;
+        }
+        return crossExperiment;
+    }
+
+    public void setCrossExperiment(boolean crossExperiment) {
+        this.crossExperiment = crossExperiment;
     }
 }

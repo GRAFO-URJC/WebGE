@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.*;
 import java.sql.Timestamp;
@@ -111,10 +112,6 @@ public class ExperimentController {
             return "experiment/configExperiment";
         }
 
-        // RUN SECTION
-        Run run = runService.saveRun(new Run());
-        runSection(run, configExpDto);
-
         // Experiment Data Type SECTION
         Dataset expDataType = experimentService.
                 findExperimentDataTypeById(Long.valueOf(experimentDataTypeId));
@@ -128,7 +125,7 @@ public class ExperimentController {
                 , user,
                 (testExperimentDataTypeId.equals("")) ? null : experimentService.
                         findExperimentDataTypeById(Long.valueOf(testExperimentDataTypeId))
-                , expDataType, configExpDto, configExpDto.getFileText(), run, run.getId());
+                , expDataType, configExpDto, configExpDto.getFileText());
         experimentService.saveExperiment(exp);
         // END - Experiment section
 
@@ -136,28 +133,21 @@ public class ExperimentController {
         String grammarFilePath = grammarFileSection(user, configExpDto, exp.getDefaultGrammar());
         // END - Grammar File SECTION
 
-        // Create ExpPropertiesDto file
-        String propPath = expPropertiesSet(fileModelDto, configExpDto, user,
-                expDataType, grammarFilePath, run);
+        Run run;
+        String propPath;
 
         List<Thread> threads = new ArrayList<>();
-        // Run experiment in new thread
-        threads.add(runExperimentDetails(run, run.getDiagramData(), propPath));
         //check if need to run more runs
-        for (int i = 1; i < configExpDto.getNumberRuns(); i++) {
+        for (int i = 0; i < configExpDto.getNumberRuns(); i++) {
             // RUN SECTION
-            Run newRun = runService.saveRun(new Run());
-            runSection(newRun, configExpDto);
-            exp.getIdRunList().add(newRun);
-            newRun.setExperimentId(exp);
+            run = runService.saveRun(new Run());
+            runSection(run, exp);
+            run.setStatus(Run.Status.WAITING);
             // Create ExpPropertiesDto file
-            propPath = expPropertiesSet(fileModelDto, configExpDto,
-                    user, expDataType, grammarFilePath, newRun);
-
-            newRun.setStatus(Run.Status.WAITING);
-
+            propPath = expPropertiesSet(configExpDto,
+                    user, expDataType, grammarFilePath);
             // Run experiment in new thread
-            threads.add(runExperimentDetails(newRun, newRun.getDiagramData(), propPath));
+            threads.add(runExperimentDetails(run, propPath, exp.isCrossExperiment() ? (i + 1) / expDataType.getFoldSize() : -1));
         }
         experimentService.saveExperiment(exp);
 
@@ -173,160 +163,14 @@ public class ExperimentController {
         });
         thread.start();
 
-        redirectAttrs.addAttribute("idRun", run.getId()).addFlashAttribute("configuration",
-                "Experiment is being created");
-        return "redirect:/experiment/redirectConfigExperiment";
+        redirectAttrs.addAttribute("id", exp.getId());
+        redirectAttrs.addAttribute("loadExperimentButton", "loadExperimentButton");
+        return "redirect:/experiment/expRepoSelected";
     }
 
-    protected String expPropertiesSet(@ModelAttribute("typeFile") FileModelDto fileModelDto,
-                                      @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
-                                      User user, Dataset expDataType, String grammarFilePath, Run newRun) throws IOException {
-        DiagramData newDiagramData = new DiagramData();
-        newDiagramData.setRunId(newRun);
-        diagramDataService.saveDiagram(newDiagramData);
-        return fileConfig(expDataType, user, configExpDto, grammarFilePath);
-    }
-
-    @GetMapping("/experiment/redirectConfigExperiment")
-    public String redirectViewConfigExperiment(Model model,
-                                               @ModelAttribute("idRun") String idRun) {
-
-        User user = userService.getLoggedInUser();
-        Run run = runService.findByRunId(Long.parseLong(idRun));
-
-        if (run == null) { // Run eliminated
-            model.addAttribute("grammar", new Grammar());
-            model.addAttribute("type", new Dataset());
-            model.addAttribute("configuration", new ConfigExperimentDto());
-            model.addAttribute("user", user);
-            return "experiment/configExperiment";
-        }
-        Dataset expDataType = experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType());
-        Experiment experiment = experimentService.findExperimentById(run.getExperimentId().getId());
-
-        List<Run> runList = run.getExperimentId().getIdRunList();
-        List<Dataset> expDataTypeList = run.getExperimentId().getIdExpDataTypeList();
-
-        ConfigExperimentDto configExpDto = fillConfigExpDto(new ConfigExperimentDto(),
-                run.getExperimentId(), experiment.getDefaultGrammar());
-
-        model.addAttribute("configuration", configExpDto);
-        model.addAttribute("runList", runList);
-        model.addAttribute("dataTypeList", expDataTypeList);
-        model.addAttribute("configExp", configExpDto);
-        modelAddData(model, user, expDataType, expDataTypeList, experiment.getDefaultTestExpDataTypeId());
-
-        return "experiment/configExperiment";
-    }
-
-    @RequestMapping(value = "/experiment/start", method = RequestMethod.POST, params = "saveExperimentButton")
-    public String saveExperiment(Model model,
-                                 @RequestParam("experimentDataTypeId") String experimentDataTypeId,
-                                 @RequestParam("testExperimentDataTypeId") String testExperimentDataTypeId,
-                                 @ModelAttribute("typeFile") FileModelDto fileModelDto,
-                                 @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
-                                 BindingResult result) throws IllegalStateException, IOException {
-
-        User user = userService.getLoggedInUser();
-        modelAddData(model, user, null, null, null);
-
-        if (result.hasErrors()) {
-            model.addAttribute("configuration", configExpDto);
-            return "experiment/configExperiment";
-        }
-
-        Experiment exp = null;
-        model.addAttribute("configuration", configExpDto);
-        model.addAttribute("expConfig", configExpDto);
-
-        // Experiment Data Type SECTION
-        Dataset expDataType;
-        if (experimentDataTypeId.equals("-1")) {
-            result.rejectValue("typeFile", "error.typeFile", "Choose one file");
-            return "experiment/configExperiment";
-        } else {
-            expDataType = experimentService.findDataTypeById(Long.parseLong(experimentDataTypeId));
-        }
-
-        experimentDataTypeSection(expDataType);
-        // END - Experiment Data Type SECTION
-
-        // Experiment section:
-        Dataset testExperimentDataType = (testExperimentDataTypeId.equals("")) ? null : experimentService.
-                findExperimentDataTypeById(Long.valueOf(testExperimentDataTypeId));
-
-        if (configExpDto.getId() != null) {
-            exp = experimentService.findExperimentById(configExpDto.getId());
-            // check if only test was changed
-            boolean sameExp = exp.getExperimentName().equals(configExpDto.getExperimentName()) &&
-                    exp.getExperimentDescription().equals(configExpDto.getExperimentDescription()) &&
-                    exp.getGenerations().equals(configExpDto.getGenerations()) &&
-                    exp.getCrossoverProb().equals(configExpDto.getCrossoverProb()) &&
-                    exp.getPopulationSize().equals(configExpDto.getPopulationSize()) &&
-                    exp.getMutationProb().equals(configExpDto.getMutationProb()) &&
-                    exp.getMaxWraps().equals(configExpDto.getMaxWraps()) &&
-                    exp.getTournament().equals(configExpDto.getTournament()) &&
-                    exp.getNumberRuns().equals(configExpDto.getNumberRuns()) &&
-                    exp.getObjective().equals(configExpDto.getObjective()) &&
-                    exp.getDefaultGrammar().equals(configExpDto.getFileText()) &&
-                    exp.getDefaultExpDataType().equals(Long.valueOf(experimentDataTypeId));
-            if (sameExp) {
-                if (!testExperimentDataTypeId.equals("")) {
-                    exp.setDefaultTestExpDataTypeId(Long.valueOf(testExperimentDataTypeId));
-                } else {
-                    exp.setDefaultTestExpDataTypeId(null);
-                }
-                exp.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                experimentService.saveExperiment(exp);
-                modelAddData(model, user,
-                        experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
-                        exp.getIdExpDataTypeList(), testExperimentDataType == null ? null : testExperimentDataType.getId());
-
-                model.addAttribute("runList", exp.getIdRunList());
-                return "experiment/configExperiment";
-            }
-        }
-
-
-        exp = experimentSection(exp, user, testExperimentDataType, expDataType, configExpDto, configExpDto.getFileText(),
-                null, null);
-        // END - Experiment section
-
-        removeRuns(exp);
-
-        experimentService.saveExperiment(exp);
-
-        modelAddData(model, user,
-                experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
-                exp.getIdExpDataTypeList(), testExperimentDataType == null ? null : testExperimentDataType.getId());
-        return "experiment/configExperiment";
-
-    }
-
-    @RequestMapping(value = "/experiment/start", method = RequestMethod.POST, params = "cloneExperimentButton")
-    public String cloneExperiment(Model model,
-                                  @RequestParam("experimentDataTypeId") String experimentDataTypeId,
-                                  @ModelAttribute("typeFile") FileModelDto fileModelDto,
-                                  @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto) throws IllegalStateException {
-        User user = userService.getLoggedInUser();
-        configExpDto.setId(null);
-        configExpDto.setDefaultRunId(null);
-
-        model.addAttribute("configuration", configExpDto);
-        model.addAttribute("expConfig", configExpDto);
-        modelAddData(model, user,
-                experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
-                null, configExpDto.getTestDefaultExpDataTypeId());
-        model.addAttribute("disabledClone", true);
-        model.addAttribute("messageClone", "This experiment is cloned and not saved yet.");
-        return "experiment/configExperiment";
-    }
-
-
-    private String fileConfig(Dataset expDataType, User user,
-                              ConfigExperimentDto configExpDto, String grammarFilePath) throws IOException {
+    protected String expPropertiesSet(ConfigExperimentDto configExpDto,
+                                      User user, Dataset expDataType, String grammarFilePath) throws IOException {
         // Reader - FILE DATA TYPE - Convert MultipartFile into Generic Java File - Then convert it to Reader
-
         File dir = new File(PROPERTIES_DIR_PATH + user.getId());
         if (!dir.exists())
             dir.mkdirs();
@@ -348,6 +192,111 @@ public class ExperimentController {
         return propertiesFilePath;
     }
 
+
+    @RequestMapping(value = "/experiment/start", method = RequestMethod.POST, params = "saveExperimentButton")
+    public String saveExperiment(Model model,
+                                 @RequestParam("experimentDataTypeId") String experimentDataTypeId,
+                                 @RequestParam("testExperimentDataTypeId") String testExperimentDataTypeId,
+                                 @ModelAttribute("typeFile") FileModelDto fileModelDto,
+                                 @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
+                                 BindingResult result) throws IllegalStateException, IOException {
+
+        User user = userService.getLoggedInUser();
+        modelAddData(model, user, null, null, null);
+        model.addAttribute("configuration", configExpDto);
+
+        if (result.hasErrors()) {
+            return "experiment/configExperiment";
+        }
+
+        Experiment exp = null;
+
+        // Experiment Data Type SECTION
+        Dataset expDataType;
+        if (experimentDataTypeId.equals("-1")) {
+            model.addAttribute("configuration", configExpDto);
+            model.addAttribute("expConfig", configExpDto);
+            result.rejectValue("typeFile", "error.typeFile", "Choose one file");
+            return "experiment/configExperiment";
+        } else {
+            expDataType = experimentService.findDataTypeById(Long.parseLong(experimentDataTypeId));
+        }
+
+        experimentDataTypeSection(expDataType);
+        // END - Experiment Data Type SECTION
+
+        // Experiment section:
+        Dataset testExperimentDataType = (testExperimentDataTypeId.equals("")) ? null : experimentService.
+                findExperimentDataTypeById(Long.valueOf(testExperimentDataTypeId));
+
+        if (configExpDto.getId() != null) {
+            exp = experimentService.findExperimentById(configExpDto.getId());
+            configExpDto = fillConfigExpDto(configExpDto, exp,
+                    exp.getDefaultGrammar(), expDataType);
+            // check if only test was changed
+            boolean sameExp = exp.getExperimentName().equals(configExpDto.getExperimentName()) &&
+                    exp.getExperimentDescription().equals(configExpDto.getExperimentDescription()) &&
+                    exp.getGenerations().equals(configExpDto.getGenerations()) &&
+                    exp.getCrossoverProb().equals(configExpDto.getCrossoverProb()) &&
+                    exp.getPopulationSize().equals(configExpDto.getPopulationSize()) &&
+                    exp.getMutationProb().equals(configExpDto.getMutationProb()) &&
+                    exp.getMaxWraps().equals(configExpDto.getMaxWraps()) &&
+                    exp.getTournament().equals(configExpDto.getTournament()) &&
+                    exp.getNumberRuns().equals(configExpDto.getNumberRuns()) &&
+                    exp.getObjective().equals(configExpDto.getObjective()) &&
+                    exp.getDefaultGrammar().equals(configExpDto.getFileText()) &&
+                    exp.getDefaultExpDataType().equals(Long.valueOf(experimentDataTypeId));
+            if (sameExp) {
+                if (!testExperimentDataTypeId.equals("")) {
+                    exp.setDefaultTestExpDataTypeId(Long.valueOf(testExperimentDataTypeId));
+                } else {
+                    exp.setDefaultTestExpDataTypeId(null);
+                }
+                exp.setModificationDate(new Timestamp(new Date().getTime()));
+                experimentService.saveExperiment(exp);
+                modelAddData(model, user,
+                        experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
+                        exp.getIdExpDataTypeList(), testExperimentDataType == null ? null : testExperimentDataType.getId());
+
+                model.addAttribute("runList", exp.getIdRunList());
+                return "experiment/configExperiment";
+            }
+        }
+
+
+        exp = experimentSection(exp, user, testExperimentDataType, expDataType, configExpDto, configExpDto.getFileText());
+        // END - Experiment section
+
+        removeRuns(exp);
+        experimentService.saveExperiment(exp);
+        fillConfigExpDto(configExpDto, exp, exp.getDefaultGrammar(), expDataType);
+
+        modelAddData(model, user,
+                experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
+                exp.getIdExpDataTypeList(), testExperimentDataType == null ? null : testExperimentDataType.getId());
+
+        model.addAttribute("expConfig", configExpDto);
+        return "experiment/configExperiment";
+
+    }
+
+    @RequestMapping(value = "/experiment/start", method = RequestMethod.POST, params = "cloneExperimentButton")
+    public String cloneExperiment(Model model,
+                                  @RequestParam("experimentDataTypeId") String experimentDataTypeId,
+                                  @ModelAttribute("typeFile") FileModelDto fileModelDto,
+                                  @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto) throws IllegalStateException {
+        User user = userService.getLoggedInUser();
+        configExpDto.setId(null);
+
+        model.addAttribute("configuration", configExpDto);
+        model.addAttribute("expConfig", configExpDto);
+        modelAddData(model, user,
+                experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
+                null, configExpDto.getTestDefaultExpDataTypeId());
+        model.addAttribute("disabledClone", true);
+        model.addAttribute("messageClone", "This experiment is cloned and not saved yet.");
+        return "experiment/configExperiment";
+    }
 
     @RequestMapping(value = "/experiment/experimentRepository", method = RequestMethod.GET)
     public String experimentRepository(Model model) {
@@ -374,7 +323,7 @@ public class ExperimentController {
         List<Run> runList = exp.getIdRunList();
 
         ConfigExperimentDto configExpDto = fillConfigExpDto(new ConfigExperimentDto(), exp,
-                exp.getDefaultGrammar());
+                exp.getDefaultGrammar(), experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()));
 
         modelAddData(model, user, experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()),
                 exp.getIdExpDataTypeList(), exp.getDefaultTestExpDataTypeId());
@@ -431,6 +380,7 @@ public class ExperimentController {
         model.addAttribute("expDetails", run.getExperimentId());
         model.addAttribute("runId", run.getId());
         model.addAttribute("run", run);
+        model.addAttribute("index", run.getExperimentId().getIdRunList().indexOf(run) + 1);
 
         return "experiment/experimentDetails";
     }
@@ -439,11 +389,33 @@ public class ExperimentController {
     public String showRunTestStatsExperiment(Model model,
                                              @RequestParam(value = "runId") String runId) throws EvaluationException {
         Run run = runService.findByRunId(Long.parseLong(runId));
+        int crossRunIdentifier = run.getExperimentId().getIdRunList().indexOf(run) + 1;
         List<Double> listYLine = new ArrayList<>();
         List<Double> listFunctionResult = new ArrayList<>();
         List<Double> trainingResult = new ArrayList<>();
         String[] splitContent =
                 experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()).getInfo().split("\r\n");
+        String[] testSplitContent = null;
+
+        if (run.getExperimentId().isCrossExperiment()) {
+            List<String> splitContentList = new ArrayList<>();
+            List<String> testSplitContentList = new ArrayList<>();
+            splitContent[0] = splitContent[0].substring(0, splitContent[0].length() - ";K-Fold".length()) + "\r\n";
+            splitContentList.add(splitContent[0]);
+            testSplitContentList.add(splitContent[0]);
+            //index last ;
+            int indexFold;
+            for (int i = 1; i < splitContent.length; i++) {
+                indexFold = splitContent[i].lastIndexOf(';');
+                if (Integer.parseInt(splitContent[i].substring(indexFold + 1)) != crossRunIdentifier) {
+                    splitContentList.add(splitContent[i].substring(0, indexFold) + "\r\n");
+                } else {
+                    testSplitContentList.add(splitContent[i].substring(0, indexFold) + "\r\n");
+                }
+            }
+            splitContent = splitContentList.toArray(new String[0]);
+            testSplitContent = testSplitContentList.toArray(new String[0]);
+        }
 
         processExperimentDataTypeInfo(splitContent, listYLine, listFunctionResult, trainingResult, run);
 
@@ -457,11 +429,15 @@ public class ExperimentController {
         model.addAttribute("index", run.getExperimentId().getIdRunList().indexOf(run) + 1);
         model.addAttribute("model", run.getModel());
 
-        if (run.getExperimentId().getDefaultTestExpDataTypeId() != null) {
+        if (run.getExperimentId().getDefaultTestExpDataTypeId() != null || run.getExperimentId().isCrossExperiment()) {
             List<Double> testListYLine = new ArrayList<>();
             List<Double> testListFunctionResult = new ArrayList<>();
             List<Double> testResult = new ArrayList<>();
-            splitContent = experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultTestExpDataTypeId()).getInfo().split("\r\n");
+            if (run.getExperimentId().isCrossExperiment()) {
+                splitContent = testSplitContent;
+            } else {
+                splitContent = experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultTestExpDataTypeId()).getInfo().split("\r\n");
+            }
 
             processExperimentDataTypeInfo(splitContent, testListYLine, testListFunctionResult, testResult, run);
             model.addAttribute("testRMSE", testResult.get(0));
@@ -489,8 +465,12 @@ public class ExperimentController {
             yValue = Double.parseDouble(contentSplit[0]);
             modelValue = SymbolicRegressionGE.calculateFunctionValuedResultWithCSVData(run.getModel(),
                     contentSplit);
-            listYLine.add(yValue);
-            listFunctionResult.add(modelValue);
+            if (listYLine != null) {
+                listYLine.add(yValue);
+            }
+            if (listFunctionResult != null) {
+                listFunctionResult.add(modelValue);
+            }
             yDoubleArray[i - 1] = yValue;
             functionResultDoubleArray[i - 1] = modelValue;
         }
@@ -501,15 +481,16 @@ public class ExperimentController {
         result.add(UtilStats.computeAbsoluteError(yDoubleArray, functionResultDoubleArray));
     }
 
-    private Thread runExperimentDetails(Run run, DiagramData diagramData, String propPath) throws IOException {
+    private Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier) throws IOException {
         File propertiesFile = new File(propPath);
         Reader propertiesReader = new FileReader(propertiesFile);
 
         Properties properties = new Properties();
         properties.load(propertiesReader);
         properties.setProperty(TRAINING_PATH_PROP, propPath);
-        RunnableExpGramEv obj = new RunnableExpGramEv(properties, diagramData, run,
-                experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService);
+        RunnableExpGramEv obj = new RunnableExpGramEv(properties, run,
+                experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService,
+                crossRunIdentifier);
         Thread.UncaughtExceptionHandler h = (th, ex) -> {
             run.setStatus(Run.Status.FAILED);
             RunExecutionReport runExecutionReport = runService.getRunExecutionReport(run.getId());
@@ -565,11 +546,12 @@ public class ExperimentController {
         propertiesWriter.close();
     }
 
-    private void runSection(Run run, ConfigExperimentDto configExpDto) {
+    private void runSection(Run run, Experiment exp) {
         run.setStatus(Run.Status.INITIALIZING);
-
-        run.setIniDate(new Timestamp(System.currentTimeMillis()));
-        run.setModificationDate(new Timestamp(System.currentTimeMillis()));
+        run.setIniDate(new Timestamp(new Date().getTime()));
+        run.setModificationDate(new Timestamp(new Date().getTime()));
+        exp.getIdRunList().add(run);
+        run.setExperimentId(exp);
 
         RunExecutionReport runExecutionReport = new RunExecutionReport();
         runExecutionReport.setId(run.getId());
@@ -604,22 +586,18 @@ public class ExperimentController {
     }
 
     private void experimentDataTypeSection(Dataset expDataType) {
-        expDataType.setCreationDate(new Timestamp(System.currentTimeMillis()));
+        expDataType.setCreationDate(new Timestamp(new Date().getTime()));
         expDataType.setDataTypeType("training");
     }
 
     private Experiment experimentSection(Experiment exp, User user, Dataset testExpDataType,
                                          Dataset expDataType,
-                                         ConfigExperimentDto configExpDto, String grammar, Run run,
-                                         Long longDefaultRunId) {
+                                         ConfigExperimentDto configExpDto, String grammar) {
         if (exp == null) {   // We create it
             exp = new Experiment(user, configExpDto.getExperimentName(), configExpDto.getExperimentDescription(), configExpDto.getGenerations(),
                     configExpDto.getPopulationSize(), configExpDto.getMaxWraps(), configExpDto.getTournament(), configExpDto.getCrossoverProb(), configExpDto.getMutationProb(),
                     configExpDto.getNumCodons(), configExpDto.getNumberRuns(), configExpDto.getObjective(),
-                    new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis()));
-            if (longDefaultRunId != null) {
-                exp.setDefaultRunId(longDefaultRunId);          // Doesn't exists -> We set up the run id obtained before
-            }
+                    new Timestamp(new Date().getTime()), new Timestamp(new Date().getTime()));
 
         } else {  // The experiment data type configuration already exist
             exp.setUserId(user);
@@ -636,23 +614,18 @@ public class ExperimentController {
             exp.setNumberRuns(configExpDto.getNumberRuns());
             exp.setObjective(configExpDto.getObjective());
 
-            exp.setCreationDate(new Timestamp(System.currentTimeMillis()));
-            exp.setModificationDate(new Timestamp(System.currentTimeMillis()));
+            exp.setCreationDate(new Timestamp(new Date().getTime()));
+            exp.setModificationDate(new Timestamp(new Date().getTime()));
 
             removeRuns(exp);
 
-            if (run != null) {
-                exp.setDefaultRunId(run.getId());          // Doesn't exists -> We set up the run id obtained before
-            }
-        }
-        if (run != null) {
-            exp.addRun(run);
         }
         exp.addExperimentDataType(expDataType);
         exp.setDefaultGrammar(grammar);
         exp.setDefaultExpDataType(expDataType.getId());
         exp.setDefaultTestExpDataTypeId(testExpDataType != null ? testExpDataType.getId() : null);
-        exp.setModificationDate(new Timestamp(System.currentTimeMillis()));
+        exp.setModificationDate(new Timestamp(new Date().getTime()));
+        exp.setCrossExperiment(configExpDto.getCrossExperiment().equals("true"));
         return exp;
     }
 
@@ -683,8 +656,10 @@ public class ExperimentController {
         if (th == null) {
             run.setStatus(Run.Status.FAILED);
 
-            redirectAttrs.addAttribute("runId", run.getId()).addFlashAttribute("Stop", "Stop execution failed");
-            redirectAttrs.addAttribute("showPlotExecutionButton", "showPlotExecutionButton");
+            if (redirectAttrs != null) {
+                redirectAttrs.addAttribute("runId", run.getId()).addFlashAttribute("Stop", "Stop execution failed");
+                redirectAttrs.addAttribute("showPlotExecutionButton", "showPlotExecutionButton");
+            }
             return "redirect:experiment/runList";
         }
         th.interrupt();
@@ -695,46 +670,36 @@ public class ExperimentController {
         run.setStatus(Run.Status.STOPPED);
         runService.saveRun(run);
 
-        model.addAttribute("expDetails", run.getExperimentId());
-        model.addAttribute("runId", run.getId());
-        model.addAttribute("run", run);
+        if (model != null) {
+            model.addAttribute("expDetails", run.getExperimentId());
+            model.addAttribute("runId", run.getId());
+            model.addAttribute("run", run);
+            model.addAttribute("index", run.getExperimentId().getIdRunList().indexOf(run) + 1);
+        }
 
         return "experiment/experimentDetails";
+    }
+
+    @PostMapping(value = "/experiment/stopRunAjax")
+    @ResponseBody
+    public boolean ajaxStopRunExperiment(@RequestParam("runIdStop") String runIdStop) {
+        this.stopRunExperiment(null, runIdStop, null);
+        return true;
     }
 
     @RequestMapping(value = "/experiment/expRepoSelected", method = RequestMethod.POST, params = "deleteRun")
     public
     @ResponseBody
     Long deleteRun(@RequestParam("runId") String runId) {
-        boolean found = false;
-
         Long longRunId = Long.parseLong(runId);
         Run run = runService.findByRunId(longRunId);
-        Experiment experiment = run.getExperimentId();
-
-        List<Run> lRun = run.getExperimentId().getIdRunList();
-        Iterator<Run> runIt = lRun.iterator();
-        while (runIt.hasNext() && !found) {
-            Run runAux = runIt.next();
-            if (runAux.getId().longValue() == run.getId().longValue()) {
-                runAux.setExperimentId(null);
-                if (runAux.getId().longValue() == experiment.getDefaultRunId().longValue())
-                    experiment.setDefaultRunId(Long.parseLong("0"));
-                found = true;
-            }
-        }
-
-        if (experiment.getDefaultRunId().equals(longRunId)) {
-            experiment.setDefaultRunId(null);
-            experimentService.saveExperiment(experiment);
-        }
         runService.deleteRun(run);
         return longRunId;
     }
 
-    public ConfigExperimentDto fillConfigExpDto(ConfigExperimentDto configExpDto, Experiment exp, String grammar) {
+    public ConfigExperimentDto fillConfigExpDto(ConfigExperimentDto configExpDto, Experiment exp, String grammar,
+                                                Dataset dataset) {
 
-        configExpDto.setDefaultRunId(exp.getDefaultRunId());
         setConfigExpDtoWIthExperiment(configExpDto, exp.getExperimentName(),
                 exp.getExperimentDescription(), exp.getCrossoverProb(), exp.getGenerations(),
                 exp.getPopulationSize(), exp.getMaxWraps(), exp.getTournament(), exp.getMutationProb(),
@@ -743,6 +708,8 @@ public class ExperimentController {
         configExpDto.setId(exp.getId());
         configExpDto.setDefaultExpDataTypeId(exp.getDefaultExpDataType());
         configExpDto.setFileText(grammar);
+        configExpDto.setCrossExperiment(exp.isCrossExperiment() ? "true" : "false");
+        configExpDto.setContentFold(dataset.getInfo().contains("K-Fold"));
 
         return configExpDto;
     }
@@ -816,6 +783,39 @@ public class ExperimentController {
                 super.write(buf, off, len);
             }
         });
+    }
+
+    @RequestMapping(value = "/runResultsInfo", method = RequestMethod.GET)
+    @ResponseBody
+    public RunResultsDto getRunResultsInfo(@RequestParam("expId") String expId) throws EvaluationException {
+        Experiment experiment = experimentService.findExperimentById(Long.valueOf(expId));
+        boolean haveTest = experiment.getDefaultTestExpDataTypeId() != null;
+        RunResultsDto runResultsDto = new RunResultsDto(experiment.getIdRunList().size(),
+                haveTest);
+        int index = 0;
+        for (Run run : experiment.getIdRunList()) {
+            runResultsDto.getRunIndex()[index] = index + 1;
+            runResultsDto.getModel()[index] = run.getModel();
+            List<Double> result = new ArrayList<>();
+            processExperimentDataTypeInfo(experimentService.findExperimentDataTypeById(experiment.getDefaultExpDataType()).getInfo().split("\r\n"),
+                    null, null, result, run);
+            runResultsDto.getTrainingRMSE()[index] = result.get(0);
+            runResultsDto.getTrainingAVG()[index] = result.get(1);
+            runResultsDto.getTrainingR2()[index] = result.get(2);
+            runResultsDto.getTrainingAbs()[index] = result.get(3);
+
+            if (haveTest) {
+                result = new ArrayList<>();
+                processExperimentDataTypeInfo(experimentService.findExperimentDataTypeById(experiment.getDefaultTestExpDataTypeId()).getInfo().split("\r\n"),
+                        null, null, result, run);
+                runResultsDto.getTestRMSE()[index] = result.get(0);
+                runResultsDto.getTestAVG()[index] = result.get(1);
+                runResultsDto.getTestR2()[index] = result.get(2);
+                runResultsDto.getTestAbs()[index] = result.get(3);
+            }
+            index++;
+        }
+        return runResultsDto;
     }
 
 }

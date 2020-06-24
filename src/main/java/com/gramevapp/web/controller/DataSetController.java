@@ -7,15 +7,14 @@ import com.gramevapp.web.service.ExperimentService;
 import com.gramevapp.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @Controller
 public class DataSetController {
@@ -82,7 +81,6 @@ public class DataSetController {
         return "dataset/datasetRepository";
     }
 
-
     @RequestMapping(value = "/dataset/datasetDetail")
     public String createDataset(Model model) {
         User user = userService.getLoggedInUser();
@@ -92,10 +90,15 @@ public class DataSetController {
     }
 
     @RequestMapping(value = "/dataset/saveDataset", method = RequestMethod.POST)
-    public String saveDataset(Model model, @ModelAttribute("experimentDataType") @Valid Dataset experimentDataType) {
+    public String saveDataset(Model model, @ModelAttribute("experimentDataType") @Valid Dataset experimentDataType,
+                              @Param("checkFold") String checkFold, @Param("kFoldNumber") int kFoldNumber) {
         experimentDataType.setDataTypeType("training");
-        experimentDataType.setCreationDate(new Timestamp(System.currentTimeMillis()));
+        experimentDataType.setCreationDate(new Timestamp(new Date().getTime()));
         experimentDataType.setUserIdUserId(userService.getLoggedInUser().getId());
+        if (checkFold != null && checkFold.equals("true")) {
+            foldDataset(experimentDataType, kFoldNumber);
+            experimentDataType.setFoldSize(kFoldNumber);
+        }
         experimentService.saveDataType(experimentDataType);
         return datasetList(model);
     }
@@ -114,5 +117,31 @@ public class DataSetController {
         }
 
         return idDataset;
+    }
+    @RequestMapping(value = "/foldDataset", method = RequestMethod.POST)
+    @ResponseBody
+    public String ajaxFoldDataset(@RequestParam("datasetId") String datasetId,@RequestParam("kFoldNumber") int kFoldNumber) {
+        Dataset dataset = experimentService.findExperimentDataTypeById( Long.parseLong(datasetId));
+        foldDataset(dataset, kFoldNumber);
+        experimentService.saveDataType(dataset);
+        return dataset.getInfo();
+    }
+
+    private void foldDataset(Dataset experimentDataType,int kFoldNumber){
+        List<Integer> kFoldValues = new ArrayList<>();
+        for (int i = 1; i <= kFoldNumber; i++) {
+            kFoldValues.add(i);
+        }
+        experimentDataType.setFoldSize(kFoldNumber);
+        Collections.shuffle(kFoldValues);
+        String[] splitDatasetInfo = experimentDataType.getInfo().split("\\r\\n");
+        String newDataSetInfo = "";
+        newDataSetInfo += splitDatasetInfo[0] + ";K-Fold\r\n";
+        for (int i = 1; i < splitDatasetInfo.length; i++) {
+            if (!splitDatasetInfo[i].equals("")) {
+                newDataSetInfo += splitDatasetInfo[i] + ";" + kFoldValues.get(i % kFoldValues.size()) + "\r\n";
+            }
+        }
+        experimentDataType.setInfo(newDataSetInfo);
     }
 }

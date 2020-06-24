@@ -5,6 +5,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.Date;
 
 @Entity
 @Table(name = "grammar")
@@ -40,7 +41,7 @@ public class Grammar {
     }
 
     public Grammar(String grammarName, String grammarDescription, String fileText) {
-        this.creationDate = new Timestamp(System.currentTimeMillis());
+        this.creationDate = new Timestamp(new Date().getTime());
         this.grammarName=grammarName;
         this.grammarDescription=grammarDescription;
         this.fileText=fileText;

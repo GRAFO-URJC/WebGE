@@ -36,7 +36,7 @@
 
 
                 <section class="panel-body center-block">
-                    <table class="table table-hover display" id="expRepository" style="width: 100%">
+                    <table class="table" id="expRepository" style="width: 100%;border-collapse: collapse;">
                         <thead>
                         <tr>
                             <th scope="col">#</th>
@@ -63,7 +63,8 @@
                                                        id="creationDate"/>
                                 </td>
                                 <td scope="row" class="details-control">
-                                    <button type="button" class="btn-default btn btn-sm">More information</button>
+                                    <button type="button" class="btn-default btn btn-sm">More information
+                                    </button>
                                 </td>
                                 <td scope="row">
                                     <form th:action="@{/experiment/expRepoSelected}" th:object="${expRepository}"
@@ -85,12 +86,9 @@
                                 </td>
                                 <!--with extra information-->
                                 <td scope="control" class="hidden">
-                                    <div
-                                            th:with="expRunConfiguration=${exp.getIdRunList().isEmpty()?
-                                             exp:exp.getIdRunList().get(exp.getIdRunList().size()-1)}">
+                                    <div>
                                         <b>Generations:</b>
-                                        <label th:text="${exp.getIdRunList().isEmpty()?
-                                            '0':exp.getGenerations()}"></label>
+                                        <label th:text="${exp.getGenerations()}"></label>
                                         ; <b>Crossover Prob:</b>
                                         <label th:text="${exp.getCrossoverProb()}"></label>
                                         ; <b>Population Size:</b>
@@ -111,8 +109,9 @@
 
                                     </div>
                                     <div th:if="${not #lists.isEmpty(exp.getIdRunList())}">
-                                        <table class="table table-hover">
-
+                                        <table class="table table-hover"
+                                               th:name="runTable+${iterStat.index}"
+                                               th:id="runTable+${iterStat.index}">
                                             <thead>
                                             <tr>
                                                 <th scope="col"># Run</th>
@@ -151,13 +150,25 @@
                                                                            th:text="${run.getModel()}"/></td>
                                                 </tr>
                                             </th:block>
+                                            <tr>
+                                                <td colspan="7">
+                                                        <b>Avg. :</b><label th:name="runsAVG+${iterStat.index}"
+                                                                          th:id="runsAVG+${iterStat.index}"></label>
+                                                        <b style="margin-left: 15px">Std. Dev: </b><label th:name="runsDeviation+${iterStat.index}"
+                                                                              th:id="runsDeviation+${iterStat.index}"></label>
+                                                        <b style="margin-left: 15px">Min: </b><label th:name="minBestSolution+${iterStat.index}"
+                                                                          th:id="minBestSolution+${iterStat.index}"></label>
+                                                        <b style="margin-left: 15px">Max: </b><label th:name="maxBestSolution+${iterStat.index}"
+                                                                          th:id="maxBestSolution+${iterStat.index}"></label>
+                                                    <button style="margin-left: 15px" class="btn-default btn btn-sm" th:onclick="'downloadExperimentRunResults('+${exp.getId()}+')'">Download results
+                                                    </button>
+                                                </td>
+                                            </tr>
                                             </tbody>
                                         </table>
-
                                     </div>
                                 </td>
                             </tr>
-
                         </th:block>
                         </tbody>
                     </table>
@@ -197,7 +208,24 @@
     </script>
 
     <script>
+        /*<![CDATA[*/
+        let numberExperiment = [[${experimentList.size()}]];
+        /*]]>*/
+
         $(document).ready(function () {
+            for(let index = 0;index<numberExperiment;index++){
+                let runTable = document.getElementById("runTable" + index)
+                if(runTable){
+                    calculateRunsStats(runTable, '#runsAVG' + index,
+                        '#runsDeviation' + index,
+                        '#maxBestSolution' + index,
+                        '#minBestSolution' + index);
+                    runTable = document.getElementById("runTable" + index)
+                }
+            }
+
+
+
             tableDefinition('#expRepository', "#expTableBody", 4, 5, 6, 3);
         });
 
@@ -205,6 +233,11 @@
             let result = confirm("Are you sure to delete this experiment ?");
             if (result)
                 deleteRow(iterStat, expId);
+        }
+
+        function calculateStats(index) {
+
+
         }
 
 

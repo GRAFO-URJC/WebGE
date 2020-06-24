@@ -26,10 +26,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -246,10 +243,10 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             logger.info("Run #" + i);
             logger.info("========");
 
-            double startTime = System.currentTimeMillis();
+            double startTime = new Date().getTime();
             algorithm.initialize();
             solutions = algorithm.execute();
-            double time = (System.currentTimeMillis() - startTime) / 1000;
+            double time = (new Date().getTime() - startTime) / 1000;
             logger.info("Execution time: " + time + " seconds.");
 
             executionReport.clear();
@@ -285,19 +282,13 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             executionReport.add(s);
         }
         obs.getLock().lock();
-        Run newRun = runService.findByRunId(run.getId());
-        newRun.setModel(this.getModel());
-        Run.Status status = null;
-        if(run.getDiagramData().getFinished()){
-            status=Run.Status.FINISHED;
-        }else if(run.getDiagramData().getFailed()){
-            status=Run.Status.FAILED;
-        }else if(run.getDiagramData().getStopped()){
-            status=Run.Status.STOPPED;
+        run = runService.findByRunId(run.getId());
+        run.setModel(this.getModel());
+        if (run.getStatus() != null && !run.getStatus().equals(Run.Status.STOPPED)) {
+            run.setStatus(Run.Status.FINISHED);
         }
-        newRun.setStatus(status);
-        newRun.setModificationDate(new Timestamp(System.currentTimeMillis()));
-        runService.saveRun(newRun);
+        run.setModificationDate(new Timestamp(new Date().getTime()));
+        runService.saveRun(run);
         obs.getLock().lock();
 
     }
