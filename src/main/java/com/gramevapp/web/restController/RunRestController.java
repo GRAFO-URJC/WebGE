@@ -28,28 +28,36 @@ public class RunRestController {
             return null;
 
         Run run = runService.findByRunId(Long.parseLong(runId));
-        run.setCurrentGeneration(run.getDiagramData().getCurrentGeneration());
-        run.setBestIndividual(run.getDiagramData().getBestIndividual());
 
-        if (run.getDiagramData().getFinished() || run.getDiagramData().getBestIndividual() <= 0.0 && !status.equals("WAITING")) {
-            if (run.getDiagramData().getBestIndividual() <= 0.0) {
-                run.setBestIndividual(0.0);
+        run.setCurrentGeneration(run.getDiagramData() != null ? run.getDiagramData().getCurrentGeneration() : 0);
+        run.setBestIndividual(run.getDiagramData() != null ? run.getDiagramData().getBestIndividual() : 0.0);
+
+        if(run.getDiagramData()!=null){
+
+            if (run.getDiagramData().getFinished() || run.getDiagramData().getBestIndividual() <= 0.0 && !status.equals("WAITING")) {
+                if (run.getDiagramData().getBestIndividual() <= 0.0) {
+                    run.setBestIndividual(0.0);
+                }
+                if(!run.getStatus().equals(Run.Status.STOPPED)){
+                    this.setStatus(run, Run.Status.FINISHED);
+                }
             }
-            this.setStatus(run, Run.Status.FINISHED);
-        }
 
-        if (run.getDiagramData().getStopped()) {
-            this.setStatus(run, Run.Status.STOPPED);
-        }
-        if (run.getDiagramData().getFailed()) {
-            this.setStatus(run, Run.Status.FAILED);
-        }
+            if (run.getDiagramData().getStopped()) {
+                this.setStatus(run, Run.Status.STOPPED);
+            }
+            if (run.getDiagramData().getFailed()) {
+                this.setStatus(run, Run.Status.FAILED);
+            }
 
+        }
         return new RunDto(run);
     }
 
     private void setStatus(Run run, Run.Status runStatus) {
-        run.setStatus(runStatus);
+        if(!run.getStatus().equals(Run.Status.STOPPED)){
+            run.setStatus(runStatus);
+        }
         runService.saveRun(run);
     }
 

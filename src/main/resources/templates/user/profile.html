@@ -296,7 +296,7 @@
 
                                 <div class="row">
                                     <div class="form-group col-lg-4 col-sm-4">
-                                        <label class="control-label" for="oldPassword">Password:</label>
+                                        <label class="control-label" for="oldPassword">Current password:</label>
                                         <div th:classappend="${#oldPasswordCheck}? 'has-error':''">
                                             <p th:if="${oldPasswordCheck}" class="text-warning">
                                                 Old password incorrect
@@ -315,7 +315,7 @@
                                         </div>
                                     </div>
                                     <div class="form-group col-lg-4 col-sm-4">
-                                        <label class="control-label" for="confirmPassword">Confirm:</label>
+                                        <label class="control-label" for="confirmPassword">New password:</label>
                                         <div th:classappend="${#fields.hasErrors('confirmPassword')}? 'has-error':''">
                                             <p th:if="${#fields.hasErrors('confirmPassword')}" th:text="${#fields.errors('confirmPassword')}" class="text-warning">
                                             </p>

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -81,7 +82,7 @@ public class GrammarController {
 
     @RequestMapping(value = "/grammar/saveGrammar", method = RequestMethod.POST)
     public String saveGrammar(Model model, @ModelAttribute("grammar") Grammar gr) {
-        gr.setCreationDate(new Timestamp(System.currentTimeMillis()));
+        gr.setCreationDate(new Timestamp(new Date().getTime()));
         grammarRepository.save(gr);
         return grammarRepository(model);
     }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
@@ -23,8 +24,8 @@ import java.util.concurrent.locks.ReentrantLock;
 @Service("RunGe")
 public class RunGeObserver implements Observer {
 
-    private DiagramData diagramData;
-    private Lock lock= new ReentrantLock();
+    private Run run;
+    private Lock lock = new ReentrantLock();
 
     @Override
     public void update(Observable o, Object arg) {
@@ -47,38 +48,36 @@ public class RunGeObserver implements Observer {
         DiagramDataService dataDataService = (DiagramDataService) context.getBean("diagramDataService");
         RunService runService = (RunService) context.getBean("runService");
 
-
-        if (this.diagramData.getRunId().getStatus().equals(Run.Status.INITIALIZING)) {
-            Run run = runService.findByRunId(this.diagramData.getRunId().getId());
+        if (this.run.getStatus().equals(Run.Status.INITIALIZING)) {
+            this.run = runService.findByRunId(run.getId());
             run.setStatus(Run.Status.RUNNING);
             dataDataService.saveRun(run);
         }
 
-        if (currPercent == 100 || currBest <= 0.0)
-            this.diagramData.setFinished(true);
-
-        this.diagramData.setBestIndividual(Math.max(currBest, 0.0));
-        this.diagramData.setCurrentGeneration(currGen);
-        this.diagramData.setId(null);
-        this.diagramData=dataDataService.saveDiagram(this.diagramData);
-
         lock.lock();
-        Run updateRun= runService.findByRunId(this.diagramData.getRunId().getId());
-        updateRun.setModificationDate(new Timestamp(System.currentTimeMillis()));
-        runService.saveRun(updateRun);
+        this.run = runService.findByRunId(run.getId());
+        DiagramData diagramData = new DiagramData();
+
+        if (currPercent == 100 || currBest <= 0.0)
+            diagramData.setFinished(true);
+
+        diagramData.setBestIndividual(Math.max(currBest, 0.0));
+        diagramData.setCurrentGeneration(currGen);
+        diagramData.setRunId(run);
+        dataDataService.saveDiagram(diagramData);
+
+        this.run = runService.findByRunId(run.getId());
+        run.setModificationDate(new Timestamp(new Date().getTime()));
+        runService.saveRun(run);
         lock.unlock();
     }
 
-    public DiagramData getDiagramData() {
-        return diagramData;
-    }
-
-    public void setDiagramData(DiagramData diagramData) {
+    public void setDiagramData(Run run) {
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-        this.diagramData = diagramData;
+        this.run = run;
     }
 
-    public Lock getLock(){
+    public Lock getLock() {
         return lock;
     }
 }

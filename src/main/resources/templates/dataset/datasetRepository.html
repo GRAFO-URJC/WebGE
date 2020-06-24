@@ -34,7 +34,6 @@
                     <table class="table table-hover " id="datasetRepository" style="width: 100%">
                         <thead>
                         <tr>
-                            <th scope="col">#</th>
                             <th scope="col">Dataset name</th>
                             <th scope="col">Dataset description</th>
                             <th scope="col">Creation date</th>
@@ -46,8 +45,6 @@
                         <tbody id="datasetTbody">
                         <th:block th:each="dataset, iterStat : ${datasetList}">
                             <tr th:id="'tr' + ${iterStat.index}">
-                                <td scope="row"><label th:name="id" th:id="id" th:text="${dataset.getId()}"
-                                                       id="id"/></td>
                                 <td scope="row"><label th:name="name" th:id="name"
                                                        th:text="${dataset.getDataTypeName()}"
                                                        id="name"/></td>
@@ -59,12 +56,21 @@
                                                        id="creationDate"/>
                                 </td>
                                 <td scope="row" class="details-control">
-                                    <button type="button">Display dataset</button>
+                                    <button type="button" class="btn-default btn btn-sm">Display dataset</button>
                                 </td>
                                 <td>
+                                    <button type="button"
+                                            th:id="${'foldDataset' + dataset.getId()}"
+                                            th:onclick="'foldExperiment('+${dataset.getId()}+')'"
+                                            th:disabled="${dataset.getInfo().contains('K-Fold')}"
+                                            class="btn-default btn btn-sm"
+                                            rel="tooltip"
+                                            title="Fold dataset">
+                                        Fold
+                                    </button>
                                     <button type="button" th:name="${dataset.getId()}"
                                             th:id="${'downloadDataset' + dataset.getId()}"
-                                            th:attr="onclick=|downloadDataset('fileText${dataset.getId()}')|"
+                                            onclick="downloadDataset(this)"
                                             class="btn-default btn btn-sm"
                                             rel="tooltip"
                                             title="Download dataset"
@@ -105,9 +111,9 @@
 
                                     <textarea readonly rows="8" class="form-control"
                                               th:text="${datasetInformationList.get(iterStat.index).get(0)}"
-                                              placeholder="Dataset content" name="fileText"
+                                              th:name="fileText+ ${dataset.getId()}"
                                               th:id="fileText + ${dataset.getId()}" th:inline="text"
-                                              style="resize: none;"/>
+                                              style="resize: none;"></textarea>
 
                                 </td>
                             </tr>
@@ -143,13 +149,15 @@
     </div>
     <!-- END Modal -->
 
-    <script>
+    <script th:inline="javascript">
+
         $(document).ready(function () {
-            tableDefinition('#datasetRepository', "#datasetTbody", 4, 5, 6, 3);
+            tableDefinition('#datasetRepository', "#datasetTbody", 3, 4, 5, 2);
+            dataSetPage =true;
         })
 
-        function downloadDataset(elemName) {
-            let textToWrite = document.getElementById(elemName).value.split(/[\r\n]/);
+        function downloadDataset(button) {
+            let textToWrite = $('#fileText'+button.name).val().split(/\n/);
             const rows = [];
             textToWrite.forEach(function (value) {
                 rows.push(value.split(";"));
@@ -158,8 +166,7 @@
 
             rows.forEach(function (rowArray) {
                 let row = rowArray.join(";");
-                csvContent += row + "\r\n";
-
+                csvContent += row+"\r\n";
             });
             let textFileAsBlob = new Blob([csvContent], {type: 'text/csv'});
 
@@ -191,7 +198,6 @@
             }
         }
 
-
         function deleteRow(iterStat, datasetId) {
             let cleanIterStat = iterStat.substring("deleteGrammar".length, iterStat.length);   // Dará error, si hay listado con mas de 9 obj, no pillará el id de 10, pq sólo mira hasta el último
 
@@ -213,7 +219,28 @@
                     }
                 }
             });
-        };
+        }
+            let foldedId = [];
+
+        function foldExperiment(datasetId) {
+            let kFoldNumber = prompt("Please enter fold value", "10");
+            if (kFoldNumber != null) {
+                $.ajax({
+                    url: encodeURI("/foldDataset"),
+                    data: {
+                        'datasetId': datasetId,
+                        'kFoldNumber': Number.parseInt(kFoldNumber)
+                    },
+                    type: "POST",
+                    success: function (data) {
+                        $("#foldDataset"+datasetId).prop("disabled","true")
+                        document.getElementById("fileText"+datasetId).value = data;
+                        foldedId.push("fileText"+datasetId.toString());
+                        alert("Folded complete");
+                    }
+                });
+            }
+        }
     </script>
 
 </div>
