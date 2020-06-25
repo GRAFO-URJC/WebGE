@@ -31,7 +31,7 @@ public class CustomAuthenticationEntryPoint extends BasicAuthenticationEntryPoin
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         setRealmName(WebSecurityConfig.REALM_NAME);
         super.afterPropertiesSet();
     }
