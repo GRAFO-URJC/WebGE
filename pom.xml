@@ -240,7 +240,7 @@
 			<version>3.3.0</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api  
+		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api  -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
@@ -248,7 +248,7 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!- - https://mvnrepository.com/artifact/org.junit.platform/junit-platform-launcher - - >
+		<!-- https://mvnrepository.com/artifact/org.junit.platform/junit-platform-launcher -->
 		<dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-launcher</artifactId>
@@ -263,13 +263,13 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!- - https://mvnrepository.com/artifact/org.junit.platform/junit-platform-commons - - >
+		<!-- https://mvnrepository.com/artifact/org.junit.platform/junit-platform-commons -->
 		<dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-commons</artifactId>
 			<version>1.7.0-M1</version>
 		</dependency>
--->
+
 		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
