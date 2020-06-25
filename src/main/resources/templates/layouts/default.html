@@ -204,7 +204,7 @@
                 <a th:href="@{/logout}"><p sec:authorize="isAuthenticated()"
                                            class="navbar-text navbar-right btn-sm btn btn-default" rel="tooltip"
                                            title="Log out">
-                    <span style="color:#4183c4" class="glyphicon glyphicon-off"></span></p></a>
+                    <span style="color:#4183c4" id="logOutButton" class="glyphicon glyphicon-off"></span></p></a>
 
                 <a th:href="@{/user}"><p sec:authorize="isAnonymous()"
                                          class="navbar-text navbar-right btn-sm btn btn-default"><span
