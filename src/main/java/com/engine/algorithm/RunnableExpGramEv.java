@@ -1,7 +1,6 @@
 package com.engine.algorithm;
 
 import com.gramevapp.web.model.Dataset;
-import com.gramevapp.web.model.DiagramData;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.service.RunService;
 
