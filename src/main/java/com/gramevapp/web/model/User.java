@@ -36,6 +36,22 @@ public class User implements Serializable {
             mappedBy = "user")
     private UserDetails userDetails;
 
+    //cascade delete
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL,
+            mappedBy = "userId")
+    private List<Experiment> experimentList;
+    //cascade delete
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL,
+            mappedBy = "userId")
+    private List<Grammar> grammarList;
+    //cascade delete
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL,
+            mappedBy = "userIdUserId")
+    private List<Dataset> datasetList;
+
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, targetEntity = Role.class)
     @JoinTable(
             name = "users_roles",
