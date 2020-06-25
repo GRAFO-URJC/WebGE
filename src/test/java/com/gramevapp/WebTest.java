@@ -89,7 +89,7 @@ public class WebTest {
 
     @Test
     @Order(1)
-    public void adminLogin() {
+    public void adminLoginTest() {
         driver.findElement(By.id("loginButton")).click();
         //login page
         assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/login");
@@ -277,6 +277,19 @@ public class WebTest {
     @Test
     @Order(12)
     public void userLogOutTest() {
+        adminLogOutTest();
+    }
+
+    @Test
+    @Order(13)
+    public void userRemoveTest() {
+        driver.get("http://127.0.0.1:8182/");
+        adminLoginTest();
+        driver.findElement(By.id("userListPart")).click();
+        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/admin/userList");
+        driver.findElement(By.name("deleteUserButton")).click();
+        checkAlert();
+        assertTrue(userService.findByUsername(userTest.getUsername())==null);
         adminLogOutTest();
     }
 

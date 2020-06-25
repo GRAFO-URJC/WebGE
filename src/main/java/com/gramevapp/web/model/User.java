@@ -34,6 +34,7 @@ public class User implements Serializable {
             mappedBy = "user")
     private UserDetails userDetails;
 
+    /*develop
     //cascade delete
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL,
@@ -49,7 +50,7 @@ public class User implements Serializable {
     @OneToMany(cascade = CascadeType.ALL,
             mappedBy = "userIdUserId")
     private List<Dataset> datasetList;
-
+*/
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, targetEntity = Role.class)
     @JoinTable(
             name = "users_roles",
