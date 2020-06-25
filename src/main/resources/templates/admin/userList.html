@@ -21,7 +21,7 @@
 
                 <section class="panel-body center-block">
                     <div th:if="${not #lists.isEmpty(userList)}">
-                        <table class="table table-hover" id="userListTable">
+                        <table class="table table-hover" id="userListTable" style="width: 100%">
                             <thead>
                             <tr>
                                 <th scope="col">#</th>
@@ -31,7 +31,7 @@
                                 <th scope="col">Institution</th>
                                 <th scope="col">Controls</th>
                                 <th scope="col"></th>
-                                <th scope="col" style="display: none"></th>
+                                <th scope="col" class="hidden"></th>
                             </tr>
                             </thead>
                             <tbody id="userListBody">
@@ -50,7 +50,7 @@
                                     <td scope="row"><label th:name="institution"
                                                            th:text="${user.getInstitution()}"/></td>
                                     <td scope="row" class="details-control">
-                                        <button type="button">Display user</button>
+                                        <button type="button" class="btn-default btn btn-sm">Display user</button>
                                     </td>
                                     <td scope="row">
                                         <button type="button" th:name="${user.getId()}"
@@ -60,16 +60,16 @@
                                                 title="Change password"
                                         ><span
                                                 class="glyphicon glyphicon-lock small"></span></button>
-                                        <button type="button" th:name="${user.getId()}"
+                                        <button type="button" name="deleteUserButton"
                                                 th:id="${'deleteUser' + iterStat.index}"
-                                                onclick="confirmDelete(this.id, this.name)"
+                                                th:onclick="'confirmDelete(this.id, '+${user.getId()}+')'"
                                                 class="btn-default btn btn-sm"
                                                 rel="tooltip"
                                                 title="Delete user"
                                         ><span
                                                 class="glyphicon glyphicon-trash small"></span></button>
                                     </td>
-                                    <td style="display:none;">
+                                    <td class="hidden">
                                         <div class="row">
                                             <div class="form-group col-lg-12 col-sm-12">
                                                 <b>Email: </b><label class="control-label" th:text="${user.getEmail()==''
