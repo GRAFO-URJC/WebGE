@@ -2,8 +2,6 @@ package com.gramevapp.web.restController;
 
 import com.gramevapp.web.model.DiagramData;
 import com.gramevapp.web.model.DiagramDataDto;
-import com.gramevapp.web.model.Run;
-import com.gramevapp.web.model.User;
 import com.gramevapp.web.service.DiagramDataService;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;

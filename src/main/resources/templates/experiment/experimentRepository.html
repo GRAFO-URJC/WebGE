@@ -24,7 +24,8 @@
                             <h2>
                                 <div class="navbar-right">
                                     <form action="/experiment/configExperiment">
-                                        <button type="submit" class=" btn btn-default  btn-lg">
+                                        <button type="submit" id="newExperimentButton"
+                                                class="btn btn-default  btn-lg">
                                             <h4 style="margin-top: 0;margin-bottom: 0;">New experiment</h4>
                                         </button>
                                     </form>
@@ -75,9 +76,9 @@
                                                 th:name="loadExperimentButton" class="btn-default btn btn-sm">Load
                                             experiment
                                         </button>
-                                        <button type="button" th:name="${exp.id}"
+                                        <button type="button" name="deleteButton"
                                                 th:id="${iterStat.index}"
-                                                onclick="confirmDelete(this.id, this.name)"
+                                                th:onclick="'confirmDelete(this.id,'+ ${exp.id}+')'"
                                                 class="btn-default btn btn-sm"
                                                 rel="tooltip"
                                                 title="Delete experiment"

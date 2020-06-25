@@ -1,11 +1,9 @@
 package com.gramevapp.web.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -36,6 +34,23 @@ public class User implements Serializable {
             mappedBy = "user")
     private UserDetails userDetails;
 
+    /*develop
+    //cascade delete
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL,
+            mappedBy = "userId")
+    private List<Experiment> experimentList;
+    //cascade delete
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL,
+            mappedBy = "userId")
+    private List<Grammar> grammarList;
+    //cascade delete
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL,
+            mappedBy = "userIdUserId")
+    private List<Dataset> datasetList;
+*/
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, targetEntity = Role.class)
     @JoinTable(
             name = "users_roles",

@@ -20,7 +20,7 @@
                         <div class="col-sm-3">
                             <h2>
                                 <div class="navbar-right">
-                                    <form method="post" action="/grammar/grammarDetail">
+                                    <form method="post" id="newGrammarButton" action="/grammar/grammarDetail">
                                         <button type="submit" class=" btn btn-default btn-lg">
                                             <h4 style="margin-top: 0;margin-bottom: 0;">New grammar</h4>
                                         </button>
@@ -71,9 +71,9 @@
                                                 title="Download grammar"
                                         ><span
                                                 class="glyphicon glyphicon-download"></span></button>
-                                        <button type="button" th:name="${gr.id}"
+                                        <button type="button" name="deleteGrammarButton"
                                                 th:id="${'deleteGrammar' + iterStat.index}"
-                                                onclick="confirmDelete(this.id, this.name)"
+                                                th:onclick="'confirmDelete(this.id,'+${gr.id}+')'"
                                                 class="btn-default btn btn-sm"
                                                 rel="tooltip"
                                                 title="Delete grammar"
