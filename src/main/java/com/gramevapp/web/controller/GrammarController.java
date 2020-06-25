@@ -1,6 +1,5 @@
 package com.gramevapp.web.controller;
 
-import com.gramevapp.web.model.Experiment;
 import com.gramevapp.web.model.Grammar;
 import com.gramevapp.web.model.User;
 import com.gramevapp.web.repository.GrammarRepository;
@@ -12,11 +11,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 
 @Controller
