@@ -42,6 +42,8 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     protected Evaluator evaluator;
     protected String[][] func;
     private HashMap<String, Integer> vars = new HashMap<>();
+    private boolean failed = false;
+    private NumberFormatException numberFormatException = null;
 
     protected Properties properties;
     private Solutions<Variable<Integer>> solutions;
@@ -109,16 +111,20 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             solution.getProperties().put(String.valueOf(i), funcI);
         }
 
-        // Calculate fitness
-        Fitness fitness = new Fitness(func, prediction);
-        double fValue = fitness.r2();
-
-        // Control valid value as fitness
-        if (Double.isNaN(fValue)) {
-            solution.getObjectives().set(0, Double.POSITIVE_INFINITY);
-        } else {
-            // R2 best is 1, but we are minimizing
-            solution.getObjectives().set(0, 1.0 - fValue);
+        try {
+            // Calculate fitness
+            Fitness fitness = new Fitness(func, prediction);
+            double fValue = fitness.r2();
+            // Control valid value as fitness
+            if (Double.isNaN(fValue)) {
+                solution.getObjectives().set(0, Double.POSITIVE_INFINITY);
+            } else {
+                // R2 best is 1, but we are minimizing
+                solution.getObjectives().set(0, 1.0 - fValue);
+            }
+        } catch (NumberFormatException e) {
+            failed = true;
+            numberFormatException = e;
         }
     }
 
@@ -246,6 +252,9 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             double startTime = new Date().getTime();
             algorithm.initialize();
             solutions = algorithm.execute();
+            if(failed){
+                logger.info(numberFormatException.toString()+", target duplicate in dataset");
+            }
             double time = (new Date().getTime() - startTime) / 1000;
             logger.info("Execution time: " + time + " seconds.");
 
@@ -284,7 +293,9 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         obs.getLock().lock();
         run = runService.findByRunId(run.getId());
         run.setModel(this.getModel());
-        if (run.getStatus() != null && !run.getStatus().equals(Run.Status.STOPPED)) {
+        if (failed) {
+            run.setStatus(Run.Status.FAILED);
+        } else if (run.getStatus() != null && !run.getStatus().equals(Run.Status.STOPPED)) {
             run.setStatus(Run.Status.FINISHED);
         }
         run.setModificationDate(new Timestamp(new Date().getTime()));
