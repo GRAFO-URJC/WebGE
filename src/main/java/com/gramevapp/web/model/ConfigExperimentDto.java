@@ -29,11 +29,11 @@ public class ConfigExperimentDto {
     @Min(value = 0)
     @Max(value = 100)
     @NotNull
-    private Double crossoverProb = 0.5;
+    private Double crossoverProb = 0.7;
     @Min(value = 0)
     @Max(value = 100)
     @NotNull
-    private Double mutationProb = 0.5;
+    private Double mutationProb = 0.1;
     @NotNull(message = "Results cannot be empty")
     @Size(min = 1)
     private String results = " ";             // Text file with the results of the experiments
