@@ -775,6 +775,10 @@ public class ExperimentController {
                         if (runExecutionReport.getExecutionReport() == null) {
                             runExecutionReport.setExecutionReport("");
                         }
+
+                        if(infoFormated.contains("2m---\u001B[0;39m \u001B[2m[     Thread-")){
+                            infoFormated=infoFormated.replaceAll("2m---\u001B\\[0;39m \u001B\\[2m\\[     Thread-[0-9]+]\u001B\\[0;39m \u001B\\[36mj.c.algorithm.ga.SimpleGeneticAlgorithm \u001B\\[0;39m \u001B\\[2m:\u001B\\[0;39m ","");
+                        }
                         runExecutionReport.setExecutionReport(runExecutionReport.getExecutionReport() + infoFormated);
                         runService.saveRunExecutionReport(runExecutionReport);
                     }
