@@ -646,7 +646,7 @@ public class ExperimentController {
     @PostMapping(value = "/experiment/stopRun", params = "stopRunExperimentButton")
     public String stopRunExperiment(Model model,
                                     @RequestParam("runIdStop") String runIdStop,
-                                    RedirectAttributes redirectAttrs) {
+                                    RedirectAttributes redirectAttrs) throws InterruptedException {
         Run run = runService.findByRunId(Long.parseLong(runIdStop));
         Long threadId = run.getThreaId();
 
@@ -663,6 +663,8 @@ public class ExperimentController {
         }
         th.interrupt();
         runnables.get(threadId).stopExecution();
+        th.join();
+        run = runService.findByRunId(Long.parseLong(runIdStop));
         run.getDiagramData().setStopped(true);
         diagramDataService.saveDiagram(run.getDiagramData());
 
@@ -681,7 +683,7 @@ public class ExperimentController {
 
     @PostMapping(value = "/experiment/stopRunAjax")
     @ResponseBody
-    public boolean ajaxStopRunExperiment(@RequestParam("runIdStop") String runIdStop) {
+    public boolean ajaxStopRunExperiment(@RequestParam("runIdStop") String runIdStop) throws InterruptedException {
         this.stopRunExperiment(null, runIdStop, null);
         return true;
     }
