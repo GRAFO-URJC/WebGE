@@ -699,14 +699,14 @@
                     }
 
                     if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED")) {
-                        if($(status).text() == "FAILED"){
-                            document.getElementById("showTestStats"+iterStat).setAttribute("disabled","disabled");
+                        if ($(status).text() == "FAILED") {
+                            document.getElementById("showTestStats" + iterStat).setAttribute("disabled", "disabled");
                         }
                         $("#showPlot" + iterStat).removeClass("hidden");
                         $("#showDelete" + iterStat).removeClass("hidden");
                         $("#stopRunSection" + iterStat).addClass("hidden");
                         $("#runExperimentButton" + iterStat).removeClass("hidden");
-                        if ($(model).text() === "Waiting for finish") {
+                        if ($(model).text() === "Waiting for finish" && ($(status).text() == "FINISHED")) {
                             setTimeout(function () {
                                 checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat);
                             }, 2000);
