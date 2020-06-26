@@ -248,8 +248,6 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         int i = 0;
         stop = false;
         while (!stop && (i < numExecutions)) {
-            logger.info("Run #" + i);
-            logger.info("========");
 
             double startTime = new Date().getTime();
             algorithm.initialize();
@@ -257,6 +255,8 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             if (failed && numberFormatException != null) {
                 logger.info(numberFormatException.toString() + ", target duplicate in dataset");
             }
+            logger.info("Run #" + i);
+            logger.info("========");
             double time = (new Date().getTime() - startTime) / 1000;
             logger.info("Execution time: " + time + " seconds.");
 
