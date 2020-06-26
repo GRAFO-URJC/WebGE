@@ -467,7 +467,9 @@
                             <td scope="row" th:id="'showDelete'+${iterStat.index}">
                                 <a th:id="'showTestStats'+${iterStat.index}"
                                    th:href="@{/experiment/runList(runId=${run.getId()}, showTestStatsPlotButton='showTestStatsPlotButton')}"
-                                   target="_blank" class="btn-default btn-sm btn loadButton">Stats</a>
+                                   target="_blank" class="btn-default btn-sm btn loadButton"
+                                   th:disabled="${run.getStatus().toString().equals('FAILED')}"
+                                >Stats</a>
                                 <button type="button" th:name="${run.id}"
                                         th:id="${'deleteRun' + iterStat.index}"
                                         onclick="confirmDelete(this.id, this.name)"
@@ -697,6 +699,9 @@
                     }
 
                     if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED")) {
+                        if($(status).text() == "FAILED"){
+                            document.getElementById("showTestStats"+iterStat).setAttribute("disabled","disabled");
+                        }
                         $("#showPlot" + iterStat).removeClass("hidden");
                         $("#showDelete" + iterStat).removeClass("hidden");
                         $("#stopRunSection" + iterStat).addClass("hidden");
