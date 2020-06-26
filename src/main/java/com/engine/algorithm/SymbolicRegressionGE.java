@@ -105,7 +105,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
                 }
             } catch (EvaluationException ex) {
                 failed = true;
-                evaluationException =ex;
+                evaluationException = ex;
                 this.stopExecution();
                 funcI = Double.POSITIVE_INFINITY;
             }
@@ -251,13 +251,21 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         while (!stop && (i < numExecutions)) {
 
             double startTime = new Date().getTime();
-            algorithm.initialize();
+            try {
+                algorithm.initialize();
+            } catch (Exception e) {
+                logger.info(e.toString() + " Incorrect grammar");
+                run = runService.findByRunId(run.getId());
+                run.setStatus(Run.Status.FAILED);
+                runService.saveRun(run);
+                return;
+            }
             solutions = algorithm.execute();
             if (failed) {
-                if(evaluationException!=null){
+                if (evaluationException != null) {
                     logger.info(evaluationException.toString() + " Incorrect grammar");
                 }
-                if(numberFormatException != null){
+                if (numberFormatException != null) {
                     logger.info(numberFormatException.toString() + ", target duplicate in dataset");
                 }
             }
