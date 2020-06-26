@@ -44,6 +44,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     private HashMap<String, Integer> vars = new HashMap<>();
     private boolean failed = false;
     private NumberFormatException numberFormatException = null;
+    private EvaluationException evaluationException = null;
 
     protected Properties properties;
     private Solutions<Variable<Integer>> solutions;
@@ -104,7 +105,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
                 }
             } catch (EvaluationException ex) {
                 failed = true;
-                logger.info(ex.toString() + ", cannot evaluate " + currentFunction + ", incorrect grammar");
+                evaluationException =ex;
                 this.stopExecution();
                 funcI = Double.POSITIVE_INFINITY;
             }
@@ -252,8 +253,13 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             double startTime = new Date().getTime();
             algorithm.initialize();
             solutions = algorithm.execute();
-            if (failed && numberFormatException != null) {
-                logger.info(numberFormatException.toString() + ", target duplicate in dataset");
+            if (failed) {
+                if(evaluationException!=null){
+                    logger.info(evaluationException.toString() + " Incorrect grammar");
+                }
+                if(numberFormatException != null){
+                    logger.info(numberFormatException.toString() + ", target duplicate in dataset");
+                }
             }
             logger.info("Run #" + i);
             logger.info("========");
