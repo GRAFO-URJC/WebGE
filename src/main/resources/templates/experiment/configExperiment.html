@@ -697,6 +697,7 @@
                     }
 
                     if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED")) {
+                        $("#showPlot" + iterStat).removeClass("hidden");
                         $("#showDelete" + iterStat).removeClass("hidden");
                         $("#stopRunSection" + iterStat).addClass("hidden");
                         $("#runExperimentButton" + iterStat).removeClass("hidden");
