@@ -229,9 +229,11 @@ public class ExperimentController {
                 findExperimentDataTypeById(Long.valueOf(testExperimentDataTypeId));
 
         if (configExpDto.getId() != null) {
+            String grammarConfig = configExpDto.getFileText();
             exp = experimentService.findExperimentById(configExpDto.getId());
             configExpDto = fillConfigExpDto(configExpDto, exp,
                     exp.getDefaultGrammar(), expDataType);
+            configExpDto.setFileText(grammarConfig);
             // check if only test was changed
             boolean sameExp = exp.getExperimentName().equals(configExpDto.getExperimentName()) &&
                     exp.getExperimentDescription().equals(configExpDto.getExperimentDescription()) &&
