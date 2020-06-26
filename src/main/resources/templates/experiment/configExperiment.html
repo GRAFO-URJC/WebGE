@@ -374,7 +374,7 @@
                         <div class="row text-center">
                             <div class="col-sm-12 col-md-4 col-lg-4" style="margin-bottom:2px">
                                 <button type="submit" id="saveExperimentButton" name="saveExperimentButton"
-                                        onclick="saveButton=true;"
+                                        onclick="saveButton=true;runButton=false;"
                                         class="btn-primary btn-lg btn">Save experiment
                                 </button>
                             </div>
@@ -388,7 +388,7 @@
                             <div class="col-sm-12 col-md-4 col-lg-4">
                                 <button type="submit" id="runExperimentButton" name="runExperimentButton"
                                         class="btn-primary btn-lg btn"
-                                        onclick="runButton=true;">Save and run experiment
+                                        onclick="runButton=true;saveButton=false;">Save and run experiment
                                 </button>
                             </div>
                         </div>
@@ -786,9 +786,12 @@
         }
 
         function checkDeletePreviousRun() {
-
             if (document.getElementById("runForms") && !cloneButton && !(saveButton && checkExperimentInformationEqual())) {
-                return confirm('Do you really want to run it? This will delete the previous runs...');
+                if (saveButton) {
+                    return confirm('Saving will delete previous runs. Do you want to save the experiment?');
+                }
+                return confirm('Running will delete previous runs. Do you want to run the experiment?');
+
             } else {
                 return true;
             }
