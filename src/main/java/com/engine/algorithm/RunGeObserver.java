@@ -67,6 +67,8 @@ public class RunGeObserver implements Observer {
         dataDataService.saveDiagram(diagramData);
 
         this.run = runService.findByRunId(run.getId());
+        run.setCurrentGeneration(currGen);
+        run.setBestIndividual(Math.min(currBest, run.getBestIndividual() == 0 ? currBest : run.getBestIndividual()));
         run.setModificationDate(new Timestamp(new Date().getTime()));
         runService.saveRun(run);
         lock.unlock();
