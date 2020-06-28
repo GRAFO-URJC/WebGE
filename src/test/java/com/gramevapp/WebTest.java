@@ -1,9 +1,6 @@
 package com.gramevapp;
 
-import com.gramevapp.web.model.Dataset;
-import com.gramevapp.web.model.Experiment;
-import com.gramevapp.web.model.Grammar;
-import com.gramevapp.web.model.User;
+import com.gramevapp.web.model.*;
 import com.gramevapp.web.repository.GrammarRepository;
 import com.gramevapp.web.service.DiagramDataService;
 import com.gramevapp.web.service.ExperimentService;
@@ -32,9 +29,9 @@ public class WebTest {
 
     private static WebDriver driver;
     private static WebDriverWait wait;
-    private static BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private static BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(11);
     private String adminPasword = "admin";
-    private String userTestPassword = "userTestPassword";
+    private static String userTestPassword = "userTestPassword";
     private String userTestName = "utn1";
     private String grammarName = "Grammar name";
     private String datasetName = "Grammar name";
@@ -76,8 +73,9 @@ public class WebTest {
     @AfterAll
     public static void teardownClass() {
         GramevApplication.stop();
-        if(driver!=null){
-            driver.quit();;
+        if (driver != null) {
+            driver.quit();
+            ;
         }
     }
 
@@ -276,12 +274,115 @@ public class WebTest {
 
     @Test
     @Order(12)
-    public void userLogOutTest() {
-        adminLogOutTest();
+    public void userUpdateInfoTest() throws InterruptedException {
+        driver.get("http://127.0.0.1:8182/user");
+        driver.findElement(By.id("userProfileButton")).click();
+        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/user/profile");
+
+        String firstName = "firstname";
+        String lastName = "lastname";
+        String email = "email@email.com";
+        String phone = "999999999";
+        String addressDirection = "addressdirection";
+        String city = "city";
+        String state = "state";
+        String zipcode = "111111";
+        String institution = "institution";
+        driver.findElement(By.id("firstName")).clear();
+        driver.findElement(By.id("firstName")).sendKeys(firstName);
+        driver.findElement(By.id("lastName")).clear();
+        driver.findElement(By.id("lastName")).sendKeys(lastName);
+        driver.findElement(By.id("email")).clear();
+        driver.findElement(By.id("email")).sendKeys(email);
+        driver.findElement(By.id("phone")).sendKeys(phone);
+        driver.findElement(By.id("addressDirection")).sendKeys(addressDirection);
+        driver.findElement(By.id("city")).sendKeys(city);
+        driver.findElement(By.id("state")).sendKeys(state);
+        driver.findElement(By.id("zipcode")).sendKeys(zipcode);
+        driver.findElement(By.id("institution")).clear();
+        driver.findElement(By.id("institution")).sendKeys(institution);
+        driver.findElement(By.id("updateInfo")).click();
+
+        userTest = userService.getById(userTest.getId());
+        UserDetails userDetails = userTest.getUserDetails();
+
+        assertEquals(userDetails.getFirstName(), firstName);
+        assertEquals(userDetails.getLastName(), lastName);
+        assertEquals(userTest.getEmail(), email);
+        assertEquals(userDetails.getPhone(), Integer.parseInt(phone));
+        assertEquals(userDetails.getAddressDirection(), addressDirection);
+        assertEquals(userDetails.getCity(), city);
+        assertEquals(userDetails.getState(), state);
+        assertEquals(userDetails.getZipcode(), Integer.parseInt(zipcode));
+        assertEquals(userTest.getInstitution(), institution);
     }
 
     @Test
     @Order(13)
+    public void userUpdateStudyInfoTest() throws InterruptedException {
+        driver.get("http://127.0.0.1:8182/user");
+        driver.findElement(By.id("userProfileButton")).click();
+        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/user/profile");
+        driver.findElement(By.id("workStudyInformation")).click();
+
+        String studyInformation = "studyInformation";
+        String workInformation = "workInformation";
+        driver.findElement(By.id("studyInformation")).sendKeys(studyInformation);
+        driver.findElement(By.id("workInformation")).sendKeys(workInformation);
+        driver.findElement(By.id("updateWorkInfoButton")).click();
+        userTest = userService.getById(userTest.getId());
+        UserDetails userDetails = userTest.getUserDetails();
+
+        assertEquals(userDetails.getStudyInformation(), studyInformation);
+        assertEquals(userDetails.getWorkInformation(), workInformation);
+    }
+
+    @Test
+    @Order(14)
+    public void userUpdatePasswordTest() throws InterruptedException {
+        driver.get("http://127.0.0.1:8182/user");
+        driver.findElement(By.id("userProfileButton")).click();
+        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/user/profile");
+        driver.findElement(By.id("updatePassword")).click();
+        String newPassword = "newPassword";
+        driver.findElement(By.id("oldPassword")).sendKeys(userTestPassword);
+        driver.findElement(By.id("password")).sendKeys(newPassword);
+        driver.findElement(By.id("confirmPassword")).sendKeys(newPassword);
+        driver.findElement(By.id("updatePasswordButton")).click();
+        userTestPassword = newPassword;
+        assertEquals(driver.findElement(By.id("messagePassword")).getText(), "Password saved");
+        adminLogOutTest();
+        userLoginTest();
+    }
+
+    @Test
+    @Order(15)
+    public void userUpdateAboutMeTest() throws InterruptedException {
+        driver.get("http://127.0.0.1:8182/user");
+        driver.findElement(By.id("userProfileButton")).click();
+        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/user/profile");
+        driver.findElement(By.id("aboutMeSection")).click();
+
+        String aboutMe = "aboutMe";
+        driver.findElement(By.id("aboutMe")).sendKeys(aboutMe);
+        driver.findElement(By.id("updateButtonAboutMe")).click();
+
+        userTest = userService.getById(userTest.getId());
+        UserDetails userDetails = userTest.getUserDetails();
+        //textarea first element is space
+        assertEquals(userDetails.getAboutMe(), " " + aboutMe);
+    }
+
+    //should be the last test -1
+    @Test
+    @Order(15)
+    public void userLogOutTest() {
+        adminLogOutTest();
+    }
+
+    //should be the last test
+    @Test
+    @Order(16)
     public void userRemoveTest() {
         driver.get("http://127.0.0.1:8182/");
         adminLoginTest();
@@ -289,7 +390,7 @@ public class WebTest {
         assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/admin/userList");
         driver.findElement(By.name("deleteUserButton")).click();
         checkAlert();
-        assertTrue(userService.findByUsername(userTest.getUsername())==null);
+        assertTrue(userService.findByUsername(userTest.getUsername()) == null);
         adminLogOutTest();
     }
 
