@@ -31,7 +31,7 @@ public class Experiment {
     @Column(name = "EXPERIMENT_DESCRIPTION") // Reference for user relation and ExpDataType and Grammar
     private String experimentDescription;
 
-    @Column
+    @Column(columnDefinition = "TEXT",name = "default_grammar")
     private String defaultGrammar;
 
     @Column

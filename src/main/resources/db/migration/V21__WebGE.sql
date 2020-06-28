@@ -1,0 +1,1 @@
+ALTER TABLE webge.experiment ALTER COLUMN default_grammar TYPE text;
