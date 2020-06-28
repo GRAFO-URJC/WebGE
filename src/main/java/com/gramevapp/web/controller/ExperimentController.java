@@ -401,7 +401,7 @@ public class ExperimentController {
         if (run.getExperimentId().isCrossExperiment()) {
             List<String> splitContentList = new ArrayList<>();
             List<String> testSplitContentList = new ArrayList<>();
-            splitContent[0] = splitContent[0].substring(0, splitContent[0].length() - ";K-Fold".length()) + "\r\n";
+            splitContent[0] = splitContent[0].substring(0, splitContent[0].length() -  5) + "\r\n";
             splitContentList.add(splitContent[0]);
             testSplitContentList.add(splitContent[0]);
             //index last ;
@@ -778,8 +778,8 @@ public class ExperimentController {
                             runExecutionReport.setExecutionReport("");
                         }
 
-                        if(infoFormated.contains("2m---\u001B[0;39m \u001B[2m[     Thread-")){
-                            infoFormated=infoFormated.replaceAll("2m---\u001B\\[0;39m \u001B\\[2m\\[     Thread-[0-9]+]\u001B\\[0;39m \u001B\\[36mj.c.algorithm.ga.SimpleGeneticAlgorithm \u001B\\[0;39m \u001B\\[2m:\u001B\\[0;39m ","");
+                        if (infoFormated.contains("2m---\u001B[0;39m \u001B[2m[     Thread-")) {
+                            infoFormated = infoFormated.replaceAll("2m---\u001B\\[0;39m \u001B\\[2m\\[     Thread-[0-9]+]\u001B\\[0;39m \u001B\\[36mj.c.algorithm.ga.SimpleGeneticAlgorithm \u001B\\[0;39m \u001B\\[2m:\u001B\\[0;39m ", "");
                         }
                         runExecutionReport.setExecutionReport(runExecutionReport.getExecutionReport() + infoFormated);
                         runService.saveRunExecutionReport(runExecutionReport);
@@ -798,7 +798,7 @@ public class ExperimentController {
         Experiment experiment = experimentService.findExperimentById(Long.valueOf(expId));
         boolean haveTest = experiment.getDefaultTestExpDataTypeId() != null;
         RunResultsDto runResultsDto = new RunResultsDto(experiment.getIdRunList().size(),
-                haveTest);
+                haveTest || experiment.isCrossExperiment());
         int index = 0;
         for (Run run : experiment.getIdRunList()) {
             runResultsDto.getRunIndex()[index] = index + 1;
@@ -811,9 +811,26 @@ public class ExperimentController {
             runResultsDto.getTrainingR2()[index] = result.get(2);
             runResultsDto.getTrainingAbs()[index] = result.get(3);
 
-            if (haveTest) {
+            if (haveTest || experiment.isCrossExperiment()) {
                 result = new ArrayList<>();
-                processExperimentDataTypeInfo(experimentService.findExperimentDataTypeById(experiment.getDefaultTestExpDataTypeId()).getInfo().split("\r\n"),
+                String intoForSplit = "";
+                if (haveTest) {
+                    intoForSplit = experimentService.findExperimentDataTypeById(experiment.getDefaultTestExpDataTypeId()).getInfo();
+                } else {
+                    String[] rows = experimentService.findExperimentDataTypeById(experiment.getDefaultExpDataType()).getInfo().split("\r\n");
+                    intoForSplit += rows[0].substring(0, rows[0].length() - 7) + "\r\n";
+                    //index last ;
+                    int indexFold, identifier, crossRunIdentifier = experiment.getIdRunList().indexOf(run);
+                    for (int i = 1; i < rows.length; i++) {
+                        indexFold = rows[i].lastIndexOf(';');
+                        identifier = Integer.parseInt(rows[i].substring(indexFold + 1));
+                        //check if have cross
+                        if (crossRunIdentifier < 0 || identifier == crossRunIdentifier) {
+                            intoForSplit += rows[i].substring(0, indexFold) + "\r\n";
+                        }
+                    }
+                }
+                processExperimentDataTypeInfo(intoForSplit.split("\r\n"),
                         null, null, result, run);
                 runResultsDto.getTestRMSE()[index] = result.get(0);
                 runResultsDto.getTestAVG()[index] = result.get(1);
