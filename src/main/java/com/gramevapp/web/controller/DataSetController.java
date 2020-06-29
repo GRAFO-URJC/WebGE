@@ -95,6 +95,18 @@ public class DataSetController {
         experimentDataType.setDataTypeType("training");
         experimentDataType.setCreationDate(new Timestamp(new Date().getTime()));
         experimentDataType.setUserIdUserId(userService.getLoggedInUser().getId());
+        if (experimentDataType.getInfo().contains("K-Fold")) {
+            HashSet<Integer> listFoldSize = new HashSet<>();
+            String[] rows = experimentDataType.getInfo().split("\r\n");
+            //index last ;
+            int indexFold;
+            for (int i = 1; i < rows.length; i++) {
+                indexFold = rows[i].lastIndexOf(';');
+                listFoldSize.add(Integer.parseInt(rows[i].substring(indexFold + 1)));
+            }
+            kFoldNumber = listFoldSize.size();
+            checkFold = "true";
+        }
         if (checkFold != null && checkFold.equals("true")) {
             foldDataset(experimentDataType, kFoldNumber);
             experimentDataType.setFoldSize(kFoldNumber);
@@ -118,16 +130,17 @@ public class DataSetController {
 
         return idDataset;
     }
+
     @RequestMapping(value = "/foldDataset", method = RequestMethod.POST)
     @ResponseBody
-    public String ajaxFoldDataset(@RequestParam("datasetId") String datasetId,@RequestParam("kFoldNumber") int kFoldNumber) {
-        Dataset dataset = experimentService.findExperimentDataTypeById( Long.parseLong(datasetId));
+    public String ajaxFoldDataset(@RequestParam("datasetId") String datasetId, @RequestParam("kFoldNumber") int kFoldNumber) {
+        Dataset dataset = experimentService.findExperimentDataTypeById(Long.parseLong(datasetId));
         foldDataset(dataset, kFoldNumber);
         experimentService.saveDataType(dataset);
         return dataset.getInfo();
     }
 
-    private void foldDataset(Dataset experimentDataType,int kFoldNumber){
+    private void foldDataset(Dataset experimentDataType, int kFoldNumber) {
         List<Integer> kFoldValues = new ArrayList<>();
         for (int i = 1; i <= kFoldNumber; i++) {
             kFoldValues.add(i);
