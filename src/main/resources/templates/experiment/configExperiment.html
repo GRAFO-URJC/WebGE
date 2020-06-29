@@ -798,8 +798,7 @@
         }
 
         function checkExperimentInformationEqual() {
-            let experimentName = $('#experimentName').val();
-            let experimentDescription = $('#experimentDescription').val();
+
             let generations = $('#generations').val();
             let crossoverProb = $('#crossoverProb').val();
             let populationSize = $('#populationSize').val();
@@ -814,8 +813,7 @@
             experimentInformation['defaultExpDataTypeId'] =
                 experimentInformation['defaultExpDataTypeId'] == null ? "" : experimentInformation['defaultExpDataTypeId'];
 
-            return (experimentInformation['experimentName'] === experimentName &&
-                experimentInformation['experimentDescription'] === experimentDescription &&
+            return (
                 experimentInformation['generations'] == generations &&
                 experimentInformation['crossoverProb'] == crossoverProb &&
                 experimentInformation['populationSize'] == populationSize &&
@@ -830,8 +828,14 @@
         }
 
         window.onbeforeunload = function (e) {
+            let experimentName = $('#experimentName').val();
+            let experimentDescription = $('#experimentDescription').val();
+
+            let nameDescriptionChange = (experimentInformation['experimentName'] === experimentName &&
+                experimentInformation['experimentDescription'] === experimentDescription);
+
             if ((document.getElementById("cloneMessage") && !runButton && !saveButton)
-                || (!checkExperimentInformationEqual() && !runButton && !saveButton)) {
+                || ((!checkExperimentInformationEqual() || !nameDescriptionChange) && !runButton && !saveButton)) {
                 return 'Sure?';
             }
         }

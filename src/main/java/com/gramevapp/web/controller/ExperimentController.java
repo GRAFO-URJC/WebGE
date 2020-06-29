@@ -229,24 +229,21 @@ public class ExperimentController {
                 findExperimentDataTypeById(Long.valueOf(testExperimentDataTypeId));
 
         if (configExpDto.getId() != null) {
-            String grammarConfig = configExpDto.getFileText();
             exp = experimentService.findExperimentById(configExpDto.getId());
             configExpDto = fillConfigExpDto(configExpDto, exp,
-                    exp.getDefaultGrammar(), expDataType);
-            configExpDto.setFileText(grammarConfig);
+                    exp.getDefaultGrammar(), expDataType, true);
             // check if only test was changed
-            boolean sameExp = exp.getExperimentName().equals(configExpDto.getExperimentName()) &&
-                    exp.getExperimentDescription().equals(configExpDto.getExperimentDescription()) &&
+            boolean sameExp =
                     exp.getGenerations().equals(configExpDto.getGenerations()) &&
-                    exp.getCrossoverProb().equals(configExpDto.getCrossoverProb()) &&
-                    exp.getPopulationSize().equals(configExpDto.getPopulationSize()) &&
-                    exp.getMutationProb().equals(configExpDto.getMutationProb()) &&
-                    exp.getMaxWraps().equals(configExpDto.getMaxWraps()) &&
-                    exp.getTournament().equals(configExpDto.getTournament()) &&
-                    exp.getNumberRuns().equals(configExpDto.getNumberRuns()) &&
-                    exp.getObjective().equals(configExpDto.getObjective()) &&
-                    exp.getDefaultGrammar().equals(configExpDto.getFileText()) &&
-                    exp.getDefaultExpDataType().equals(Long.valueOf(experimentDataTypeId));
+                            exp.getCrossoverProb().equals(configExpDto.getCrossoverProb()) &&
+                            exp.getPopulationSize().equals(configExpDto.getPopulationSize()) &&
+                            exp.getMutationProb().equals(configExpDto.getMutationProb()) &&
+                            exp.getMaxWraps().equals(configExpDto.getMaxWraps()) &&
+                            exp.getTournament().equals(configExpDto.getTournament()) &&
+                            exp.getNumberRuns().equals(configExpDto.getNumberRuns()) &&
+                            exp.getObjective().equals(configExpDto.getObjective()) &&
+                            exp.getDefaultGrammar().equals(configExpDto.getFileText()) &&
+                            exp.getDefaultExpDataType().equals(Long.valueOf(experimentDataTypeId));
             if (sameExp) {
                 if (!testExperimentDataTypeId.equals("")) {
                     exp.setDefaultTestExpDataTypeId(Long.valueOf(testExperimentDataTypeId));
@@ -254,6 +251,8 @@ public class ExperimentController {
                     exp.setDefaultTestExpDataTypeId(null);
                 }
                 exp.setModificationDate(new Timestamp(new Date().getTime()));
+                exp.setExperimentName(configExpDto.getExperimentName());
+                exp.setExperimentDescription(configExpDto.getExperimentDescription());
                 experimentService.saveExperiment(exp);
                 modelAddData(model, user,
                         experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
@@ -270,7 +269,7 @@ public class ExperimentController {
 
         removeRuns(exp);
         experimentService.saveExperiment(exp);
-        fillConfigExpDto(configExpDto, exp, exp.getDefaultGrammar(), expDataType);
+        fillConfigExpDto(configExpDto, exp, exp.getDefaultGrammar(), expDataType, false);
 
         modelAddData(model, user,
                 experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
@@ -324,7 +323,8 @@ public class ExperimentController {
         List<Run> runList = exp.getIdRunList();
 
         ConfigExperimentDto configExpDto = fillConfigExpDto(new ConfigExperimentDto(), exp,
-                exp.getDefaultGrammar(), experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()));
+                exp.getDefaultGrammar(), experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()),
+                false);
 
         modelAddData(model, user, experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()),
                 exp.getIdExpDataTypeList(), exp.getDefaultTestExpDataTypeId());
@@ -401,7 +401,7 @@ public class ExperimentController {
         if (run.getExperimentId().isCrossExperiment()) {
             List<String> splitContentList = new ArrayList<>();
             List<String> testSplitContentList = new ArrayList<>();
-            splitContent[0] = splitContent[0].substring(0, splitContent[0].length() -  5) + "\r\n";
+            splitContent[0] = splitContent[0].substring(0, splitContent[0].length() - 5) + "\r\n";
             splitContentList.add(splitContent[0]);
             testSplitContentList.add(splitContent[0]);
             //index last ;
@@ -701,16 +701,18 @@ public class ExperimentController {
     }
 
     public ConfigExperimentDto fillConfigExpDto(ConfigExperimentDto configExpDto, Experiment exp, String grammar,
-                                                Dataset dataset) {
+                                                Dataset dataset, boolean forEqual) {
 
-        setConfigExpDtoWIthExperiment(configExpDto, exp.getExperimentName(),
-                exp.getExperimentDescription(), exp.getCrossoverProb(), exp.getGenerations(),
+        setConfigExpDtoWIthExperiment(configExpDto, forEqual ? configExpDto.getExperimentName() : exp.getExperimentName(),
+                forEqual ? configExpDto.getExperimentDescription() : exp.getExperimentDescription(), exp.getCrossoverProb(), exp.getGenerations(),
                 exp.getPopulationSize(), exp.getMaxWraps(), exp.getTournament(), exp.getMutationProb(),
                 exp.getNumCodons(), exp.getNumberRuns(), exp.getObjective());
 
         configExpDto.setId(exp.getId());
         configExpDto.setDefaultExpDataTypeId(exp.getDefaultExpDataType());
-        configExpDto.setFileText(grammar);
+        if(!forEqual){
+            configExpDto.setFileText(grammar);
+        }
         configExpDto.setCrossExperiment(exp.isCrossExperiment() ? "true" : "false");
         configExpDto.setContentFold(dataset.getInfo().contains("K-Fold"));
 
