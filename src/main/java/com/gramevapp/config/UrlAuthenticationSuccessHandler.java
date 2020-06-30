@@ -9,14 +9,13 @@ import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * https://www.baeldung.com/spring_redirect_after_login
@@ -29,17 +28,18 @@ public class UrlAuthenticationSuccessHandler implements AuthenticationSuccessHan
     @Override
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication)
             throws IOException {
-        handle(httpServletRequest, httpServletResponse, authentication);
+        handle(httpServletRequest, httpServletResponse, httpServletRequest.getSession(), authentication);
         clearAuthenticationAttributes(httpServletRequest);
     }
 
     protected void handle(
             HttpServletRequest request,
             HttpServletResponse response,
+            HttpSession session,
             Authentication authentication
     ) throws IOException {
 
-        String targetUrl = determineTargetUrl(authentication);
+        String targetUrl = determineTargetUrl(authentication, session);
 
         if (response.isCommitted()) {
             logger.debug(
@@ -51,17 +51,16 @@ public class UrlAuthenticationSuccessHandler implements AuthenticationSuccessHan
         redirectStrategy.sendRedirect(request, response, targetUrl);
     }
 
-    protected String determineTargetUrl(final Authentication authentication) {
-
-        Map<String, String> roleTargetUrlMap = new HashMap<>();
-        roleTargetUrlMap.put("ROLE_USER", "/user");
-        roleTargetUrlMap.put("ROLE_ADMIN", "/admin");
-
+    protected String determineTargetUrl(final Authentication authentication, HttpSession session) {
         final Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        String savedContext = session.getAttribute("SPRING_SECURITY_SAVED_REQUEST") == null ? null :
+                ((DefaultSavedRequest) session.getAttribute("SPRING_SECURITY_SAVED_REQUEST")).getRequestURI();
         for (final GrantedAuthority grantedAuthority : authorities) {
             String authorityName = grantedAuthority.getAuthority();
-            if (roleTargetUrlMap.containsKey(authorityName)) {
-                return roleTargetUrlMap.get(authorityName);
+            if (authorityName.equals("ROLE_USER")) {
+                return savedContext != null ? savedContext : "/user";
+            } else if (authorityName.equals("ROLE_ADMIN")) {
+                return savedContext != null ? savedContext : "/admin";
             }
         }
 
