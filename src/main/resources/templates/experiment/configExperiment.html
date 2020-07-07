@@ -421,7 +421,6 @@
                         <th scope="col">Last modification date</th>
                         <th scope="col">Model</th>
                         <th scope="col"></th>
-                        <th scope="col"></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -449,35 +448,38 @@
                                                    th:text="${run.getModificationDateFormated()}"/></td>
                             <td scope="row"><label th:name="model" th:id="model+${iterStat.index}"
                                                    th:text="${run.getModel()}"/></td>
-                            <td scope="row" th:id="${'stopRunSection' + iterStat.index}"
-                                th:class="${run.getStatus().toString().equals('RUNNING')?'':'hidden'}">
-                                <button type="button" th:name="${run.id}"
-                                        th:id="${'stopRun' + iterStat.index}"
-                                        onclick="stopRun(this.id, this.name)"
-                                        class="btn-default btn btn-sm"
-                                        rel="tooltip"
-                                        title="Stop run execution"
-                                >Stop run
-                                </button>
-                            </td>
-                            <td scope="row" th:id="'showPlot'+${iterStat.index}" class="hidden">
-                                <a th:href="@{/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}"
-                                   target="_blank" class="btn-default btn-sm btn loadButton">Plot</a>
-                            </td>
-                            <td scope="row" th:id="'showDelete'+${iterStat.index}">
-                                <a th:id="'showTestStats'+${iterStat.index}"
-                                   th:href="@{/experiment/runList(runId=${run.getId()}, showTestStatsPlotButton='showTestStatsPlotButton')}"
-                                   target="_blank" class="btn-default btn-sm btn loadButton"
-                                   th:disabled="${run.getStatus().toString().equals('FAILED')}"
-                                >Stats</a>
-                                <button type="button" th:name="${run.id}"
-                                        th:id="${'deleteRun' + iterStat.index}"
-                                        onclick="confirmDelete(this.id, this.name)"
-                                        class="btn-default btn btn-sm"
-                                        rel="tooltip"
-                                        title="Delete run"
-                                ><span
-                                        class="glyphicon glyphicon-trash small"></span></button>
+                            <td scope="row">
+                                <div th:id="${'stopRunSection' + iterStat.index}"
+                                     th:class="${run.getStatus().toString().equals('RUNNING')?'':'hidden'}"
+                                style="display:inline">
+                                    <button type="button" th:name="${run.id}"
+                                            th:id="${'stopRun' + iterStat.index}"
+                                            onclick="stopRun(this.id, this.name)"
+                                            class="btn-default btn btn-sm"
+                                            rel="tooltip"
+                                            title="Stop run execution"
+                                    >Stop run
+                                    </button>
+                                </div>
+                                <div th:id="'showPlot'+${iterStat.index}" class="hidden" style="display:inline">
+                                    <a th:href="@{/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}"
+                                       target="_blank" class="btn-default btn-sm btn loadButton">Plot</a>
+                                </div>
+                                <div th:id="'showDelete'+${iterStat.index}" style="display:inline">
+                                    <a th:id="'showTestStats'+${iterStat.index}"
+                                       th:href="@{/experiment/runList(runId=${run.getId()}, showTestStatsPlotButton='showTestStatsPlotButton')}"
+                                       target="_blank" class="btn-default btn-sm btn loadButton"
+                                       th:disabled="${run.getStatus().toString().equals('FAILED')}"
+                                    >Stats</a>
+                                    <button type="button" th:name="${run.id}"
+                                            th:id="${'deleteRun' + iterStat.index}"
+                                            onclick="confirmDelete(this.id, this.name)"
+                                            class="btn-default btn btn-sm"
+                                            rel="tooltip"
+                                            title="Delete run"
+                                    ><span
+                                            class="glyphicon glyphicon-trash small"></span></button>
+                                </div>
                             </td>
                         </tr>
                     </th:block>
