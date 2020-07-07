@@ -710,7 +710,7 @@ public class ExperimentController {
 
         configExpDto.setId(exp.getId());
         configExpDto.setDefaultExpDataTypeId(exp.getDefaultExpDataType());
-        if(!forEqual){
+        if (!forEqual) {
             configExpDto.setFileText(grammar);
         }
         configExpDto.setCrossExperiment(exp.isCrossExperiment() ? "true" : "false");
@@ -822,7 +822,7 @@ public class ExperimentController {
                     String[] rows = experimentService.findExperimentDataTypeById(experiment.getDefaultExpDataType()).getInfo().split("\r\n");
                     intoForSplit += rows[0].substring(0, rows[0].length() - 7) + "\r\n";
                     //index last ;
-                    int indexFold, identifier, crossRunIdentifier = experiment.getIdRunList().indexOf(run);
+                    int indexFold, identifier, crossRunIdentifier = experiment.getIdRunList().indexOf(run) + 1;
                     for (int i = 1; i < rows.length; i++) {
                         indexFold = rows[i].lastIndexOf(';');
                         identifier = Integer.parseInt(rows[i].substring(indexFold + 1));
