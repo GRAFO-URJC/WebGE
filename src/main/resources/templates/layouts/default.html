@@ -54,6 +54,8 @@
                     "targets": [target1, target2],
                     "orderable": false,
                 }],
+                columnDefs: [
+                    { type: 'date-euro', targets: order }],
             });
 
             $('.dataTables_length').addClass('bs-select');
@@ -206,7 +208,7 @@
                                            title="Log out">
                     <span style="color:#4183c4" id="logOutButton" class="glyphicon glyphicon-off"></span></p></a>
 
-                <a th:href="@{/user}"><p sec:authorize="isAnonymous()"
+                <a th:href="@{/login}"><p sec:authorize="isAnonymous()"
                                          class="navbar-text navbar-right btn-sm btn btn-default"><span
                         style="color:#4183c4" class="glyphicon glyphicon-log-in" rel="tooltip"
                         title="Log in"></span></p></a>
