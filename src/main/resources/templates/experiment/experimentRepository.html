@@ -52,14 +52,16 @@
                         <tbody id="expTableBody">
                         <th:block th:each="exp, iterStat : ${experimentList}">
                             <tr th:id="'tr' + ${iterStat.index}">
-                                <td scope="row"><label th:name="id" th:id="id" th:text="${exp.id}" id="id"/>
+                                <td scope="row"><label th:name="id" th:text="${exp.id}" id="id"/>
                                 </td>
-                                <td scope="row"><label th:name="name" th:id="name"
+                                <td scope="row"><label th:name="name"
                                                        th:text="${exp.experimentName}" id="name"/></td>
-                                <td scope="row"><label th:name="description" th:id="description"
+                                <td scope="row"><label th:name="description"
                                                        th:text="${exp.experimentDescription}" id="description"/>
                                 </td>
-                                <td scope="row"><label th:name="creationDate" th:id="creationDate"
+                                <td scope="row">
+                                    <span style="display:none;" th:text="${exp.getModificationDate()}"></span>
+                                    <label th:name="creationDate"
                                                        th:text="${exp.getModificationDateFormated()}"
                                                        id="creationDate"/>
                                 </td>
@@ -225,8 +227,6 @@
                 }
             }
 
-
-
             tableDefinition('#expRepository', "#expTableBody", 4, 5, 6, 3);
         });
 
@@ -235,12 +235,6 @@
             if (result)
                 deleteRow(iterStat, expId);
         }
-
-        function calculateStats(index) {
-
-
-        }
-
 
         function deleteRow(iterStat, expId) {
 
