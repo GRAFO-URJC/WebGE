@@ -208,10 +208,10 @@
                                            title="Log out">
                     <span style="color:#4183c4" id="logOutButton" class="glyphicon glyphicon-off"></span></p></a>
 
-                <a th:href="@{/login}"><p sec:authorize="isAnonymous()"
+                <a th:href="@{/login}" rel="tooltip"
+                   title="Log in"><p sec:authorize="isAnonymous()"
                                          class="navbar-text navbar-right btn-sm btn btn-default"><span
-                        style="color:#4183c4" class="glyphicon glyphicon-log-in" rel="tooltip"
-                        title="Log in"></span></p></a>
+                        style="color:#4183c4" class="glyphicon glyphicon-log-in"></span></p></a>
                 <a th:href="${#authentication.getAuthorities().toArray()[0].getAuthority().equals('ROLE_ADMIN')}
                             ?'/admin':'/'">
                     <h3 class="navbar-text navbar-right" rel="tooltip"
