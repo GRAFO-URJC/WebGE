@@ -1,5 +1,5 @@
 # https://docs.docker.com/compose/compose-file/
-version: '3.3'
+version: '3.8'
 services:
 
   db:
@@ -17,20 +17,18 @@ services:
       - backend
 
   gramev:
-    #image: leichen0710/webge:develop
     image: leichen0710/webge:master
-    #local develop
-    #image: leichen0710/aux:aux
-    links:
-      - db
     depends_on:
       - db
     ports:
       - 8182:8182
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:postgresql:/db:5432/webge"
-      SPRING_DATASOURCE_USERNAME: usuario
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://db:5432/webge"
+      SPRING_DATASOURCE_USERNAME: "usuario"
       SPRING_DATASOURCE_PASSWORD: "01234"
+      SPRING_FLYWAY_URL: "jdbc:postgresql://db:5432/webge"
+      SPRING_FLYWAY_USER: "usuario"
+      SPRING_FLYWAY_PASSWORD: "01234"
     networks:
       - backend
 volumes:
