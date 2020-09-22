@@ -25,3 +25,6 @@ out/
 # Allow
 # Son mas de 50MB de archivo que te genera maven, no merece la pena tenerlo en control de versiones
 # !target/gramev-0.0.1-SNAPSHOT.jar
+
+# Add run configs to repo
+!.idea/runConfigurations
