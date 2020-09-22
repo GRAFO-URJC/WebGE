@@ -1,1 +1,1 @@
-ALTER TABLE webge.experiment ALTER COLUMN default_grammar TYPE text;
+-- ALTER TABLE webge.experiment ALTER COLUMN default_grammar TYPE text;
