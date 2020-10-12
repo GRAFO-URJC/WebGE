@@ -8,6 +8,8 @@
 <head>
     <!-- For the profile template -->
     <link th:href="@{/assets/dist/css/profile.css}" rel="stylesheet" id="profile-css"/>
+    <script src="https://kit.fontawesome.com/0571a1ed47.js" crossorigin="anonymous"></script>
+
 
     <style>
         /* enable absolute positioning */
@@ -98,7 +100,7 @@
                     <div class="btn-group" role="group">
                         <button type="button" id="updatePassword" class="btn btn-default" href="#tab3" data-toggle="tab"
                                 th:classappend="${areaActive}=='passwordActive' ? 'btn-primary':''"
-                                onclick="deleteMessage()"><span class="glyphicon glyphicon-lock"
+                                onclick="deleteMessage()"><span class="fas fa-key"
                                                                 aria-hidden="true"></span>
                             Update password
                         </button>
