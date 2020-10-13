@@ -141,7 +141,7 @@ public class UserCommon {
         }
         userService.save(user);
 
-        redirectAttrs.addAttribute("message", "Basic information updated :D").addFlashAttribute("aboutMe", "Basic information area");
+        redirectAttrs.addAttribute("message", "Basic information updated").addFlashAttribute("aboutMe", "Basic information area");
         redirectAttrs.addAttribute("areaActive", "basicActive").addFlashAttribute("basicActive", "Basic information area");
         return "redirect:" + link;
     }
