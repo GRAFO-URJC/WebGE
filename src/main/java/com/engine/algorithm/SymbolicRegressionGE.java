@@ -10,7 +10,9 @@ import com.gramevapp.web.model.Run;
 import com.gramevapp.web.service.RunService;
 import jeco.core.algorithm.Algorithm;
 import jeco.core.algorithm.ga.SimpleGeneticAlgorithm;
+import jeco.core.algorithm.ge.SimpleGrammaticalEvolution;
 import jeco.core.algorithm.moge.AbstractProblemGE;
+import jeco.core.algorithm.moge.MultiObjectiveGrammaticalEvolution;
 import jeco.core.algorithm.moge.Phenotype;
 import jeco.core.operator.comparator.SimpleDominance;
 import jeco.core.operator.crossover.SinglePointCrossover;
@@ -48,7 +50,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
     protected Properties properties;
     private Solutions<Variable<Integer>> solutions;
-    private String logPopulationOutputFile = new String();
+    private String logPopulationOutputFile;
 
     // Binary masks for logging:
     public final int LOG_GENOTYPE_MASK = 1;
@@ -224,16 +226,10 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         // Set weight for CEG penalty
         UtilStats.setCEGPenalties(properties);
 
-        // Second create the com.engine.algorithm
-        IntegerFlipMutation<Variable<Integer>> mutationOperator = new IntegerFlipMutation<>(this, mutationProb);
-        SinglePointCrossover<Variable<Integer>> crossoverOperator = new SinglePointCrossover<>(this, SinglePointCrossover.DEFAULT_FIXED_CROSSOVER_POINT, crossOverProb, SinglePointCrossover.AVOID_REPETITION_IN_FRONT);
-        SimpleDominance<Variable<Integer>> comparator = new SimpleDominance<>();
-        TournamentSelect<Variable<Integer>> selectionOp = new TournamentSelect<>(tournamentSize, comparator);
-
         if (numObjectives == 2) {
-            algorithm = new ModifiedNSGAII(this, Integer.parseInt(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.parseInt(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), mutationOperator, crossoverOperator, selectionOp);
+            algorithm = new MultiObjectiveGrammaticalEvolution(this, Integer.parseInt(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.parseInt(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), mutationProb, crossOverProb,tournamentSize);
         } else {
-            algorithm = new SimpleGeneticAlgorithm<>(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), true, mutationOperator, crossoverOperator, selectionOp);
+            algorithm = new SimpleGrammaticalEvolution(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), mutationProb, crossOverProb);
         }
         if (obs != null) {
             algorithm.addObserver(obs);
