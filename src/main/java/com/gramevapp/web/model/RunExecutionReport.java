@@ -17,7 +17,7 @@ public class RunExecutionReport {
     private Run run;
 
     public RunExecutionReport() {
-
+        /*Do nothing*/
     }
 
     public Long getId() {

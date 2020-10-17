@@ -31,7 +31,10 @@ public class UserCommon {
     @Autowired
     protected UserService userService;
 
-    protected final String PROFILE_PICTURE_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "profilePicture" + File.separator + "";
+    protected static final String PROFILE_PICTURE_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "profilePicture" + File.separator + "";
+    protected static final String AREAACTIVE = "areaActive";
+    protected static final String PASSWORDACTIVE = "passwordActive";
+    protected static final String BASICACTIVE = "basicActive";
 
     protected BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -57,7 +60,7 @@ public class UserCommon {
             model.addAttribute("userStudy", upStudyDto);
             model.addAttribute("userBasicInfo", upBasicDto);
             model.addAttribute("userLogged", user);
-            model.addAttribute("areaActive", "passwordActive");
+            model.addAttribute(AREAACTIVE, PASSWORDACTIVE);
             model.addAttribute("oldPasswordCheck", !checkPassword);
             return "user/profile";
         }
@@ -65,7 +68,7 @@ public class UserCommon {
         userService.save(user);
 
         redirectAttrs.addAttribute("message", "Password saved").addFlashAttribute("password", "Password info area");
-        redirectAttrs.addAttribute("areaActive", "passwordActive").addFlashAttribute("passwordActive", "Activate password area");
+        redirectAttrs.addAttribute(AREAACTIVE, PASSWORDACTIVE).addFlashAttribute(PASSWORDACTIVE, "Activate password area");
         return "redirect:" + link;
     }
 
@@ -94,7 +97,7 @@ public class UserCommon {
             model.addAttribute("userPassword", upPassDto);
             model.addAttribute("userStudy", upStudyDto);
             model.addAttribute("userLogged", user);
-            model.addAttribute("areaActive", "basicActive");
+            model.addAttribute(AREAACTIVE, BASICACTIVE);
             return "user/profile";
         }
 
@@ -142,7 +145,7 @@ public class UserCommon {
         userService.save(user);
 
         redirectAttrs.addAttribute("message", "Basic information updated").addFlashAttribute("aboutMe", "Basic information area");
-        redirectAttrs.addAttribute("areaActive", "basicActive").addFlashAttribute("basicActive", "Basic information area");
+        redirectAttrs.addAttribute(AREAACTIVE, BASICACTIVE).addFlashAttribute(BASICACTIVE, "Basic information area");
         return "redirect:" + link;
     }
 

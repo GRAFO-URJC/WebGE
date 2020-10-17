@@ -66,6 +66,7 @@ public class User implements Serializable {
     private List<Role> roles;
 
     public User() {
+        /*Do nothing*/
     }
 
     public Boolean getEnabled() {

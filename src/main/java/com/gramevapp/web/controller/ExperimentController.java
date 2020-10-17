@@ -55,11 +55,19 @@ public class ExperimentController {
         return new FileModelDto();
     }
 
-    private final String GRAMMAR_DIR_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "grammar" + File.separator + "";
-    private final String DATATYPE_DIR_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "dataType" + File.separator + "";
-    private final String PROPERTIES_DIR_PATH = "." + File.separator + "resources" + File.separator + "files" + File.separator + "properties" + File.separator + "";
+    private static final String RESOURCES = "resources";
+    private static final String FILES = "files";
+    private static final String GRAMMAR_DIR_PATH = "." + File.separator + RESOURCES + File.separator + FILES + File.separator + "grammar" + File.separator + "";
+    private static final String DATATYPE_DIR_PATH = "." + File.separator + RESOURCES + File.separator + FILES + File.separator + "dataType" + File.separator + "";
+    private static final String PROPERTIES_DIR_PATH = "." + File.separator + RESOURCES + File.separator + FILES + File.separator + "properties" + File.separator + "";
     private static final String WORK_DIR = "resources/files";
     private static final String CLASS_PATH_SEPARATOR = "\\;";
+    private static final String CONFIGURATION = "configuration";
+    private static final String INDEX = "index";
+    private static final String EXPCONFIG = "expConfig";
+    private static final String EXPDETAILS = "expDetails";
+    private static final String RUNID = "runId";
+    private static final String RUNLIST = "runList";
 
     private void modelAddData(Model model, User user, Dataset experimentDataType,
                               List<Dataset> experimentDataTypeList, Long testExperimentDataTypeId) {
@@ -77,8 +85,8 @@ public class ExperimentController {
         User user = userService.getLoggedInUser();
 
         model.addAttribute("type", new Dataset());
-        model.addAttribute("configuration", configExpDto);
-        model.addAttribute("runList", null);
+        model.addAttribute(CONFIGURATION, configExpDto);
+        model.addAttribute(RUNLIST, null);
         model.addAttribute("user", user);
         model.addAttribute("configExp", new ConfigExperimentDto());
         model.addAttribute("disabledClone", true);
@@ -107,7 +115,7 @@ public class ExperimentController {
 
         // Check the data received
         if (result.hasErrors()) {
-            model.addAttribute("configuration", configExpDto);
+            model.addAttribute(CONFIGURATION, configExpDto);
             return "experiment/configExperiment";
         }
 
@@ -202,7 +210,7 @@ public class ExperimentController {
 
         User user = userService.getLoggedInUser();
         modelAddData(model, user, null, null, null);
-        model.addAttribute("configuration", configExpDto);
+        model.addAttribute(CONFIGURATION, configExpDto);
 
         if (result.hasErrors()) {
             return "experiment/configExperiment";
@@ -213,8 +221,8 @@ public class ExperimentController {
         // Experiment Data Type SECTION
         Dataset expDataType;
         if (experimentDataTypeId.equals("-1")) {
-            model.addAttribute("configuration", configExpDto);
-            model.addAttribute("expConfig", configExpDto);
+            model.addAttribute(CONFIGURATION, configExpDto);
+            model.addAttribute(EXPCONFIG, configExpDto);
             result.rejectValue("typeFile", "error.typeFile", "Choose one file");
             return "experiment/configExperiment";
         } else {
@@ -258,7 +266,7 @@ public class ExperimentController {
                         experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
                         exp.getIdExpDataTypeList(), testExperimentDataType == null ? null : testExperimentDataType.getId());
 
-                model.addAttribute("runList", exp.getIdRunList());
+                model.addAttribute(RUNLIST, exp.getIdRunList());
                 return "experiment/configExperiment";
             }
         }
@@ -275,7 +283,7 @@ public class ExperimentController {
                 experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
                 exp.getIdExpDataTypeList(), testExperimentDataType == null ? null : testExperimentDataType.getId());
 
-        model.addAttribute("expConfig", configExpDto);
+        model.addAttribute(EXPCONFIG, configExpDto);
         return "experiment/configExperiment";
 
     }
@@ -288,8 +296,8 @@ public class ExperimentController {
         User user = userService.getLoggedInUser();
         configExpDto.setId(null);
 
-        model.addAttribute("configuration", configExpDto);
-        model.addAttribute("expConfig", configExpDto);
+        model.addAttribute(CONFIGURATION, configExpDto);
+        model.addAttribute(EXPCONFIG, configExpDto);
         modelAddData(model, user,
                 experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
                 null, configExpDto.getTestDefaultExpDataTypeId());
@@ -328,9 +336,9 @@ public class ExperimentController {
 
         modelAddData(model, user, experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()),
                 exp.getIdExpDataTypeList(), exp.getDefaultTestExpDataTypeId());
-        model.addAttribute("configuration", configExpDto);
+        model.addAttribute(CONFIGURATION, configExpDto);
         model.addAttribute("configExp", configExpDto);
-        model.addAttribute("runList", runList);
+        model.addAttribute(RUNLIST, runList);
 
         return "experiment/configExperiment";
     }
@@ -374,21 +382,21 @@ public class ExperimentController {
 
     @GetMapping(value = "/experiment/runList", params = "showPlotExecutionButton")
     public String showPlotExecutionExperiment(Model model,
-                                              @RequestParam(value = "runId") String runId) {
+                                              @RequestParam(value = RUNID) String runId) {
         Long longRunId = Long.parseLong(runId);
         Run run = runService.findByRunId(longRunId);
 
-        model.addAttribute("expDetails", run.getExperimentId());
-        model.addAttribute("runId", run.getId());
+        model.addAttribute(EXPDETAILS, run.getExperimentId());
+        model.addAttribute(RUNID, run.getId());
         model.addAttribute("run", run);
-        model.addAttribute("index", run.getExperimentId().getIdRunList().indexOf(run) + 1);
+        model.addAttribute(INDEX, run.getExperimentId().getIdRunList().indexOf(run) + 1);
 
         return "experiment/experimentDetails";
     }
 
     @GetMapping(value = "/experiment/runList", params = "showTestStatsPlotButton")
     public String showRunTestStatsExperiment(Model model,
-                                             @RequestParam(value = "runId") String runId) throws EvaluationException {
+                                             @RequestParam(value = RUNID) String runId) throws EvaluationException {
         Run run = runService.findByRunId(Long.parseLong(runId));
         int crossRunIdentifier = run.getExperimentId().getIdRunList().indexOf(run) + 1;
         List<Double> listYLine = new ArrayList<>();
@@ -420,14 +428,14 @@ public class ExperimentController {
 
         processExperimentDataTypeInfo(splitContent, listYLine, listFunctionResult, trainingResult, run);
 
-        model.addAttribute("expDetails", run.getExperimentId());
+        model.addAttribute(EXPDETAILS, run.getExperimentId());
         model.addAttribute("listYLine", listYLine);
         model.addAttribute("listFunctionResult", listFunctionResult);
         model.addAttribute("RMSE", trainingResult.get(0));
         model.addAttribute("AvgError", trainingResult.get(1));
         model.addAttribute("RSquare", trainingResult.get(2));
         model.addAttribute("absoluteError", trainingResult.get(3));
-        model.addAttribute("index", run.getExperimentId().getIdRunList().indexOf(run) + 1);
+        model.addAttribute(INDEX, run.getExperimentId().getIdRunList().indexOf(run) + 1);
         model.addAttribute("model", run.getModel());
 
         if (run.getExperimentId().getDefaultTestExpDataTypeId() != null || run.getExperimentId().isCrossExperiment()) {
@@ -658,7 +666,7 @@ public class ExperimentController {
             run.setStatus(Run.Status.FAILED);
 
             if (redirectAttrs != null) {
-                redirectAttrs.addAttribute("runId", run.getId()).addFlashAttribute("Stop", "Stop execution failed");
+                redirectAttrs.addAttribute(RUNID, run.getId()).addFlashAttribute("Stop", "Stop execution failed");
                 redirectAttrs.addAttribute("showPlotExecutionButton", "showPlotExecutionButton");
             }
             return "redirect:experiment/runList";
@@ -674,10 +682,10 @@ public class ExperimentController {
         runService.saveRun(run);
 
         if (model != null) {
-            model.addAttribute("expDetails", run.getExperimentId());
-            model.addAttribute("runId", run.getId());
+            model.addAttribute(EXPDETAILS, run.getExperimentId());
+            model.addAttribute(RUNID, run.getId());
             model.addAttribute("run", run);
-            model.addAttribute("index", run.getExperimentId().getIdRunList().indexOf(run) + 1);
+            model.addAttribute(INDEX, run.getExperimentId().getIdRunList().indexOf(run) + 1);
         }
 
         return "experiment/experimentDetails";
@@ -693,7 +701,7 @@ public class ExperimentController {
     @RequestMapping(value = "/experiment/expRepoSelected", method = RequestMethod.POST, params = "deleteRun")
     public
     @ResponseBody
-    Long deleteRun(@RequestParam("runId") String runId) {
+    Long deleteRun(@RequestParam(RUNID) String runId) {
         Long longRunId = Long.parseLong(runId);
         Run run = runService.findByRunId(longRunId);
         runService.deleteRun(run);

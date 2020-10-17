@@ -21,10 +21,16 @@ import java.io.IOException;
 @Controller
 public class UserController extends UserCommon {
 
+    private static final String MESSAGE = "message";
+    private static final String AREAACTIVE = "areaActive";
+    private static final String USERLOGGED = "userLogged";
+    private static final String USERBASICINFO = "userBasicInfo";
+    private static final String USERPASSWORD = "userPassword";
+    private static final String REDIRECTPROFILE = "redirect:/user/profile";
     @GetMapping("/user/profile")
     public String userProfile(Model model,
-                              @RequestParam(value = "message", required = false) String message,
-                              @RequestParam(value = "areaActive", required = false) String areaActive) {
+                              @RequestParam(value = MESSAGE, required = false) String message,
+                              @RequestParam(value = AREAACTIVE, required = false) String areaActive) {
         User user = userService.getLoggedInUser();
         UserUpdateBasicInfoDto upBasicDto = new UserUpdateBasicInfoDto();
         UserUpdatePasswordDto upPassDto = new UserUpdatePasswordDto();
@@ -32,17 +38,17 @@ public class UserController extends UserCommon {
         UserUpdateStudyDto upStudyDto = new UserUpdateStudyDto();
 
         if (message != null) {
-            model.addAttribute("message", message);
+            model.addAttribute(MESSAGE, message);
         }
 
         if (areaActive != null)
-            model.addAttribute("areaActive", areaActive);
+            model.addAttribute(AREAACTIVE, areaActive);
         else
-            model.addAttribute("areaActive", "basicActive");
+            model.addAttribute(AREAACTIVE,BASICACTIVE);
 
-        model.addAttribute("userLogged", user);
-        model.addAttribute("userBasicInfo", upBasicDto);
-        model.addAttribute("userPassword", upPassDto);
+        model.addAttribute(USERLOGGED, user);
+        model.addAttribute(USERBASICINFO, upBasicDto);
+        model.addAttribute(USERPASSWORD, upPassDto);
         model.addAttribute("userStudy", upStudyDto);
         model.addAttribute("userAboutMe", updAboutDto);
 
@@ -51,7 +57,7 @@ public class UserController extends UserCommon {
 
     @RequestMapping(value = "/user/updateUserPassword", method = RequestMethod.POST)
     public String updateUserPassword(Model model,
-                                     @ModelAttribute("userPassword") @Valid UserUpdatePasswordDto userUpDto,
+                                     @ModelAttribute(USERPASSWORD) @Valid UserUpdatePasswordDto userUpDto,
                                      BindingResult result,
                                      RedirectAttributes redirectAttrs) {
         return updatePassword(model, userUpDto, result, redirectAttrs, "/user/profile");
@@ -74,9 +80,9 @@ public class UserController extends UserCommon {
             upPassDto.setPassword("");
 
             model.addAttribute("userAboutMe", updAboutDto);
-            model.addAttribute("userPassword", upPassDto);
-            model.addAttribute("userBasicInfo", upBasicDto);
-            model.addAttribute("userLogged", user);
+            model.addAttribute(USERPASSWORD, upPassDto);
+            model.addAttribute(USERBASICINFO, upBasicDto);
+            model.addAttribute(USERLOGGED, user);
             return "user/profile";
         }
 
@@ -84,14 +90,14 @@ public class UserController extends UserCommon {
         user.getUserDetails().setWorkInformation(userUpDto.getWorkInformation());
 
         userService.save(user);
-        redirectAttrs.addAttribute("message", "Study/Work area information updated").addFlashAttribute("Study/Work", "Study/Work area");
-        redirectAttrs.addAttribute("areaActive", "studyActive").addFlashAttribute("studyActive", "Activate Study/Work area");
-        return "redirect:/user/profile";
+        redirectAttrs.addAttribute(MESSAGE, "Study/Work area information updated").addFlashAttribute("Study/Work", "Study/Work area");
+        redirectAttrs.addAttribute(AREAACTIVE, "studyActive").addFlashAttribute("studyActive", "Activate Study/Work area");
+        return REDIRECTPROFILE;
     }
 
     @RequestMapping(value = "/user/updateUserBasicInfo", method = RequestMethod.POST)
     public String updateUserInformation(Model model,
-                                        @ModelAttribute("userBasicInfo") @Valid UserUpdateBasicInfoDto userUpDto,
+                                        @ModelAttribute(USERBASICINFO) @Valid UserUpdateBasicInfoDto userUpDto,
                                         BindingResult result,
                                         RedirectAttributes redirectAttrs) {
 
@@ -116,18 +122,18 @@ public class UserController extends UserCommon {
 
             UserUpdateBasicInfoDto upBasicDto = userSet(user);
 
-            model.addAttribute("userPassword", upPassDto);
+            model.addAttribute(USERPASSWORD, upPassDto);
             model.addAttribute("userStudy", upStudyDto);
-            model.addAttribute("userBasicInfo", upBasicDto);
-            model.addAttribute("userLogged", user);
-            return "redirect:/user/profile";
+            model.addAttribute(USERBASICINFO, upBasicDto);
+            model.addAttribute(USERLOGGED, user);
+            return REDIRECTPROFILE;
         }
         user.getUserDetails().setAboutMe(userUpDto.getAboutMe());
         userService.save(user);
 
-        redirectAttrs.addAttribute("message", "About me information area updated").addFlashAttribute("aboutMe", "About me area");
-        redirectAttrs.addAttribute("areaActive", "aboutMeActive").addFlashAttribute("aboutMeActive", "Activate About me area");
-        return "redirect:/user/profile";
+        redirectAttrs.addAttribute(MESSAGE, "About me information area updated").addFlashAttribute("aboutMe", "About me area");
+        redirectAttrs.addAttribute(AREAACTIVE, "aboutMeActive").addFlashAttribute("aboutMeActive", "Activate About me area");
+        return REDIRECTPROFILE;
     }
 
     @GetMapping("/user")

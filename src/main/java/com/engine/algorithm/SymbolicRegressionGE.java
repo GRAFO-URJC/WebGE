@@ -9,15 +9,11 @@ import com.engine.util.UtilStats;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.service.RunService;
 import jeco.core.algorithm.Algorithm;
-import jeco.core.algorithm.ga.SimpleGeneticAlgorithm;
 import jeco.core.algorithm.ge.SimpleGrammaticalEvolution;
 import jeco.core.algorithm.moge.AbstractProblemGE;
 import jeco.core.algorithm.moge.MultiObjectiveGrammaticalEvolution;
 import jeco.core.algorithm.moge.Phenotype;
-import jeco.core.operator.comparator.SimpleDominance;
 import jeco.core.operator.crossover.SinglePointCrossover;
-import jeco.core.operator.mutation.IntegerFlipMutation;
-import jeco.core.operator.selection.TournamentSelect;
 import jeco.core.problem.Solution;
 import jeco.core.problem.Solutions;
 import jeco.core.problem.Variable;
@@ -53,17 +49,17 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     private String logPopulationOutputFile;
 
     // Binary masks for logging:
-    public final int LOG_GENOTYPE_MASK = 1;
-    public final int LOG_USED_GENES_MASK = 2;
-    public final int LOG_FITNESS_MASK = 4;
-    public final int LOG_PHENOTYPE_MASK = 8;
-    public final int LOG_EVALUATION_MASK = 16;
+    public static final int LOG_GENOTYPE_MASK = 1;
+    public static final int LOG_USED_GENES_MASK = 2;
+    public static final int LOG_FITNESS_MASK = 4;
+    public static final int LOG_PHENOTYPE_MASK = 8;
+    public static final int LOG_EVALUATION_MASK = 16;
 
     private Algorithm<Variable<Integer>> algorithm;
     private boolean stop;
 
     public static final String REPORT_HEADER = "Obj.;Model;Time";
-    public ArrayList<String> executionReport = new ArrayList<>();
+    public List<String> executionReport = new ArrayList<>();
 
 
     public SymbolicRegressionGE(Properties properties, int numObjectives) {
@@ -328,7 +324,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     }
 
     //Method to get the logger from class SimpleGeneticAlgorithm
-    private static Logger GetSimpleGeneticAlgorithmLogger() {
+    private static Logger getSimpleGeneticAlgorithmLogger() {
         LogManager manager = LogManager.getLogManager();
         return manager.getLogger("jeco.core.algorithm.ga.SimpleGeneticAlgorithm");
     }

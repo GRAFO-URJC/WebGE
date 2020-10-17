@@ -15,6 +15,9 @@ import java.util.List;
 
 @Controller
 public class AdminController extends UserCommon {
+
+    private static final String MESSAGE = "message";
+
     @GetMapping("/admin")
     public String adminPage(Model model,
                             @RequestParam(value = "messageUserCreated", required = false) String message) {
@@ -23,7 +26,7 @@ public class AdminController extends UserCommon {
             model.addAttribute("messageUserCreated", message);
         }
         if (user.getPassword().equals("$2a$11$hwnvHO4u./7PBsClAXe1fuPIat1sqitn7EYvti9ajWpONIqx7pYB2")) {
-            model.addAttribute("message", "Please change the password, now is the default password, you can click" +
+            model.addAttribute(MESSAGE, "Please change the password, now is the default password, you can click" +
                     " the message.");
         }
         HashMap<User, Run> summaryExperiment = new HashMap<>();
@@ -84,7 +87,7 @@ public class AdminController extends UserCommon {
         userService.saveUser(userDto);
 
         redirectAttrs.addAttribute("messageUserCreated", "User created");
-        model.addAttribute("message", "User registered successfully");
+        model.addAttribute(MESSAGE, "User registered successfully");
 
         return "redirect:/admin";
     }
@@ -108,7 +111,7 @@ public class AdminController extends UserCommon {
         UserUpdateStudyDto upStudyDto = new UserUpdateStudyDto();
 
         if (message != null) {
-            model.addAttribute("message", message);
+            model.addAttribute(MESSAGE, message);
         }
 
         if (areaActive != null)
