@@ -68,6 +68,7 @@ public class ExperimentController {
     private static final String EXPDETAILS = "expDetails";
     private static final String RUNID = "runId";
     private static final String RUNLIST = "runList";
+    private static final String RUN = "run";
 
     private void modelAddData(Model model, User user, Dataset experimentDataType,
                               List<Dataset> experimentDataTypeList, Long testExperimentDataTypeId) {
@@ -101,7 +102,7 @@ public class ExperimentController {
      * "configuration" is for send data from Controller to View and
      * "configExp" is the object from the form View
      */
-    @RequestMapping(value = "/experiment/start", method = RequestMethod.POST, params = "runExperimentButton")
+    @PostMapping(value = "/experiment/start", params = "runExperimentButton")
     public String runExperiment(Model model,
                                 @RequestParam("experimentDataTypeId") String experimentDataTypeId,
                                 @RequestParam("testExperimentDataTypeId") String testExperimentDataTypeId,
@@ -200,7 +201,7 @@ public class ExperimentController {
     }
 
 
-    @RequestMapping(value = "/experiment/start", method = RequestMethod.POST, params = "saveExperimentButton")
+    @PostMapping(value = "/experiment/start", params = "saveExperimentButton")
     public String saveExperiment(Model model,
                                  @RequestParam("experimentDataTypeId") String experimentDataTypeId,
                                  @RequestParam("testExperimentDataTypeId") String testExperimentDataTypeId,
@@ -288,7 +289,7 @@ public class ExperimentController {
 
     }
 
-    @RequestMapping(value = "/experiment/start", method = RequestMethod.POST, params = "cloneExperimentButton")
+    @PostMapping(value = "/experiment/start",params = "cloneExperimentButton")
     public String cloneExperiment(Model model,
                                   @RequestParam("experimentDataTypeId") String experimentDataTypeId,
                                   @ModelAttribute("typeFile") FileModelDto fileModelDto,
@@ -306,7 +307,7 @@ public class ExperimentController {
         return "experiment/configExperiment";
     }
 
-    @RequestMapping(value = "/experiment/experimentRepository", method = RequestMethod.GET)
+    @GetMapping(value = "/experiment/experimentRepository")
     public String experimentRepository(Model model) {
 
         User user = userService.getLoggedInUser();
@@ -317,7 +318,7 @@ public class ExperimentController {
         return "experiment/experimentRepository";
     }
 
-    @RequestMapping(value = "/experiment/expRepoSelected", method = RequestMethod.GET, params = "loadExperimentButton")
+    @GetMapping(value = "/experiment/expRepoSelected", params = "loadExperimentButton")
     public String expRepoSelected(Model model,
                                   @RequestParam(required = false) String id) { // Exp ID
 
@@ -343,7 +344,7 @@ public class ExperimentController {
         return "experiment/configExperiment";
     }
 
-    @RequestMapping(value = "/experiment/expRepoSelected", method = RequestMethod.POST, params = "deleteExperiment")
+    @PostMapping(value = "/experiment/expRepoSelected", params = "deleteExperiment")
     public
     @ResponseBody
     Long expRepoSelectedDelete(@RequestParam("experimentId") String experimentId) {
@@ -388,7 +389,7 @@ public class ExperimentController {
 
         model.addAttribute(EXPDETAILS, run.getExperimentId());
         model.addAttribute(RUNID, run.getId());
-        model.addAttribute("run", run);
+        model.addAttribute(RUN, run);
         model.addAttribute(INDEX, run.getExperimentId().getIdRunList().indexOf(run) + 1);
 
         return "experiment/experimentDetails";
@@ -684,7 +685,7 @@ public class ExperimentController {
         if (model != null) {
             model.addAttribute(EXPDETAILS, run.getExperimentId());
             model.addAttribute(RUNID, run.getId());
-            model.addAttribute("run", run);
+            model.addAttribute(RUN, run);
             model.addAttribute(INDEX, run.getExperimentId().getIdRunList().indexOf(run) + 1);
         }
 
@@ -698,7 +699,7 @@ public class ExperimentController {
         return true;
     }
 
-    @RequestMapping(value = "/experiment/expRepoSelected", method = RequestMethod.POST, params = "deleteRun")
+    @PostMapping(value = "/experiment/expRepoSelected", params = "deleteRun")
     public
     @ResponseBody
     Long deleteRun(@RequestParam(RUNID) String runId) {
@@ -802,7 +803,7 @@ public class ExperimentController {
         });
     }
 
-    @RequestMapping(value = "/runResultsInfo", method = RequestMethod.GET)
+    @GetMapping(value = "/runResultsInfo")
     @ResponseBody
     public RunResultsDto getRunResultsInfo(@RequestParam("expId") String expId) throws EvaluationException {
         Experiment experiment = experimentService.findExperimentById(Long.valueOf(expId));

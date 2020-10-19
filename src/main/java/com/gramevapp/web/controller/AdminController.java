@@ -128,7 +128,7 @@ public class AdminController extends UserCommon {
         return "user/profile";
     }
 
-    @RequestMapping(value = "/admin/updateAdminPassword", method = RequestMethod.POST)
+    @PostMapping(value = "/admin/updateAdminPassword")
     public String updateAdminPassword(Model model,
                                       @ModelAttribute("userPassword") @Valid UserUpdatePasswordDto userUpDto,
                                       BindingResult result,
@@ -136,7 +136,7 @@ public class AdminController extends UserCommon {
         return updatePassword(model, userUpDto, result, redirectAttrs, "/admin/profile");
     }
 
-    @RequestMapping(value = "/admin/updateAdminBasicInfo", method = RequestMethod.POST)
+    @PostMapping(value = "/admin/updateAdminBasicInfo")
     public String updateAdminInformation(Model model,
                                          @ModelAttribute("userBasicInfo") @Valid UserUpdateBasicInfoDto userUpDto,
                                          BindingResult result,
@@ -150,7 +150,7 @@ public class AdminController extends UserCommon {
         return "admin/userList";
     }
 
-    @RequestMapping(value = "/admin/deleteUser", method = RequestMethod.POST, params = "deleteUser")
+    @PostMapping(value = "/admin/deleteUser", params = "deleteUser")
     public
     @ResponseBody
     Long deleteUser(@RequestParam("userId") String userId) {
@@ -168,7 +168,7 @@ public class AdminController extends UserCommon {
         return id;
     }
 
-    @RequestMapping(value = "/admin/changePassword", method = RequestMethod.POST)
+    @PostMapping(value = "/admin/changePassword")
     @ResponseBody
     public void changePassword(@RequestParam("userId") String userId, @RequestParam("password") String password) {
         User user = userService.getById(Long.parseLong(userId));

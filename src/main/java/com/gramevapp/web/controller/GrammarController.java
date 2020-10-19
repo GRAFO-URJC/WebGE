@@ -28,7 +28,7 @@ public class GrammarController {
     private ExperimentService experimentService;
 
 
-    @RequestMapping(value = "/grammar/grammarRepository", method = RequestMethod.GET)
+    @GetMapping(value = "/grammar/grammarRepository")
     public String grammarRepository(Model model) {
         User user = userService.getLoggedInUser();
         List<Grammar> grammarList = grammarRepository.findByUserId(user.getId());
@@ -40,7 +40,7 @@ public class GrammarController {
     }
 
 
-    @RequestMapping(value = "/grammar/grammarRepoSelected", method = RequestMethod.POST, params = "deleteGrammar")
+    @PostMapping(value = "/grammar/grammarRepoSelected", params = "deleteGrammar")
     public
     @ResponseBody
     Long expRepoSelectedDelete(@RequestParam("grammarId") String grammarId) {
@@ -59,7 +59,7 @@ public class GrammarController {
     }
 
 
-    @RequestMapping(value = "/grammar/grammarDetail", method = RequestMethod.POST)
+    @PostMapping(value = "/grammar/grammarDetail")
     public String editGrammar(Model model, @RequestParam("grammarId") String grammarId) {
 
         User user = userService.getLoggedInUser();
@@ -76,14 +76,14 @@ public class GrammarController {
         return "grammar/grammarDetail";
     }
 
-    @RequestMapping(value = "/grammar/saveGrammar", method = RequestMethod.POST)
+    @PostMapping(value = "/grammar/saveGrammar")
     public String saveGrammar(Model model, @ModelAttribute("grammar") Grammar gr) {
         gr.setCreationDate(new Timestamp(new Date().getTime()));
         grammarRepository.save(gr);
         return grammarRepository(model);
     }
 
-    @RequestMapping(value = "/grammar/ajaxSaveGrammar", method = RequestMethod.POST)
+    @PostMapping(value = "/grammar/ajaxSaveGrammar")
     @ResponseBody
     public String ajaxSaveGrammar(@RequestParam("grammarName") String grammarName,
                                   @RequestParam("grammarDescription") String grammarDescription,

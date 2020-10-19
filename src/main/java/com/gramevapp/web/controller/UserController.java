@@ -55,7 +55,7 @@ public class UserController extends UserCommon {
         return "user/profile";
     }
 
-    @RequestMapping(value = "/user/updateUserPassword", method = RequestMethod.POST)
+    @PostMapping(value = "/user/updateUserPassword")
     public String updateUserPassword(Model model,
                                      @ModelAttribute(USERPASSWORD) @Valid UserUpdatePasswordDto userUpDto,
                                      BindingResult result,
@@ -63,7 +63,7 @@ public class UserController extends UserCommon {
         return updatePassword(model, userUpDto, result, redirectAttrs, "/user/profile");
     }
 
-    @RequestMapping(value = "/user/updateStudy", method = RequestMethod.POST)
+    @PostMapping(value = "/user/updateStudy")
     public String updateUserStudy(Model model,
                                   @ModelAttribute("userStudy") @Valid UserUpdateStudyDto userUpDto,
                                   BindingResult result,
@@ -95,7 +95,7 @@ public class UserController extends UserCommon {
         return REDIRECTPROFILE;
     }
 
-    @RequestMapping(value = "/user/updateUserBasicInfo", method = RequestMethod.POST)
+    @PostMapping(value = "/user/updateUserBasicInfo")
     public String updateUserInformation(Model model,
                                         @ModelAttribute(USERBASICINFO) @Valid UserUpdateBasicInfoDto userUpDto,
                                         BindingResult result,
@@ -104,7 +104,7 @@ public class UserController extends UserCommon {
         return updateBasicInfo(model, userUpDto, result, redirectAttrs, "/user/profile");
     }
 
-    @RequestMapping(value = "/user/updateAboutMe", method = RequestMethod.POST)
+    @PostMapping(value = "/user/updateAboutMe")
     public String updateAboutMe(Model model,
                                 @ModelAttribute("userAboutMe") @Valid UserUpdateAboutDto userUpDto,
                                 BindingResult result,
@@ -167,7 +167,7 @@ public class UserController extends UserCommon {
         return new UserRegistrationDto();
     }
 
-    @RequestMapping(value = "/user/profile_picture", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
+    @GetMapping(value = "/user/profile_picture", produces = MediaType.IMAGE_JPEG_VALUE)
     public @ResponseBody
     byte[] profilePicture() throws IOException {
         User user = userService.getLoggedInUser();
