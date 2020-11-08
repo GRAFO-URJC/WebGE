@@ -14,6 +14,7 @@ public class Fitness {
 
     private double[] target;
     private double[] prediction;
+    private static final String ERROR_DIFFERENT_LENGTHS = "array lengths are not equal";
 
     //The constructor, conver the target and the prediction to the same dimesion and length to be compared
     public Fitness(String[][] target, String[] prediction) {
@@ -40,7 +41,7 @@ public class Fitness {
     //Error absolute acumulated
     public double ABSAcumulated() {
         if (target.length != prediction.length) {
-            throw new IllegalArgumentException("array lengths are not equal");
+            throw new IllegalArgumentException(ERROR_DIFFERENT_LENGTHS);
         }
 
         double totError = 0.0;
@@ -53,7 +54,7 @@ public class Fitness {
     //Mean squared error
     public double meanSquaredError() {
         if (target.length != prediction.length) {
-            throw new IllegalArgumentException("array lengths are not equal");
+            throw new IllegalArgumentException(ERROR_DIFFERENT_LENGTHS);
         }
 
         int n = target.length;
@@ -67,7 +68,7 @@ public class Fitness {
     //Average error
     public double averageError() {
         if (target.length != prediction.length) {
-            throw new IllegalArgumentException("array lengths are not equal");
+            throw new IllegalArgumentException(ERROR_DIFFERENT_LENGTHS);
         }
 
         int n = target.length;
@@ -80,7 +81,7 @@ public class Fitness {
 
     public double r2() {
         if (target.length != prediction.length) {
-            throw new IllegalArgumentException("array lengths are not equal");
+            throw new IllegalArgumentException(ERROR_DIFFERENT_LENGTHS);
         }
 
         int n = target.length;

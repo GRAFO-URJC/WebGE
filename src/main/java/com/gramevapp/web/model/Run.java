@@ -53,9 +53,10 @@ public class Run {
     private String model = "";
     @OneToOne(mappedBy = "run", cascade = CascadeType.ALL,
             fetch = FetchType.LAZY)
-    private RunExecutionReport RunExecutionReport;
+    private RunExecutionReport runExecutionReport;
 
     public Run() {
+        /*Do nothing*/
     }
 
     public Long getId() {
@@ -154,11 +155,11 @@ public class Run {
     }
 
     public com.gramevapp.web.model.RunExecutionReport getRunExecutionReport() {
-        return RunExecutionReport;
+        return runExecutionReport;
     }
 
     public void setRunExecutionReport(com.gramevapp.web.model.RunExecutionReport runExecutionReport) {
-        RunExecutionReport = runExecutionReport;
+        this.runExecutionReport = runExecutionReport;
     }
 
     public DiagramData getDiagramData() {

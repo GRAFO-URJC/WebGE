@@ -26,6 +26,7 @@ services:
     ports:
       - 8182:8182
       - 5005:5005
+      - 9010:9010
     environment:
       SPRING_DATASOURCE_URL: "jdbc:postgresql://db:5432/webge"
       SPRING_DATASOURCE_USERNAME: "usuario"
