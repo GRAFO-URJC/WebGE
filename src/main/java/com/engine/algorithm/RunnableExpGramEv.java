@@ -3,6 +3,7 @@ package com.engine.algorithm;
 import com.gramevapp.web.model.Dataset;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.service.RunService;
+import com.gramevapp.web.service.SaveDBService;
 
 import java.util.Properties;
 
@@ -16,14 +17,16 @@ public class RunnableExpGramEv implements Runnable {
     private Dataset experimentDataType;
     private RunService runService;
     private int crossRunIdentifier;
+    private SaveDBService saveDBService;
 
     public RunnableExpGramEv(Properties properties, Run runElement, Dataset experimentDataType,
-                             RunService runService, int crossRunIdentifier) {
+                             RunService runService, SaveDBService saveDBService, int crossRunIdentifier) {
         this.properties = properties;
         this.runElement = runElement;
         this.experimentDataType = experimentDataType;
         this.runService = runService;
         this.crossRunIdentifier = crossRunIdentifier;
+        this.saveDBService = saveDBService;
     }
 
     @Override
@@ -60,7 +63,7 @@ public class RunnableExpGramEv implements Runnable {
             }
         }
 
-        ge.runGE(observer, datasetInfo, runElement, runService);
+        ge.runGE(observer, datasetInfo, runElement, runService, saveDBService);
     }
 
     public void stopExecution() {

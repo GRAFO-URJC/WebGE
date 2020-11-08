@@ -5,10 +5,7 @@ import com.engine.algorithm.SymbolicRegressionGE;
 import com.engine.util.UtilStats;
 import com.gramevapp.web.model.*;
 import com.gramevapp.web.repository.GrammarRepository;
-import com.gramevapp.web.service.DiagramDataService;
-import com.gramevapp.web.service.ExperimentService;
-import com.gramevapp.web.service.RunService;
-import com.gramevapp.web.service.UserService;
+import com.gramevapp.web.service.*;
 import net.sourceforge.jeval.EvaluationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -49,6 +46,10 @@ public class ExperimentController {
 
     @Autowired
     private GrammarRepository grammarRepository;
+
+    @Autowired
+    private SaveDBService saveDBService;
+
 
     @ModelAttribute
     public FileModelDto fileModel() {
@@ -145,6 +146,8 @@ public class ExperimentController {
         String propPath;
 
         List<Thread> threads = new ArrayList<>();
+
+
         //check if need to run more runs
         for (int i = 0; i < configExpDto.getNumberRuns(); i++) {
             // RUN SECTION
@@ -156,6 +159,7 @@ public class ExperimentController {
                     user, expDataType, grammarFilePath);
             // Run experiment in new thread
             threads.add(runExperimentDetails(run, propPath, exp.isCrossExperiment() ? (i + 1) / expDataType.getFoldSize() : -1));
+
         }
         experimentService.saveExperiment(exp);
 
@@ -169,6 +173,7 @@ public class ExperimentController {
                 e.printStackTrace();
             }
         });
+
         thread.start();
 
         redirectAttrs.addAttribute("id", exp.getId());
@@ -289,7 +294,7 @@ public class ExperimentController {
 
     }
 
-    @PostMapping(value = "/experiment/start",params = "cloneExperimentButton")
+    @PostMapping(value = "/experiment/start", params = "cloneExperimentButton")
     public String cloneExperiment(Model model,
                                   @RequestParam("experimentDataTypeId") String experimentDataTypeId,
                                   @ModelAttribute("typeFile") FileModelDto fileModelDto,
@@ -304,6 +309,7 @@ public class ExperimentController {
                 null, configExpDto.getTestDefaultExpDataTypeId());
         model.addAttribute("disabledClone", true);
         model.addAttribute("messageClone", "This experiment is cloned and not saved yet.");
+        //saveInBD();
         return "experiment/configExperiment";
     }
 
@@ -360,7 +366,8 @@ public class ExperimentController {
             Thread th = threadMap.get(threadId);
             if (th != null) {
                 runIt.setStatus(Run.Status.STOPPED);
-                runService.saveRun(runIt);
+                //runService.saveRun(runIt);
+                saveDBService.saveRunAsync(runIt);
 
                 th.interrupt();
                 runnables.get(threadId).stopExecution();
@@ -500,7 +507,7 @@ public class ExperimentController {
         properties.setProperty(TRAINING_PATH_PROP, propPath);
         RunnableExpGramEv obj = new RunnableExpGramEv(properties, run,
                 experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService,
-                crossRunIdentifier);
+                saveDBService, crossRunIdentifier);
         Thread.UncaughtExceptionHandler h = (th, ex) -> {
             run.setStatus(Run.Status.FAILED);
             RunExecutionReport runExecutionReport = runService.getRunExecutionReport(run.getId());
@@ -519,6 +526,8 @@ public class ExperimentController {
         propertiesReader.close();
         return th;
     }
+
+
 
     private void createPropertiesFile(String propertiesFilePath, String expName,
                                       ConfigExperimentDto configExpDto, User user, String grammarFilePath,
@@ -677,10 +686,14 @@ public class ExperimentController {
         th.join();
         run = runService.findByRunId(Long.parseLong(runIdStop));
         run.getDiagramData().setStopped(true);
-        diagramDataService.saveDiagram(run.getDiagramData());
+
+        //diagramDataService.saveDiagram(run.getDiagramData());
+        saveDBService.saveDiagramDataAsync(run.getDiagramData());
 
         run.setStatus(Run.Status.STOPPED);
-        runService.saveRun(run);
+
+        //runService.saveRun(run);
+        saveDBService.saveRunAsync(run);
 
         if (model != null) {
             model.addAttribute(EXPDETAILS, run.getExperimentId());

@@ -8,6 +8,7 @@ package com.engine.algorithm;
 import com.engine.util.UtilStats;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.service.RunService;
+import com.gramevapp.web.service.SaveDBService;
 import jeco.core.algorithm.Algorithm;
 import jeco.core.algorithm.ge.SimpleGrammaticalEvolution;
 import jeco.core.algorithm.moge.AbstractProblemGE;
@@ -130,7 +131,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     }
 
     //Method to replace the unknowns variables by values
-    private String calculateFunctionValued(String originalFunction, int index) {
+    private String calculateFunctionValued(String originalFunction, int index ) {
         String newFunction = originalFunction;
 
         for (Map.Entry<String, Integer> stringIntegerEntry : vars.entrySet()) {
@@ -164,7 +165,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     /**
      * Method to run the GE algorithm with the provided properties.
      */
-    public void runGE(RunGeObserver obs, String experimentDatatypeInfo, Run run, RunService runService) {
+    public void runGE(RunGeObserver obs, String experimentDatatypeInfo, Run run, RunService runService, SaveDBService saveDBService) {
         // Load target data
         // TODO: NO distinguir entre training, validation y test.
         func = processExperimentDataTypeInfo(experimentDatatypeInfo);
@@ -249,7 +250,8 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
                 logger.info(e.toString() + " Incorrect grammar");
                 run = runService.findByRunId(run.getId());
                 run.setStatus(Run.Status.FAILED);
-                runService.saveRun(run);
+                //runService.saveRun(run);
+                saveDBService.saveRunAsync(run);
                 return;
             }
             solutions = algorithm.execute();
@@ -307,7 +309,8 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             run.setStatus(Run.Status.FINISHED);
         }
         run.setModificationDate(new Timestamp(new Date().getTime()));
-        runService.saveRun(run);
+        //runService.saveRun(run);
+        saveDBService.saveRunAsync(run);
         obs.getLock().lock();
 
     }
@@ -363,9 +366,9 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         ArrayList<String> columnList = new ArrayList<>();
 
         String[] columns = infoSplit[0].split("\r\n");
-        int index = 0;
+        int index  = 0;
         for (String column : columns[0].split(";")) {
-            if (index == 0) {
+            if ( index == 0) {
                 columnList.add("#Y");
             } else {
                 columnList.add("X" + index);
