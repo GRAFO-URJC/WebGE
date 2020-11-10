@@ -18,6 +18,8 @@ import jeco.core.operator.crossover.SinglePointCrossover;
 import jeco.core.problem.Solution;
 import jeco.core.problem.Solutions;
 import jeco.core.problem.Variable;
+import net.objecthunter.exp4j.Expression;
+import net.objecthunter.exp4j.ExpressionBuilder;
 import net.sourceforge.jeval.EvaluationException;
 import net.sourceforge.jeval.Evaluator;
 
@@ -95,7 +97,13 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         for (int i = 1; i < func.length; i++) {
             String currentFunction = calculateFunctionValued(originalFunction, i);
             double funcI;
-            try {
+
+
+            Expression e = new ExpressionBuilder(currentFunction).build();
+            funcI = e.evaluate();
+
+/*
+           try {
                 String aux = this.evaluator.evaluate(currentFunction);
                 if (aux.equals("NaN")) {//TODO revisar valores menores que 0
                     funcI = Double.POSITIVE_INFINITY;
@@ -108,6 +116,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
                 this.stopExecution();
                 funcI = Double.POSITIVE_INFINITY;
             }
+*/
             //Add to prediction array the evaluation calculated
             prediction[i] = String.valueOf(funcI);
             solution.getProperties().put(String.valueOf(i), funcI);
@@ -141,6 +150,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         }
         return newFunction;
     }
+
 
     //Method to replace the unknowns variables by values
     public static Double calculateFunctionValuedResultWithCSVData(String originalFunction, String[] content) throws EvaluationException {
