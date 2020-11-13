@@ -5,10 +5,7 @@ import com.gramevapp.web.model.RunDto;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController("runRestController")
 public class RunRestController {
@@ -19,8 +16,7 @@ public class RunRestController {
     @Autowired
     RunService runService;
 
-    @RequestMapping(value = "/rest/runStatus/", method = RequestMethod.GET,
-            produces = "application/json")
+    @GetMapping(value = "/rest/runStatus/", produces = "application/json")
     @ResponseBody
     public RunDto getRunStatus(String runId, String status) {
 

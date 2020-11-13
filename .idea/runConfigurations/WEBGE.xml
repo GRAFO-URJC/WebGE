@@ -3,12 +3,6 @@
     <deployment type="docker-compose.yml">
       <settings>
         <option name="commandLineOptions" value="--build" />
-        <option name="services">
-          <list>
-            <option value="db" />
-            <option value="gramev" />
-          </list>
-        </option>
         <option name="sourceFilePath" value="docker/docker-compose.yml" />
       </settings>
     </deployment>

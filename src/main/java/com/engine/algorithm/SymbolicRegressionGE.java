@@ -8,21 +8,18 @@ package com.engine.algorithm;
 import com.engine.util.UtilStats;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.service.RunService;
+import com.gramevapp.web.service.SaveDBService;
 import jeco.core.algorithm.Algorithm;
-import jeco.core.algorithm.ga.SimpleGeneticAlgorithm;
 import jeco.core.algorithm.ge.SimpleGrammaticalEvolution;
 import jeco.core.algorithm.moge.AbstractProblemGE;
 import jeco.core.algorithm.moge.MultiObjectiveGrammaticalEvolution;
 import jeco.core.algorithm.moge.Phenotype;
-import jeco.core.operator.comparator.SimpleDominance;
 import jeco.core.operator.crossover.SinglePointCrossover;
-import jeco.core.operator.mutation.IntegerFlipMutation;
-import jeco.core.operator.selection.TournamentSelect;
 import jeco.core.problem.Solution;
 import jeco.core.problem.Solutions;
 import jeco.core.problem.Variable;
-import net.sourceforge.jeval.EvaluationException;
-import net.sourceforge.jeval.Evaluator;
+import net.objecthunter.exp4j.Expression;
+import net.objecthunter.exp4j.ExpressionBuilder;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -41,29 +38,30 @@ import static com.engine.util.Common.currentDateTimeAsFormattedString;
 public class SymbolicRegressionGE extends AbstractProblemGE {
 
     private final Logger logger = Logger.getLogger(SymbolicRegressionGE.class.getName());
-    protected Evaluator evaluator;
+
     protected String[][] func;
     private HashMap<String, Integer> vars = new HashMap<>();
     private boolean failed = false;
     private NumberFormatException numberFormatException = null;
-    private EvaluationException evaluationException = null;
+
+    private IllegalArgumentException illegalArgumentException = null;
 
     protected Properties properties;
     private Solutions<Variable<Integer>> solutions;
     private String logPopulationOutputFile;
 
     // Binary masks for logging:
-    public final int LOG_GENOTYPE_MASK = 1;
-    public final int LOG_USED_GENES_MASK = 2;
-    public final int LOG_FITNESS_MASK = 4;
-    public final int LOG_PHENOTYPE_MASK = 8;
-    public final int LOG_EVALUATION_MASK = 16;
+    public static final int LOG_GENOTYPE_MASK = 1;
+    public static final int LOG_USED_GENES_MASK = 2;
+    public static final int LOG_FITNESS_MASK = 4;
+    public static final int LOG_PHENOTYPE_MASK = 8;
+    public static final int LOG_EVALUATION_MASK = 16;
 
     private Algorithm<Variable<Integer>> algorithm;
     private boolean stop;
 
     public static final String REPORT_HEADER = "Obj.;Model;Time";
-    public ArrayList<String> executionReport = new ArrayList<>();
+    public List<String> executionReport = new ArrayList<>();
 
 
     public SymbolicRegressionGE(Properties properties, int numObjectives) {
@@ -78,7 +76,6 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             this.setSensibleInitialization(true, Double.parseDouble(this.properties.getProperty(com.engine.util.Common.SENSIBLE_INITIALIZATION)));
         }
 
-        this.evaluator = new Evaluator();
     }
 
     public void stopExecution() {
@@ -97,21 +94,21 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         //Evaluation from phenotype
         for (int i = 1; i < func.length; i++) {
             String currentFunction = calculateFunctionValued(originalFunction, i);
-            double funcI;
+            Double funcI;
+
+            Expression e = new ExpressionBuilder(currentFunction).build();
             try {
-                String aux = this.evaluator.evaluate(currentFunction);
-                if (aux.equals("NaN")) {//TODO revisar valores menores que 0
+                funcI = e.evaluate();
+                if(funcI.isNaN()){
                     funcI = Double.POSITIVE_INFINITY;
-                } else {
-                    funcI = Double.parseDouble(aux);
                 }
-            } catch (EvaluationException ex) {
+            }catch (IllegalArgumentException ex){
+                illegalArgumentException = ex;
                 failed = true;
-                evaluationException = ex;
                 this.stopExecution();
-                funcI = Double.POSITIVE_INFINITY;
+                funcI= Double.POSITIVE_INFINITY;
             }
-            //Add to prediction array the evaluation calculated
+        //Add to prediction array the evaluation calculated
             prediction[i] = String.valueOf(funcI);
             solution.getProperties().put(String.valueOf(i), funcI);
         }
@@ -134,7 +131,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     }
 
     //Method to replace the unknowns variables by values
-    private String calculateFunctionValued(String originalFunction, int index) {
+    private String calculateFunctionValued(String originalFunction, int index ) {
         String newFunction = originalFunction;
 
         for (Map.Entry<String, Integer> stringIntegerEntry : vars.entrySet()) {
@@ -145,18 +142,19 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         return newFunction;
     }
 
+
     //Method to replace the unknowns variables by values
-    public static Double calculateFunctionValuedResultWithCSVData(String originalFunction, String[] content) throws EvaluationException {
+    public static Double calculateFunctionValuedResultWithCSVData(String originalFunction, String[] content) throws IllegalArgumentException {
         String newFunction = originalFunction;
-        Evaluator evaluatorForFunction = new Evaluator();
+
 
         String replacePart;
         for (int i = (content.length - 1); i > 0; i--) {
             replacePart = "X" + i;
             newFunction = newFunction.replaceAll(replacePart, content[i]);
         }
-
-        return Double.valueOf(evaluatorForFunction.evaluate(newFunction));
+        Expression e = new ExpressionBuilder(newFunction).build();
+        return e.evaluate();
     }
 
     @Override
@@ -168,7 +166,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     /**
      * Method to run the GE algorithm with the provided properties.
      */
-    public void runGE(RunGeObserver obs, String experimentDatatypeInfo, Run run, RunService runService) {
+    public void runGE(RunGeObserver obs, String experimentDatatypeInfo, Run run, RunService runService, SaveDBService saveDBService) {
         // Load target data
         // TODO: NO distinguir entre training, validation y test.
         func = processExperimentDataTypeInfo(experimentDatatypeInfo);
@@ -253,13 +251,14 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
                 logger.info(e.toString() + " Incorrect grammar");
                 run = runService.findByRunId(run.getId());
                 run.setStatus(Run.Status.FAILED);
-                runService.saveRun(run);
+                //runService.saveRun(run);
+                saveDBService.saveRunAsync(run);
                 return;
             }
             solutions = algorithm.execute();
             if (failed) {
-                if (evaluationException != null) {
-                    logger.info(evaluationException.toString() + " Incorrect grammar");
+                if (illegalArgumentException != null) {
+                    logger.info(illegalArgumentException.toString() + " Incorrect grammar");
                 }
                 if (numberFormatException != null) {
                     logger.info(numberFormatException.toString() + ", target duplicate in dataset");
@@ -311,7 +310,8 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             run.setStatus(Run.Status.FINISHED);
         }
         run.setModificationDate(new Timestamp(new Date().getTime()));
-        runService.saveRun(run);
+        //runService.saveRun(run);
+        saveDBService.saveRunAsync(run);
         obs.getLock().lock();
 
     }
@@ -328,7 +328,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     }
 
     //Method to get the logger from class SimpleGeneticAlgorithm
-    private static Logger GetSimpleGeneticAlgorithmLogger() {
+    private static Logger getSimpleGeneticAlgorithmLogger() {
         LogManager manager = LogManager.getLogManager();
         return manager.getLogger("jeco.core.algorithm.ga.SimpleGeneticAlgorithm");
     }
@@ -367,9 +367,9 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         ArrayList<String> columnList = new ArrayList<>();
 
         String[] columns = infoSplit[0].split("\r\n");
-        int index = 0;
+        int index  = 0;
         for (String column : columns[0].split(";")) {
-            if (index == 0) {
+            if ( index == 0) {
                 columnList.add("#Y");
             } else {
                 columnList.add("X" + index);

@@ -16,6 +16,7 @@ public class UploadFile {
     private String filePath;
 
     public UploadFile() {
+        /*Do nothing*/
     }
 
     public long getId() {

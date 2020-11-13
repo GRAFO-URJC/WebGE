@@ -208,12 +208,6 @@
 
 		<!-- Dependencies for the evolutionary algorithms -->
 		<dependency>
-			<groupId>net.sourceforge.jeval</groupId>
-			<artifactId>jeval</artifactId>
-			<version>0.9.4</version>
-		</dependency>
-
-		<dependency>
 			<groupId>com.github.absysgroup.jeco</groupId>
 			<artifactId>jeco-core</artifactId>
 			<version>1.0.10</version>

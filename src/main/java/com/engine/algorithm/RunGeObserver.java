@@ -5,6 +5,8 @@ import com.gramevapp.web.model.Run;
 import com.gramevapp.web.other.BeanUtil;
 import com.gramevapp.web.service.DiagramDataService;
 import com.gramevapp.web.service.RunService;
+import com.gramevapp.web.service.SaveDBService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
@@ -27,6 +29,7 @@ public class RunGeObserver implements Observer {
     private Run run;
     private Lock lock = new ReentrantLock();
 
+
     @Override
     public void update(Observable o, Object arg) {
         HashMap<String, Object> dataMap = (HashMap<String, Object>) arg;
@@ -47,6 +50,7 @@ public class RunGeObserver implements Observer {
         ApplicationContext context = BeanUtil.getAppContext();
         DiagramDataService dataDataService = (DiagramDataService) context.getBean("diagramDataService");
         RunService runService = (RunService) context.getBean("runService");
+        SaveDBService saveDBService = (SaveDBService) context.getBean("saveDBService");
 
         if (this.run.getStatus().equals(Run.Status.INITIALIZING)) {
             this.run = runService.findByRunId(run.getId());
@@ -64,14 +68,17 @@ public class RunGeObserver implements Observer {
         diagramData.setBestIndividual(Math.max(currBest, 0.0));
         diagramData.setCurrentGeneration(currGen);
         diagramData.setRunId(run);
-        dataDataService.saveDiagram(diagramData);
+        //dataDataService.saveDiagram(diagramData);
+        saveDBService.saveDiagramDataAsync(diagramData);
 
         this.run = runService.findByRunId(run.getId());
         run.setCurrentGeneration(currGen);
         run.setBestIndividual(Math.min(currBest, run.getBestIndividual() == 0 ? currBest : run.getBestIndividual()));
         run.setModificationDate(new Timestamp(new Date().getTime()));
-        runService.saveRun(run);
+        //runService.saveRun(run);
+        saveDBService.saveRunAsync(run);
         lock.unlock();
+
     }
 
     public void setDiagramData(Run run) {
