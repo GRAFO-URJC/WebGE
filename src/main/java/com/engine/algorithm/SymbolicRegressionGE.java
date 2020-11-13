@@ -20,8 +20,6 @@ import jeco.core.problem.Solutions;
 import jeco.core.problem.Variable;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
-import net.sourceforge.jeval.EvaluationException;
-import net.sourceforge.jeval.Evaluator;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -40,12 +38,13 @@ import static com.engine.util.Common.currentDateTimeAsFormattedString;
 public class SymbolicRegressionGE extends AbstractProblemGE {
 
     private final Logger logger = Logger.getLogger(SymbolicRegressionGE.class.getName());
-    protected Evaluator evaluator;
+
     protected String[][] func;
     private HashMap<String, Integer> vars = new HashMap<>();
     private boolean failed = false;
     private NumberFormatException numberFormatException = null;
-    private EvaluationException evaluationException = null;
+
+    private IllegalArgumentException illegalArgumentException = null;
 
     protected Properties properties;
     private Solutions<Variable<Integer>> solutions;
@@ -77,7 +76,6 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             this.setSensibleInitialization(true, Double.parseDouble(this.properties.getProperty(com.engine.util.Common.SENSIBLE_INITIALIZATION)));
         }
 
-        this.evaluator = new Evaluator();
     }
 
     public void stopExecution() {
@@ -96,28 +94,21 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         //Evaluation from phenotype
         for (int i = 1; i < func.length; i++) {
             String currentFunction = calculateFunctionValued(originalFunction, i);
-            double funcI;
-
+            Double funcI;
 
             Expression e = new ExpressionBuilder(currentFunction).build();
-            funcI = e.evaluate();
-
-/*
-           try {
-                String aux = this.evaluator.evaluate(currentFunction);
-                if (aux.equals("NaN")) {//TODO revisar valores menores que 0
+            try {
+                funcI = e.evaluate();
+                if(funcI.isNaN()){
                     funcI = Double.POSITIVE_INFINITY;
-                } else {
-                    funcI = Double.parseDouble(aux);
                 }
-            } catch (EvaluationException ex) {
+            }catch (IllegalArgumentException ex){
+                illegalArgumentException = ex;
                 failed = true;
-                evaluationException = ex;
                 this.stopExecution();
-                funcI = Double.POSITIVE_INFINITY;
+                funcI= Double.POSITIVE_INFINITY;
             }
-*/
-            //Add to prediction array the evaluation calculated
+        //Add to prediction array the evaluation calculated
             prediction[i] = String.valueOf(funcI);
             solution.getProperties().put(String.valueOf(i), funcI);
         }
@@ -153,17 +144,17 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
 
     //Method to replace the unknowns variables by values
-    public static Double calculateFunctionValuedResultWithCSVData(String originalFunction, String[] content) throws EvaluationException {
+    public static Double calculateFunctionValuedResultWithCSVData(String originalFunction, String[] content) throws IllegalArgumentException {
         String newFunction = originalFunction;
-        Evaluator evaluatorForFunction = new Evaluator();
+
 
         String replacePart;
         for (int i = (content.length - 1); i > 0; i--) {
             replacePart = "X" + i;
             newFunction = newFunction.replaceAll(replacePart, content[i]);
         }
-
-        return Double.valueOf(evaluatorForFunction.evaluate(newFunction));
+        Expression e = new ExpressionBuilder(newFunction).build();
+        return e.evaluate();
     }
 
     @Override
@@ -266,8 +257,8 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             }
             solutions = algorithm.execute();
             if (failed) {
-                if (evaluationException != null) {
-                    logger.info(evaluationException.toString() + " Incorrect grammar");
+                if (illegalArgumentException != null) {
+                    logger.info(illegalArgumentException.toString() + " Incorrect grammar");
                 }
                 if (numberFormatException != null) {
                     logger.info(numberFormatException.toString() + ", target duplicate in dataset");

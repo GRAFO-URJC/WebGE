@@ -6,7 +6,7 @@ import com.engine.util.UtilStats;
 import com.gramevapp.web.model.*;
 import com.gramevapp.web.repository.GrammarRepository;
 import com.gramevapp.web.service.*;
-import net.sourceforge.jeval.EvaluationException;
+import net.bytebuddy.pool.TypePool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -404,7 +404,7 @@ public class ExperimentController {
 
     @GetMapping(value = "/experiment/runList", params = "showTestStatsPlotButton")
     public String showRunTestStatsExperiment(Model model,
-                                             @RequestParam(value = RUNID) String runId) throws EvaluationException {
+                                             @RequestParam(value = RUNID) String runId) throws IllegalArgumentException {
         Run run = runService.findByRunId(Long.parseLong(runId));
         int crossRunIdentifier = run.getExperimentId().getIdRunList().indexOf(run) + 1;
         List<Double> listYLine = new ArrayList<>();
@@ -472,7 +472,7 @@ public class ExperimentController {
     }
 
     private void processExperimentDataTypeInfo(String[] splitContent, List<Double> listYLine, List<Double> listFunctionResult, List<Double> result,
-                                               Run run) throws EvaluationException {
+                                               Run run) throws IllegalArgumentException {
         double[] yDoubleArray = new double[splitContent.length - 1];
         double[] functionResultDoubleArray = new double[splitContent.length - 1];
         double yValue, modelValue;
@@ -818,7 +818,7 @@ public class ExperimentController {
 
     @GetMapping(value = "/runResultsInfo")
     @ResponseBody
-    public RunResultsDto getRunResultsInfo(@RequestParam("expId") String expId) throws EvaluationException {
+    public RunResultsDto getRunResultsInfo(@RequestParam("expId") String expId) throws IllegalArgumentException {
         Experiment experiment = experimentService.findExperimentById(Long.valueOf(expId));
         boolean haveTest = experiment.getDefaultTestExpDataTypeId() != null;
         RunResultsDto runResultsDto = new RunResultsDto(experiment.getIdRunList().size(),
