@@ -92,6 +92,7 @@ public class ExperimentController {
         model.addAttribute("user", user);
         model.addAttribute("configExp", new ConfigExperimentDto());
         model.addAttribute("disabledClone", true);
+        model.addAttribute("exists", false);
         modelAddData(model, user, null, null, null);
 
         return "experiment/configExperiment";
@@ -120,6 +121,13 @@ public class ExperimentController {
             model.addAttribute(CONFIGURATION, configExpDto);
             return "experiment/configExperiment";
         }
+
+        if(experimentService.findExperimentByExperimentNameAndUserId(configExpDto.getExperimentName(), user.getId())!= null) {
+            model.addAttribute(CONFIGURATION, configExpDto);
+            model.addAttribute("exists", true);
+            return "experiment/configExperiment";
+        }
+
 
         // Experiment Data Type SECTION
         Dataset expDataType = experimentService.
@@ -388,6 +396,30 @@ public class ExperimentController {
         return idExp;
     }
 
+
+    @PostMapping(value = "/experiment/expRepoSelected", params = "checkIfRunning")
+    public
+    @ResponseBody
+    Boolean expRepoSelectedCheckRunning(@RequestParam("experimentId") String experimentId) {
+        Long idExp = Long.parseLong(experimentId);
+
+        Experiment expConfig = experimentService.findExperimentById(idExp);
+
+        Iterator<Run> listRunIt = expConfig.getIdRunList().iterator();
+        while (listRunIt.hasNext()) {
+            Run runIt = listRunIt.next();
+
+            if (runIt.getStatus().equals(Run.Status.RUNNING)){
+                return true;
+            }
+
+        }
+        return false;
+    }
+
+
+
+
     @GetMapping(value = "/experiment/runList", params = "showPlotExecutionButton")
     public String showPlotExecutionExperiment(Model model,
                                               @RequestParam(value = RUNID) String runId) {
@@ -470,6 +502,9 @@ public class ExperimentController {
 
         return "experiment/showTestStatsPlot";
     }
+
+
+
 
     private void processExperimentDataTypeInfo(String[] splitContent, List<Double> listYLine, List<Double> listFunctionResult, List<Double> result,
                                                Run run) throws IllegalArgumentException {

@@ -11,9 +11,13 @@ import java.util.List;
 public interface GrammarRepository extends JpaRepository<Grammar, Long> {
     Grammar findGrammarById(Long grammarId);
 
+    Grammar findGrammarByGrammarNameAndUserId(String name, Long userId);
+
     List<Grammar> findByUserId(Long id);
 
     @Query(value = "SELECT nextval('webge.hibernate_sequence');", nativeQuery =
             true)
     Long getNextValue();
+
+
 }

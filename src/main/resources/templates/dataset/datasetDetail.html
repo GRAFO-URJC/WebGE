@@ -21,6 +21,11 @@
                 <section class="panel-body center-block">
                     <form name="newDatasetForm" th:action="@{/dataset/saveDataset}" th:object="${experimentDataType}"
                           enctype="multipart/form-data" role="form" method="POST">
+                        <div class="row form-group" th:if="${existed}" >
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                <p style="color:red"><b>There is already a dataset with that name</b></p>
+                            </div>
+                        </div>
                         <div class="row form-group">
                             <div class="col-sm-1 col-md-1 col-lg-1">
                                 <p><b>Name:</b></p>

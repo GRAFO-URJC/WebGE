@@ -231,9 +231,28 @@
         });
 
         function confirmDelete(iterStat, expId) {
-            let result = confirm("Are you sure to delete this experiment ?");
-            if (result)
-                deleteRow(iterStat, expId);
+
+            $.ajax({
+                url: encodeURI("/experiment/expRepoSelected"),
+                data: {
+                    'experimentId': expId,
+                    'checkIfRunning' :'checkIfRunning'
+                },
+                cache: false,
+                async: true,
+                type: "POST",
+                dataType: "json",
+                success: function (running) {
+                    if(!running){
+                        let result = confirm("Are you sure to delete this experiment?");
+                        if (result)
+                            deleteRow(iterStat, expId);
+                    }else{
+                        alert("The experiment is currently running, wait until it has finished or stop it to delete it");
+                    }
+                }
+            });
+
         }
 
         function deleteRow(iterStat, expId) {

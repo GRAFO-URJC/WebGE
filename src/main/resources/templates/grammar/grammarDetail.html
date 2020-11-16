@@ -19,8 +19,15 @@
                 </header>
 
                 <section class="panel-body center-block">
+
+
                     <form name="newGrammarForm" th:action="@{/grammar/saveGrammar}" th:object="${grammar}"
                           enctype="multipart/form-data" role="form" method="POST">
+                        <div class="row form-group" th:if="${existed}" >
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                <p style="color:red"><b>There is already a grammar with that name</b></p>
+                            </div>
+                        </div>
                         <div class="row form-group">
                             <div class="col-sm-1 col-md-1 col-lg-1">
                                 <p><b>Name:</b></p>
@@ -56,6 +63,7 @@
                                     class="btn-default btn btn-sm">Save
                             </button>
                         </div>
+
                         <input type="hidden" name="userId" id="userId" th:value="${user.id}"/>
                     </form>
                 </section>

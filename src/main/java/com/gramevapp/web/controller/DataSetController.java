@@ -82,40 +82,48 @@ public class DataSetController {
     }
 
     @RequestMapping(value = "/dataset/datasetDetail")
-    public String createDataset(Model model) {
+    public String createDataset(Model model, Boolean existed) {
         User user = userService.getLoggedInUser();
         model.addAttribute("experimentDataType", new Dataset());
         model.addAttribute("user", user);
+        model.addAttribute("existed", existed);
         return "dataset/datasetDetail";
     }
 
-    @RequestMapping(value = "/dataset/saveDataset", method = RequestMethod.POST)
+    @PostMapping(value = "/dataset/saveDataset")
     public String saveDataset(Model model, @ModelAttribute("experimentDataType") @Valid Dataset experimentDataType,
                               @Param("checkFold") String checkFold, @Param("kFoldNumber") int kFoldNumber) {
-        experimentDataType.setDataTypeType("training");
-        experimentDataType.setCreationDate(new Timestamp(new Date().getTime()));
-        experimentDataType.setUserIdUserId(userService.getLoggedInUser().getId());
-        if (experimentDataType.getInfo().contains("K-Fold")) {
-            HashSet<Integer> listFoldSize = new HashSet<>();
-            String[] rows = experimentDataType.getInfo().split("\r\n");
-            //index last ;
-            int indexFold;
-            for (int i = 1; i < rows.length; i++) {
-                indexFold = rows[i].lastIndexOf(';');
-                listFoldSize.add(Integer.parseInt(rows[i].substring(indexFold + 1)));
+
+        User user = userService.getLoggedInUser();
+        if(experimentService.findExperimentDataTypeByDataTypeNameAndUserId(experimentDataType.getDataTypeName(), user.getId())== null) {
+
+            experimentDataType.setDataTypeType("training");
+            experimentDataType.setCreationDate(new Timestamp(new Date().getTime()));
+            experimentDataType.setUserIdUserId(userService.getLoggedInUser().getId());
+            if (experimentDataType.getInfo().contains("K-Fold")) {
+                HashSet<Integer> listFoldSize = new HashSet<>();
+                String[] rows = experimentDataType.getInfo().split("\r\n");
+                //index last ;
+                int indexFold;
+                for (int i = 1; i < rows.length; i++) {
+                    indexFold = rows[i].lastIndexOf(';');
+                    listFoldSize.add(Integer.parseInt(rows[i].substring(indexFold + 1)));
+                }
+                kFoldNumber = listFoldSize.size();
+                checkFold = "true";
             }
-            kFoldNumber = listFoldSize.size();
-            checkFold = "true";
+            if (checkFold != null && checkFold.equals("true")) {
+                foldDataset(experimentDataType, kFoldNumber);
+                experimentDataType.setFoldSize(kFoldNumber);
+            }
+            experimentService.saveDataType(experimentDataType);
+            return datasetList(model);
         }
-        if (checkFold != null && checkFold.equals("true")) {
-            foldDataset(experimentDataType, kFoldNumber);
-            experimentDataType.setFoldSize(kFoldNumber);
-        }
-        experimentService.saveDataType(experimentDataType);
-        return datasetList(model);
+        return createDataset(model, true);
+
     }
 
-    @RequestMapping(value = "/dataset/deleteDataset", method = RequestMethod.POST, params = "deleteDataset")
+    @PostMapping(value = "/dataset/deleteDataset", params = "deleteDataset")
     @ResponseBody
     public Long expRepoSelectedDelete(@RequestParam("datasetId") String datasetId) {
         Long idDataset = Long.parseLong(datasetId);
@@ -131,7 +139,7 @@ public class DataSetController {
         return idDataset;
     }
 
-    @RequestMapping(value = "/foldDataset", method = RequestMethod.POST)
+    @PostMapping(value = "/foldDataset")
     @ResponseBody
     public String ajaxFoldDataset(@RequestParam("datasetId") String datasetId, @RequestParam("kFoldNumber") int kFoldNumber) {
         Dataset dataset = experimentService.findExperimentDataTypeById(Long.parseLong(datasetId));

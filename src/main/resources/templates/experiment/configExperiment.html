@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.w3.org/1999/xhtml"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/default}"
       lang="en">
@@ -44,6 +43,8 @@
             visibility: visible;
             opacity: 1;
         }
+
+
     </style>
 </head>
 
@@ -82,6 +83,11 @@
                     </div>
 
                     <div class="row center-block form-horizontal">
+                        <div class="row form-group" th:if="${exists}" >
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                <p style="color:red"><b>There is already an experiment with that name</b></p>
+                            </div>
+                        </div>
                         <!-- Experiment NAME and DESCRIPTION -->
                         <div class="row form-group" th:if="${configuration.getId() != null}">
                             <div class="col-sm-12 col-md-12 col-lg-12">
@@ -258,7 +264,7 @@
                                     <button type="button" onclick="storeGrammar()">Store as new grammar</button>
                                 </div>
                                 <div class="col-sm-12 col-md-12 col-lg-12" style="margin-top: 5px">
-                                    <input id="grammarDescription" placeholder="Grammar description(optional)"
+                                    <input id="grammarDescription" placeholder="Grammar description"
                                            style="width: 100%"/>
                                 </div>
                             </div>
@@ -451,7 +457,7 @@
                             <td scope="row">
                                 <div th:id="${'stopRunSection' + iterStat.index}"
                                      th:class="${run.getStatus().toString().equals('RUNNING')?'':'hidden'}"
-                                style="display:inline">
+                                     style="display:inline">
                                     <button type="button" th:name="${run.id}"
                                             th:id="${'stopRun' + iterStat.index}"
                                             onclick="stopRun(this.id, this.name)"
@@ -520,30 +526,38 @@
         let runTable = document.getElementById("expTypeTable");
         let checkedCrossValidationValue = -1;
 
-        function storeGrammar() {
+
+        function storeGrammar(){
             let grammarName = $("#grammarName").val();
             let grammarDescription = $("#grammarDescription").val();
             let grammarContent = $("#fileText").val();
-            if (grammarContent == "" || grammarName == "") {
-                alert("Grammar name and content cannot be empty");
+
+            if (grammarContent == "" || grammarName == "" || grammarDescription== "") {
+                alert("Grammar name, description and content cannot be empty");
                 return;
             }
+
             $.ajax({
-                url: encodeURI("/grammar/ajaxSaveGrammar"),
-                data: {
-                    'grammarName': grammarName,
-                    'grammarDescription': grammarDescription,
-                    'grammarContent': grammarContent,
-                },
-                async: true,
-                type: "POST",
-                success: function () {
-                    alert("New grammar saved");
-                },
-                error: function () {
-                    alert("Fail on save new grammar");
-                }
-            });
+                    url: encodeURI("/grammar/ajaxSaveGrammar"),
+                    data: {
+                        'grammarName': grammarName,
+                        'grammarDescription': grammarDescription,
+                        'grammarContent': grammarContent,
+                    },
+                    async: true,
+                    type: "POST",
+                    success: function (existed) {
+                        if(existed){
+                            alert("There is already a grammar with that name");
+                        }else{
+                            alert("New grammar saved");
+                        }
+                    },
+                    error: function () {
+                        alert("Fail on saving the new grammar");
+                    }
+                });
+
         }
 
         $(document).ready(function () {
@@ -735,7 +749,7 @@
         }
 
         function confirmDelete(iterStat, runId) {
-            let result = confirm("Are you sure to delete this run ?");
+            let result = confirm("Are you sure to delete this run?");
             if (result)
                 deleteRow(iterStat, runId);
         }
@@ -880,6 +894,8 @@
                 $("#testDatasetPart").removeClass("hidden");
             }
         })
+
+
 
     </script>
 </div>
