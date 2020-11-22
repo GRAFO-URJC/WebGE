@@ -12,12 +12,13 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Controller
 public class AdminController extends UserCommon {
 
     private static final String MESSAGE = "message";
-
+    private static final Logger loggerAdmin = Logger.getLogger(AdminController.class.getName());
     @GetMapping("/admin")
     public String adminPage(Model model,
                             @RequestParam(value = "messageUserCreated", required = false) String message) {
@@ -159,7 +160,7 @@ public class AdminController extends UserCommon {
         try {
             userService.deleteUserById(id);
         } catch (DataIntegrityViolationException e) {
-            System.out.println(e.getCause() instanceof org.hibernate.exception.ConstraintViolationException);
+            loggerAdmin.warning(String.valueOf(e.getCause() instanceof org.hibernate.exception.ConstraintViolationException));
             if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
                 return (long) -1;
             }

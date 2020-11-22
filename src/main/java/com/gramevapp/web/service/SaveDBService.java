@@ -24,8 +24,8 @@ public class SaveDBService {
 
     Thread th;
     Thread th2;
-    Boolean terminate = false;
-    Boolean terminate2 = false;
+    boolean terminate = false;
+    boolean terminate2 = false;
 
     @PostConstruct
     public void onInit() {
@@ -43,6 +43,7 @@ public class SaveDBService {
 
                         } catch (InterruptedException e) {
                             e.printStackTrace();
+                            Thread.currentThread().interrupt();
                         }
                     }
                     if (runsQueue.isEmpty() && th.isInterrupted()) {
@@ -64,6 +65,7 @@ public class SaveDBService {
 
                         } catch (InterruptedException e) {
                             e.printStackTrace();
+                            Thread.currentThread().interrupt();
                         }
                     }
                     if (diagramDataqueue.isEmpty() && th2.isInterrupted()) {
@@ -83,6 +85,7 @@ public class SaveDBService {
             diagramDataqueue.put(diagramData);
         } catch (InterruptedException e) {
             e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -91,6 +94,7 @@ public class SaveDBService {
             runsQueue.put(run);
         } catch (InterruptedException e) {
             e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
     }
 

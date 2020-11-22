@@ -251,7 +251,6 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
                 logger.info(e.toString() + " Incorrect grammar");
                 run = runService.findByRunId(run.getId());
                 run.setStatus(Run.Status.FAILED);
-                //runService.saveRun(run);
                 saveDBService.saveRunAsync(run);
                 return;
             }
@@ -310,7 +309,6 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             run.setStatus(Run.Status.FINISHED);
         }
         run.setModificationDate(new Timestamp(new Date().getTime()));
-        //runService.saveRun(run);
         saveDBService.saveRunAsync(run);
         obs.getLock().lock();
 
@@ -345,7 +343,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             writer.flush();
             writer.close();
         } catch (Exception ex) {
-            System.err.println("Error in log population file: " + ex.getLocalizedMessage());
+            logger.warning("Error in log population file: " + ex.getLocalizedMessage());
         }
     }
 

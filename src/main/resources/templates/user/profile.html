@@ -60,19 +60,19 @@
             <section class="panel-body center-block">
                 <div class="card hovercard">
                     <div th:if="${userLogged.getUserDetails().getProfilePicture() != null}" class="card-background">
-                        <img class="card-bkimg" th:src="@{/user/profile_picture}"/>
+                        <img class="card-bkimg" th:src="@{/user/profile_picture}" alt="Profile"/>
                     </div>
                     <div th:if="${userLogged.getUserDetails().getProfilePicture() != null}" class="useravatar">
-                        <img th:src="@{/user/profile_picture}"/>
+                        <img th:src="@{/user/profile_picture}" alt="Profile"/>
                     </div>
                     <div th:if="${userLogged.getUserDetails().getProfilePicture() == null}" class="card-background">
-                        <img class="card-bkimg" th:src="@{/images/index/profile_default.png}"/>
+                        <img class="card-bkimg" th:src="@{/images/index/profile_default.png}" alt="Profile"/>
                     </div>
                     <div th:if="${userLogged.getUserDetails().getProfilePicture() == null}" class="useravatar">
-                        <img th:src="@{/images/index/profile_default.png}"/>
+                        <img th:src="@{/images/index/profile_default.png}" alt="Profile"/>
                     </div>
                     <div class="card-info">
-                        <b><span class="card-title" th:text="${userLogged.getUsername()}"></span></b>
+                        <strong><span class="card-title" th:text="${userLogged.getUsername()}"></span></strong>
                     </div>
                 </div>
             </section>

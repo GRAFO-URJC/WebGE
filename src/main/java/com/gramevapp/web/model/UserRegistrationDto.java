@@ -16,7 +16,7 @@ import javax.validation.constraints.Size;
 
 public class UserRegistrationDto {
     private static final String USERNAME_PATTERN = "^[a-z0-9_-]{3,15}$";
-    private static final String EMAIL = "^[^@]+@[^@]+$";
+    private static final String EMAIL_PATTERN= "^[^@]+@[^@]+$";
 
     @Pattern(regexp = USERNAME_PATTERN, message = "Username cannot have spaces neither strange characters or uppercase and must have between 3-15 letters")
     @NotNull(message = "User name cannot be empty")
@@ -39,11 +39,11 @@ public class UserRegistrationDto {
     private String confirmPassword;
 
     @NotNull
-    @Pattern(regexp = EMAIL, message = "Not valid email")
+    @Pattern(regexp = EMAIL_PATTERN, message = "Not valid email")
     private String email;
 
     @NotNull
-    @Pattern(regexp = EMAIL, message = "Not valid email")
+    @Pattern(regexp = EMAIL_PATTERN, message = "Not valid email")
     private String confirmEmail;
 
     @NotNull

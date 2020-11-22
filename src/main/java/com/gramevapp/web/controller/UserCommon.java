@@ -19,6 +19,7 @@ import java.io.File;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.logging.Logger;
 
 public class UserCommon {
 
@@ -38,6 +39,7 @@ public class UserCommon {
 
     protected BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    Logger logger = Logger.getLogger(UserCommon.class.getName());
     protected String updatePassword(Model model,
                                     UserUpdatePasswordDto userUpDto,
                                     BindingResult result,
@@ -136,7 +138,7 @@ public class UserCommon {
                     uploadFile.setFilePath(fileName);
 
                     user.getUserDetails().setProfilePicture(uploadFile);
-                    System.out.println("Image Saved::: " + fileName);
+                    logger.info("Image Saved::: " + fileName);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

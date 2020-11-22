@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Controller
 public class GrammarController {
@@ -27,7 +28,7 @@ public class GrammarController {
     @Autowired
     private ExperimentService experimentService;
 
-
+    Logger logger = Logger.getLogger(GrammarController.class.getName());
     @GetMapping(value = "/grammar/grammarRepository")
     public String grammarRepository(Model model) {
         User user = userService.getLoggedInUser();
@@ -50,7 +51,7 @@ public class GrammarController {
         try {
             grammarRepository.deleteById(idGrammar);
         } catch (DataIntegrityViolationException e) {
-            System.out.println(e.getCause() instanceof org.hibernate.exception.ConstraintViolationException);
+            logger.warning(String.valueOf(e.getCause() instanceof org.hibernate.exception.ConstraintViolationException));
             if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
                 return (long) -1;
             }

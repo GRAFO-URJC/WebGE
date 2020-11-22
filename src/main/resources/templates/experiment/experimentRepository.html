@@ -38,38 +38,39 @@
 
                 <section class="panel-body center-block">
                     <table class="table" id="expRepository" style="width: 100%;border-collapse: collapse;">
+                        <caption class = "hidden">Experiment Repository</caption>
                         <thead>
                         <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Experiment name</th>
-                            <th scope="col">Experiment description</th>
-                            <th scope="col">Last modification date</th>
-                            <th scope="col"></th>
-                            <th scope="col"></th>
-                            <th scope="col" class="hidden">Experiment information</th>
+                            <th id="number">#</th>
+                            <th id="expName">Experiment name</th>
+                            <th id="expDesc">Experiment description</th>
+                            <th id="lastModDate">Last modification date</th>
+                            <th id="empty"></th>
+                            <th id="empty2"></th>
+                            <th id="expInfo" class="hidden">Experiment information</th>
                         </tr>
                         </thead>
                         <tbody id="expTableBody">
                         <th:block th:each="exp, iterStat : ${experimentList}">
                             <tr th:id="'tr' + ${iterStat.index}">
-                                <td scope="row"><label th:name="id" th:text="${exp.id}" id="id"/>
+                                <td ><label th:name="id" th:text="${exp.id}" id="id"/>
                                 </td>
-                                <td scope="row"><label th:name="name"
+                                <td ><label th:name="name"
                                                        th:text="${exp.experimentName}" id="name"/></td>
-                                <td scope="row"><label th:name="description"
+                                <td ><label th:name="description"
                                                        th:text="${exp.experimentDescription}" id="description"/>
                                 </td>
-                                <td scope="row">
+                                <td>
                                     <span style="display:none;" th:text="${exp.getModificationDate()}"></span>
                                     <label th:name="creationDate"
                                                        th:text="${exp.getModificationDateFormated()}"
                                                        id="creationDate"/>
                                 </td>
-                                <td scope="row" class="details-control">
+                                <td class="details-control">
                                     <button type="button" class="btn-default btn btn-sm">More information
                                     </button>
                                 </td>
-                                <td scope="row">
+                                <td>
                                     <form th:action="@{/experiment/expRepoSelected}" th:object="${expRepository}"
                                           method="GET">
                                         <input type="text" class="hidden" th:name="id"
@@ -88,25 +89,25 @@
                                     </form>
                                 </td>
                                 <!--with extra information-->
-                                <td scope="control" class="hidden">
+                                <td class="hidden">
                                     <div>
-                                        <b>Generations:</b>
+                                        <strong>Generations:</strong>
                                         <label th:text="${exp.getGenerations()}"></label>
-                                        ; <b>Crossover Prob:</b>
+                                        ; <strong>Crossover Prob:</strong>
                                         <label th:text="${exp.getCrossoverProb()}"></label>
-                                        ; <b>Population Size:</b>
+                                        ; <strong>Population Size:</strong>
                                         <label th:text="${exp.getPopulationSize()}"></label>
-                                        ; <b>Mutation Prob:</b>
+                                        ; <strong>Mutation Prob:</strong>
                                         <label th:text="${exp.getMutationProb()}"></label>
-                                        ; <b>Max Wraps:</b>
+                                        ; <strong>Max Wraps:</strong>
                                         <label th:text="${exp.getMaxWraps()}"></label>
-                                        ; <b>Num Codons:</b>
+                                        ; <strong>Num Codons:</strong>
                                         <label th:text="${exp.getNumCodons()}"></label>
-                                        ; <b>Tournament:</b>
+                                        ; <strong>Tournament:</strong>
                                         <label th:text="${exp.getTournament()}"></label>
-                                        ; <b>Number Runs:</b>
+                                        ; <strong>Number Runs:</strong>
                                         <label th:text="${exp.getNumberRuns()}"></label>
-                                        ; <b>Objective:</b>
+                                        ; <strong>Objective:</strong>
                                         <label th:text="${exp.getObjective()}"></label>
                                         </span>
 
@@ -115,53 +116,54 @@
                                         <table class="table table-hover"
                                                th:name="runTable+${iterStat.index}"
                                                th:id="runTable+${iterStat.index}">
+                                            <caption class = "hidden">Run's List</caption>
                                             <thead>
                                             <tr>
-                                                <th scope="col"># Run</th>
-                                                <th scope="col">Best solution</th>
-                                                <th scope="col">Current generation</th>
-                                                <th scope="col">Status</th>
-                                                <th scope="col">Creation date</th>
-                                                <th scope="col">Last modification date</th>
-                                                <th scope="col">Model</th>
+                                                <th id ="numer"># Run</th>
+                                                <th id="bestSol">Best solution</th>
+                                                <th id="currentGen">Current generation</th>
+                                                <th id="status">Status</th>
+                                                <th id="runCreationDate">Creation date</th>
+                                                <th id="lastModifDate">Last modification date</th>
+                                                <th id="model">Model</th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <th:block th:each="run, iterStat : ${exp.getIdRunList()}">
                                                 <tr th:if="${run.getDiagramData()!=null}">
-                                                    <td scope="row"><label th:text="${iterStat.index+1}"
+                                                    <td><label th:text="${iterStat.index+1}"
                                                                            th:id="'runId'+${iterStat.index}"/></td>
-                                                    <td scope="row"><label th:name="bestIndividual"
+                                                    <td><label th:name="bestIndividual"
                                                                            th:id="'bestIndividual'+${iterStat.index}"
                                                                            th:text="${run.getDiagramData().bestIndividual}"/>
                                                     </td>
-                                                    <td scope="row"><label th:name="currentGeneration"
+                                                    <td><label th:name="currentGeneration"
                                                                            th:id="'currentGeneration'+${iterStat.index}"
                                                                            th:text="${run.getDiagramData().currentGeneration}"/>
                                                     </td>
-                                                    <td scope="row"><label th:name="status"
+                                                    <td><label th:name="status"
                                                                            th:id="'status'+${iterStat.index}"
                                                                            th:text="${run.getStatus()}"/></td>
-                                                    <td scope="row"><label th:name="iniDate" th:id="iniDate"
+                                                    <td><label th:name="iniDate" th:id="iniDate"
                                                                            th:text="${run.getIniDateFormated()}"/>
                                                     </td>
-                                                    <td scope="row"><label th:name="lastDate" th:id="lastDate"
+                                                    <td><label th:name="lastDate" th:id="lastDate"
                                                                            th:text="${run.getModificationDateFormated()}"/>
                                                     </td>
-                                                    <td scope="row"><label th:name="model"
+                                                    <td><label th:name="model"
                                                                            th:id="model+${iterStat.index}"
                                                                            th:text="${run.getModel()}"/></td>
                                                 </tr>
                                             </th:block>
                                             <tr>
                                                 <td colspan="7">
-                                                        <b>Avg. :</b><label th:name="runsAVG+${iterStat.index}"
+                                                        <strong>Avg. :</strong><label th:name="runsAVG+${iterStat.index}"
                                                                           th:id="runsAVG+${iterStat.index}"></label>
-                                                        <b style="margin-left: 15px">Std. Dev: </b><label th:name="runsDeviation+${iterStat.index}"
+                                                        <strong style="margin-left: 15px">Std. Dev: </strong><label th:name="runsDeviation+${iterStat.index}"
                                                                               th:id="runsDeviation+${iterStat.index}"></label>
-                                                        <b style="margin-left: 15px">Min: </b><label th:name="minBestSolution+${iterStat.index}"
+                                                        <strong style="margin-left: 15px">Min: </strong><label th:name="minBestSolution+${iterStat.index}"
                                                                           th:id="minBestSolution+${iterStat.index}"></label>
-                                                        <b style="margin-left: 15px">Max: </b><label th:name="maxBestSolution+${iterStat.index}"
+                                                        <strong style="margin-left: 15px">Max: </strong><label th:name="maxBestSolution+${iterStat.index}"
                                                                           th:id="maxBestSolution+${iterStat.index}"></label>
                                                     <button style="margin-left: 15px" class="btn-default btn btn-sm" th:onclick="'downloadExperimentRunResults('+${exp.getId()}+')'">Download results
                                                     </button>

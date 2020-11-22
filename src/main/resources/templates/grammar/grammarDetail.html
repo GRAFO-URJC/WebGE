@@ -25,12 +25,12 @@
                           enctype="multipart/form-data" role="form" method="POST">
                         <div class="row form-group" th:if="${existed}" >
                             <div class="col-sm-12 col-md-12 col-lg-12">
-                                <p style="color:red"><b>There is already a grammar with that name</b></p>
+                                <p style="color:red"><strong>There is already a grammar with that name</strong></p>
                             </div>
                         </div>
                         <div class="row form-group">
                             <div class="col-sm-1 col-md-1 col-lg-1">
-                                <p><b>Name:</b></p>
+                                <p><strong>Name:</strong></p>
                             </div>
                             <div class="col-sm-11 col-md-11 col-lg-11">
                                 <input id="grammarName" type="text" class="form-control"
@@ -40,7 +40,7 @@
                         </div>
                         <div class="row form-group">
                             <div class="col-sm-1 col-md-1 col-lg-1">
-                                <p><b>Description:</b></p>
+                                <p><strong>Description:</strong></p>
                             </div>
                             <div class="col-sm-11 col-md-11 col-lg-11">
                                 <input id="grammarDescription" type="text" class="form-control"
@@ -50,7 +50,7 @@
                         </div>
                         <div class="row form-group">
                             <div class="col-sm-1 col-md-1 col-lg-1">
-                                <p><b>Content:</b></p>
+                                <p><strong>Content:</strong></p>
                             </div>
                             <div class="col-sm-11 col-md-11 col-lg-11">
                                 <textarea id="fileText" rows="5" class="form-control" th:text="${grammar.getFileText()}"

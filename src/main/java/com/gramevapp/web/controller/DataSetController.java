@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.logging.Logger;
 
 @Controller
 public class DataSetController {
@@ -25,6 +26,8 @@ public class DataSetController {
     @Autowired
     private ExperimentService experimentService;
 
+
+    Logger logger = Logger.getLogger(DataSetController.class.getName());
     @GetMapping("/datasets/list")
     public String datasetList(Model model) {
         User user = userService.getLoggedInUser();
@@ -103,7 +106,7 @@ public class DataSetController {
             if (experimentDataType.getInfo().contains("K-Fold")) {
                 HashSet<Integer> listFoldSize = new HashSet<>();
                 String[] rows = experimentDataType.getInfo().split("\r\n");
-                //index last ;
+
                 int indexFold;
                 for (int i = 1; i < rows.length; i++) {
                     indexFold = rows[i].lastIndexOf(';');
@@ -130,7 +133,7 @@ public class DataSetController {
         try {
             experimentService.deleteDataTypeFile(idDataset);
         } catch (DataIntegrityViolationException e) {
-            System.out.println(e.getCause() instanceof org.hibernate.exception.ConstraintViolationException);
+            logger.warning(String.valueOf(e.getCause() instanceof org.hibernate.exception.ConstraintViolationException));
             if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
                 return (long) -1;
             }
@@ -160,7 +163,12 @@ public class DataSetController {
         newDataSetInfo += splitDatasetInfo[0] + ";K-Fold\r\n";
         for (int i = 1; i < splitDatasetInfo.length; i++) {
             if (!splitDatasetInfo[i].equals("")) {
-                newDataSetInfo += splitDatasetInfo[i] + ";" + kFoldValues.get(i % kFoldValues.size()) + "\r\n";
+                StringBuilder stringBuilder = new StringBuilder(newDataSetInfo);
+                stringBuilder.append(splitDatasetInfo[i] );
+                stringBuilder.append(";");
+                stringBuilder.append(kFoldValues.get(i % kFoldValues.size()));
+                stringBuilder.append("\r\n");
+                newDataSetInfo = String.valueOf(stringBuilder);
             }
         }
         experimentDataType.setInfo(newDataSetInfo);

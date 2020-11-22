@@ -39,12 +39,17 @@ public class Common {
     public static final int NUM_PROPS = 14;
     public static final String WINDOW_TITLE = "Pancreas Model Tools - ABSys Group (Complutense University of Madrid)";
 
-    public static final Map<String, String> propsDescriptions = initializePropsDescriptions();
+    protected static final Map<String, String> propsDescriptions = initializePropsDescriptions();
     public static final String CEG_PENALTY_B = "B-PenaltyCEG";
     public static final String CEG_PENALTY_C = "C-PenaltyCEG";
     public static final String CEG_PENALTY_D = "D-PenaltyCEG";
     public static final String CEG_PENALTY_E = "E-PenaltyCEG";
 
+
+    private Common (){
+
+        //Private constructor to hide the public one
+    }
 
     private static Map<String, String> initializePropsDescriptions() {
         Map<String, String> m = new HashMap<>();

@@ -20,12 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest
-public class WebTest {
+class WebTest {
 
     private static WebDriver driver;
     private static WebDriverWait wait;
@@ -87,24 +86,24 @@ public class WebTest {
 
     @Test
     @Order(1)
-    public void adminLoginTest() {
+    void adminLoginTest() {
         driver.findElement(By.id("loginButton")).click();
         //login page
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/login");
+        assertEquals("http://127.0.0.1:8182/login", driver.getCurrentUrl());
         driver.findElement(By.id("username")).sendKeys("admin");
         driver.findElement(By.id("password")).sendKeys(adminPasword);
         driver.findElement(By.id("login-submit")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/admin");
+        assertEquals( "http://127.0.0.1:8182/admin", driver.getCurrentUrl());
     }
 
     @Test
     @Order(2)
-    public void adminCreateUserTest() {
+    void adminCreateUserTest() {
         driver.get("http://127.0.0.1:8182/admin");
         driver.findElement(By.id("userRegistrationPart")).click();
 
         //registration page
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/admin/registrationPage");
+        assertEquals(  driver.getCurrentUrl(), "http://127.0.0.1:8182/admin/registrationPage");
         User user = userService.findByUsername(userTestName);
         while (user != null) {
             userTestName = userTestName.substring(0, 3) +
@@ -120,54 +119,54 @@ public class WebTest {
         driver.findElement(By.id("firstName")).sendKeys("admin");
         driver.findElement(By.id("lastName")).sendKeys("admin");
         driver.findElement(By.id("register-submit")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/admin?messageUserCreated=User+created");
+        assertEquals( "http://127.0.0.1:8182/admin?messageUserCreated=User+created", driver.getCurrentUrl());
         userTest = userService.findByUsername(userTestName);
-        assertTrue(userTest != null);
+        assertNotNull(userTest);
     }
 
     @Test
     @Order(3)
-    public void adminLogOutTest() {
+    void adminLogOutTest() {
         driver.findElement(By.id("logOutButton")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/login?logout");
+        assertEquals("http://127.0.0.1:8182/login?logout", driver.getCurrentUrl());
     }
 
     @Test
     @Order(4)
-    public void userLoginTest() {
+    void userLoginTest() {
         driver.get("http://127.0.0.1:8182/login");
         driver.findElement(By.id("username")).sendKeys(userTest.getUsername());
         driver.findElement(By.id("password")).sendKeys(userTestPassword);
         driver.findElement(By.id("login-submit")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/user");
+        assertEquals( "http://127.0.0.1:8182/user", driver.getCurrentUrl());
     }
 
     @Test
     @Order(5)
-    public void userCreateGrammarTest() {
+    void userCreateGrammarTest() {
         driver.get("http://127.0.0.1:8182/user");
         driver.findElement(By.id("grammarPart")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/grammar/grammarRepository");
+        assertEquals( "http://127.0.0.1:8182/grammar/grammarRepository",driver.getCurrentUrl());
         driver.findElement(By.id("newGrammarButton")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/grammar/grammarDetail");
+        assertEquals("http://127.0.0.1:8182/grammar/grammarDetail", driver.getCurrentUrl());
 
         driver.findElement(By.id("grammarName")).sendKeys(grammarName);
         driver.findElement(By.id("grammarDescription")).sendKeys(grammarDescription);
         driver.findElement(By.id("fileText")).sendKeys(grammarText);
         driver.findElement(By.id("saveGrammar")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/grammar/saveGrammar");
-        assertTrue(!grammarRepository.findByUserId(userTest.getId()).isEmpty());
+        assertEquals( "http://127.0.0.1:8182/grammar/saveGrammar", driver.getCurrentUrl());
+        assertFalse(grammarRepository.findByUserId(userTest.getId()).isEmpty());
         grammarTest = grammarRepository.findByUserId(userTest.getId()).get(0);
     }
 
     @Test
     @Order(6)
-    public void userCreateDatasetTest() {
+    void userCreateDatasetTest() {
         driver.get("http://127.0.0.1:8182/user");
         driver.findElement(By.id("datasetPart")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/datasets/list");
+        assertEquals("http://127.0.0.1:8182/datasets/list",driver.getCurrentUrl());
         driver.findElement(By.id("newDatasetButton")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/dataset/datasetDetail?");
+        assertEquals( "http://127.0.0.1:8182/dataset/datasetDetail?", driver.getCurrentUrl());
         //remove readonly
         ((JavascriptExecutor) driver).executeScript("document.getElementById('typeFile').removeAttribute('required')");
         ((JavascriptExecutor) driver).executeScript("document.getElementById('info').removeAttribute('readonly')");
@@ -188,19 +187,19 @@ public class WebTest {
         driver.findElement(By.id("dataTypeName")).sendKeys(datasetName);
         driver.findElement(By.id("dataTypeDescription")).sendKeys(datasetDescription);
         driver.findElement(By.id("saveDataset")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/dataset/saveDataset");
+        assertEquals( "http://127.0.0.1:8182/dataset/saveDataset", driver.getCurrentUrl());
         assertTrue(!experimentService.findAllExperimentDataTypeByUserId(userTest.getId()).isEmpty());
         datasetTest = experimentService.findAllExperimentDataTypeByUserId(userTest.getId()).get(0);
     }
 
     @Test
     @Order(7)
-    public void userCreateExperimentTest() {
+    void userCreateExperimentTest() {
         driver.get("http://127.0.0.1:8182/user");
         driver.findElement(By.id("myExperimentPart")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/experiment/experimentRepository");
+        assertEquals("http://127.0.0.1:8182/experiment/experimentRepository", driver.getCurrentUrl());
         driver.findElement(By.id("newExperimentButton")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/experiment/configExperiment?");
+        assertEquals("http://127.0.0.1:8182/experiment/configExperiment?", driver.getCurrentUrl());
 
         driver.findElement(By.id("experimentName")).sendKeys("experimentName");
         driver.findElement(By.id("experimentDescription")).sendKeys("experimentDescription");
@@ -216,16 +215,16 @@ public class WebTest {
 
     @Test
     @Order(8)
-    public void userCloneAndSaveExperimentTest() {
+    void userCloneAndSaveExperimentTest() {
         driver.get("http://127.0.0.1:8182/user");
         driver.findElement(By.id("myExperimentPart")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/experiment/experimentRepository");
+        assertEquals( "http://127.0.0.1:8182/experiment/experimentRepository", driver.getCurrentUrl());
         driver.findElement(By.name("loadExperimentButton")).click();
         assertTrue(driver.getCurrentUrl().contains("expRepoSelected"));
         driver.findElement(By.id("cloneExperimentButton")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/experiment/start");
+        assertEquals( "http://127.0.0.1:8182/experiment/start", driver.getCurrentUrl());
         driver.findElement(By.id("saveExperimentButton")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/experiment/start");
+        assertEquals( "http://127.0.0.1:8182/experiment/start", driver.getCurrentUrl());
         for (Experiment experiment : experimentService.findByUser(userTest)) {
             if (experiment != experimentRunTest) {
                 experimentSaveTest = experiment;
@@ -235,10 +234,10 @@ public class WebTest {
 
     @Test
     @Order(9)
-    public void userRemoveExperimentTest() {
+    void userRemoveExperimentTest() {
         driver.get("http://127.0.0.1:8182/user");
         driver.findElement(By.id("myExperimentPart")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/experiment/experimentRepository");
+        assertEquals("http://127.0.0.1:8182/experiment/experimentRepository", driver.getCurrentUrl());
         driver.findElement(By.name("deleteButton")).click();
         checkAlert();
 
@@ -250,10 +249,10 @@ public class WebTest {
 
     @Test
     @Order(10)
-    public void userRemoveGrammarTest() {
+    void userRemoveGrammarTest() {
         driver.get("http://127.0.0.1:8182/user");
         driver.findElement(By.id("grammarPart")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/grammar/grammarRepository");
+        assertEquals( "http://127.0.0.1:8182/grammar/grammarRepository", driver.getCurrentUrl());
         driver.findElement(By.name("deleteGrammarButton")).click();
         checkAlert();
         assertTrue(driver.findElements(By.name("deleteGrammarButton")).isEmpty());
@@ -262,10 +261,10 @@ public class WebTest {
 
     @Test
     @Order(11)
-    public void userRemoveDatasetTest() {
+    void userRemoveDatasetTest() {
         driver.get("http://127.0.0.1:8182/user");
         driver.findElement(By.id("datasetPart")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/datasets/list");
+        assertEquals( "http://127.0.0.1:8182/datasets/list", driver.getCurrentUrl());
         driver.findElement(By.name("deleteDatasetButton")).click();
         checkAlert();
         assertTrue(driver.findElements(By.name("deleteDatasetButton")).isEmpty());
@@ -274,10 +273,10 @@ public class WebTest {
 
     @Test
     @Order(12)
-    public void userUpdateInfoTest() throws InterruptedException {
+    void userUpdateInfoTest() throws InterruptedException {
         driver.get("http://127.0.0.1:8182/user");
         driver.findElement(By.id("userProfileButton")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/user/profile");
+        assertEquals("http://127.0.0.1:8182/user/profile", driver.getCurrentUrl());
 
         String firstName = "firstname";
         String lastName = "lastname";
@@ -319,10 +318,10 @@ public class WebTest {
 
     @Test
     @Order(13)
-    public void userUpdateStudyInfoTest() throws InterruptedException {
+    void userUpdateStudyInfoTest() throws InterruptedException {
         driver.get("http://127.0.0.1:8182/user");
         driver.findElement(By.id("userProfileButton")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/user/profile");
+        assertEquals("http://127.0.0.1:8182/user/profile", driver.getCurrentUrl() );
         driver.findElement(By.id("workStudyInformation")).click();
 
         String studyInformation = "studyInformation";
@@ -339,10 +338,10 @@ public class WebTest {
 
     @Test
     @Order(14)
-    public void userUpdatePasswordTest() throws InterruptedException {
+    void userUpdatePasswordTest() throws InterruptedException {
         driver.get("http://127.0.0.1:8182/user");
         driver.findElement(By.id("userProfileButton")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/user/profile");
+        assertEquals( "http://127.0.0.1:8182/user/profile", driver.getCurrentUrl());
         driver.findElement(By.id("updatePassword")).click();
         String newPassword = "newPassword";
         driver.findElement(By.id("oldPassword")).sendKeys(userTestPassword);
@@ -350,17 +349,17 @@ public class WebTest {
         driver.findElement(By.id("confirmPassword")).sendKeys(newPassword);
         driver.findElement(By.id("updatePasswordButton")).click();
         userTestPassword = newPassword;
-        assertEquals(driver.findElement(By.id("messagePassword")).getText(), "Password saved");
+        assertEquals("Password saved", driver.findElement(By.id("messagePassword")).getText());
         adminLogOutTest();
         userLoginTest();
     }
 
     @Test
     @Order(15)
-    public void userUpdateAboutMeTest() throws InterruptedException {
+    void userUpdateAboutMeTest() throws InterruptedException {
         driver.get("http://127.0.0.1:8182/user");
         driver.findElement(By.id("userProfileButton")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/user/profile");
+        assertEquals("http://127.0.0.1:8182/user/profile", driver.getCurrentUrl());
         driver.findElement(By.id("aboutMeSection")).click();
 
         String aboutMe = "aboutMe";
@@ -376,21 +375,21 @@ public class WebTest {
     //should be the last test -1
     @Test
     @Order(15)
-    public void userLogOutTest() {
+    void userLogOutTest() {
         adminLogOutTest();
     }
 
     //should be the last test
     @Test
     @Order(16)
-    public void userRemoveTest() {
+    void userRemoveTest() {
         driver.get("http://127.0.0.1:8182/");
         adminLoginTest();
         driver.findElement(By.id("userListPart")).click();
-        assertEquals(driver.getCurrentUrl(), "http://127.0.0.1:8182/admin/userList");
+        assertEquals("http://127.0.0.1:8182/admin/userList", driver.getCurrentUrl());
         driver.findElement(By.name("deleteUserButton")).click();
         checkAlert();
-        assertTrue(userService.findByUsername(userTest.getUsername()) == null);
+        assertNull(userService.findByUsername(userTest.getUsername()));
         adminLogOutTest();
     }
 

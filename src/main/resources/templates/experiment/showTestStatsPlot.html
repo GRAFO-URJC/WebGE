@@ -24,7 +24,7 @@
 
                     <ul class="nav navbar-nav navbar-left">
                         <h2>Run <span th:text="${'#'+index+' '}"></span>
-                            <i><span th:text="${expDetails.getExperimentName()}"></span></i></h2>
+                            <em><span th:text="${expDetails.getExperimentName()}"></span></em></h2>
                     </ul>
                 </div>
             </nav>
@@ -33,20 +33,21 @@
                     <div class="row form-group text-left" style="margin-bottom: 0;">
                         <div class="col-sm-6 col-md-6 col-lg-6">
                             <h3>
-                                <b>Model: </b><label th:id="runId" th:text="${model}"/>
+                                <strong>Model: </strong><label th:id="runId" th:text="${model}"/>
                             </h3>
                         </div>
                     </div>
                     <div class="row form-group text-left">
                         <div class="col-sm-12 col-md-12 col-lg-12">
                             <h3>
-                                <label><b>Stats: </b></label>
+                                <label><strong>Stats: </strong></label>
                             </h3>
                         </div>
                         <div class="col-sm-2 col-md-2 col-lg-2">
                         </div>
                         <div class="col-sm-8 col-md-8 col-lg-8">
                             <table class="table table-bordered" style="font-size: 20px">
+                                <caption>Stats</caption>
                                 <thead>
                                 <tr>
                                     <th scope="col"></th>
@@ -151,7 +152,7 @@
                     dataPoints: yColumnDataPoints,
                     legendText: "Data",
                     showInLegend: true,
-                    toolTipContent: "Data : <b>{y}</b> "
+                    toolTipContent: "Data : <strong>{y}</strong> "
                 }, {
                     markerSize: 2,
                     color: "OrangeRed",
@@ -159,7 +160,7 @@
                     legendText: "Prediction",
                     showInLegend: true,
                     dataPoints: modelColumnDataPoints,
-                    toolTipContent: "Prediction: <b>{y}</b>"
+                    toolTipContent: "Prediction: <strong>{y}</strong>"
                 }],
                 axisX: {
                     title: "Index",
@@ -213,7 +214,7 @@
                         dataPoints: testYColumnDataPoints,
                         legendText: "Data",
                         showInLegend: true,
-                        toolTipContent: "Data : <b>{y}</b> "
+                        toolTipContent: "Data : <strong>{y}</strong> "
                     }, {
                         markerSize: 2,
                         color: "OrangeRed",
@@ -221,7 +222,7 @@
                         legendText: "Prediction",
                         showInLegend: true,
                         dataPoints: testModelColumnDataPoints,
-                        toolTipContent: "Prediction: <b>{y}</b>"
+                        toolTipContent: "Prediction: <strong>{y}</strong>"
                     }],
                     axisX: {
                         title: "Index",

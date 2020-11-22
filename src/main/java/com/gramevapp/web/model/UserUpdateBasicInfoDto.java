@@ -9,7 +9,7 @@ import javax.validation.constraints.Pattern;
 public class UserUpdateBasicInfoDto {
 
     private static final String PATTERN = "^[\\p{L} .'-]+$";  // https://stackoverflow.com/questions/15805555/java-regex-to-validate-full-name-allow-only-spaces-and-letters
-    private static final String EMAIL = "^[^@]+@[^@]+$";
+    private static final String EMAIL_PATTERN = "^[^@]+@[^@]+$";
 
     //  Basic info
     @Pattern(regexp = PATTERN, message = "First name cannot contain strange characters and cannot be null")
@@ -18,7 +18,7 @@ public class UserUpdateBasicInfoDto {
     @Pattern(regexp = PATTERN, message = "Last name cannot contain strange characters and cannot be null")
     @NotNull
     private String lastName;
-    @Pattern(regexp = EMAIL, message = "Not valid email")
+    @Pattern(regexp = EMAIL_PATTERN, message = "Not valid email")
     @NotNull
     private String email;
     @NumberFormat

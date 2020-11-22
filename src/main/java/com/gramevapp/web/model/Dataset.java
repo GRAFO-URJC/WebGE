@@ -39,7 +39,7 @@ public class Dataset {
     private Timestamp creationDate = null;
 
     public Dataset() {
-
+        //Empty constructor
     }
 
 
