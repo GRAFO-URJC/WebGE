@@ -31,9 +31,9 @@ public class ModelEvaluator {
         // Firstly, a list is created to account for the number of elements to instantiate in the matrix.
         ArrayList<String> lines = new ArrayList<>();
 
-
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(new File(dataPath)));
+       BufferedReader reader = null;
+       try {
+            reader = new BufferedReader(new FileReader(new File(dataPath)));
 
             String line;
             while ((line = reader.readLine()) != null) {
@@ -47,7 +47,11 @@ public class ModelEvaluator {
             logger.info("Training file not found: " + e.getLocalizedMessage());
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }finally{
+           if(reader!=null){
+               reader.close();
+           }
+       }
 
 
         // Process the list
