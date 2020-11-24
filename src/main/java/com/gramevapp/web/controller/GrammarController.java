@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Controller
 public class GrammarController {
@@ -27,7 +28,7 @@ public class GrammarController {
     @Autowired
     private ExperimentService experimentService;
 
-
+    Logger logger = Logger.getLogger(GrammarController.class.getName());
     @GetMapping(value = "/grammar/grammarRepository")
     public String grammarRepository(Model model) {
         User user = userService.getLoggedInUser();
@@ -35,6 +36,7 @@ public class GrammarController {
 
         model.addAttribute("grammarList", grammarList);
         model.addAttribute("user", user);
+
 
         return "grammar/grammarRepository";
     }
@@ -49,7 +51,7 @@ public class GrammarController {
         try {
             grammarRepository.deleteById(idGrammar);
         } catch (DataIntegrityViolationException e) {
-            System.out.println(e.getCause() instanceof org.hibernate.exception.ConstraintViolationException);
+            logger.warning(String.valueOf(e.getCause() instanceof org.hibernate.exception.ConstraintViolationException));
             if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
                 return (long) -1;
             }
@@ -60,7 +62,7 @@ public class GrammarController {
 
 
     @PostMapping(value = "/grammar/grammarDetail")
-    public String editGrammar(Model model, @RequestParam("grammarId") String grammarId) {
+    public String editGrammar(Model model, @RequestParam("grammarId") String grammarId, boolean existed) {
 
         User user = userService.getLoggedInUser();
         long idGrammar = Long.parseLong(grammarId);
@@ -72,27 +74,41 @@ public class GrammarController {
 
         model.addAttribute("grammar", gr);
         model.addAttribute("user", user);
+        model.addAttribute("existed", existed);
 
         return "grammar/grammarDetail";
     }
 
+
+
     @PostMapping(value = "/grammar/saveGrammar")
     public String saveGrammar(Model model, @ModelAttribute("grammar") Grammar gr) {
+        User user = userService.getLoggedInUser();
         gr.setCreationDate(new Timestamp(new Date().getTime()));
-        grammarRepository.save(gr);
-        return grammarRepository(model);
+        if(grammarRepository.findGrammarByGrammarNameAndUserId(gr.getGrammarName(), user.getId()) == null) {
+            grammarRepository.save(gr);
+            return grammarRepository(model);
+        }
+        return editGrammar(model, "-1", true);
     }
 
     @PostMapping(value = "/grammar/ajaxSaveGrammar")
     @ResponseBody
-    public String ajaxSaveGrammar(@RequestParam("grammarName") String grammarName,
+    public Boolean ajaxSaveGrammar(@RequestParam("grammarName") String grammarName,
                                   @RequestParam("grammarDescription") String grammarDescription,
                                   @RequestParam("grammarContent") String grammarContent
-                                  ) {
+    ) {
+        boolean existed = true;
         User user = userService.getLoggedInUser();
-        Grammar grammar= new Grammar(grammarName,grammarDescription,grammarContent);
-        grammar.setUserId(user.getId());
-        grammarRepository.save(grammar);
-        return "";
+        Grammar grammar = grammarRepository.findGrammarByGrammarNameAndUserId(grammarName, user.getId());
+        if (grammar == null) {
+            existed = false;
+            grammar = new Grammar(grammarName, grammarDescription, grammarContent);
+            grammar.setUserId(user.getId());
+            grammarRepository.save(grammar);
+        }
+        return existed;
     }
+
+
 }

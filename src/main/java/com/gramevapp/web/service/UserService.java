@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 // Service = DAO
 // This will work as an intermediate between the real data and the action we want to do with that - We are the modifier
@@ -31,6 +32,8 @@ public class UserService {
     private UserDetailsRepository userDetailsRepository;
 
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    Logger logger = Logger.getLogger(UserService.class.getName());
 
     public void saveUser(UserRegistrationDto registration) {
         User user = new User();
@@ -81,7 +84,7 @@ public class UserService {
     public User getLoggedInUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if ((authentication instanceof AnonymousAuthenticationToken)) {    // User not authenticated
-            System.out.println("User not authenticated");
+            logger.info("User not authenticated");
             return null;
         }
 

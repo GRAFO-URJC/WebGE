@@ -4,6 +4,7 @@ import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.stat.StatUtils;
 
 import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * Utility methods for statistics.
@@ -22,7 +23,10 @@ public class UtilStats {
     public static final double DEFAULT_CEG_PENALTY_D = 100.0;
     public static final double DEFAULT_CEG_PENALTY_E = 1000.0;
 
-
+    static Logger logger = Logger.getLogger(UtilStats.class.getName());
+    private UtilStats(){
+        //private constructor to hide the public one
+    }
     /**
      * Computes the Root Mean Squared Error (RMSE) between two arrays of engine.data.
      */
@@ -61,8 +65,8 @@ public class UtilStats {
         try {
             pValue = 1.0 - chiDist.cumulativeProbability(acu);
         } catch (Exception e) {
-            System.err.println("Error calculating p-value: " + e.getLocalizedMessage());
-            System.err.println("--> Accumulated value was: " + acu);
+            logger.warning("Error calculating p-value: " + e.getLocalizedMessage());
+            logger.warning("--> Accumulated value was: " + acu);
         }
         return pValue;
     }

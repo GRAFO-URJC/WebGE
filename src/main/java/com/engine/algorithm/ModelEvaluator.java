@@ -3,6 +3,7 @@ package com.engine.algorithm;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
+import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -22,13 +23,16 @@ public class ModelEvaluator {
     public static int objective;
 
 
-   public static double[][] loadData(String dataPath) {
+    private ModelEvaluator (){
+        //Private constructor to hide the public one
+    }
+   public static double[][] loadData(String dataPath) throws IOException {
 
         // Firstly, a list is created to account for the number of elements to instantiate in the matrix.
         ArrayList<String> lines = new ArrayList<>();
 
-        BufferedReader reader;
-        try {
+       BufferedReader reader = null;
+       try {
             reader = new BufferedReader(new FileReader(new File(dataPath)));
 
             String line;
@@ -43,7 +47,12 @@ public class ModelEvaluator {
             logger.info("Training file not found: " + e.getLocalizedMessage());
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }finally{
+           if(reader!=null){
+               reader.close();
+           }
+       }
+
 
         // Process the list
         double[][] matrix = new double[lines.size()][];
@@ -61,11 +70,11 @@ public class ModelEvaluator {
     }
 
 
-    public static void loadTrainingData(String dataPath) {
+    public static void loadTrainingData(String dataPath) throws IOException {
         trainingData = loadData(dataPath);
     }
 
-    public static void loadTestData(String dataPath) {
+    public static void loadTestData(String dataPath) throws IOException {
         testData = loadData(dataPath);
     }
 

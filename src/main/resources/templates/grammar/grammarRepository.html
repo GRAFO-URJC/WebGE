@@ -25,6 +25,7 @@
                                             <h4 style="margin-top: 0;margin-bottom: 0;">New grammar</h4>
                                         </button>
                                         <input type="hidden" name="grammarId" value="-1"/>
+                                        <input type="hidden" name="existed" value="false"/>
                                     </form>
                                 </div>
                             </h2>
@@ -34,6 +35,7 @@
 
                 <section class="panel-body center-block">
                     <table class="table table-hover" id="grammarRepositoryTable" style="width: 100%;">
+                        <caption class="hidden">Grammar Table</caption>
                         <thead>
                         <tr>
                             <th scope="col">Grammar name</th>
@@ -47,22 +49,23 @@
                         <tbody id="grammarTableBody">
                         <th:block th:each="gr, iterStat : ${grammarList}">
                             <tr th:id="'tr' + ${iterStat.index}">
-                                <td scope="row"><label th:name="name" th:id="name" th:text="${gr.grammarName}"
+                                <td id="nameRow"><label th:name="name" th:id="name" th:text="${gr.grammarName}"
                                                        id="name"/></td>
-                                <td scope="row"><label th:name="description" th:id="description"
+                                <td id="descRow"><label th:name="description" th:id="description"
                                                        th:text="${gr.grammarDescription}" id="description"/></td>
-                                <td scope="row"><label th:name="creationDate" th:id="creationDate"
+                                <td id="creationDateRow"><label th:name="creationDate" th:id="creationDate"
                                                        th:text="${gr.getCreationDateFormated()}" id="creationDate"/>
                                 </td>
-                                <td scope="row" class="details-control">
+                                <td id="detailsControl" class="details-control">
                                     <button type="button" class="btn-default btn btn-sm">Display grammar</button>
                                 </td>
-                                <td scope="row">
+                                <td id="grammarDetailRow">
                                     <form th:action="@{/grammar/grammarDetail}" method="POST">
                                         <button type="submit"
                                                 class="btn-default btn btn-sm">Duplicate grammar
                                         </button>
                                         <input type="hidden" name="grammarId" th:value="${gr.getId()}"/>
+                                        <input type="hidden" name="existed" value="false"/>
                                         <button type="button" th:name="${gr.id}"
                                                 th:id="${'downloadGrammar' + gr.getId()}"
                                                 th:attr="onclick=|downloadGrammar('fileText${gr.getId()}')|"

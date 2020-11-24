@@ -40,6 +40,7 @@ public class DiagramData {
     private Boolean failed = false;
 
     public DiagramData() {
+        //Empty constructor
     }
 
     public Long getId() {

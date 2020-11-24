@@ -23,6 +23,7 @@
                                         <button type="submit" id="newDatasetButton" class=" btn btn-default  btn-lg">
                                             <h4 style="margin-top: 0;margin-bottom: 0;">New dataset</h4>
                                         </button>
+                                        <input type="hidden" name="existed" value="false"/>
                                     </form>
                                 </div>
                             </h2>
@@ -32,6 +33,7 @@
 
                 <section class="panel-body center-block">
                     <table class="table table-hover " id="datasetRepository" style="width: 100%">
+                        <caption class = "hidden">Dataset Repository</caption>
                         <thead>
                         <tr>
                             <th scope="col">Dataset name</th>
@@ -45,17 +47,17 @@
                         <tbody id="datasetTbody">
                         <th:block th:each="dataset, iterStat : ${datasetList}">
                             <tr th:id="'tr' + ${iterStat.index}">
-                                <td scope="row"><label th:name="name" th:id="name"
+                                <td id="nameRow"><label th:name="name" th:id="name"
                                                        th:text="${dataset.getDataTypeName()}"
                                                        id="name"/></td>
-                                <td scope="row"><label th:name="description" th:id="description"
+                                <td id="descRow"><label th:name="description" th:id="description"
                                                        th:text="${dataset.getDataTypeDescription()}"
                                                        id="description"/></td>
-                                <td scope="row"><label th:name="creationDate" th:id="creationDate"
+                                <td id="creationDateRow"><label th:name="creationDate" th:id="creationDate"
                                                        th:text="${dataset.getCreationDateFormated()}"
                                                        id="creationDate"/>
                                 </td>
-                                <td scope="row" class="details-control">
+                                <td id="detailsControl" class="details-control">
                                     <button type="button" class="btn-default btn btn-sm">Display dataset</button>
                                 </td>
                                 <td>

@@ -6,10 +6,7 @@ import com.gramevapp.web.service.DiagramDataService;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +24,7 @@ public class DiagramDataRestController {
     @Autowired
     private RunService runService;
 
-    @RequestMapping(value = "/user/rest/diagramFlow/", method = RequestMethod.GET,
-            produces = "application/json")
+    @GetMapping(value = "/user/rest/diagramFlow/", produces = "application/json")
     @ResponseBody
     public List<DiagramDataDto> getDiagramDataInfo(String runId, int count) {
         List<DiagramData> diagramDataList = runService.findByRunId(Long.parseLong(runId)).getDiagramDataList();

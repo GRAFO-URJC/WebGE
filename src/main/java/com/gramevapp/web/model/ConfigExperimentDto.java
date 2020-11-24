@@ -1,13 +1,12 @@
 package com.gramevapp.web.model;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 
 public class ConfigExperimentDto {
     private Long id;
+    private static final String EXPERIMENTNAME_PATTERN  = "^[a-zA-Z0-9 \\[\\]()#_-]{1,254}$";
 
+    @Pattern(regexp = EXPERIMENTNAME_PATTERN, message = "Experiment name cannot have special characters. Only alphanumeric ones and []()#_- are allowed.")
     private String experimentName="";
     private String experimentDescription="";
     @Min(value = 100)

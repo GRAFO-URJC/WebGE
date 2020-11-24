@@ -72,25 +72,26 @@
                 </div>
                 <div th:if="${not #lists.isEmpty(userList)}">
                     <table class="table table-hover" id="lastRunsSummaryTable">
+                        <caption class = "hidden">User's List</caption>
                         <thead>
                         <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">Surname</th>
-                            <th scope="col">Institution</th>
-                            <th scope="col">Experiment name</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Timestamp</th>
+                            <th id="userFirstName">Name</th>
+                            <th id="userLastName">Surname</th>
+                            <th id="userInstitution">Institution</th>
+                            <th id="expName">Experiment name</th>
+                            <th id="runStatus">Status</th>
+                            <th id="modifDate">Timestamp</th>
                         </tr>
                         </thead>
                         <tbody id="lastRunsSummaryTbody">
                         <th:block th:each="user : ${userList}">
                             <tr th:with="run=${summaryExperiment.get(user)}">
-                                <td scope="row"><label th:text="${user.getUserDetails().getFirstName()}"/></td>
-                                <td scope="row"><label th:text="${user.getUserDetails().getLastName()}"/></td>
-                                <td scope="row"><label th:text="${user.getInstitution()}"/></td>
-                                <td scope="row"><label th:text="${run.getExperimentId().getExperimentName()}"/></td>
-                                <td scope="row"><label name="status" th:id="${run.getId()}" th:text="${run.getStatus()}"/></td>
-                                <td scope="row"><label th:text="${run.getStatus().equals(running)?run.getIniDate():
+                                <td id="userFirstName row" style="text-align:left;" ><label th:text="${user.getUserDetails().getFirstName()}"/></td>
+                                <td id="userLastName row" style="text-align:left;" ><label th:text="${user.getUserDetails().getLastName()}"/></td>
+                                <td id="userInstitution row" style="text-align:left;"  ><label th:text="${user.getInstitution()}"/></td>
+                                <td id="expName row" style="text-align:left;"  ><label th:text="${run.getExperimentId().getExperimentName()}"/></td>
+                                <td id="runStatus row" style="text-align:left;" ><label name="status" th:id="${run.getId()}" th:text="${run.getStatus()}"/></td>
+                                <td id="modifDate row" style="text-align:left;" ><label th:text="${run.getStatus().equals(running)?run.getIniDate():
                                                     run.getModificationDate()}"/></td>
                             </tr>
                         </th:block>

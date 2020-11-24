@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.logging.Logger;
 
 @Controller
 public class DataSetController {
@@ -25,6 +26,8 @@ public class DataSetController {
     @Autowired
     private ExperimentService experimentService;
 
+
+    Logger logger = Logger.getLogger(DataSetController.class.getName());
     @GetMapping("/datasets/list")
     public String datasetList(Model model) {
         User user = userService.getLoggedInUser();
@@ -82,47 +85,55 @@ public class DataSetController {
     }
 
     @RequestMapping(value = "/dataset/datasetDetail")
-    public String createDataset(Model model) {
+    public String createDataset(Model model, Boolean existed) {
         User user = userService.getLoggedInUser();
         model.addAttribute("experimentDataType", new Dataset());
         model.addAttribute("user", user);
+        model.addAttribute("existed", existed);
         return "dataset/datasetDetail";
     }
 
-    @RequestMapping(value = "/dataset/saveDataset", method = RequestMethod.POST)
+    @PostMapping(value = "/dataset/saveDataset")
     public String saveDataset(Model model, @ModelAttribute("experimentDataType") @Valid Dataset experimentDataType,
                               @Param("checkFold") String checkFold, @Param("kFoldNumber") int kFoldNumber) {
-        experimentDataType.setDataTypeType("training");
-        experimentDataType.setCreationDate(new Timestamp(new Date().getTime()));
-        experimentDataType.setUserIdUserId(userService.getLoggedInUser().getId());
-        if (experimentDataType.getInfo().contains("K-Fold")) {
-            HashSet<Integer> listFoldSize = new HashSet<>();
-            String[] rows = experimentDataType.getInfo().split("\r\n");
-            //index last ;
-            int indexFold;
-            for (int i = 1; i < rows.length; i++) {
-                indexFold = rows[i].lastIndexOf(';');
-                listFoldSize.add(Integer.parseInt(rows[i].substring(indexFold + 1)));
+
+        User user = userService.getLoggedInUser();
+        if(experimentService.findExperimentDataTypeByDataTypeNameAndUserId(experimentDataType.getDataTypeName(), user.getId())== null) {
+
+            experimentDataType.setDataTypeType("training");
+            experimentDataType.setCreationDate(new Timestamp(new Date().getTime()));
+            experimentDataType.setUserIdUserId(userService.getLoggedInUser().getId());
+            if (experimentDataType.getInfo().contains("K-Fold")) {
+                HashSet<Integer> listFoldSize = new HashSet<>();
+                String[] rows = experimentDataType.getInfo().split("\r\n");
+
+                int indexFold;
+                for (int i = 1; i < rows.length; i++) {
+                    indexFold = rows[i].lastIndexOf(';');
+                    listFoldSize.add(Integer.parseInt(rows[i].substring(indexFold + 1)));
+                }
+                kFoldNumber = listFoldSize.size();
+                checkFold = "true";
             }
-            kFoldNumber = listFoldSize.size();
-            checkFold = "true";
+            if (checkFold != null && checkFold.equals("true")) {
+                foldDataset(experimentDataType, kFoldNumber);
+                experimentDataType.setFoldSize(kFoldNumber);
+            }
+            experimentService.saveDataType(experimentDataType);
+            return datasetList(model);
         }
-        if (checkFold != null && checkFold.equals("true")) {
-            foldDataset(experimentDataType, kFoldNumber);
-            experimentDataType.setFoldSize(kFoldNumber);
-        }
-        experimentService.saveDataType(experimentDataType);
-        return datasetList(model);
+        return createDataset(model, true);
+
     }
 
-    @RequestMapping(value = "/dataset/deleteDataset", method = RequestMethod.POST, params = "deleteDataset")
+    @PostMapping(value = "/dataset/deleteDataset", params = "deleteDataset")
     @ResponseBody
     public Long expRepoSelectedDelete(@RequestParam("datasetId") String datasetId) {
         Long idDataset = Long.parseLong(datasetId);
         try {
             experimentService.deleteDataTypeFile(idDataset);
         } catch (DataIntegrityViolationException e) {
-            System.out.println(e.getCause() instanceof org.hibernate.exception.ConstraintViolationException);
+            logger.warning(String.valueOf(e.getCause() instanceof org.hibernate.exception.ConstraintViolationException));
             if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
                 return (long) -1;
             }
@@ -131,7 +142,7 @@ public class DataSetController {
         return idDataset;
     }
 
-    @RequestMapping(value = "/foldDataset", method = RequestMethod.POST)
+    @PostMapping(value = "/foldDataset")
     @ResponseBody
     public String ajaxFoldDataset(@RequestParam("datasetId") String datasetId, @RequestParam("kFoldNumber") int kFoldNumber) {
         Dataset dataset = experimentService.findExperimentDataTypeById(Long.parseLong(datasetId));
@@ -152,7 +163,12 @@ public class DataSetController {
         newDataSetInfo += splitDatasetInfo[0] + ";K-Fold\r\n";
         for (int i = 1; i < splitDatasetInfo.length; i++) {
             if (!splitDatasetInfo[i].equals("")) {
-                newDataSetInfo += splitDatasetInfo[i] + ";" + kFoldValues.get(i % kFoldValues.size()) + "\r\n";
+                StringBuilder stringBuilder = new StringBuilder(newDataSetInfo);
+                stringBuilder.append(splitDatasetInfo[i] );
+                stringBuilder.append(";");
+                stringBuilder.append(kFoldValues.get(i % kFoldValues.size()));
+                stringBuilder.append("\r\n");
+                newDataSetInfo = String.valueOf(stringBuilder);
             }
         }
         experimentDataType.setInfo(newDataSetInfo);

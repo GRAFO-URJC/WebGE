@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
     <div th:include="fragments/header :: head" th:remove="tag"></div>
     <script>
@@ -162,7 +163,7 @@
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                 </button>
-                <img style="height: 75px;padding-bottom: 5px" th:src="@{/images/index/Logo_urjc.png}"/>
+                <img style="height: 75px;padding-bottom: 5px" th:src="@{/images/index/Logo_urjc.png}" alt="URJC's logo"/>
             </div>
 
             <div class="collapse navbar-collapse header-collapse">
@@ -174,12 +175,11 @@
                             class="glyphicon glyphicon glyphicon-plus-sign"></span></a></li>
                     <li><a th:href="@{/experiment/experimentRepository}" rel="tooltip" title="List of experiments"><span
                             class="glyphicon glyphicon-th-list"></span></a></li>
-                    <li><a th:href="@{/user/profile}" id="userProfileButton" rel="tooltip" title="User profile"><span th:text="${
+                    <li><a th:href="@{/user/profile}" id="userProfileButton" rel="tooltip" title="User profile"><span class="glyphicon glyphicon-user">
+                    </span><span th:text="${
                     session.userDetails!=null?
-                    '   '+session.userDetails.getFirstName()+
-                    ' '+session.userDetails.getLastName():''}"
-                                                                                               class="glyphicon glyphicon-user">
-                    </span>
+                    session.userDetails.getFirstName()+
+                    ' '+session.userDetails.getLastName():''}" > </span>
                     </a></li>
 
                 </ul>

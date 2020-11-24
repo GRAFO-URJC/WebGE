@@ -304,7 +304,7 @@ public class Experiment {
         return String.valueOf(this.id);
     }
 
-    public Experiment clone() {
+    public Experiment copy() {
         Experiment experiment = new Experiment();
         experiment.userId = this.userId;
         experiment.experimentName = this.experimentName;

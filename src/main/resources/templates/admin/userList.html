@@ -22,6 +22,7 @@
                 <section class="panel-body center-block">
                     <div th:if="${not #lists.isEmpty(userList)}">
                         <table class="table table-hover" id="userListTable" style="width: 100%">
+                            <caption class = "hidden">User List</caption>
                             <thead>
                             <tr>
                                 <th scope="col">#</th>
@@ -37,22 +38,22 @@
                             <tbody id="userListBody">
                             <th:block th:each="user, iterStat : ${userList}">
                                 <tr th:id="'tr' + ${iterStat.index}">
-                                    <td scope="row"><label th:name="id" th:text="${user.getId()}" id="id"/>
+                                    <td id="idRow"><label th:name="id" th:text="${user.getId()}" id="id"/>
                                     </td>
-                                    <td scope="row"><label th:name="username" th:text="${user.getUsername()}"
-                                                           id="id"/></td>
-                                    <td scope="row"><label th:name="firstName"
+                                    <td id="usernameRow"><label th:name="username" th:text="${user.getUsername()}"
+                                                           id="username"/></td>
+                                    <td id="firstnameRow"><label th:name="firstName"
                                                            th:text="${user.getUserDetails().getFirstName()}"
                                                            id="name"/></td>
-                                    <td scope="row"><label th:name="lastName"
+                                    <td id="descRow"><label th:name="lastName"
                                                            th:text="${user.getUserDetails().getLastName()}"
                                                            id="description"/></td>
-                                    <td scope="row"><label th:name="institution"
+                                    <td id="institutionRow"><label th:name="institution"
                                                            th:text="${user.getInstitution()}"/></td>
-                                    <td scope="row" class="details-control">
+                                    <td id="detailsConstrol" class="details-control">
                                         <button type="button" class="btn-default btn btn-sm">Display user</button>
                                     </td>
-                                    <td scope="row">
+                                    <td id="buttonChangePass">
                                         <button type="button" th:name="${user.getId()}"
                                                 onclick="changePassword(this.name)"
                                                 class="btn-default btn btn-sm"
@@ -72,25 +73,25 @@
                                     <td class="hidden">
                                         <div class="row">
                                             <div class="form-group col-lg-12 col-sm-12">
-                                                <b>Email: </b><label class="control-label" th:text="${user.getEmail()==''
+                                                <strong>Email: </strong><label class="control-label" th:text="${user.getEmail()==''
                                                 ?'Not given':user.getEmail()}"></label>
                                                 <br>
-                                                <b>Phone number: </b><label class="control-label" th:text="${user.getUserDetails().getPhone()==null
+                                                <strong>Phone number: </strong><label class="control-label" th:text="${user.getUserDetails().getPhone()==null
                                                 ?'Not given':user.getUserDetails().getPhone()}"></label>
                                                 <br>
-                                                <b>Direction: </b><label class="control-label" th:text="${user.getUserDetails().getAddressDirection()==null
+                                                <strong>Direction: </strong><label class="control-label" th:text="${user.getUserDetails().getAddressDirection()==null
                                                 ||user.getUserDetails().getAddressDirection()==''
                                                 ?'Not given':user.getUserDetails().getAddressDirection()}"></label>
                                                 <br>
-                                                <b>City: </b><label class="control-label" th:text="${user.getUserDetails().getCity()==null
+                                                <strong>City: </strong><label class="control-label" th:text="${user.getUserDetails().getCity()==null
                                                 ||user.getUserDetails().getCity()==''
                                                 ?'Not given':user.getUserDetails().getCity()}"></label>
                                                 <br>
-                                                <b>State/Province: </b><label class="control-label" th:text="${user.getUserDetails().getState()==null
+                                                <strong>State/Province: </strong><label class="control-label" th:text="${user.getUserDetails().getState()==null
                                                 ||user.getUserDetails().getState()==''
                                                 ?'Not given':user.getUserDetails().getState()}"></label>
                                                 <br>
-                                                <b>ZIP Code: </b><label class="control-label" th:text="${user.getUserDetails().getZipcode()==null
+                                                <strong>ZIP Code: </strong><label class="control-label" th:text="${user.getUserDetails().getZipcode()==null
                                                 ?'Not given':user.getUserDetails().getZipcode()}"></label>
                                                 <br>
                                             </div>

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.w3.org/1999/xhtml"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/default}"
       lang="en">
@@ -44,6 +43,8 @@
             visibility: visible;
             opacity: 1;
         }
+
+
     </style>
 </head>
 
@@ -82,6 +83,11 @@
                     </div>
 
                     <div class="row center-block form-horizontal">
+                        <div class="row form-group" th:if="${exists}" >
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                <p style="color:red"><strong>There is already an experiment with that name</strong></p>
+                            </div>
+                        </div>
                         <!-- Experiment NAME and DESCRIPTION -->
                         <div class="row form-group" th:if="${configuration.getId() != null}">
                             <div class="col-sm-12 col-md-12 col-lg-12">
@@ -258,7 +264,7 @@
                                     <button type="button" onclick="storeGrammar()">Store as new grammar</button>
                                 </div>
                                 <div class="col-sm-12 col-md-12 col-lg-12" style="margin-top: 5px">
-                                    <input id="grammarDescription" placeholder="Grammar description(optional)"
+                                    <input id="grammarDescription" placeholder="Grammar description"
                                            style="width: 100%"/>
                                 </div>
                             </div>
@@ -411,6 +417,7 @@
 
             <section class="panel-body">
                 <table class="table table-hover" id="expTypeTable">
+                    <caption class = "hidden">Experiment Type Table</caption>
                     <thead>
                     <tr>
                         <th scope="col"># Run</th>
@@ -427,31 +434,31 @@
 
                     <th:block th:each="run, iterStat : ${runList}">
                         <tr th:id="'tr' + ${iterStat.index}">
-                            <td scope="row">
+                            <td id="index">
                                 <label th:text="${iterStat.index+1}"/>
                                 <label th:text="${run.getId()}"
                                        th:id="'runId'+${iterStat.index}" hidden/></td>
-                            <td scope="row"><label th:name="bestIndividual"
+                            <td id="bestIndividual"><label th:name="bestIndividual"
                                                    th:id="'bestIndividual'+${iterStat.index}"
                                                    th:text="${run.getDiagramData()!=null?
                                                        run.getDiagramData().bestIndividual:'0'}"/></td>
-                            <td scope="row"><label th:name="currentGeneration"
+                            <td id="currentGen"><label th:name="currentGeneration"
                                                    th:id="'currentGeneration'+${iterStat.index}"
                                                    th:text="${run.getDiagramData()!=null?
                                                        run.getDiagramData().currentGeneration:'0'}"/>
                             </td>
-                            <td scope="row"><label th:name="status" th:id="'status'+${iterStat.index}"
+                            <td id="status"><label th:name="status" th:id="'status'+${iterStat.index}"
                                                    th:text="${run.getStatus()}"/></td>
-                            <td scope="row"><label th:name="iniDate" th:id="iniDate"
+                            <td id="iniDate"><label th:name="iniDate" th:id="iniDate"
                                                    th:text="${run.getIniDateFormated()}"/></td>
-                            <td scope="row"><label th:name="lastDate" th:id="lastDate+${iterStat.index}"
+                            <td id="lastDate"><label th:name="lastDate" th:id="lastDate+${iterStat.index}"
                                                    th:text="${run.getModificationDateFormated()}"/></td>
-                            <td scope="row"><label th:name="model" th:id="model+${iterStat.index}"
+                            <td id="model"><label th:name="model" th:id="model+${iterStat.index}"
                                                    th:text="${run.getModel()}"/></td>
-                            <td scope="row">
+                            <td id="stopExec">
                                 <div th:id="${'stopRunSection' + iterStat.index}"
                                      th:class="${run.getStatus().toString().equals('RUNNING')?'':'hidden'}"
-                                style="display:inline">
+                                     style="display:inline">
                                     <button type="button" th:name="${run.id}"
                                             th:id="${'stopRun' + iterStat.index}"
                                             onclick="stopRun(this.id, this.name)"
@@ -485,10 +492,10 @@
                     </th:block>
                     <tr>
                         <td colspan="9">
-                            <b>Avg.: </b><label id="runsAVG">Waiting runs</label>
-                            <b style="margin-left: 15px">Std. Dev: </b><label id="runsDeviation">Waiting runs</label>
-                            <b style="margin-left: 15px">Min: </b><label id="minBestSolution">Waiting runs</label>
-                            <b style="margin-left: 15px">Max: </b><label id="maxBestSolution">Waiting runs</label>
+                            <strong>Avg.: </strong><label id="runsAVG">Waiting runs</label>
+                            <strong style="margin-left: 15px">Std. Dev: </strong><label id="runsDeviation">Waiting runs</label>
+                            <strong style="margin-left: 15px">Min: </strong><label id="minBestSolution">Waiting runs</label>
+                            <strong style="margin-left: 15px">Max: </strong><label id="maxBestSolution">Waiting runs</label>
                             <button style="margin-left: 15px" class="btn-default btn btn-sm"
                                     th:onclick="'downloadExperimentRunResults('+${configExp.getId()}+')'">Download
                                 results
@@ -520,30 +527,38 @@
         let runTable = document.getElementById("expTypeTable");
         let checkedCrossValidationValue = -1;
 
-        function storeGrammar() {
+
+        function storeGrammar(){
             let grammarName = $("#grammarName").val();
             let grammarDescription = $("#grammarDescription").val();
             let grammarContent = $("#fileText").val();
-            if (grammarContent == "" || grammarName == "") {
-                alert("Grammar name and content cannot be empty");
+
+            if (grammarContent == "" || grammarName == "" || grammarDescription== "") {
+                alert("Grammar name, description and content cannot be empty");
                 return;
             }
+
             $.ajax({
-                url: encodeURI("/grammar/ajaxSaveGrammar"),
-                data: {
-                    'grammarName': grammarName,
-                    'grammarDescription': grammarDescription,
-                    'grammarContent': grammarContent,
-                },
-                async: true,
-                type: "POST",
-                success: function () {
-                    alert("New grammar saved");
-                },
-                error: function () {
-                    alert("Fail on save new grammar");
-                }
-            });
+                    url: encodeURI("/grammar/ajaxSaveGrammar"),
+                    data: {
+                        'grammarName': grammarName,
+                        'grammarDescription': grammarDescription,
+                        'grammarContent': grammarContent,
+                    },
+                    async: true,
+                    type: "POST",
+                    success: function (existed) {
+                        if(existed){
+                            alert("There is already a grammar with that name");
+                        }else{
+                            alert("New grammar saved");
+                        }
+                    },
+                    error: function () {
+                        alert("Fail on saving the new grammar");
+                    }
+                });
+
         }
 
         $(document).ready(function () {
@@ -735,7 +750,7 @@
         }
 
         function confirmDelete(iterStat, runId) {
-            let result = confirm("Are you sure to delete this run ?");
+            let result = confirm("Are you sure to delete this run?");
             if (result)
                 deleteRow(iterStat, runId);
         }
@@ -880,6 +895,8 @@
                 $("#testDatasetPart").removeClass("hidden");
             }
         })
+
+
 
     </script>
 </div>

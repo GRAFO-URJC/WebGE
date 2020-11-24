@@ -87,7 +87,9 @@ public class Fitness {
         int n = target.length;
 
         // first pass
-        double sumx = 0.0, sumy = 0.0, sumx2 = 0.0;
+        double sumx = 0.0;
+        double sumy = 0.0;
+        double sumx2 = 0.0;
         for (int i = 0; i < n; i++) {
             sumx += prediction[i];
             sumx2 += prediction[i] * prediction[i];
@@ -97,13 +99,19 @@ public class Fitness {
         double ybar = sumy / n;
 
         // second pass: compute summary statistics
-        double xxbar = 0.0, yybar = 0.0, xybar = 0.0;
+        double xxbar = 0.0;
+        double yybar = 0.0;
+        double xybar = 0.0;
+
         for (int i = 0; i < n; i++) {
             xxbar += (prediction[i] - xbar) * (prediction[i] - xbar);
             yybar += (target[i] - ybar) * (target[i] - ybar);
             xybar += (prediction[i] - xbar) * (target[i] - ybar);
         }
-        double slope = xybar / xxbar;
+        double slope = 0;
+        if (xxbar != 0) {
+            slope = xybar / xxbar;
+        }
         double intercept = ybar - slope * xbar;
 
         // more statistical analysis
@@ -112,8 +120,11 @@ public class Fitness {
             double fit = slope * prediction[i] + intercept;
             ssr += (fit - ybar) * (fit - ybar);
         }
-
-        return ssr / yybar;
+        if(yybar!= 0) {
+            return ssr / yybar;
+        }else{
+            return 0;
+        }
     }
 
     public double test() {

@@ -6,7 +6,6 @@ import com.engine.util.UtilStats;
 import com.gramevapp.web.model.*;
 import com.gramevapp.web.repository.GrammarRepository;
 import com.gramevapp.web.service.*;
-import net.bytebuddy.pool.TypePool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +18,7 @@ import javax.validation.Valid;
 import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,6 +32,8 @@ public class ExperimentController {
     private static HashMap<Long, RunnableExpGramEv> runnables = new HashMap<>();
     private static final String LOGGER_BASE_PATH = "resources/files/logs/population";
 
+    Logger logger = Logger.getLogger(ExperimentController.class.getName());
+    private final static String CONFIGEXPERIMENTPATH = "experiment/configExperiment";
     @Autowired
     private ExperimentService experimentService;
 
@@ -92,9 +94,10 @@ public class ExperimentController {
         model.addAttribute("user", user);
         model.addAttribute("configExp", new ConfigExperimentDto());
         model.addAttribute("disabledClone", true);
+        model.addAttribute("exists", false);
         modelAddData(model, user, null, null, null);
 
-        return "experiment/configExperiment";
+        return CONFIGEXPERIMENTPATH;
     }
 
     /**
@@ -110,7 +113,7 @@ public class ExperimentController {
                                 @ModelAttribute("typeFile") FileModelDto fileModelDto,
                                 @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
                                 BindingResult result,
-                                RedirectAttributes redirectAttrs) throws IllegalStateException, IOException {
+                                RedirectAttributes redirectAttrs) throws IOException {
 
         User user = userService.getLoggedInUser();
         modelAddData(model, user, null, null, null);
@@ -118,8 +121,15 @@ public class ExperimentController {
         // Check the data received
         if (result.hasErrors()) {
             model.addAttribute(CONFIGURATION, configExpDto);
-            return "experiment/configExperiment";
+            return CONFIGEXPERIMENTPATH;
         }
+
+        if(experimentService.findExperimentByExperimentNameAndUserId(configExpDto.getExperimentName(), user.getId())!= null) {
+            model.addAttribute(CONFIGURATION, configExpDto);
+            model.addAttribute("exists", true);
+            return CONFIGEXPERIMENTPATH;
+        }
+
 
         // Experiment Data Type SECTION
         Dataset expDataType = experimentService.
@@ -194,6 +204,7 @@ public class ExperimentController {
         // END - Create ExpPropertiesDto file
 
         // Execute program with experiment info
+
         File propertiesFile = new File(propertiesFilePath);
         Reader propertiesReader = new FileReader(propertiesFile);
 
@@ -212,14 +223,14 @@ public class ExperimentController {
                                  @RequestParam("testExperimentDataTypeId") String testExperimentDataTypeId,
                                  @ModelAttribute("typeFile") FileModelDto fileModelDto,
                                  @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
-                                 BindingResult result) throws IllegalStateException, IOException {
+                                 BindingResult result) throws IOException {
 
         User user = userService.getLoggedInUser();
         modelAddData(model, user, null, null, null);
         model.addAttribute(CONFIGURATION, configExpDto);
 
         if (result.hasErrors()) {
-            return "experiment/configExperiment";
+            return CONFIGEXPERIMENTPATH;
         }
 
         Experiment exp = null;
@@ -230,7 +241,7 @@ public class ExperimentController {
             model.addAttribute(CONFIGURATION, configExpDto);
             model.addAttribute(EXPCONFIG, configExpDto);
             result.rejectValue("typeFile", "error.typeFile", "Choose one file");
-            return "experiment/configExperiment";
+            return CONFIGEXPERIMENTPATH;
         } else {
             expDataType = experimentService.findDataTypeById(Long.parseLong(experimentDataTypeId));
         }
@@ -273,7 +284,7 @@ public class ExperimentController {
                         exp.getIdExpDataTypeList(), testExperimentDataType == null ? null : testExperimentDataType.getId());
 
                 model.addAttribute(RUNLIST, exp.getIdRunList());
-                return "experiment/configExperiment";
+                return CONFIGEXPERIMENTPATH;
             }
         }
 
@@ -290,7 +301,7 @@ public class ExperimentController {
                 exp.getIdExpDataTypeList(), testExperimentDataType == null ? null : testExperimentDataType.getId());
 
         model.addAttribute(EXPCONFIG, configExpDto);
-        return "experiment/configExperiment";
+        return CONFIGEXPERIMENTPATH;
 
     }
 
@@ -298,7 +309,7 @@ public class ExperimentController {
     public String cloneExperiment(Model model,
                                   @RequestParam("experimentDataTypeId") String experimentDataTypeId,
                                   @ModelAttribute("typeFile") FileModelDto fileModelDto,
-                                  @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto) throws IllegalStateException {
+                                  @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto){
         User user = userService.getLoggedInUser();
         configExpDto.setId(null);
 
@@ -309,8 +320,8 @@ public class ExperimentController {
                 null, configExpDto.getTestDefaultExpDataTypeId());
         model.addAttribute("disabledClone", true);
         model.addAttribute("messageClone", "This experiment is cloned and not saved yet.");
-        //saveInBD();
-        return "experiment/configExperiment";
+
+        return CONFIGEXPERIMENTPATH;
     }
 
     @GetMapping(value = "/experiment/experimentRepository")
@@ -347,7 +358,7 @@ public class ExperimentController {
         model.addAttribute("configExp", configExpDto);
         model.addAttribute(RUNLIST, runList);
 
-        return "experiment/configExperiment";
+        return CONFIGEXPERIMENTPATH;
     }
 
     @PostMapping(value = "/experiment/expRepoSelected", params = "deleteExperiment")
@@ -366,7 +377,6 @@ public class ExperimentController {
             Thread th = threadMap.get(threadId);
             if (th != null) {
                 runIt.setStatus(Run.Status.STOPPED);
-                //runService.saveRun(runIt);
                 saveDBService.saveRunAsync(runIt);
 
                 th.interrupt();
@@ -388,6 +398,30 @@ public class ExperimentController {
         return idExp;
     }
 
+
+    @PostMapping(value = "/experiment/expRepoSelected", params = "checkIfRunning")
+    public
+    @ResponseBody
+    Boolean expRepoSelectedCheckRunning(@RequestParam("experimentId") String experimentId) {
+        Long idExp = Long.parseLong(experimentId);
+
+        Experiment expConfig = experimentService.findExperimentById(idExp);
+
+        Iterator<Run> listRunIt = expConfig.getIdRunList().iterator();
+        while (listRunIt.hasNext()) {
+            Run runIt = listRunIt.next();
+
+            if (runIt.getStatus().equals(Run.Status.RUNNING)){
+                return true;
+            }
+
+        }
+        return false;
+    }
+
+
+
+
     @GetMapping(value = "/experiment/runList", params = "showPlotExecutionButton")
     public String showPlotExecutionExperiment(Model model,
                                               @RequestParam(value = RUNID) String runId) {
@@ -404,7 +438,7 @@ public class ExperimentController {
 
     @GetMapping(value = "/experiment/runList", params = "showTestStatsPlotButton")
     public String showRunTestStatsExperiment(Model model,
-                                             @RequestParam(value = RUNID) String runId) throws IllegalArgumentException {
+                                             @RequestParam(value = RUNID) String runId) {
         Run run = runService.findByRunId(Long.parseLong(runId));
         int crossRunIdentifier = run.getExperimentId().getIdRunList().indexOf(run) + 1;
         List<Double> listYLine = new ArrayList<>();
@@ -420,7 +454,7 @@ public class ExperimentController {
             splitContent[0] = splitContent[0].substring(0, splitContent[0].length() - 5) + "\r\n";
             splitContentList.add(splitContent[0]);
             testSplitContentList.add(splitContent[0]);
-            //index last ;
+
             int indexFold;
             for (int i = 1; i < splitContent.length; i++) {
                 indexFold = splitContent[i].lastIndexOf(';');
@@ -455,8 +489,9 @@ public class ExperimentController {
             } else {
                 splitContent = experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultTestExpDataTypeId()).getInfo().split("\r\n");
             }
-
-            processExperimentDataTypeInfo(splitContent, testListYLine, testListFunctionResult, testResult, run);
+            if (splitContent != null) {
+                processExperimentDataTypeInfo(splitContent, testListYLine, testListFunctionResult, testResult, run);
+            }
             model.addAttribute("testRMSE", testResult.get(0));
             model.addAttribute("testAvgError", testResult.get(1));
             model.addAttribute("testRSquare", testResult.get(2));
@@ -471,11 +506,15 @@ public class ExperimentController {
         return "experiment/showTestStatsPlot";
     }
 
+
+
+
     private void processExperimentDataTypeInfo(String[] splitContent, List<Double> listYLine, List<Double> listFunctionResult, List<Double> result,
-                                               Run run) throws IllegalArgumentException {
+                                               Run run) {
         double[] yDoubleArray = new double[splitContent.length - 1];
         double[] functionResultDoubleArray = new double[splitContent.length - 1];
-        double yValue, modelValue;
+        double yValue;
+        double modelValue;
 
         for (int i = 1; i < splitContent.length; i++) {
             String[] contentSplit = splitContent[i].split(";");
@@ -500,6 +539,7 @@ public class ExperimentController {
 
     private Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier) throws IOException {
         File propertiesFile = new File(propPath);
+
         Reader propertiesReader = new FileReader(propertiesFile);
 
         Properties properties = new Properties();
@@ -513,7 +553,7 @@ public class ExperimentController {
             RunExecutionReport runExecutionReport = runService.getRunExecutionReport(run.getId());
             runExecutionReport.setExecutionReport(runExecutionReport.getExecutionReport() + "\nUncaught exception: " + ex);
             runService.saveRunExecutionReport(runExecutionReport);
-            System.out.println(("Uncaught exception: " + ex));
+            logger.warning("Uncaught exception: " + ex);
         };
         Thread th = new Thread(obj);
         th.setUncaughtExceptionHandler(h);
@@ -578,7 +618,7 @@ public class ExperimentController {
 
     }
 
-    private String grammarFileSection(User user, ConfigExperimentDto configExpDto, String grammar) throws IllegalStateException, IOException {
+    private String grammarFileSection(User user, ConfigExperimentDto configExpDto, String grammar) throws IOException {
 
         File dir = new File(GRAMMAR_DIR_PATH + user.getId());
         if (!dir.exists())
@@ -686,13 +726,9 @@ public class ExperimentController {
         th.join();
         run = runService.findByRunId(Long.parseLong(runIdStop));
         run.getDiagramData().setStopped(true);
-
-        //diagramDataService.saveDiagram(run.getDiagramData());
         saveDBService.saveDiagramDataAsync(run.getDiagramData());
 
         run.setStatus(Run.Status.STOPPED);
-
-        //runService.saveRun(run);
         saveDBService.saveRunAsync(run);
 
         if (model != null) {
@@ -759,7 +795,7 @@ public class ExperimentController {
         configExpDto.setObjective(objective);
     }
 
-    public static HashMap<Long, RunnableExpGramEv> getRunnables() {
+    public static Map<Long, RunnableExpGramEv> getRunnables() {
         return runnables;
     }
 
@@ -818,7 +854,7 @@ public class ExperimentController {
 
     @GetMapping(value = "/runResultsInfo")
     @ResponseBody
-    public RunResultsDto getRunResultsInfo(@RequestParam("expId") String expId) throws IllegalArgumentException {
+    public RunResultsDto getRunResultsInfo(@RequestParam("expId") String expId) {
         Experiment experiment = experimentService.findExperimentById(Long.valueOf(expId));
         boolean haveTest = experiment.getDefaultTestExpDataTypeId() != null;
         RunResultsDto runResultsDto = new RunResultsDto(experiment.getIdRunList().size(),
@@ -843,14 +879,19 @@ public class ExperimentController {
                 } else {
                     String[] rows = experimentService.findExperimentDataTypeById(experiment.getDefaultExpDataType()).getInfo().split("\r\n");
                     intoForSplit += rows[0].substring(0, rows[0].length() - 7) + "\r\n";
-                    //index last ;
-                    int indexFold, identifier, crossRunIdentifier = experiment.getIdRunList().indexOf(run) + 1;
+
+                    int indexFold = 0;
+                    int identifier = 0;
+                    int crossRunIdentifier = experiment.getIdRunList().indexOf(run) + 1;
                     for (int i = 1; i < rows.length; i++) {
                         indexFold = rows[i].lastIndexOf(';');
                         identifier = Integer.parseInt(rows[i].substring(indexFold + 1));
                         //check if have cross
                         if (crossRunIdentifier < 0 || identifier == crossRunIdentifier) {
-                            intoForSplit += rows[i].substring(0, indexFold) + "\r\n";
+                            StringBuilder stringBuilder = new StringBuilder(intoForSplit);
+                            stringBuilder.append(rows[i].substring(0, indexFold));
+                            stringBuilder.append("\r\n");
+                            intoForSplit = String.valueOf(stringBuilder);
                         }
                     }
                 }

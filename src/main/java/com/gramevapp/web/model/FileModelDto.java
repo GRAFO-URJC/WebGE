@@ -48,8 +48,8 @@ public class FileModelDto {
         }
 
         @Override
-        public void transferTo(File file) throws IllegalStateException {
-
+        public void transferTo(File file){
+            //Transfer to file
         }
     };
 

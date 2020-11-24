@@ -51,14 +51,17 @@ public class RunnableExpGramEv implements Runnable {
             String[] splitInfo = datasetInfo.split("\r\n");
             datasetInfo = "";
             datasetInfo += splitInfo[0].substring(0, splitInfo[0].length() - ";K-Fold".length()) + "\r\n";
-            //index last ;
-            int indexFold, identifier;
+
+            int indexFold;
+            int identifier;
             for (int i = 1; i < splitInfo.length; i++) {
                 indexFold = splitInfo[i].lastIndexOf(';');
                 identifier = Integer.parseInt(splitInfo[i].substring(indexFold + 1));
                 //check if have cross
                 if (crossRunIdentifier < 0 || identifier != crossRunIdentifier) {
-                    datasetInfo += splitInfo[i].substring(0, indexFold) + "\r\n";
+                    StringBuilder stringBuilder = new StringBuilder(datasetInfo);
+                    stringBuilder.append(splitInfo[i].substring(0, indexFold));
+                    stringBuilder.append("\r\n");
                 }
             }
         }
