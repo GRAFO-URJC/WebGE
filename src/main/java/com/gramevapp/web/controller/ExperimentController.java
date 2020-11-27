@@ -94,7 +94,6 @@ public class ExperimentController {
         model.addAttribute("user", user);
         model.addAttribute("configExp", new ConfigExperimentDto());
         model.addAttribute("disabledClone", true);
-        model.addAttribute("exists", false);
         modelAddData(model, user, null, null, null);
 
         return CONFIGEXPERIMENTPATH;
@@ -123,13 +122,6 @@ public class ExperimentController {
             model.addAttribute(CONFIGURATION, configExpDto);
             return CONFIGEXPERIMENTPATH;
         }
-
-        if(experimentService.findExperimentByExperimentNameAndUserId(configExpDto.getExperimentName(), user.getId())!= null) {
-            model.addAttribute(CONFIGURATION, configExpDto);
-            model.addAttribute("exists", true);
-            return CONFIGEXPERIMENTPATH;
-        }
-
 
         // Experiment Data Type SECTION
         Dataset expDataType = experimentService.
@@ -168,7 +160,7 @@ public class ExperimentController {
             propPath = expPropertiesSet(configExpDto,
                     user, expDataType, grammarFilePath);
             // Run experiment in new thread
-            threads.add(runExperimentDetails(run, propPath, exp.isCrossExperiment() ? (i + 1) / expDataType.getFoldSize() : -1));
+            threads.add(runExperimentDetails(run, propPath, exp.isCrossExperiment() ? (i + 1) / expDataType.getFoldSize() : -1, configExpDto.getObjective()));
 
         }
         experimentService.saveExperiment(exp);
@@ -537,7 +529,7 @@ public class ExperimentController {
         result.add(UtilStats.computeAbsoluteError(yDoubleArray, functionResultDoubleArray));
     }
 
-    private Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier) throws IOException {
+    private Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier, String objective) throws IOException {
         File propertiesFile = new File(propPath);
 
         Reader propertiesReader = new FileReader(propertiesFile);
@@ -547,7 +539,7 @@ public class ExperimentController {
         properties.setProperty(TRAINING_PATH_PROP, propPath);
         RunnableExpGramEv obj = new RunnableExpGramEv(properties, run,
                 experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService,
-                saveDBService, crossRunIdentifier);
+                saveDBService, crossRunIdentifier, objective);
         Thread.UncaughtExceptionHandler h = (th, ex) -> {
             run.setStatus(Run.Status.FAILED);
             RunExecutionReport runExecutionReport = runService.getRunExecutionReport(run.getId());

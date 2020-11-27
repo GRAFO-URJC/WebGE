@@ -60,10 +60,6 @@ public class ExperimentService {
         return experimentDataTypeRepository.findByDataTypeNameAndUserIdUserId (name, userId);
     }
 
-    public Experiment findExperimentByExperimentNameAndUserId(String name, Long userId){
-        return experimentRepository.findByExperimentNameAndUserId(name, userId);
-    }
-
     public void deleteExperiment(Experiment experiment) {
         experimentRepository.delete(experiment);
     }

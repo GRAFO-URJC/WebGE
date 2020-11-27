@@ -20,6 +20,7 @@ import jeco.core.problem.Solutions;
 import jeco.core.problem.Variable;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
+import org.springframework.ui.Model;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -63,15 +64,16 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     public static final String REPORT_HEADER = "Obj.;Model;Time";
     public List<String> executionReport = new ArrayList<>();
 
+    private String objective;
 
-    public SymbolicRegressionGE(Properties properties, int numObjectives) {
+    public SymbolicRegressionGE(Properties properties, int numObjectives, String objective) {
         super(properties.getProperty(com.engine.util.Common.BNF_PATH_FILE_PROP), numObjectives,
                 Integer.parseInt(properties.getProperty(com.engine.util.Common.CHROMOSOME_LENGTH_PROP)),
                 Integer.parseInt(properties.getProperty(com.engine.util.Common.MAX_WRAPS_PROP)),
                 AbstractProblemGE.CODON_UPPER_BOUND_DEFAULT);
 
         this.properties = properties;
-
+        this.objective = objective;
         if (this.properties.getProperty(com.engine.util.Common.SENSIBLE_INITIALIZATION) != null) { // Not initializated in properties
             this.setSensibleInitialization(true, Double.parseDouble(this.properties.getProperty(com.engine.util.Common.SENSIBLE_INITIALIZATION)));
         }
@@ -114,15 +116,11 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         }
 
         try {
-            // Calculate fitness
-            Fitness fitness = new Fitness(func, prediction);
-            double fValue = fitness.r2();
-            // Control valid value as fitness
+            double fValue = ModelEvaluator.calculateObjective(func, prediction, objective);
             if (Double.isNaN(fValue)) {
                 solution.getObjectives().set(0, Double.POSITIVE_INFINITY);
             } else {
-                // R2 best is 1, but we are minimizing
-                solution.getObjectives().set(0, 1.0 - fValue);
+                solution.getObjectives().set(0, fValue);
             }
         } catch (NumberFormatException e) {
             failed = true;
@@ -159,7 +157,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
     @Override
     public SymbolicRegressionGE clone() {
-        return new SymbolicRegressionGE(properties, this.numberOfObjectives);
+        return new SymbolicRegressionGE(properties, this.numberOfObjectives, objective);
     }
 
 
@@ -197,7 +195,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
                 buffer.append("Evaluation;");
             }
             buffer.append("\n");
-            addToLogFile(buffer.toString());
+            //addToLogFile(buffer.toString());
         }
 
         int numObjectives = 1;

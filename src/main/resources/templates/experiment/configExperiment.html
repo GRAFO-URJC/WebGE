@@ -83,11 +83,7 @@
                     </div>
 
                     <div class="row center-block form-horizontal">
-                        <div class="row form-group" th:if="${exists}" >
-                            <div class="col-sm-12 col-md-12 col-lg-12">
-                                <p style="color:red"><strong>There is already an experiment with that name</strong></p>
-                            </div>
-                        </div>
+
                         <!-- Experiment NAME and DESCRIPTION -->
                         <div class="row form-group" th:if="${configuration.getId() != null}">
                             <div class="col-sm-12 col-md-12 col-lg-12">
@@ -189,31 +185,49 @@
                                                id="numCodons"/>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-6 col-lg-6">
+                                <div th:classappend="${configuration.isEmpty(configuration.getObjective())}? 'col-sm-12 col-md-6 col-lg-6':'col-sm-12 col-md-6 col-lg-4'">
                                     <label for="tournament">Tournament:</label>
                                     <div th:classappend="${#fields.hasErrors('tournament')}? 'has-error':'tournament error'">
                                         <input type="number" class="text-center" th:min="0"
-                                               th:value="${configuration.getTournament()}" value="2" name="tournament"
+                                               th:style="'width: ' +@{${configuration.isEmpty(configuration.getObjective())}? '':'100%'}"
+                                                th:value="${configuration.getTournament()}" value="2" name="tournament"
                                                id="tournament"/>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-6 col-lg-6">
+                                <div th:classappend="${configuration.isEmpty(configuration.getObjective())}? 'col-sm-12 col-md-6 col-lg-6':'col-sm-12 col-md-6 col-lg-4'">
                                     <label for="numberRuns">Number of runs:</label>
                                     <div th:classappend="${#fields.hasErrors('numberRuns')}? 'has-error':'numberRuns error'">
                                         <input type="number" class="text-center" min="1"
+                                               th:style="'width: ' +@{${configuration.isEmpty(configuration.getObjective())}? '':'100%'}"
+
                                                th:value="${configuration.getNumberRuns()}" value="1" name="numberRuns"
                                                id="numberRuns"/>
                                     </div>
                                 </div>
+                                <div class="col-sm-12 col-md-6 col-lg-4"
+                                     th:style="'display: ' +@{${configuration.isEmpty(configuration.getObjective())}? 'none':'inline'}">
+                                    <label for="objective">Obj. func. selected: </label>
+                                    <div>
+                                        <input type="text" class="text-center" disabled style="background-color: #eeeeee; width:100%"
+                                               th:value="${configuration.getObjective()}" value = "vacío" name="objectiveSelected"
+                                               id="objectiveSelected"/>
+                                    </div>
+                                </div>
+
                             </div>
 
                             <div class="row form-group text-center">
-                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                <div class = "col-sm-12 col-md-12 col-lg-12">
                                     <label for="tournament">Objective function:</label>
-                                    <select class="form-control" name="objective" id="objective">
-                                        <option value="RMSE">Root Mean Squared Error (RMSE)</option>
+                                    <select class="form-control" name="objective" id="objective" >
+                                        <option value = "RMSE"> Root Mean Squared Error (RMSE) </option>
+                                        <option value= "MSE"> Mean Squared Error (MSE)</option>
+                                        <option value= "R2">R-Squared (R2)</option>
+                                        <option value= "ABS"> Absolute Error (ABS) </option>
+                                        <option value= "REL"> Relative Error (REL)</option>
                                     </select>
                                 </div>
+
                             </div>
                         </div>
                         <!-- END ExpPropertiesDto -->

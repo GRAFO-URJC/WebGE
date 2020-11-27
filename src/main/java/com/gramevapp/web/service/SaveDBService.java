@@ -84,7 +84,7 @@ public class SaveDBService {
         try {
             diagramDataqueue.put(diagramData);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+           // e.printStackTrace();
             Thread.currentThread().interrupt();
         }
     }
@@ -93,7 +93,7 @@ public class SaveDBService {
         try {
             runsQueue.put(run);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+           // e.printStackTrace();
             Thread.currentThread().interrupt();
         }
     }

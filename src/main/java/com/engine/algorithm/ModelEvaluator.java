@@ -3,10 +3,10 @@ package com.engine.algorithm;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
-import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 public class ModelEvaluator {
@@ -23,16 +23,17 @@ public class ModelEvaluator {
     public static int objective;
 
 
-    private ModelEvaluator (){
+    private ModelEvaluator() {
         //Private constructor to hide the public one
     }
-   public static double[][] loadData(String dataPath) throws IOException {
+
+    public static double[][] loadData(String dataPath) throws IOException {
 
         // Firstly, a list is created to account for the number of elements to instantiate in the matrix.
         ArrayList<String> lines = new ArrayList<>();
 
-       BufferedReader reader = null;
-       try {
+        BufferedReader reader = null;
+        try {
             reader = new BufferedReader(new FileReader(new File(dataPath)));
 
             String line;
@@ -47,17 +48,17 @@ public class ModelEvaluator {
             logger.info("Training file not found: " + e.getLocalizedMessage());
         } catch (IOException e) {
             e.printStackTrace();
-        }finally{
-           if(reader!=null){
-               reader.close();
-           }
-       }
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
+        }
 
 
         // Process the list
         double[][] matrix = new double[lines.size()][];
 
-        for (int i=0; i<lines.size(); i++) {
+        for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
             String[] parts = line.split(";");
             matrix[i] = new double[parts.length];
@@ -125,10 +126,10 @@ public class ModelEvaluator {
         // Generation of the prediction:
 
         // Array for predicted values
-        double[] prediction = obtainPrediction(exp,trainingData);
+        double[] prediction = obtainPrediction(exp, trainingData);
 
-        return calculateObjective(trainingData,prediction);
-
+        //return calculateObjective(trainingData, prediction);
+        return 0.0;
     }
 
 
@@ -162,50 +163,49 @@ public class ModelEvaluator {
     }
 
 
-
     /**
      * Returns the result of calculating the objective function.
      *
      * @param expected
      * @param prediction
      */
-    public static double calculateObjective(double[][] expected, double[] prediction) {
+    public static double calculateObjective(double[] expected, double[] prediction) {
 
         switch (objective) {
             case R2:
-                return 1.0 - computeR2(expected,prediction);
+                return 1.0 - computeR2(expected, prediction);
             case ABSOLUTE_ERROR:
-                return computeAbsoluteError(expected,prediction);
+                return computeAbsoluteError(expected, prediction);
             case MEAN_SQUARED_ERROR:
-                return computeMSE(expected,prediction);
+                return computeMSE(expected, prediction);
             case RELATIVE_ERROR:
-                return  computeRelativeError(expected,prediction);
+                return computeRelativeError(expected, prediction);
             default:
                 // RMSE
-                return Math.sqrt(computeMSE(expected,prediction));
+                return Math.sqrt(computeMSE(expected, prediction));
         }
     }
 
 
-    private static SimpleRegression createRegressionMatrix(double[][] expected, double[] observed) {
+    private static SimpleRegression createRegressionMatrix(double[]expected, double[] observed) {
         SimpleRegression sr = new SimpleRegression();
         for (int i = 0; i < expected.length; i++) {
-            sr.addData(expected[i][0], observed[i]);
+            sr.addData(expected[i], observed[i]);
         }
 
         return sr;
     }
 
 
-    public static double computeR2(double[][] expected, double[] observed) {
-        return createRegressionMatrix(expected,observed).getRSquare();
+    public static double computeR2(double[]expected, double[] observed) {
+        return createRegressionMatrix(expected, observed).getRSquare();
     }
 
 
-    public static double computeAbsoluteError(double[][] expected, double[] observed) {
+    public static double computeAbsoluteError(double[] expected, double[] observed) {
         double error = 0.0;
         for (int k = 0; k < expected.length; ++k) {
-            error += Math.abs(expected[k][0] - observed[k]);
+            error += Math.abs(expected[k] - observed[k]);
         }
         return error;
     }
@@ -218,24 +218,24 @@ public class ModelEvaluator {
      * @param prediction
      * @return
      */
-    private static double computeRelativeError(double[][] expected, double[] prediction) {
+    private static double computeRelativeError(double[] expected, double[] prediction) {
         // Mean squared error:
         double acu = 0;
 
         for (int i = 0; i < expected.length; i++) {
-            acu += Math.abs (expected[i][0] - prediction[i]) * 100.0 / expected[i][0];
+            acu += Math.abs(expected[i]- prediction[i]) * 100.0 / expected[i];
         }
 
         return acu / (double) prediction.length;
     }
 
 
-    public static double computeMSE(double[][] expected, double[] observed) {
+    public static double computeMSE(double[] expected, double[] observed) {
         // Mean squared error:
         double acu = 0;
 
         for (int i = 0; i < expected.length; i++) {
-            acu += Math.pow(expected[i][0] - observed[i], 2);
+            acu += Math.pow(expected[i]- observed[i], 2);
         }
 
         return acu / (double) observed.length;
@@ -260,7 +260,43 @@ public class ModelEvaluator {
     }
 
 
+    public static double calculateObjective(String[][] target, String[] prediction, String objective) {
+        double[] targetDouble;
+        double[] predictionDouble;
+        String[] oneDTarget = convert2dTo1d(target);
+        String[] auxTarget = Arrays.copyOfRange(oneDTarget, 1, oneDTarget.length);
+        String[] auxPrediction = Arrays.copyOfRange(prediction, 1, prediction.length);
 
+        targetDouble = Arrays.stream(auxTarget)
+                .mapToDouble(Double::parseDouble)
+                .toArray();
+        predictionDouble = Arrays.stream(auxPrediction)
+                .mapToDouble(Double::parseDouble)
+                .toArray();
+
+        switch (objective) {
+            case "R2":
+                return 1.0 - computeR2(targetDouble, predictionDouble);
+            case "ABS":
+                return computeAbsoluteError(targetDouble, predictionDouble);
+            case "MSE":
+                return computeMSE(targetDouble, predictionDouble);
+            case "REL":
+                return computeRelativeError(targetDouble, predictionDouble);
+            default:
+                // RMSE
+                return Math.sqrt(computeMSE(targetDouble, predictionDouble));
+        }
+
+    }
+
+    //Method to get the first colum from an array
+    private static String[] convert2dTo1d(String[][] array) {
+        String[] oneDimensional = new String[array.length];
+        for (int i = 0; i < array.length; i++)
+            oneDimensional[i] = array[i][0];
+        return oneDimensional;
+    }
     /* *
      * Evaluates a final solution, and includes more stats.
      * @param sol

@@ -63,7 +63,7 @@ public class ConfigExperimentDto {
      */
     @NotNull
     @Size(min = 1)
-    private String objective="RMSE";
+    private String objective="";
 
     public Long getId() {
         return id;
@@ -216,5 +216,9 @@ public class ConfigExperimentDto {
 
     public void setContentFold(boolean contentFold) {
         this.contentFold = contentFold;
+    }
+
+    public boolean isEmpty(String objective){
+        return objective.equals("");
     }
 }
