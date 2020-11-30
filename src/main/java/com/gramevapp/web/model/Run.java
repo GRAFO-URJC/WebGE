@@ -14,7 +14,7 @@ import java.util.Objects;
 @Table(name = "run")
 @DynamicUpdate
 public class Run {
-    public enum Status {INITIALIZING, WAITING, RUNNING, STOPPED, FINISHED, FAILED}
+    public enum Status {INITIALIZING, WAITING, RUNNING, STOPPED, FINISHED, FAILED, CANCELLED}
 
 
     @Id

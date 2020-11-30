@@ -52,6 +52,7 @@ public class ExperimentController {
     @Autowired
     private SaveDBService saveDBService;
 
+    private boolean executionCancelled;
 
     @ModelAttribute
     public FileModelDto fileModel() {
@@ -164,10 +165,13 @@ public class ExperimentController {
 
         }
         experimentService.saveExperiment(exp);
-
+        executionCancelled = false;
         Thread thread = new Thread(() -> {
             try {
                 for (Thread th : threads) {
+                    if(executionCancelled){
+                        break;
+                    }
                     th.start();
                     th.join();
                 }
@@ -739,6 +743,30 @@ public class ExperimentController {
         this.stopRunExperiment(null, runIdStop, null);
         return true;
     }
+
+    @PostMapping(value = "/experiment/stopAllRunsAjax")
+    @ResponseBody
+    public boolean ajaxStopAllRunsExperiment(@RequestParam("expId") Long expId) throws InterruptedException {
+
+        this.executionCancelled = true;
+        Experiment experiment = experimentService.findExperimentById(expId);
+        List<Run> runList = experiment.getIdRunList();
+        for (Run run : runList){
+
+           if(!run.getStatus().equals(Run.Status.RUNNING)){
+               run.setStatus(Run.Status.CANCELLED);
+               saveDBService.saveRunAsync(run);
+           }else{
+
+               ajaxStopRunExperiment(String.valueOf(run.getId()));
+           }
+
+        }
+
+
+         return true;
+    }
+
 
     @PostMapping(value = "/experiment/expRepoSelected", params = "deleteRun")
     public
