@@ -195,27 +195,16 @@
                                                id="tournament"/>
                                     </div>
                                 </div>
-                                <div th:classappend="${configuration.isEmpty(configuration.getObjective())}? 'col-sm-12 col-md-6 col-lg-6':'col-sm-12 col-md-6 col-lg-4'">
+                                <div class='col-sm-12 col-md-6 col-lg-4'>
                                     <label for="numberRuns">Number of runs:</label>
                                     <div th:classappend="${#fields.hasErrors('numberRuns')}? 'has-error':'numberRuns error'">
                                         <input type="number" class="text-center" min="1"
-                                               th:style="'width: ' +@{${configuration.isEmpty(configuration.getObjective())}? '':'100%'}"
 
                                                th:value="${configuration.getNumberRuns()}" value="1" name="numberRuns"
                                                id="numberRuns"/>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-6 col-lg-4"
-                                     th:style="'display: ' +@{${configuration.isEmpty(configuration.getObjective())}? 'none':'inline'}">
-                                    <label for="objective">Selected Obj. Funct.: </label>
-                                    <div>
-                                        <input type="text" class="text-center" disabled
-                                               style="background-color: #eeeeee; width:100%"
-                                               th:value="${configuration.getObjective()}" value="vacío"
-                                               name="objectiveSelected"
-                                               id="objectiveSelected"/>
-                                    </div>
-                                </div>
+
 
                             </div>
 
@@ -223,11 +212,11 @@
                                 <div class="col-sm-12 col-md-12 col-lg-12">
                                     <label for="tournament">Objective function:</label>
                                     <select class="form-control" name="objective" id="objective">
-                                        <option value="RMSE"> Root Mean Squared Error (RMSE)</option>
-                                        <option value="MSE"> Mean Squared Error (MSE)</option>
-                                        <option value="R2">R-Squared (R2)</option>
-                                        <option value="ABS"> Absolute Error (ABS)</option>
-                                        <option value="REL"> Relative Error (REL)</option>
+                                        <option value="RMSE" id ="RMSE"> Root Mean Squared Error (RMSE)</option>
+                                        <option value="MSE" id="MSE"> Mean Squared Error (MSE)</option>
+                                        <option value="R2" id = "R2">R-Squared (R2)</option>
+                                        <option value="ABS" id="ABS"> Absolute Error (ABS)</option>
+                                        <option value="REL" id="REL"> Relative Error (REL)</option>
                                     </select>
                                 </div>
 
@@ -596,6 +585,7 @@
             saveDatasetInfo();
             updateDatasetContent()
             updateTestDatasetContent()
+            setObjectiveFunction();
 
             $('[name="status"]').each(function (index) {
                 if (($(this).text() == "FINISHED") || ($(this).text() == "STOPPED") || ($(this).text() == "FAILED")) {
@@ -645,6 +635,16 @@
             }
         });
 
+
+        function setObjectiveFunction(){
+
+            $('[name=objective ] option').filter(function() {
+                return ($(this).val() == experimentInformation['objective']);
+            }).prop('selected', true);
+
+
+
+        }
         function copyGrammar() {
             if (grammarList[$("#grammarSelect").val()]) {
                 $("#fileText").val(grammarList[$("#grammarSelect").val()].fileText);
