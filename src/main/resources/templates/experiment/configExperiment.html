@@ -186,7 +186,7 @@
                                                id="numCodons"/>
                                     </div>
                                 </div>
-                                <div class='col-sm-12 col-md-6 col-lg-4'>
+                                <div class='col-sm-12 col-md-6 col-lg-6'>
                                     <label for="tournament">Tournament:</label>
                                     <div th:classappend="${#fields.hasErrors('tournament')}? 'has-error':'tournament error'">
                                         <input type="number" class="text-center" th:min="0"
@@ -194,7 +194,7 @@
                                                id="tournament"/>
                                     </div>
                                 </div>
-                                <div class='col-sm-12 col-md-6 col-lg-4'>
+                                <div class='col-sm-12 col-md-6 col-lg-6'>
                                     <label for="numberRuns">Number of runs:</label>
                                     <div th:classappend="${#fields.hasErrors('numberRuns')}? 'has-error':'numberRuns error'">
                                         <input type="number" class="text-center" min="1"
