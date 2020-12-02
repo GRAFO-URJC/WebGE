@@ -186,11 +186,10 @@
                                                id="numCodons"/>
                                     </div>
                                 </div>
-                                <div th:classappend="${configuration.isEmpty(configuration.getObjective())}? 'col-sm-12 col-md-6 col-lg-6':'col-sm-12 col-md-6 col-lg-4'">
+                                <div class='col-sm-12 col-md-6 col-lg-4'>
                                     <label for="tournament">Tournament:</label>
                                     <div th:classappend="${#fields.hasErrors('tournament')}? 'has-error':'tournament error'">
                                         <input type="number" class="text-center" th:min="0"
-                                               th:style="'width: ' +@{${configuration.isEmpty(configuration.getObjective())}? '':'100%'}"
                                                th:value="${configuration.getTournament()}" value="2" name="tournament"
                                                id="tournament"/>
                                     </div>
