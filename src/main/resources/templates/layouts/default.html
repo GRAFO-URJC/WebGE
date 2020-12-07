@@ -13,7 +13,7 @@
                 for (let i = 1, row; row = runTable.rows[i]; i++) {
                     if (row.cells[3]) {
                         if (row.cells[3].innerText !== "RUNNING" && row.cells[3].innerText !== "WAITING"
-                            && row.cells[3].innerText !== "INITIALIZING") {
+                            && row.cells[3].innerText !== "INITIALIZING" && row.cells[3].innerText !=="CANCELLED") {
                             runsDatas.push(Number(row.cells[1].innerText))
                             haveValue = true;
                         }
@@ -36,6 +36,12 @@
                     $(runsDeviation).text(stdDeviation)
                     $(maxBestSolution).text(max)
                     $(minBestSolution).text(min)
+                }else{
+                    $(runsAVG).text('No data available')
+                    $(runsDeviation).text('No data available')
+                    $(maxBestSolution).text('No data available')
+                    $(minBestSolution).text('No data available')
+
                 }
 
             }
@@ -147,7 +153,7 @@
                     downloadLink.click();
                 },
                 error: function () {
-                    alert("Wait all runs finished.");
+                    alert("Wait until all runs have finished.");
                 }
             });
         }

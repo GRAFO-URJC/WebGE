@@ -186,25 +186,29 @@
                                                id="numCodons"/>
                                     </div>
                                 </div>
-                                <div class='col-sm-12 col-md-6 col-lg-6'>
+                                <div class='col-sm-12 col-md-6 col-lg-4'>
                                     <label for="tournament">Tournament:</label>
                                     <div th:classappend="${#fields.hasErrors('tournament')}? 'has-error':'tournament error'">
-                                        <input type="number" class="text-center" th:min="0"
+                                        <input type="number" class="text-center" th:min="0" style="width: 100%"
                                                th:value="${configuration.getTournament()}" value="2" name="tournament"
                                                id="tournament"/>
                                     </div>
                                 </div>
-                                <div class='col-sm-12 col-md-6 col-lg-6'>
+                                <div class='col-sm-12 col-md-6 col-lg-4'>
                                     <label for="numberRuns">Number of runs:</label>
                                     <div th:classappend="${#fields.hasErrors('numberRuns')}? 'has-error':'numberRuns error'">
-                                        <input type="number" class="text-center" min="1"
+                                        <input type="number" class="text-center" min="1" style="width: 100%"
 
                                                th:value="${configuration.getNumberRuns()}" value="1" name="numberRuns"
                                                id="numberRuns"/>
                                     </div>
                                 </div>
-
-
+                                <div class="col-sm-12 col-md-6 col-lg-4" style="padding-top: 22px">
+                                    <label for="DE">GE + DE: </label>
+                                    <input type="checkbox" name="DE" id="DE"
+                                           th:checked="${configExp.getDE()}"
+                                            />
+                                </div>
                             </div>
 
                             <div class="row form-group text-center">
@@ -218,6 +222,9 @@
                                         <option value="REL" id="REL"> Relative Error (REL)</option>
                                     </select>
                                 </div>
+
+
+
 
                             </div>
                         </div>
@@ -586,8 +593,9 @@
             updateTestDatasetContent()
             setObjectiveFunction();
 
+
             $('[name="status"]').each(function (index) {
-                if (($(this).text() == "FINISHED") || ($(this).text() == "STOPPED") || ($(this).text() == "FAILED")) {
+                if (($(this).text() == "FINISHED") || ($(this).text() == "STOPPED") || ($(this).text() == "FAILED") || ($(this).text() == "CANCELLED")) {
                     indexesShow[index] = index;
                 }
                 if (($(this).text() == "RUNNING") || ($(this).text() == "INITIALIZING") || ($(this).text() == "WAITING")) {
@@ -629,9 +637,11 @@
                 checkShowAlert(this.id);
             })
 
+
             if (document.getElementById("crossExperiment").checked) {
                 checkedCrossValidationValue = $("#datasetId option:selected").val();
             }
+
         });
 
 
@@ -641,9 +651,10 @@
                 return ($(this).val() == experimentInformation['objective']);
             }).prop('selected', true);
 
-
-
         }
+
+
+
         function copyGrammar() {
             if (grammarList[$("#grammarSelect").val()]) {
                 $("#fileText").val(grammarList[$("#grammarSelect").val()].fileText);
@@ -735,7 +746,8 @@
                         $("#stopRunSection" + iterStat).removeClass("hidden");
                     }
 
-                    if (($(status).text() != "FINISHED") && ($(status).text() != "STOPPED") && ($(status).text() != "FAILED")) {
+                    if (($(status).text() != "FINISHED") && ($(status).text() != "STOPPED") && ($(status).text() != "FAILED")
+                     && ($(status).text() != "CANCELLED")) {
                         $("#runExperimentButton" + iterStat).addClass("hidden");
                         $("#showDelete" + iterStat).addClass("hidden");
                         setTimeout(function () {
@@ -776,7 +788,6 @@
             let bestIndividual = "#bestIndividual" + cleanIterStat;
             let model = "#model" + cleanIterStat;
 
-
             setTimeout(function () {
                 checkRunStatus(runId, status, bestIndividual, currentGeneration, model, cleanIterStat)
             }, 2000);
@@ -784,8 +795,10 @@
 
         function confirmDelete(iterStat, runId) {
             let result = confirm("Are you sure to delete this run?");
-            if (result)
+            if (result){
                 deleteRow(iterStat, runId);
+
+            }
         }
 
         function stopRun(iterStat, runId) {
@@ -844,8 +857,18 @@
                 success: function (data) {
                     $("#tr" + cleanIterStat).remove();
                     $("#trAux" + cleanIterStat).remove();
+                    calculateRunsStats(runTable, '#runsAVG', '#runsDeviation', '#maxBestSolution', '#minBestSolution');
+                    disableStopAllRunsIfNoRuns();
                 }
             });
+        }
+
+        function disableStopAllRunsIfNoRuns(){
+            var x = document.getElementById("expTypeTable").rows.length;
+            if(x<3){
+                document.getElementById("stopAllRuns").setAttribute("disabled", "disabled");
+            }
+
         }
 
         function checkNumberRuns() {
@@ -878,6 +901,7 @@
             let tournament = $('#tournament').val();
             let numberRuns = $('#numberRuns').val();
             let objective = $('#objective').val();
+            let DE = $('#DE').val();
             let grammar = $('#fileText').val();
             let datasetId = $('#experimentDataTypeId').val();
             experimentInformation['defaultExpDataTypeId'] =
@@ -893,6 +917,7 @@
                 experimentInformation['tournament'] == tournament &&
                 experimentInformation['numberRuns'] == numberRuns &&
                 experimentInformation['objective'] === objective &&
+                experimentInformation['DE'] === DE &&
                 grammar.split(/[\s]+/).join() == experimentInformation['fileText'].split(/[\s]+/).join() &&
                 experimentInformation['defaultExpDataTypeId'] == datasetId);
         }

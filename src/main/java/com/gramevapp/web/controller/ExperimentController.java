@@ -124,6 +124,9 @@ public class ExperimentController {
             return CONFIGEXPERIMENTPATH;
         }
 
+        if (configExpDto.getDE().equals("on")){
+            configExpDto.setDE("true");
+        }
         // Experiment Data Type SECTION
         Dataset expDataType = experimentService.
                 findExperimentDataTypeById(Long.valueOf(experimentDataTypeId));
