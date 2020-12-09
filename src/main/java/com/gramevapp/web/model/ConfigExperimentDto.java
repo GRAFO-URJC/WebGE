@@ -4,11 +4,11 @@ import javax.validation.constraints.*;
 
 public class ConfigExperimentDto {
     private Long id;
-    private static final String EXPERIMENTNAME_PATTERN  = "^[a-zA-Z0-9 \\[\\]()#_-]{1,254}$";
+    private static final String EXPERIMENTNAME_PATTERN = "^[a-zA-Z0-9 \\[\\]()#_-]{1,254}$";
 
     @Pattern(regexp = EXPERIMENTNAME_PATTERN, message = "Experiment name cannot have special characters. Only alphanumeric ones and []()#_- are allowed.")
-    private String experimentName="";
-    private String experimentDescription="";
+    private String experimentName = "";
+    private String experimentDescription = "";
     @Min(value = 100)
     @Max(value = 100000)
     @NotNull
@@ -48,7 +48,7 @@ public class ConfigExperimentDto {
     private Long testDefaultExpDataTypeId;
     @NotNull(message = "Grammar area text cannot be empty")
     @Size(min = 1)
-    private String fileText=""; // This is the text on the file - That's written in an areaText - So we can take it as a String
+    private String fileText = ""; // This is the text on the file - That's written in an areaText - So we can take it as a String
     private String dataTypeType = "training";   // Validation, test, training
     private String crossExperiment = "false";
     private boolean contentFold = false;
@@ -63,7 +63,10 @@ public class ConfigExperimentDto {
      */
     @NotNull
     @Size(min = 1)
-    private String objective="RMSE";
+    private String objective = "";
+
+    /** FALSE / ON */
+    private String DE = "false";
 
     public Long getId() {
         return id;
@@ -216,5 +219,17 @@ public class ConfigExperimentDto {
 
     public void setContentFold(boolean contentFold) {
         this.contentFold = contentFold;
+    }
+
+    public boolean isEmpty(String objective) {
+        return objective.equals("");
+    }
+
+    public String getDE() {
+        return DE;
+    }
+
+    public void setDE(String DE) {
+        this.DE = DE;
     }
 }

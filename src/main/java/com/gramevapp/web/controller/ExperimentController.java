@@ -52,6 +52,7 @@ public class ExperimentController {
     @Autowired
     private SaveDBService saveDBService;
 
+    private boolean executionCancelled;
 
     @ModelAttribute
     public FileModelDto fileModel() {
@@ -94,7 +95,6 @@ public class ExperimentController {
         model.addAttribute("user", user);
         model.addAttribute("configExp", new ConfigExperimentDto());
         model.addAttribute("disabledClone", true);
-        model.addAttribute("exists", false);
         modelAddData(model, user, null, null, null);
 
         return CONFIGEXPERIMENTPATH;
@@ -124,13 +124,9 @@ public class ExperimentController {
             return CONFIGEXPERIMENTPATH;
         }
 
-        if(experimentService.findExperimentByExperimentNameAndUserId(configExpDto.getExperimentName(), user.getId())!= null) {
-            model.addAttribute(CONFIGURATION, configExpDto);
-            model.addAttribute("exists", true);
-            return CONFIGEXPERIMENTPATH;
+        if (configExpDto.getDE().equals("on")){
+            configExpDto.setDE("true");
         }
-
-
         // Experiment Data Type SECTION
         Dataset expDataType = experimentService.
                 findExperimentDataTypeById(Long.valueOf(experimentDataTypeId));
@@ -168,14 +164,17 @@ public class ExperimentController {
             propPath = expPropertiesSet(configExpDto,
                     user, expDataType, grammarFilePath);
             // Run experiment in new thread
-            threads.add(runExperimentDetails(run, propPath, exp.isCrossExperiment() ? (i + 1) / expDataType.getFoldSize() : -1));
+            threads.add(runExperimentDetails(run, propPath, exp.isCrossExperiment() ? (i + 1) / expDataType.getFoldSize() : -1, configExpDto.getObjective()));
 
         }
         experimentService.saveExperiment(exp);
-
+        executionCancelled = false;
         Thread thread = new Thread(() -> {
             try {
                 for (Thread th : threads) {
+                    if(executionCancelled){
+                        break;
+                    }
                     th.start();
                     th.join();
                 }
@@ -537,7 +536,7 @@ public class ExperimentController {
         result.add(UtilStats.computeAbsoluteError(yDoubleArray, functionResultDoubleArray));
     }
 
-    private Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier) throws IOException {
+    private Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier, String objective) throws IOException {
         File propertiesFile = new File(propPath);
 
         Reader propertiesReader = new FileReader(propertiesFile);
@@ -547,7 +546,7 @@ public class ExperimentController {
         properties.setProperty(TRAINING_PATH_PROP, propPath);
         RunnableExpGramEv obj = new RunnableExpGramEv(properties, run,
                 experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService,
-                saveDBService, crossRunIdentifier);
+                saveDBService, crossRunIdentifier, objective);
         Thread.UncaughtExceptionHandler h = (th, ex) -> {
             run.setStatus(Run.Status.FAILED);
             RunExecutionReport runExecutionReport = runService.getRunExecutionReport(run.getId());
@@ -747,6 +746,30 @@ public class ExperimentController {
         this.stopRunExperiment(null, runIdStop, null);
         return true;
     }
+
+    @PostMapping(value = "/experiment/stopAllRunsAjax")
+    @ResponseBody
+    public boolean ajaxStopAllRunsExperiment(@RequestParam("expId") Long expId) throws InterruptedException {
+
+        this.executionCancelled = true;
+        Experiment experiment = experimentService.findExperimentById(expId);
+        List<Run> runList = experiment.getIdRunList();
+        for (Run run : runList){
+
+           if(!run.getStatus().equals(Run.Status.RUNNING)){
+               run.setStatus(Run.Status.CANCELLED);
+               saveDBService.saveRunAsync(run);
+           }else{
+
+               ajaxStopRunExperiment(String.valueOf(run.getId()));
+           }
+
+        }
+
+
+         return true;
+    }
+
 
     @PostMapping(value = "/experiment/expRepoSelected", params = "deleteRun")
     public

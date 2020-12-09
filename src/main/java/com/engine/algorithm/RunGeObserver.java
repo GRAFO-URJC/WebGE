@@ -61,6 +61,7 @@ public class RunGeObserver implements Observer {
         this.run = runService.findByRunId(run.getId());
         DiagramData diagramData = new DiagramData();
 
+
         if (currPercent == 100 || currBest <= 0.0)
             diagramData.setFinished(true);
 

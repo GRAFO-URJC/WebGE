@@ -15,5 +15,4 @@ public interface ExperimentRepository extends JpaRepository<Experiment, Long> {
 
     void deleteById(Long id);
 
-    Experiment findByExperimentNameAndUserId(String name, Long userId);
 }

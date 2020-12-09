@@ -45,6 +45,7 @@
         }
 
 
+
     </style>
 </head>
 
@@ -83,11 +84,7 @@
                     </div>
 
                     <div class="row center-block form-horizontal">
-                        <div class="row form-group" th:if="${exists}" >
-                            <div class="col-sm-12 col-md-12 col-lg-12">
-                                <p style="color:red"><strong>There is already an experiment with that name</strong></p>
-                            </div>
-                        </div>
+
                         <!-- Experiment NAME and DESCRIPTION -->
                         <div class="row form-group" th:if="${configuration.getId() != null}">
                             <div class="col-sm-12 col-md-12 col-lg-12">
@@ -189,21 +186,28 @@
                                                id="numCodons"/>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-6 col-lg-6">
+                                <div class='col-sm-12 col-md-6 col-lg-4'>
                                     <label for="tournament">Tournament:</label>
                                     <div th:classappend="${#fields.hasErrors('tournament')}? 'has-error':'tournament error'">
-                                        <input type="number" class="text-center" th:min="0"
+                                        <input type="number" class="text-center" th:min="0" style="width: 100%"
                                                th:value="${configuration.getTournament()}" value="2" name="tournament"
                                                id="tournament"/>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-6 col-lg-6">
+                                <div class='col-sm-12 col-md-6 col-lg-4'>
                                     <label for="numberRuns">Number of runs:</label>
                                     <div th:classappend="${#fields.hasErrors('numberRuns')}? 'has-error':'numberRuns error'">
-                                        <input type="number" class="text-center" min="1"
+                                        <input type="number" class="text-center" min="1" style="width: 100%"
+
                                                th:value="${configuration.getNumberRuns()}" value="1" name="numberRuns"
                                                id="numberRuns"/>
                                     </div>
+                                </div>
+                                <div class="col-sm-12 col-md-6 col-lg-4" style="padding-top: 22px">
+                                    <label for="DE">GE + DE: </label>
+                                    <input type="checkbox" name="DE" id="DE"
+                                           th:checked="${configExp.getDE()}"
+                                            />
                                 </div>
                             </div>
 
@@ -211,9 +215,17 @@
                                 <div class="col-sm-12 col-md-12 col-lg-12">
                                     <label for="tournament">Objective function:</label>
                                     <select class="form-control" name="objective" id="objective">
-                                        <option value="RMSE">Root Mean Squared Error (RMSE)</option>
+                                        <option value="RMSE" id ="RMSE"> Root Mean Squared Error (RMSE)</option>
+                                        <option value="MSE" id="MSE"> Mean Squared Error (MSE)</option>
+                                        <option value="R2" id = "R2">R-Squared (R2)</option>
+                                        <option value="ABS" id="ABS"> Absolute Error (ABS)</option>
+                                        <option value="REL" id="REL"> Relative Error (REL)</option>
                                     </select>
                                 </div>
+
+
+
+
                             </div>
                         </div>
                         <!-- END ExpPropertiesDto -->
@@ -412,12 +424,18 @@
     <div class="container" th:if="${runList!=null && not #lists.isEmpty(runList)}">
         <div id="runForms" class="panel panel-default">
             <header class="panel-heading">
-                <h2>List of runs</h2>
+                <h2>List of runs
+                    <button type="button" name="stopAllRuns" id="stopAllRuns" onclick="stopAllRuns()"
+                            class="btn-danger btn btn-md" style="float: right;margin-right: 40px;" rel="tooltip"
+                            title="Stop all runs">Stop all runs
+                    </button>
+                </h2>
+
             </header>
 
             <section class="panel-body">
                 <table class="table table-hover" id="expTypeTable">
-                    <caption class = "hidden">Experiment Type Table</caption>
+                    <caption class="hidden">Experiment Type Table</caption>
                     <thead>
                     <tr>
                         <th scope="col"># Run</th>
@@ -439,22 +457,22 @@
                                 <label th:text="${run.getId()}"
                                        th:id="'runId'+${iterStat.index}" hidden/></td>
                             <td id="bestIndividual"><label th:name="bestIndividual"
-                                                   th:id="'bestIndividual'+${iterStat.index}"
-                                                   th:text="${run.getDiagramData()!=null?
+                                                           th:id="'bestIndividual'+${iterStat.index}"
+                                                           th:text="${run.getDiagramData()!=null?
                                                        run.getDiagramData().bestIndividual:'0'}"/></td>
                             <td id="currentGen"><label th:name="currentGeneration"
-                                                   th:id="'currentGeneration'+${iterStat.index}"
-                                                   th:text="${run.getDiagramData()!=null?
+                                                       th:id="'currentGeneration'+${iterStat.index}"
+                                                       th:text="${run.getDiagramData()!=null?
                                                        run.getDiagramData().currentGeneration:'0'}"/>
                             </td>
                             <td id="status"><label th:name="status" th:id="'status'+${iterStat.index}"
                                                    th:text="${run.getStatus()}"/></td>
                             <td id="iniDate"><label th:name="iniDate" th:id="iniDate"
-                                                   th:text="${run.getIniDateFormated()}"/></td>
+                                                    th:text="${run.getIniDateFormated()}"/></td>
                             <td id="lastDate"><label th:name="lastDate" th:id="lastDate+${iterStat.index}"
-                                                   th:text="${run.getModificationDateFormated()}"/></td>
+                                                     th:text="${run.getModificationDateFormated()}"/></td>
                             <td id="model"><label th:name="model" th:id="model+${iterStat.index}"
-                                                   th:text="${run.getModel()}"/></td>
+                                                  th:text="${run.getModel()}"/></td>
                             <td id="stopExec">
                                 <div th:id="${'stopRunSection' + iterStat.index}"
                                      th:class="${run.getStatus().toString().equals('RUNNING')?'':'hidden'}"
@@ -493,9 +511,12 @@
                     <tr>
                         <td colspan="9">
                             <strong>Avg.: </strong><label id="runsAVG">Waiting runs</label>
-                            <strong style="margin-left: 15px">Std. Dev: </strong><label id="runsDeviation">Waiting runs</label>
-                            <strong style="margin-left: 15px">Min: </strong><label id="minBestSolution">Waiting runs</label>
-                            <strong style="margin-left: 15px">Max: </strong><label id="maxBestSolution">Waiting runs</label>
+                            <strong style="margin-left: 15px">Std. Dev: </strong><label id="runsDeviation">Waiting
+                            runs</label>
+                            <strong style="margin-left: 15px">Min: </strong><label id="minBestSolution">Waiting
+                            runs</label>
+                            <strong style="margin-left: 15px">Max: </strong><label id="maxBestSolution">Waiting
+                            runs</label>
                             <button style="margin-left: 15px" class="btn-default btn btn-sm"
                                     th:onclick="'downloadExperimentRunResults('+${configExp.getId()}+')'">Download
                                 results
@@ -570,15 +591,18 @@
             saveDatasetInfo();
             updateDatasetContent()
             updateTestDatasetContent()
+            setObjectiveFunction();
+
 
             $('[name="status"]').each(function (index) {
-                if (($(this).text() == "FINISHED") || ($(this).text() == "STOPPED") || ($(this).text() == "FAILED")) {
+                if (($(this).text() == "FINISHED") || ($(this).text() == "STOPPED") || ($(this).text() == "FAILED") || ($(this).text() == "CANCELLED")) {
                     indexesShow[index] = index;
                 }
                 if (($(this).text() == "RUNNING") || ($(this).text() == "INITIALIZING") || ($(this).text() == "WAITING")) {
                     indexesHide[index] = index;
                     showRunStatus("runExperimentButton" + index);
                 }
+
             });
 
             indexesShow.forEach(function (element, index) {
@@ -613,10 +637,23 @@
                 checkShowAlert(this.id);
             })
 
+
             if (document.getElementById("crossExperiment").checked) {
                 checkedCrossValidationValue = $("#datasetId option:selected").val();
             }
+
         });
+
+
+        function setObjectiveFunction(){
+
+            $('[name=objective ] option').filter(function() {
+                return ($(this).val() == experimentInformation['objective']);
+            }).prop('selected', true);
+
+        }
+
+
 
         function copyGrammar() {
             if (grammarList[$("#grammarSelect").val()]) {
@@ -688,7 +725,9 @@
                     let bestIndividualStr = data['bestIndividual'];
                     let currentGenerationStr = data['currentGeneration'];
                     let lastDate = data['modificationDateFormated'];
+
                     let modelStr = data['model'] === "" ? "Waiting for finish" : data['model'];
+                    modelStr = data['status'] === ("CANCELLED" || "STOPPED") ? " " : modelStr;
 
                     $(status).text(statusStr);
                     $(bestIndividual).text(bestIndividualStr);
@@ -707,7 +746,8 @@
                         $("#stopRunSection" + iterStat).removeClass("hidden");
                     }
 
-                    if (($(status).text() != "FINISHED") && ($(status).text() != "STOPPED") && ($(status).text() != "FAILED")) {
+                    if (($(status).text() != "FINISHED") && ($(status).text() != "STOPPED") && ($(status).text() != "FAILED")
+                     && ($(status).text() != "CANCELLED")) {
                         $("#runExperimentButton" + iterStat).addClass("hidden");
                         $("#showDelete" + iterStat).addClass("hidden");
                         setTimeout(function () {
@@ -715,10 +755,11 @@
                         }, 2000);
                     }
 
-                    if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED")) {
-                        if ($(status).text() == "FAILED") {
+                    if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED") ) {
+                        if ($(status).text() == "FAILED" || ($(status).text() == "STOPPED")  ) {
                             document.getElementById("showTestStats" + iterStat).setAttribute("disabled", "disabled");
                         }
+
                         $("#showPlot" + iterStat).removeClass("hidden");
                         $("#showDelete" + iterStat).removeClass("hidden");
                         $("#stopRunSection" + iterStat).addClass("hidden");
@@ -729,6 +770,10 @@
                             }, 2000);
                         }
                         calculateRunsStats(runTable, '#runsAVG', '#runsDeviation', '#maxBestSolution', '#minBestSolution');
+                    }
+                    if ($(status).text() == "CANCELLED") {
+                        $("#showDelete" + iterStat).removeClass("hidden");
+                        document.getElementById("showTestStats" + iterStat).setAttribute("disabled", "disabled");
                     }
                 }
             });
@@ -743,7 +788,6 @@
             let bestIndividual = "#bestIndividual" + cleanIterStat;
             let model = "#model" + cleanIterStat;
 
-
             setTimeout(function () {
                 checkRunStatus(runId, status, bestIndividual, currentGeneration, model, cleanIterStat)
             }, 2000);
@@ -751,12 +795,14 @@
 
         function confirmDelete(iterStat, runId) {
             let result = confirm("Are you sure to delete this run?");
-            if (result)
+            if (result){
                 deleteRow(iterStat, runId);
+
+            }
         }
 
         function stopRun(iterStat, runId) {
-            if (confirm("Are you sure to stop this run ?")) {
+            if (confirm("Are you sure to stop this run?")) {
                 let cleanIterStat = iterStat.substring("stopRun".length, iterStat.length);
 
                 $.ajax({
@@ -775,6 +821,26 @@
             }
         }
 
+        function stopAllRuns(){
+            if (confirm("Are you sure to stop or cancel all runs?")) {
+                $.ajax({
+                    url: encodeURI("/experiment/stopAllRunsAjax"),
+                    data: {
+                        'expId' : $('#id').val(),
+                    },
+                    cache: false,
+                    async: true,
+                    type: "POST",
+                    dataType: "json",
+                    success: function () {
+                       alert("All runs have been canceled properly");
+
+                    }
+                });
+            }
+
+        }
+
         function deleteRow(iterStat, runId) {
             let cleanIterStat = iterStat.substring("deleteRun".length, iterStat.length);
 
@@ -791,8 +857,18 @@
                 success: function (data) {
                     $("#tr" + cleanIterStat).remove();
                     $("#trAux" + cleanIterStat).remove();
+                    calculateRunsStats(runTable, '#runsAVG', '#runsDeviation', '#maxBestSolution', '#minBestSolution');
+                    disableStopAllRunsIfNoRuns();
                 }
             });
+        }
+
+        function disableStopAllRunsIfNoRuns(){
+            var x = document.getElementById("expTypeTable").rows.length;
+            if(x<3){
+                document.getElementById("stopAllRuns").setAttribute("disabled", "disabled");
+            }
+
         }
 
         function checkNumberRuns() {
@@ -825,6 +901,7 @@
             let tournament = $('#tournament').val();
             let numberRuns = $('#numberRuns').val();
             let objective = $('#objective').val();
+            let DE = $('#DE').val();
             let grammar = $('#fileText').val();
             let datasetId = $('#experimentDataTypeId').val();
             experimentInformation['defaultExpDataTypeId'] =
@@ -840,6 +917,7 @@
                 experimentInformation['tournament'] == tournament &&
                 experimentInformation['numberRuns'] == numberRuns &&
                 experimentInformation['objective'] === objective &&
+                experimentInformation['DE'] === DE &&
                 grammar.split(/[\s]+/).join() == experimentInformation['fileText'].split(/[\s]+/).join() &&
                 experimentInformation['defaultExpDataTypeId'] == datasetId);
         }
@@ -895,6 +973,7 @@
                 $("#testDatasetPart").removeClass("hidden");
             }
         })
+
 
 
 
