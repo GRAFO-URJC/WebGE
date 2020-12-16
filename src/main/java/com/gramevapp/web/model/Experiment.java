@@ -89,6 +89,13 @@ public class Experiment {
     @Column(name = "update_date")
     private Timestamp modificationDate = null;
 
+
+
+    /*Differential Evolution*/
+    @Column
+    private boolean de = true;
+
+
     public Experiment() {
         this.idExpDataTypeList = new ArrayList<>();
         this.idRunList = new ArrayList<>();
@@ -97,7 +104,7 @@ public class Experiment {
     public Experiment(User user, String experimentName, String experimentDescription, Integer generations, Integer populationSize,
                       Integer maxWraps, Integer tournament, Double crossoverProb,
                       Double mutationProb, Integer numCodons,
-                      Integer numberRuns, String objective, Timestamp creationDate, Timestamp modificationDate) {
+                      Integer numberRuns, String objective, Timestamp creationDate, Timestamp modificationDate, boolean de) {
         this.userId = user.getId();
         this.experimentName = experimentName;
         this.experimentDescription = experimentDescription;
@@ -116,6 +123,7 @@ public class Experiment {
 
         this.modificationDate = modificationDate;
         this.creationDate = creationDate;
+        this.de = de;
     }
 
     public String getObjective() {
@@ -320,6 +328,7 @@ public class Experiment {
         experiment.objective = this.objective;
         experiment.numCodons = this.numCodons;
         experiment.numberRuns = this.numberRuns;
+        experiment.de = this.de;
 
         return experiment;
     }
@@ -350,4 +359,15 @@ public class Experiment {
     public void setCrossExperiment(boolean crossExperiment) {
         this.crossExperiment = crossExperiment;
     }
+
+    public boolean isDe() {
+        return de;
+    }
+
+
+    public void setDe(boolean de) {
+        this.de = de;
+    }
+
+
 }

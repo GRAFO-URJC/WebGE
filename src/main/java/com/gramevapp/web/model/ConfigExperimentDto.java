@@ -65,8 +65,7 @@ public class ConfigExperimentDto {
     @Size(min = 1)
     private String objective = "";
 
-    /** FALSE / ON */
-    private String DE = "false";
+    private boolean de = false;
 
     public Long getId() {
         return id;
@@ -225,11 +224,11 @@ public class ConfigExperimentDto {
         return objective.equals("");
     }
 
-    public String getDE() {
-        return DE;
+    public boolean isDe() {
+        return de;
+    }
+    public void setDe(boolean de) {
+       this.de = de;
     }
 
-    public void setDE(String DE) {
-        this.DE = DE;
-    }
 }

@@ -72,7 +72,7 @@
             <section class="panel-body">
                 <form th:action="@{/experiment/start}" th:object="${configExp}" enctype="multipart/form-data"
                       role="form" method="POST" onsubmit="
-                      checkNumberRuns();
+                      return checkNumberRuns();
                       return checkDeletePreviousRun();">
 
                     <div class="row center-block text-center form-horizontal">
@@ -204,9 +204,9 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-12 col-md-6 col-lg-4" style="padding-top: 22px">
-                                    <label for="DE">GE + DE: </label>
-                                    <input type="checkbox" name="DE" id="DE"
-                                           th:checked="${configExp.getDE()}"
+                                    <label for="de">GE + DE: </label>
+                                    <input type="checkbox" name="de" id="de"
+                                           th:checked="${configExp.isDe()}" onclick="setDE()"
                                             />
                                 </div>
                             </div>
@@ -651,6 +651,8 @@
                 return ($(this).val() == experimentInformation['objective']);
             }).prop('selected', true);
 
+            console.log(experimentInformation);
+
         }
 
 
@@ -707,6 +709,10 @@
             datasetListInfo.push(data);
             /*[/]*/
             /*]]>*/
+        }
+
+        function setDE(){
+             $('#de').val(document.getElementById('de').checked);
         }
 
         function checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat) {
@@ -876,6 +882,12 @@
             if (document.getElementById("crossExperiment").checked && numberRuns.value < datasetListInfo[$("#datasetId option:selected").val()].foldSize) {
                 numberRuns.value = datasetListInfo[$("#datasetId option:selected").val()].foldSize;
             }
+            if (document.getElementById("de").checked && numberRuns.value < 4) {
+               alert("Population size must be over 4 when computing GE+DE");
+               return false;
+            }
+            return true;
+
         }
 
         function checkDeletePreviousRun() {
@@ -901,7 +913,7 @@
             let tournament = $('#tournament').val();
             let numberRuns = $('#numberRuns').val();
             let objective = $('#objective').val();
-            let DE = $('#DE').val();
+            let de = $('#de').val();
             let grammar = $('#fileText').val();
             let datasetId = $('#experimentDataTypeId').val();
             experimentInformation['defaultExpDataTypeId'] =
@@ -917,7 +929,7 @@
                 experimentInformation['tournament'] == tournament &&
                 experimentInformation['numberRuns'] == numberRuns &&
                 experimentInformation['objective'] === objective &&
-                experimentInformation['DE'] === DE &&
+                experimentInformation['de'] === de &&
                 grammar.split(/[\s]+/).join() == experimentInformation['fileText'].split(/[\s]+/).join() &&
                 experimentInformation['defaultExpDataTypeId'] == datasetId);
         }

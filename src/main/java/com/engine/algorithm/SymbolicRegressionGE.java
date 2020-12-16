@@ -33,6 +33,8 @@ import java.util.logging.Logger;
 
 import static com.engine.util.Common.currentDateTimeAsFormattedString;
 
+import static com.engine.util.Common.TRAINING_PATH_PROP;
+
 /**
  * @author Carlos García Moreno, J. M. Colmenar
  */
@@ -58,6 +60,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     public static final int LOG_PHENOTYPE_MASK = 8;
     public static final int LOG_EVALUATION_MASK = 16;
 
+
     private Algorithm<Variable<Integer>> algorithm;
     private boolean stop;
 
@@ -65,8 +68,12 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     public List<String> executionReport = new ArrayList<>();
 
     private String objective;
+    private boolean DE = false;
 
-    public SymbolicRegressionGE(Properties properties, int numObjectives, String objective) {
+
+    public static SolutionDEGE bestSolution;
+
+    public SymbolicRegressionGE(Properties properties, int numObjectives, String objective, boolean DE) {
         super(properties.getProperty(com.engine.util.Common.BNF_PATH_FILE_PROP), numObjectives,
                 Integer.parseInt(properties.getProperty(com.engine.util.Common.CHROMOSOME_LENGTH_PROP)),
                 Integer.parseInt(properties.getProperty(com.engine.util.Common.MAX_WRAPS_PROP)),
@@ -77,7 +84,9 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         if (this.properties.getProperty(com.engine.util.Common.SENSIBLE_INITIALIZATION) != null) { // Not initializated in properties
             this.setSensibleInitialization(true, Double.parseDouble(this.properties.getProperty(com.engine.util.Common.SENSIBLE_INITIALIZATION)));
         }
-
+        this.DE = DE;
+        bestSolution = new SolutionDEGE();
+        bestSolution.setCost(Double.MAX_VALUE);
     }
 
     public void stopExecution() {
@@ -87,46 +96,85 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
     @Override
     public void evaluate(Solution<Variable<Integer>> solution, Phenotype phenotype) {
-        String originalFunction = phenotype.toString();
 
-        //Create array of prediction
-        String[] prediction = new String[func.length];
-        prediction[0] = originalFunction;
+        if(DE){
 
-        //Evaluation from phenotype
-        for (int i = 1; i < func.length; i++) {
-            String currentFunction = calculateFunctionValued(originalFunction, i);
-            Double funcI;
+            // Create the DE problem and algorithm to optimize this solution:
+            MainDE.setupDE(phenotype.toString(),properties, objective, func);
 
-            Expression e = new ExpressionBuilder(currentFunction).build();
+            // Optimize model with DE
+            Algorithm alg = MainDE.getAlgorithm();
             try {
-                funcI = e.evaluate();
-                if(funcI.isNaN()){
+                alg.initialize();
+            }catch(Exception e){
+                logger.info(e.toString());
+            }
+            Solution<Variable<?>> best = (Solution<Variable<?>>) alg.execute().get(0);
+
+            // Store objective
+            double obj = best.getObjective(0);
+            solution.getObjectives().set(0,obj);
+
+            if (obj < bestSolution.getCost()) {
+                bestSolution.setCost(obj);
+                bestSolution.setModel(phenotype.toString());
+                HashMap<String,Double> parameterValues = SolutionDEGE.obtainParameterValues(best);
+                bestSolution.setParameterValues(parameterValues);
+            }
+        }else {
+            String originalFunction = phenotype.toString();
+
+            //Create array of prediction
+            String[] prediction = new String[func.length];
+            prediction[0] = originalFunction;
+
+            //Evaluation from phenotype
+            for (int i = 1; i < func.length; i++) {
+                String currentFunction = calculateFunctionValued(originalFunction, i);
+                Double funcI;
+
+                Expression e = new ExpressionBuilder(currentFunction).build();
+                try {
+                    funcI = e.evaluate();
+                    if (funcI.isNaN()) {
+                        funcI = Double.POSITIVE_INFINITY;
+                    }
+                } catch (IllegalArgumentException ex) {
+                    illegalArgumentException = ex;
+                    failed = true;
+                    this.stopExecution();
                     funcI = Double.POSITIVE_INFINITY;
                 }
-            }catch (IllegalArgumentException ex){
-                illegalArgumentException = ex;
-                failed = true;
-                this.stopExecution();
-                funcI= Double.POSITIVE_INFINITY;
+                //Add to prediction array the evaluation calculated
+                prediction[i] = String.valueOf(funcI);
+                solution.getProperties().put(String.valueOf(i), funcI);
             }
-        //Add to prediction array the evaluation calculated
-            prediction[i] = String.valueOf(funcI);
-            solution.getProperties().put(String.valueOf(i), funcI);
-        }
 
-        try {
-            double fValue = ModelEvaluator.calculateObjective(func, prediction, objective);
-            if (Double.isNaN(fValue)) {
-                solution.getObjectives().set(0, Double.POSITIVE_INFINITY);
-            } else {
-                solution.getObjectives().set(0, fValue);
+            try {
+                double fValue = ModelEvaluator.calculateObjective(func, prediction, objective);
+                if (Double.isNaN(fValue)) {
+                    solution.getObjectives().set(0, Double.POSITIVE_INFINITY);
+                } else {
+                    solution.getObjectives().set(0, fValue);
+
+                }
+            } catch (NumberFormatException e) {
+                failed = true;
+                numberFormatException = e;
             }
-        } catch (NumberFormatException e) {
-            failed = true;
-            numberFormatException = e;
         }
     }
+
+    public static HashMap<String,Double> obtainParameterValues(Solution<Variable<?>> sol) {
+        HashMap<String,Double> parameterValues = new HashMap<>(sol.getVariables().size());
+        // Include the values of the parameters:
+        for (int j = 0; j < sol.getVariables().size(); j++) {
+            parameterValues.put(MainDE.parameters.get(j), (Double) sol.getVariable(j).getValue());
+        }
+
+        return parameterValues;
+    }
+
 
     //Method to replace the unknowns variables by values
     private String calculateFunctionValued(String originalFunction, int index ) {
@@ -151,13 +199,23 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             replacePart = "X" + i;
             newFunction = newFunction.replaceAll(replacePart, content[i]);
         }
+
+        if(bestSolution.getModel()!=null){
+            for(int i = (content.length - 1);i>=0; i--){
+               replacePart = "w" + i;
+               newFunction = newFunction.replaceAll(replacePart, String.valueOf(bestSolution.getParameterValues().get(replacePart)));
+            }
+        }
+
+
         Expression e = new ExpressionBuilder(newFunction).build();
         return e.evaluate();
+
     }
 
     @Override
     public SymbolicRegressionGE clone() {
-        return new SymbolicRegressionGE(properties, this.numberOfObjectives, objective);
+        return new SymbolicRegressionGE(properties, this.numberOfObjectives, objective, DE);
     }
 
 

@@ -7,11 +7,11 @@ import org.apache.commons.math3.stat.regression.SimpleRegression;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class ModelEvaluator {
 
-    public static int objective;
 
     private ModelEvaluator() {
         //Private constructor to hide the public one
@@ -119,6 +119,69 @@ public class ModelEvaluator {
         return oneDimensional;
     }
 
+
+
+
+    public static double evaluateModel(Expression exp, String objective, String[][]data) {
+        // Generation of the prediction:
+
+        // Array for predicted values
+        String[] prediction = obtainPrediction(exp,data);
+
+        return calculateObjective(data,prediction, objective);
+
+    }
+
+
+
+    /**
+     * Generates a prediction in relation to the given data.
+     *
+     * @param data
+     * @return
+     */
+    private static String[] obtainPrediction(Expression exp, String[][] data) {
+        // Array for predicted values
+        String[] prediction = new String[data.length];
+
+        for (int t = 1; t < data.length; t++) {
+
+            String res;
+
+            // Include the values of the input variables starting from the last one:
+            // Use exp4j: http://projects.congrace.de/exp4j/
+            for (int j = data[0].length - 1; j > 0; j--) {
+                exp.setVariable("X" + j, Double.valueOf(data[t][j]));
+            }
+
+            res = String.valueOf(exp.evaluate());
+
+            prediction[t] = res;
+
+        }
+
+        return prediction;
+    }
+
+
+    /**
+     * Includes the input variables in the expression builder, but not the values.
+     *
+     * This method has to be separated because it is used by other classes.
+     *
+     * @param model
+     * @return
+     */
+    public static ExpressionBuilder includeInputVariables(String model, String[][] func) {
+
+        ExpressionBuilder eb = new ExpressionBuilder(model);
+        // Include the input variables starting from the last one:
+        for (int j = func[0].length - 1; j > 0; j--) {
+            eb.variable("X" + j);
+        }
+
+        return eb;
+    }
 
 
 }
