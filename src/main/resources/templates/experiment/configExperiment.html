@@ -6,12 +6,9 @@
 <head>
     <title>WebGE - Experiment testing area</title>
     <style>
-        .tooltip {
-            position: relative;
-            display: inline-block;
-        }
 
-        .tooltip .tooltiptext {
+
+        .tooltiptext {
             visibility: hidden;
             width: 140px;
             background-color: #555;
@@ -28,7 +25,7 @@
             transition: opacity 0.3s;
         }
 
-        .tooltip .tooltiptext::after {
+        .tooltiptext::after {
             content: "";
             position: absolute;
             top: 100%;
@@ -43,6 +40,7 @@
             visibility: visible;
             opacity: 1;
         }
+
 
 
 
@@ -72,7 +70,7 @@
             <section class="panel-body">
                 <form th:action="@{/experiment/start}" th:object="${configExp}" enctype="multipart/form-data"
                       role="form" method="POST" onsubmit="
-                      return checkNumberRuns();
+                      return checkNumberRunsAndPopulationSize();
                       return checkDeletePreviousRun();">
 
                     <div class="row center-block text-center form-horizontal">
@@ -186,47 +184,93 @@
                                                id="numCodons"/>
                                     </div>
                                 </div>
-                                <div class='col-sm-12 col-md-6 col-lg-4'>
+                                <div class='col-sm-12 col-md-6 col-lg-6'>
                                     <label for="tournament">Tournament:</label>
                                     <div th:classappend="${#fields.hasErrors('tournament')}? 'has-error':'tournament error'">
-                                        <input type="number" class="text-center" th:min="0" style="width: 100%"
+                                        <input type="number" class="text-center" th:min="0" style="width: 80%"
                                                th:value="${configuration.getTournament()}" value="2" name="tournament"
                                                id="tournament"/>
                                     </div>
                                 </div>
-                                <div class='col-sm-12 col-md-6 col-lg-4'>
+                                <div class='col-sm-12 col-md-6 col-lg-6'>
                                     <label for="numberRuns">Number of runs:</label>
                                     <div th:classappend="${#fields.hasErrors('numberRuns')}? 'has-error':'numberRuns error'">
-                                        <input type="number" class="text-center" min="1" style="width: 100%"
-
+                                        <input type="number" class="text-center" min="1" style="width: 80%"
                                                th:value="${configuration.getNumberRuns()}" value="1" name="numberRuns"
                                                id="numberRuns"/>
                                     </div>
                                 </div>
+
+
+
+                            </div>
+
+
+                            <div class="row form-group text-center">
                                 <div class="col-sm-12 col-md-6 col-lg-4" style="padding-top: 22px">
                                     <label for="de">GE + DE: </label>
                                     <input type="checkbox" name="de" id="de"
                                            th:checked="${configExp.isDe()}" onclick="setDE()"
-                                            />
+                                    />
                                 </div>
+
+                                <div class="col-sm-12 col-md-6 col-lg-4" hidden id="lowerbound_col">
+                                    <label for="lowerboundDE">Lower Bound:</label>
+                                    <div class = "tooltip">
+                                        <span class = "tooltiptext">Maximum value for model parameters</span>
+                                        <input type="number" class="text-center"  th:step="0.01" style="width: 100%"
+                                               th:value="${configuration.getLowerBoundDE()}" name="lowerboundDE"
+                                               id="lowerboundDE"/>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-md-6 col-lg-4" hidden id="upperbound_col">
+                                    <label for="uperboundDE">Upper Bound:</label>
+                                    <div class = "tooltip">
+                                        <span class = "tooltiptext">Maximum value for model parameters</span>
+                                        <input type="number" class="text-center" th:step="0.01"
+                                               style="width: 100%"
+                                               th:value="${configuration.getUpperBoundDE()}" name="uperboundDE"
+                                               id="uperboundDE"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row form-group text-center">
+                                <div class='col-sm-12 col-md-6 col-lg-6' hidden id="recombinationfactor_col">
+                                    <label for="recombinationFactorDE">Recombination Factor:</label>
+                                    <div>
+                                        <input type="number" class="text-center" th:min="0"  th:max="1" th:step="0.01"
+                                               style="width: 80%"
+                                               th:value="${configuration.getRecombinationFactorDE()}" name="recombinationFactorDE"
+                                               id="recombinationFactorDE"/>
+                                    </div>
+                                </div>
+                                <div class='col-sm-12 col-md-6 col-lg-6' hidden id="mutationfactor_col">
+                                    <label for="mutationFactorDE">Mutation Factor:</label>
+                                    <div>
+                                        <input type="number" class="text-center" th:min="0"
+                                               th:max="1" th:step="0.01"
+                                               style="width: 80%"
+                                               th:value="${configuration.getMutationFactorDE()}" name="mutationFactorDE"
+                                               id="mutationFactorDE"/>
+                                    </div>
+                                </div>
+
                             </div>
 
                             <div class="row form-group text-center">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
                                     <label for="tournament">Objective function:</label>
                                     <select class="form-control" name="objective" id="objective">
-                                        <option value="RMSE" id ="RMSE"> Root Mean Squared Error (RMSE)</option>
+                                        <option value="RMSE" id="RMSE"> Root Mean Squared Error (RMSE)</option>
                                         <option value="MSE" id="MSE"> Mean Squared Error (MSE)</option>
-                                        <option value="R2" id = "R2">R-Squared (R2)</option>
+                                        <option value="R2" id="R2">R-Squared (R2)</option>
                                         <option value="ABS" id="ABS"> Absolute Error (ABS)</option>
                                         <option value="REL" id="REL"> Relative Error (REL)</option>
                                     </select>
                                 </div>
-
-
-
-
                             </div>
+
+
                         </div>
                         <!-- END ExpPropertiesDto -->
 
@@ -263,7 +307,7 @@
                             <div class="row form-group">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
                                     <textarea rows="8" class="form-control" name="fileText"
-                                              id="fileText" th:inline="text" style="resize: none;height: 100px"
+                                              id="fileText" th:inline="text" style="resize: none;height: 180px"
                                               th:text="${configExp.getFileText()}" placeholder="Grammar content"
                                               required></textarea>
                                 </div>
@@ -592,7 +636,7 @@
             updateDatasetContent()
             updateTestDatasetContent()
             setObjectiveFunction();
-
+            setDE();
 
             $('[name="status"]').each(function (index) {
                 if (($(this).text() == "FINISHED") || ($(this).text() == "STOPPED") || ($(this).text() == "FAILED") || ($(this).text() == "CANCELLED")) {
@@ -713,6 +757,19 @@
 
         function setDE(){
              $('#de').val(document.getElementById('de').checked);
+
+             if(document.getElementById('de').checked){
+                $('#lowerbound_col').attr('hidden', false)
+                $('#upperbound_col').attr('hidden', false)
+                $('#recombinationfactor_col').attr('hidden', false)
+                $('#mutationfactor_col').attr('hidden', false)
+            }else{
+               $('#lowerbound_col').attr('hidden', 'hidden')
+                $('#upperbound_col').attr('hidden', 'hidden')
+                $('#recombinationfactor_col').attr('hidden', 'hidden')
+                $('#mutationfactor_col').attr('hidden', 'hidden')
+            }
+
         }
 
         function checkRunStatus(runId, status, bestIndividual, currentGeneration, model, iterStat) {
@@ -877,12 +934,12 @@
 
         }
 
-        function checkNumberRuns() {
+        function checkNumberRunsAndPopulationSize() {
             let numberRuns = document.getElementById("numberRuns");
             if (document.getElementById("crossExperiment").checked && numberRuns.value < datasetListInfo[$("#datasetId option:selected").val()].foldSize) {
                 numberRuns.value = datasetListInfo[$("#datasetId option:selected").val()].foldSize;
             }
-            if (document.getElementById("de").checked && numberRuns.value < 4) {
+            if (document.getElementById("de").checked && populationSize.value < 4) {
                alert("Population size must be over 4 when computing GE+DE");
                return false;
             }
@@ -985,6 +1042,7 @@
                 $("#testDatasetPart").removeClass("hidden");
             }
         })
+
 
 
 

@@ -333,13 +333,22 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
             } else {
                 executionReport.add(solutions.get(0).getObjective(0) + ";" + this.generatePhenotype(solutions.get(0)).toString() + ";" + time);
+                if(bestSolution.getModel()!=null){
+                    for(int j = (this.vars.size());j>=0; j--){
+                        String currentWeight = "w" + j;
+                        if(bestSolution.getParameterValues().get(currentWeight)!= null){
 
+                            executionReport.add(currentWeight +"= " + bestSolution.getParameterValues().get(currentWeight) +";");
+                        }
+                    }
+
+                }
                 // Just for interrupted executions:
                 logger.info("@@;" + this.generatePhenotype(solutions.get(0)).toString());
             }
 
             for (String s : executionReport) {
-                log.add(i + ";" + s);
+                log.add(i+1 + ";" + s);
             }
 
             i++;
@@ -358,7 +367,21 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         }
         obs.getLock().lock();
         run = runService.findByRunId(run.getId());
-        run.setModel(this.getModel());
+
+        String model = this.getModel();
+        String replacePart;
+        if(bestSolution.getModel()!=null){
+            for(int j = (this.vars.size());j>=0; j--){
+                replacePart = "w" + j;
+                model = model.replaceAll(replacePart, String.valueOf(bestSolution.getParameterValues().get(replacePart)));
+            }
+
+        }
+
+        run.setModel(model);
+
+
+
         if (failed) {
             run.setStatus(Run.Status.FAILED);
         } else if (run.getStatus() != null && !run.getStatus().equals(Run.Status.STOPPED)) {
