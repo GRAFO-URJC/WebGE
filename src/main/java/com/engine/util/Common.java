@@ -45,6 +45,11 @@ public class Common {
     public static final String CEG_PENALTY_D = "D-PenaltyCEG";
     public static final String CEG_PENALTY_E = "E-PenaltyCEG";
 
+    public static final String LOWER_BOUND_DE = "LowerBoundDE";
+    public static final String UPPER_BOUND_DE = "UpperBoundDE";
+    public static final String RECOMBINATION_FACTOR_DE = "RecombinationFactorDE";
+    public static final String MUTATION_FACTOR_DE = "MutationFactorDE";
+
 
     private Common (){
 
@@ -75,6 +80,11 @@ public class Common {
         m.put(MAX_WRAPS_PROP, "Maximum number of wraps (" + MAX_WRAPS_PROP + ")");
         m.put(CHROMOSOME_LENGTH_PROP, "Number of codons, also called chromosome length (" + CHROMOSOME_LENGTH_PROP + ")");
         m.put(TOURNAMENT_SIZE_PROP, "Number of individual to consider in tournament operator (" + TOURNAMENT_SIZE_PROP + ")");
+        m.put(LOWER_BOUND_DE, "Minimum value for model parameters in DE (" +LOWER_BOUND_DE + ")");
+        m.put(UPPER_BOUND_DE, "Maximum value for model parameters in DE (" +UPPER_BOUND_DE + ")");
+        m.put(RECOMBINATION_FACTOR_DE, "Recombination factor DE (" +RECOMBINATION_FACTOR_DE + ")");
+        m.put(MUTATION_FACTOR_DE, "Mutation factor DE (" +MUTATION_FACTOR_DE + ")");
+
         return m;
     }
 

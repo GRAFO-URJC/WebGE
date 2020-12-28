@@ -31,7 +31,7 @@ public class Experiment {
     @Column(name = "EXPERIMENT_DESCRIPTION") // Reference for user relation and ExpDataType and Grammar
     private String experimentDescription;
 
-    @Column(columnDefinition = "TEXT",name = "default_grammar")
+    @Column(columnDefinition = "TEXT", name = "default_grammar")
     private String defaultGrammar;
 
     @Column
@@ -89,6 +89,22 @@ public class Experiment {
     @Column(name = "update_date")
     private Timestamp modificationDate = null;
 
+
+    /*Differential Evolution*/
+    @Column
+    private boolean de = true;
+
+    /*Differential Evolution params*/
+    @Column
+    private Double lowerBoundDE = -1.0;
+    @Column
+    private Double upperBoundDE = 1.0;
+    @Column
+    private Double mutationFactorDE = 0.4717;
+    @Column
+    private Double recombinationFactorDE = 0.8803;
+
+
     public Experiment() {
         this.idExpDataTypeList = new ArrayList<>();
         this.idRunList = new ArrayList<>();
@@ -97,7 +113,9 @@ public class Experiment {
     public Experiment(User user, String experimentName, String experimentDescription, Integer generations, Integer populationSize,
                       Integer maxWraps, Integer tournament, Double crossoverProb,
                       Double mutationProb, Integer numCodons,
-                      Integer numberRuns, String objective, Timestamp creationDate, Timestamp modificationDate) {
+                      Integer numberRuns, String objective, Timestamp creationDate, Timestamp modificationDate,
+                      boolean de, Double lowerBoundDE, Double upperBoundDE, Double recombinationFactorDE,
+                      Double mutationFactorDE) {
         this.userId = user.getId();
         this.experimentName = experimentName;
         this.experimentDescription = experimentDescription;
@@ -116,6 +134,11 @@ public class Experiment {
 
         this.modificationDate = modificationDate;
         this.creationDate = creationDate;
+        this.de = de;
+        this.lowerBoundDE = lowerBoundDE;
+        this.upperBoundDE = upperBoundDE;
+        this.recombinationFactorDE = recombinationFactorDE;
+        this.mutationFactorDE = mutationFactorDE;
     }
 
     public String getObjective() {
@@ -320,6 +343,11 @@ public class Experiment {
         experiment.objective = this.objective;
         experiment.numCodons = this.numCodons;
         experiment.numberRuns = this.numberRuns;
+        experiment.de = this.de;
+        experiment.lowerBoundDE = this.lowerBoundDE;
+        experiment.upperBoundDE = this.upperBoundDE;
+        experiment.recombinationFactorDE = this.recombinationFactorDE;
+        experiment.mutationFactorDE = this.mutationFactorDE;
 
         return experiment;
     }
@@ -349,5 +377,46 @@ public class Experiment {
 
     public void setCrossExperiment(boolean crossExperiment) {
         this.crossExperiment = crossExperiment;
+    }
+
+    public boolean isDe() {
+        return de;
+    }
+
+
+    public void setDe(boolean de) {
+        this.de = de;
+    }
+
+    public Double getLowerBoundDE() {
+        return lowerBoundDE;
+    }
+
+    public void setLowerBoundDE(Double lowerBoundDE) {
+        this.lowerBoundDE = lowerBoundDE;
+    }
+
+    public Double getUpperBoundDE() {
+        return upperBoundDE;
+    }
+
+    public void setUpperBoundDE(Double upperBoundDE) {
+        this.upperBoundDE = upperBoundDE;
+    }
+
+    public Double getMutationFactorDE() {
+        return mutationFactorDE;
+    }
+
+    public void setMutationFactorDE(Double mutationFactorDE) {
+        this.mutationFactorDE = mutationFactorDE;
+    }
+
+    public Double getRecombinationFactorDE() {
+        return recombinationFactorDE;
+    }
+
+    public void setRecombinationFactorDE(Double recombinationFactorDE) {
+        this.recombinationFactorDE = recombinationFactorDE;
     }
 }

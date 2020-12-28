@@ -124,9 +124,7 @@ public class ExperimentController {
             return CONFIGEXPERIMENTPATH;
         }
 
-        if (configExpDto.getDE().equals("on")){
-            configExpDto.setDE("true");
-        }
+
         // Experiment Data Type SECTION
         Dataset expDataType = experimentService.
                 findExperimentDataTypeById(Long.valueOf(experimentDataTypeId));
@@ -164,7 +162,7 @@ public class ExperimentController {
             propPath = expPropertiesSet(configExpDto,
                     user, expDataType, grammarFilePath);
             // Run experiment in new thread
-            threads.add(runExperimentDetails(run, propPath, exp.isCrossExperiment() ? (i + 1) / expDataType.getFoldSize() : -1, configExpDto.getObjective()));
+            threads.add(runExperimentDetails(run, propPath, exp.isCrossExperiment() ? (i + 1) / expDataType.getFoldSize() : -1, configExpDto.getObjective(), configExpDto.isDe()));
 
         }
         experimentService.saveExperiment(exp);
@@ -536,7 +534,7 @@ public class ExperimentController {
         result.add(UtilStats.computeAbsoluteError(yDoubleArray, functionResultDoubleArray));
     }
 
-    private Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier, String objective) throws IOException {
+    private Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier, String objective, boolean DE) throws IOException {
         File propertiesFile = new File(propPath);
 
         Reader propertiesReader = new FileReader(propertiesFile);
@@ -544,9 +542,11 @@ public class ExperimentController {
         Properties properties = new Properties();
         properties.load(propertiesReader);
         properties.setProperty(TRAINING_PATH_PROP, propPath);
+
+
         RunnableExpGramEv obj = new RunnableExpGramEv(properties, run,
                 experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService,
-                saveDBService, crossRunIdentifier, objective);
+                saveDBService, crossRunIdentifier, objective, DE);
         Thread.UncaughtExceptionHandler h = (th, ex) -> {
             run.setStatus(Run.Status.FAILED);
             RunExecutionReport runExecutionReport = runService.getRunExecutionReport(run.getId());
@@ -600,7 +600,11 @@ public class ExperimentController {
         propertiesWriter.println("ModelWidth=" + 500);
         propertiesWriter.println("TrainingPath=" + (dataTypeDirectoryPath + File.separator + configExpDto.getExperimentName()
                 + "_" + expDataType.getId() + ".csv").substring(2).replace("\\", "/"));
-
+        propertiesWriter.println("isDE=" + configExpDto.isDe());
+        propertiesWriter.println("LowerBoundDE=" + configExpDto.getLowerBoundDE());
+        propertiesWriter.println("UpperBoundDE=" + configExpDto.getUpperBoundDE());
+        propertiesWriter.println("RecombinationFactorDE=" + configExpDto.getRecombinationFactorDE());
+        propertiesWriter.println("MutationFactorDE=" + configExpDto.getMutationFactorDE());
         propertiesWriter.close();
     }
 
@@ -655,7 +659,8 @@ public class ExperimentController {
             exp = new Experiment(user, configExpDto.getExperimentName(), configExpDto.getExperimentDescription(), configExpDto.getGenerations(),
                     configExpDto.getPopulationSize(), configExpDto.getMaxWraps(), configExpDto.getTournament(), configExpDto.getCrossoverProb(), configExpDto.getMutationProb(),
                     configExpDto.getNumCodons(), configExpDto.getNumberRuns(), configExpDto.getObjective(),
-                    new Timestamp(new Date().getTime()), new Timestamp(new Date().getTime()));
+                    new Timestamp(new Date().getTime()), new Timestamp(new Date().getTime()), configExpDto.isDe(),
+                    configExpDto.getLowerBoundDE(), configExpDto.getUpperBoundDE(), configExpDto.getRecombinationFactorDE(), configExpDto.getMutationFactorDE());
 
         } else {  // The experiment data type configuration already exist
             exp.setUserId(user);
@@ -674,7 +679,10 @@ public class ExperimentController {
 
             exp.setCreationDate(new Timestamp(new Date().getTime()));
             exp.setModificationDate(new Timestamp(new Date().getTime()));
-
+            exp.setLowerBoundDE(configExpDto.getLowerBoundDE());
+            exp.setUpperBoundDE(configExpDto.getUpperBoundDE());
+            exp.setRecombinationFactorDE(configExpDto.getRecombinationFactorDE());
+            exp.setMutationFactorDE(configExpDto.getMutationFactorDE());
             removeRuns(exp);
 
         }
@@ -787,7 +795,7 @@ public class ExperimentController {
         setConfigExpDtoWIthExperiment(configExpDto, forEqual ? configExpDto.getExperimentName() : exp.getExperimentName(),
                 forEqual ? configExpDto.getExperimentDescription() : exp.getExperimentDescription(), exp.getCrossoverProb(), exp.getGenerations(),
                 exp.getPopulationSize(), exp.getMaxWraps(), exp.getTournament(), exp.getMutationProb(),
-                exp.getNumCodons(), exp.getNumberRuns(), exp.getObjective());
+                exp.getNumCodons(), exp.getNumberRuns(), exp.getObjective(), exp.isDe(), exp.getLowerBoundDE(), exp.getUpperBoundDE(), exp.getRecombinationFactorDE(), exp.getMutationFactorDE());
 
         configExpDto.setId(exp.getId());
         configExpDto.setDefaultExpDataTypeId(exp.getDefaultExpDataType());
@@ -803,7 +811,8 @@ public class ExperimentController {
     private void setConfigExpDtoWIthExperiment(ConfigExperimentDto configExpDto, String experimentName, String experimentDescription,
                                                Double crossoverProb, Integer generations, Integer populationSize, Integer maxWraps,
                                                Integer tournament, Double mutationProb,
-                                               Integer numCodons, Integer numberRuns, String objective) {
+                                               Integer numCodons, Integer numberRuns, String objective, boolean de,
+                                               Double lowerBoundDE, Double upperBoundDE, Double recombinationFactorDE, Double mutationFactorDE) {
         configExpDto.setExperimentName(experimentName);
         configExpDto.setExperimentDescription(experimentDescription);
         configExpDto.setCrossoverProb(crossoverProb);
@@ -816,6 +825,11 @@ public class ExperimentController {
         configExpDto.setNumCodons(numCodons);
         configExpDto.setNumberRuns(numberRuns);
         configExpDto.setObjective(objective);
+        configExpDto.setDe(de);
+        configExpDto.setLowerBoundDE(lowerBoundDE);
+        configExpDto.setUpperBoundDE(upperBoundDE);
+        configExpDto.setRecombinationFactorDE(recombinationFactorDE);
+        configExpDto.setMutationFactorDE(mutationFactorDE);
     }
 
     public static Map<Long, RunnableExpGramEv> getRunnables() {

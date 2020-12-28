@@ -4,7 +4,7 @@ import javax.validation.constraints.*;
 
 public class ConfigExperimentDto {
     private Long id;
-    private static final String EXPERIMENTNAME_PATTERN = "^[a-zA-Z0-9 \\[\\]()#_-]{1,254}$";
+    private static final String EXPERIMENTNAME_PATTERN = "^[a-zA-Z0-9À-ÖØ-öø-ÿ \\[\\]()#_-]{1,254}$";
 
     @Pattern(regexp = EXPERIMENTNAME_PATTERN, message = "Experiment name cannot have special characters. Only alphanumeric ones and []()#_- are allowed.")
     private String experimentName = "";
@@ -54,19 +54,28 @@ public class ConfigExperimentDto {
     private boolean contentFold = false;
 
     /**
-     * 0 -> Root Mean Squared Error (RMSE)
-     * 1 -> Clarke Error Grid (CEG)
-     * 2 -> Bi-objective: RMSE & CEG
-     * 3 -> R Square (R^2)
-     * 4 -> Absolute Error (Abs. Error)
-     * 5 -> Mean Absolute Relative Deviation (MARD)
+     * Root Mean Squared Error (RMSE)</option>
+     * Mean Squared Error (MSE)
+     * R-Squared (R2)
+     * Absolute Error (ABS)
+     * Relative Error (REL)
      */
     @NotNull
     @Size(min = 1)
     private String objective = "";
-
-    /** FALSE / ON */
-    private String DE = "false";
+    private boolean de = false;
+    @NotNull
+    private Double lowerBoundDE = -1.0;
+    @NotNull
+    private Double upperBoundDE = 1.0;
+    @NotNull
+    @Min(value = 0)
+    @Max(value = 100)
+    private Double mutationFactorDE = 0.47;
+    @NotNull
+    @Min(value = 0)
+    @Max(value = 100)
+    private Double recombinationFactorDE = 0.88;
 
     public Long getId() {
         return id;
@@ -225,11 +234,43 @@ public class ConfigExperimentDto {
         return objective.equals("");
     }
 
-    public String getDE() {
-        return DE;
+    public boolean isDe() {
+        return de;
     }
 
-    public void setDE(String DE) {
-        this.DE = DE;
+    public void setDe(boolean de) {
+        this.de = de;
+    }
+
+    public Double getLowerBoundDE() {
+        return lowerBoundDE;
+    }
+
+    public void setLowerBoundDE(Double lowerBoundDE) {
+        this.lowerBoundDE = lowerBoundDE;
+    }
+
+    public Double getUpperBoundDE() {
+        return upperBoundDE;
+    }
+
+    public void setUpperBoundDE(Double upperBoundDE) {
+        this.upperBoundDE = upperBoundDE;
+    }
+
+    public Double getMutationFactorDE() {
+        return mutationFactorDE;
+    }
+
+    public void setMutationFactorDE(Double mutationFactorDE) {
+        this.mutationFactorDE = mutationFactorDE;
+    }
+
+    public Double getRecombinationFactorDE() {
+        return recombinationFactorDE;
+    }
+
+    public void setRecombinationFactorDE(Double recombinationFactorDE) {
+        this.recombinationFactorDE = recombinationFactorDE;
     }
 }

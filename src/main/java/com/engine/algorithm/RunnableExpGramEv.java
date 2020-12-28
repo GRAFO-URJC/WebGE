@@ -19,9 +19,10 @@ public class RunnableExpGramEv implements Runnable {
     private int crossRunIdentifier;
     private SaveDBService saveDBService;
     private String objective;
+    private boolean DE;
 
     public RunnableExpGramEv(Properties properties, Run runElement, Dataset experimentDataType,
-                             RunService runService, SaveDBService saveDBService, int crossRunIdentifier, String objective) {
+                             RunService runService, SaveDBService saveDBService, int crossRunIdentifier, String objective, boolean DE) {
         this.properties = properties;
         this.runElement = runElement;
         this.experimentDataType = experimentDataType;
@@ -29,6 +30,7 @@ public class RunnableExpGramEv implements Runnable {
         this.crossRunIdentifier = crossRunIdentifier;
         this.saveDBService = saveDBService;
         this.objective = objective;
+        this.DE = DE;
     }
 
     @Override
@@ -44,7 +46,7 @@ public class RunnableExpGramEv implements Runnable {
         runElement.setBestIndividual(0.0);
         runElement.setCurrentGeneration(0);
 
-        ge = new SymbolicRegressionGE(properties, numObjectives, objective);
+        ge = new SymbolicRegressionGE(properties, numObjectives, objective, DE);
 
         RunGeObserver observer = new RunGeObserver();
         observer.setDiagramData(runElement);
