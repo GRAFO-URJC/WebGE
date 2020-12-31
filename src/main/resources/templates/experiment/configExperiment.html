@@ -6,7 +6,11 @@
 <head>
     <title>WebGE - Experiment testing area</title>
     <style>
-
+        .tooltipcustom {
+            font-size: inherit;
+            line-height: inherit;
+            position: inherit;
+        }
 
         .tooltiptext {
             visibility: hidden;
@@ -36,7 +40,7 @@
             border-color: #555 transparent transparent transparent;
         }
 
-        .tooltip:hover .tooltiptext {
+        .tooltipcustom:hover .tooltiptext {
             visibility: visible;
             opacity: 1;
         }
@@ -204,59 +208,6 @@
 
 
                             </div>
-
-
-                            <div class="row form-group text-center">
-                                <div class="col-sm-12 col-md-6 col-lg-4" style="padding-top: 22px">
-                                    <label for="de">GE + DE: </label>
-                                    <input type="checkbox" name="de" id="de"
-                                           th:checked="${configExp.isDe()}" onclick="setDE()"
-                                    />
-                                </div>
-
-                                <div class="col-sm-12 col-md-6 col-lg-4" hidden id="lowerbound_col">
-                                    <label for="lowerboundDE">Lower Bound:</label>
-                                    <div class = "tooltip">
-                                        <span class = "tooltiptext">Maximum value for model parameters</span>
-                                        <input type="number" class="text-center"  th:step="0.01" style="width: 100%"
-                                               th:value="${configuration.getLowerBoundDE()}" name="lowerboundDE"
-                                               id="lowerboundDE"/>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 col-md-6 col-lg-4" hidden id="upperbound_col">
-                                    <label for="uperboundDE">Upper Bound:</label>
-                                    <div class = "tooltip">
-                                        <span class = "tooltiptext">Maximum value for model parameters</span>
-                                        <input type="number" class="text-center" th:step="0.01"
-                                               style="width: 100%"
-                                               th:value="${configuration.getUpperBoundDE()}" name="uperboundDE"
-                                               id="uperboundDE"/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row form-group text-center">
-                                <div class='col-sm-12 col-md-6 col-lg-6' hidden id="recombinationfactor_col">
-                                    <label for="recombinationFactorDE">Recombination Factor:</label>
-                                    <div>
-                                        <input type="number" class="text-center" th:min="0"  th:max="1" th:step="0.01"
-                                               style="width: 80%"
-                                               th:value="${configuration.getRecombinationFactorDE()}" name="recombinationFactorDE"
-                                               id="recombinationFactorDE"/>
-                                    </div>
-                                </div>
-                                <div class='col-sm-12 col-md-6 col-lg-6' hidden id="mutationfactor_col">
-                                    <label for="mutationFactorDE">Mutation Factor:</label>
-                                    <div>
-                                        <input type="number" class="text-center" th:min="0"
-                                               th:max="1" th:step="0.01"
-                                               style="width: 80%"
-                                               th:value="${configuration.getMutationFactorDE()}" name="mutationFactorDE"
-                                               id="mutationFactorDE"/>
-                                    </div>
-                                </div>
-
-                            </div>
-
                             <div class="row form-group text-center">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
                                     <label for="tournament">Objective function:</label>
@@ -269,6 +220,63 @@
                                     </select>
                                 </div>
                             </div>
+
+                            <div class="row form-group text-center " style="border: 1px solid black">
+
+                                <div class="col-sm-12 col-md-6 col-lg-4" style="padding-top: 22px">
+                                    <label for="de">GE + DE: </label>
+                                    <input type="checkbox" name="de" id="de"
+                                           th:checked="${configExp.isDe()}" onclick="setDE()"
+                                    />
+                                </div>
+
+                                <div class="col-sm-12 col-md-6 col-lg-4" hidden id="lowerbound_col">
+                                    <label for="lowerboundDE">Param. Lower Bound:</label>
+                                    <div class = "tooltipcustom">
+                                        <span class = "tooltiptext">Maximum value for model parameters</span>
+                                        <input type="number" class="text-center"  th:step="0.01" style="width: 100%"
+                                               th:value="${configuration.getLowerBoundDE()}" name="lowerboundDE"
+                                               id="lowerboundDE"/>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-md-6 col-lg-4" hidden id="upperbound_col">
+                                    <label for="uperboundDE">Param. Upper Bound:</label>
+                                    <div class = "tooltipcustom">
+                                        <span class = "tooltiptext">Maximum value for model parameters</span>
+                                        <input type="number" class="text-center" th:step="0.01"
+                                               style="width: 100%"
+                                               th:value="${configuration.getUpperBoundDE()}" name="uperboundDE"
+                                               id="uperboundDE"/>
+                                    </div>
+
+                                </div>
+
+                                <div class="row form-group text-center">
+                                    <div class='col-sm-12 col-md-6 col-lg-6' hidden id="recombinationfactor_col">
+                                        <label for="recombinationFactorDE">Recombination Factor:</label>
+                                        <div>
+                                            <input type="number" class="text-center" th:min="0"  th:max="1" th:step="0.01"
+                                                   style="width: 80%"
+                                                   th:value="${configuration.getRecombinationFactorDE()}" name="recombinationFactorDE"
+                                                   id="recombinationFactorDE"/>
+                                        </div>
+                                    </div>
+                                    <div class='col-sm-12 col-md-6 col-lg-6' hidden id="mutationfactor_col">
+                                        <label for="mutationFactorDE">Mutation Factor:</label>
+                                        <div>
+                                            <input type="number" class="text-center" th:min="0"
+                                                   th:max="1" th:step="0.01"
+                                                   style="width: 80%"
+                                                   th:value="${configuration.getMutationFactorDE()}" name="mutationFactorDE"
+                                                   id="mutationFactorDE"/>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+
 
 
                         </div>

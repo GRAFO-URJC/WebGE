@@ -71,7 +71,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     private boolean DE = false;
 
 
-    public static SolutionDEGE bestSolution;
+    public SolutionDEGE bestSolution;
 
     public SymbolicRegressionGE(Properties properties, int numObjectives, String objective, boolean DE) {
         super(properties.getProperty(com.engine.util.Common.BNF_PATH_FILE_PROP), numObjectives,
@@ -198,13 +198,6 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         for (int i = (content.length - 1); i > 0; i--) {
             replacePart = "X" + i;
             newFunction = newFunction.replaceAll(replacePart, content[i]);
-        }
-
-        if(bestSolution.getModel()!=null){
-            for(int i = (content.length - 1);i>=0; i--){
-               replacePart = "w" + i;
-               newFunction = newFunction.replaceAll(replacePart, String.valueOf(bestSolution.getParameterValues().get(replacePart)));
-            }
         }
 
 
@@ -334,7 +327,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             } else {
                 executionReport.add(solutions.get(0).getObjective(0) + ";" + this.generatePhenotype(solutions.get(0)).toString() + ";" + time);
                 if(bestSolution.getModel()!=null){
-                    for(int j = (this.vars.size());j>=0; j--){
+                    for(int j = 0; j<= (this.vars.size()); j++){
                         String currentWeight = "w" + j;
                         if(bestSolution.getParameterValues().get(currentWeight)!= null){
 

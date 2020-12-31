@@ -92,7 +92,7 @@ public class Experiment {
 
     /*Differential Evolution*/
     @Column
-    private boolean de = true;
+    private Boolean de = true;
 
     /*Differential Evolution params*/
     @Column
@@ -114,7 +114,7 @@ public class Experiment {
                       Integer maxWraps, Integer tournament, Double crossoverProb,
                       Double mutationProb, Integer numCodons,
                       Integer numberRuns, String objective, Timestamp creationDate, Timestamp modificationDate,
-                      boolean de, Double lowerBoundDE, Double upperBoundDE, Double recombinationFactorDE,
+                      Boolean de, Double lowerBoundDE, Double upperBoundDE, Double recombinationFactorDE,
                       Double mutationFactorDE) {
         this.userId = user.getId();
         this.experimentName = experimentName;
@@ -128,10 +128,8 @@ public class Experiment {
         this.numCodons = numCodons;
         this.numberRuns = numberRuns;
         this.objective = objective;
-
         this.idExpDataTypeList = new ArrayList<>();
         this.idRunList = new ArrayList<>();
-
         this.modificationDate = modificationDate;
         this.creationDate = creationDate;
         this.de = de;
