@@ -265,7 +265,8 @@ public class ExperimentController {
                             exp.getNumberRuns().equals(configExpDto.getNumberRuns()) &&
                             exp.getObjective().equals(configExpDto.getObjective()) &&
                             exp.getDefaultGrammar().equals(configExpDto.getFileText()) &&
-                            exp.getDefaultExpDataType().equals(Long.valueOf(experimentDataTypeId));
+                            exp.getDefaultExpDataType().equals(Long.valueOf(experimentDataTypeId)) &&
+                            exp.getTags().equals(configExpDto.getTagsText());
             if (sameExp) {
                 if (!testExperimentDataTypeId.equals("")) {
                     exp.setDefaultTestExpDataTypeId(Long.valueOf(testExperimentDataTypeId));
@@ -660,7 +661,7 @@ public class ExperimentController {
                     configExpDto.getPopulationSize(), configExpDto.getMaxWraps(), configExpDto.getTournament(), configExpDto.getCrossoverProb(), configExpDto.getMutationProb(),
                     configExpDto.getNumCodons(), configExpDto.getNumberRuns(), configExpDto.getObjective(),
                     new Timestamp(new Date().getTime()), new Timestamp(new Date().getTime()), configExpDto.isDe(),
-                    configExpDto.getLowerBoundDE(), configExpDto.getUpperBoundDE(), configExpDto.getRecombinationFactorDE(), configExpDto.getMutationFactorDE());
+                    configExpDto.getLowerBoundDE(), configExpDto.getUpperBoundDE(), configExpDto.getRecombinationFactorDE(), configExpDto.getMutationFactorDE(), configExpDto.getTagsText());
 
         } else {  // The experiment data type configuration already exist
             exp.setUserId(user);
@@ -683,6 +684,7 @@ public class ExperimentController {
             exp.setUpperBoundDE(configExpDto.getUpperBoundDE());
             exp.setRecombinationFactorDE(configExpDto.getRecombinationFactorDE());
             exp.setMutationFactorDE(configExpDto.getMutationFactorDE());
+            exp.setTags(configExpDto.getTagsText());
             removeRuns(exp);
 
         }
@@ -795,7 +797,8 @@ public class ExperimentController {
         setConfigExpDtoWIthExperiment(configExpDto, forEqual ? configExpDto.getExperimentName() : exp.getExperimentName(),
                 forEqual ? configExpDto.getExperimentDescription() : exp.getExperimentDescription(), exp.getCrossoverProb(), exp.getGenerations(),
                 exp.getPopulationSize(), exp.getMaxWraps(), exp.getTournament(), exp.getMutationProb(),
-                exp.getNumCodons(), exp.getNumberRuns(), exp.getObjective(), exp.isDe(), exp.getLowerBoundDE(), exp.getUpperBoundDE(), exp.getRecombinationFactorDE(), exp.getMutationFactorDE());
+                exp.getNumCodons(), exp.getNumberRuns(), exp.getObjective(), exp.isDe(), exp.getLowerBoundDE(), exp.getUpperBoundDE(), exp.getRecombinationFactorDE(), exp.getMutationFactorDE(),
+                forEqual ? configExpDto.getTagsText() : exp.getTags());
 
         configExpDto.setId(exp.getId());
         configExpDto.setDefaultExpDataTypeId(exp.getDefaultExpDataType());
@@ -812,7 +815,8 @@ public class ExperimentController {
                                                Double crossoverProb, Integer generations, Integer populationSize, Integer maxWraps,
                                                Integer tournament, Double mutationProb,
                                                Integer numCodons, Integer numberRuns, String objective, boolean de,
-                                               Double lowerBoundDE, Double upperBoundDE, Double recombinationFactorDE, Double mutationFactorDE) {
+                                               Double lowerBoundDE, Double upperBoundDE, Double recombinationFactorDE, Double mutationFactorDE,
+                                               String tags) {
         configExpDto.setExperimentName(experimentName);
         configExpDto.setExperimentDescription(experimentDescription);
         configExpDto.setCrossoverProb(crossoverProb);
@@ -830,6 +834,7 @@ public class ExperimentController {
         configExpDto.setUpperBoundDE(upperBoundDE);
         configExpDto.setRecombinationFactorDE(recombinationFactorDE);
         configExpDto.setMutationFactorDE(mutationFactorDE);
+        configExpDto.setTagsText(tags);
     }
 
     public static Map<Long, RunnableExpGramEv> getRunnables() {

@@ -103,6 +103,8 @@ public class Experiment {
     private Double mutationFactorDE = 0.4717;
     @Column
     private Double recombinationFactorDE = 0.8803;
+    @Column
+    private String tags;
 
 
     public Experiment() {
@@ -115,7 +117,7 @@ public class Experiment {
                       Double mutationProb, Integer numCodons,
                       Integer numberRuns, String objective, Timestamp creationDate, Timestamp modificationDate,
                       Boolean de, Double lowerBoundDE, Double upperBoundDE, Double recombinationFactorDE,
-                      Double mutationFactorDE) {
+                      Double mutationFactorDE, String tagsText) {
         this.userId = user.getId();
         this.experimentName = experimentName;
         this.experimentDescription = experimentDescription;
@@ -137,6 +139,7 @@ public class Experiment {
         this.upperBoundDE = upperBoundDE;
         this.recombinationFactorDE = recombinationFactorDE;
         this.mutationFactorDE = mutationFactorDE;
+        this.tags = tagsText;
     }
 
     public String getObjective() {
@@ -346,7 +349,7 @@ public class Experiment {
         experiment.upperBoundDE = this.upperBoundDE;
         experiment.recombinationFactorDE = this.recombinationFactorDE;
         experiment.mutationFactorDE = this.mutationFactorDE;
-
+        experiment.tags = this.tags;
         return experiment;
     }
 
@@ -416,5 +419,13 @@ public class Experiment {
 
     public void setRecombinationFactorDE(Double recombinationFactorDE) {
         this.recombinationFactorDE = recombinationFactorDE;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 }
