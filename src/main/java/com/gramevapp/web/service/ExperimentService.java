@@ -34,7 +34,7 @@ public class ExperimentService {
     }
 
     public List<Experiment> findByUser(User user) {
-        return experimentRepository.findByUserId(user.getId());
+        return experimentRepository.findByUserIdOrderByCreationDateDesc(user.getId());
     }
 
     public Dataset findDataTypeById(Long dataTypeId) {

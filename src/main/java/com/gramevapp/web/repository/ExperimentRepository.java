@@ -11,7 +11,7 @@ import java.util.List;
 public interface ExperimentRepository extends JpaRepository<Experiment, Long> {
     Experiment findByUserIdAndId(User user, Long id);
 
-    List<Experiment> findByUserId(Long userId);
+    List<Experiment> findByUserIdOrderByCreationDateDesc(Long userId);
 
     void deleteById(Long id);
 
