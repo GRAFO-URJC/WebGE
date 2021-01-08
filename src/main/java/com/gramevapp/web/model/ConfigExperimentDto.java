@@ -4,12 +4,12 @@ import javax.validation.constraints.*;
 
 public class ConfigExperimentDto {
     private Long id;
-    private static final String EXPERIMENTNAME_PATTERN = "^[a-zA-Z0-9À-ÖØ-öø-ÿ \\[\\]()#_-]{1,254}$";
+    private static final String EXPERIMENTNAME_PATTERN = "^[a-zA-Z0-9À-ÖØ-öø-ÿ \\[\\]()#+_-]{1,254}$";
 
     @Pattern(regexp = EXPERIMENTNAME_PATTERN, message = "Experiment name cannot have special characters. Only alphanumeric ones and []()#_- are allowed.")
     private String experimentName = "";
     private String experimentDescription = "";
-    @Min(value = 100)
+    @Min(value = 1)
     @Max(value = 100000)
     @NotNull
     private Integer generations = 1000;
