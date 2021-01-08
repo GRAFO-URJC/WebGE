@@ -131,6 +131,46 @@
                             <hr/>
                         </div>
 
+                        <!-- Training Test Validation files -->
+                        <div class="col-sm-12 col-md-12 col-lg-12 center-block">
+                            <div class="jumbotron row form-group">
+                                <h4>Tags</h4>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-sm-2 col-md-2 col-lg-2">
+                                    <input id="tagName" placeholder="Tag name"/>
+                                </div>
+                                <div class="col-sm-2 col-md-2 col-lg-2">
+                                    <button type="button" class = "btn" onclick="addTag()">Add new tag</button>
+                                </div>
+                                <div class="col-sm-2 col-md-2 col-lg-2">
+                                    <input id="tagNameRemove" placeholder="Tag name"/>
+                                </div>
+                                <div class="col-sm-2 col-md-2 col-lg-2">
+                                    <button type="button"  class = "btn"  onclick="removeTag()">Remove tag</button>
+                                </div>
+                                <div class="col-sm-4 col-md-4 col-lg-4">
+                                    <button type="button" class = "btn btn-danger"  onclick="removeAllTags()">Remove all tags</button>
+                                </div>
+
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                <textarea rows="4" class="form-control" name="tagsText"
+                                          id="tagsText" th:inline="text" style="resize: none;height: 50px"
+                                          th:text="${configuration.getTagsText()}"
+                                          placeholder="Tags"
+                                          readonly ></textarea>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                            <hr/>
+                        </div>
+
                         <!-- ExpPropertiesDto -->
                         <div class="col-sm-12 col-md-6 col-lg-6">
                             <div class="row form-group text-center">
@@ -304,7 +344,7 @@
 
                                     <div class="tooltip">
                                         <button id="copyGrammarButton"
-                                                type="button"
+                                                type="button" class = "btn"
                                                 onclick="copyGrammar()" onmouseout="onGrammar()">
                                             <span class="tooltiptext" id="grammarTooltip">Copy grammar</span>
                                             Copy
@@ -325,7 +365,7 @@
                                     <input id="grammarName" placeholder="Grammar name"/>
                                 </div>
                                 <div class="col-sm-6 col-md-6 col-lg-6">
-                                    <button type="button" onclick="storeGrammar()">Store as new grammar</button>
+                                    <button type="button" class = "btn" onclick="storeGrammar()">Store as new grammar</button>
                                 </div>
                                 <div class="col-sm-12 col-md-12 col-lg-12" style="margin-top: 5px">
                                     <input id="grammarDescription" placeholder="Grammar description"
@@ -600,6 +640,54 @@
         let runTable = document.getElementById("expTypeTable");
         let checkedCrossValidationValue = -1;
 
+        function addTag(){
+
+        let tempTag = '';
+            if ($("#tagName").val()) {
+            tags = $('#tagsText').val().split("; ");
+            tags.pop();
+                console.log(tags);
+                const found = tags.indexOf($("#tagName").val());
+                if(found == -1){
+                    tags.push($("#tagName").val());
+                    tags.sort();
+                    tags.forEach(function(item, index, array){
+                        tempTag += item+"; ";
+
+                    })
+                    $("#tagsText").val(tempTag)
+                }
+                $("#tagName").val("");
+
+
+                console.log(tags);
+            }
+        }
+
+        function removeTag(){
+         let tempTag = '';
+            if ($("#tagNameRemove").val()) {
+                let indexEl = tags.indexOf($("#tagNameRemove").val());
+                if(indexEl != -1){
+                    tags.splice(indexEl, 1);
+
+                    tags.forEach(function(item, index, array){
+                        tempTag += item+"; ";
+
+                    })
+                    $("#tagsText").val(tempTag)
+                }
+                $("#tagNameRemove").val("");
+            }
+
+        }
+
+        function removeAllTags(){
+            let result = confirm("Are you sure of removing all tags?");
+            if (result){
+                $("#tagsText").val("");
+            }
+        }
 
         function storeGrammar(){
             let grammarName = $("#grammarName").val();
@@ -645,6 +733,7 @@
             updateTestDatasetContent()
             setObjectiveFunction();
             setDE();
+
 
             $('[name="status"]').each(function (index) {
                 if (($(this).text() == "FINISHED") || ($(this).text() == "STOPPED") || ($(this).text() == "FAILED") || ($(this).text() == "CANCELLED")) {
@@ -865,7 +954,7 @@
         }
 
         function confirmDelete(iterStat, runId) {
-            let result = confirm("Are you sure to delete this run?");
+            let result = confirm("Are you sure of deleting this run?");
             if (result){
                 deleteRow(iterStat, runId);
 
@@ -873,7 +962,7 @@
         }
 
         function stopRun(iterStat, runId) {
-            if (confirm("Are you sure to stop this run?")) {
+            if (confirm("Are you sure of stopping this run?")) {
                 let cleanIterStat = iterStat.substring("stopRun".length, iterStat.length);
 
                 $.ajax({
@@ -893,7 +982,7 @@
         }
 
         function stopAllRuns(){
-            if (confirm("Are you sure to stop or cancel all runs?")) {
+            if (confirm("Are you sure of stopping or cancelling all runs?")) {
                 $.ajax({
                     url: encodeURI("/experiment/stopAllRunsAjax"),
                     data: {
@@ -981,6 +1070,7 @@
             let de = $('#de').val();
             let grammar = $('#fileText').val();
             let datasetId = $('#experimentDataTypeId').val();
+            let tagsText = $('#tagsText').val();
             experimentInformation['defaultExpDataTypeId'] =
                 experimentInformation['defaultExpDataTypeId'] == null ? "" : experimentInformation['defaultExpDataTypeId'];
 
@@ -995,6 +1085,7 @@
                 experimentInformation['numberRuns'] == numberRuns &&
                 experimentInformation['objective'] === objective &&
                 experimentInformation['de'] === de &&
+                experimentInformation['tagsText'] === tagsText &&
                 grammar.split(/[\s]+/).join() == experimentInformation['fileText'].split(/[\s]+/).join() &&
                 experimentInformation['defaultExpDataTypeId'] == datasetId);
         }

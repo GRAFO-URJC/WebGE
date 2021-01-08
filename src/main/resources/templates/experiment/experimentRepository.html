@@ -44,6 +44,7 @@
                             <th id="number">#</th>
                             <th id="expName">Experiment name</th>
                             <th id="expDesc">Experiment description</th>
+                            <th id="tags">Tags</th>
                             <th id="lastModDate">Last modification date</th>
                             <th id="empty"></th>
                             <th id="empty2"></th>
@@ -59,6 +60,9 @@
                                                        th:text="${exp.experimentName}" id="name"/></td>
                                 <td ><label th:name="description"
                                                        th:text="${exp.experimentDescription}" id="description"/>
+                                </td>
+                                <td ><label th:name="tags"
+                                            th:text="${exp.tags}" id="exptags"/>
                                 </td>
                                 <td>
                                     <span style="display:none;" th:text="${exp.getModificationDate()}"></span>
@@ -229,7 +233,7 @@
                 }
             }
 
-            tableDefinition('#expRepository', "#expTableBody", 4, 5, 6, 3);
+            tableDefinition('#expRepository', "#expTableBody", 4, 5, 7, 3);
         });
 
         function confirmDelete(iterStat, expId) {

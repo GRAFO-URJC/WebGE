@@ -77,6 +77,8 @@ public class ConfigExperimentDto {
     @Max(value = 100)
     private Double recombinationFactorDE = 0.88;
 
+    private String tagsText = "";
+
     public Long getId() {
         return id;
     }
@@ -272,5 +274,13 @@ public class ConfigExperimentDto {
 
     public void setRecombinationFactorDE(Double recombinationFactorDE) {
         this.recombinationFactorDE = recombinationFactorDE;
+    }
+
+    public String getTagsText() {
+        return tagsText;
+    }
+
+    public void setTagsText(String tagsText) {
+        this.tagsText = tagsText;
     }
 }
