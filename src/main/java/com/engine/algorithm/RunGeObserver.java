@@ -44,6 +44,7 @@ public class RunGeObserver implements Observer {
         // Current value of best individual
         double currBest = Double.parseDouble(dataMap.get("BestObjective").toString());
 
+
         // http://codippa.com/how-to-autowire-objects-in-non-spring-classes/
         //get application context
         ApplicationContext context = BeanUtil.getAppContext();

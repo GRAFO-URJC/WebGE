@@ -69,7 +69,7 @@ public class GrammarController {
 
         Grammar gr = new Grammar();
         if (idGrammar != -1) {
-            gr = grammarRepository.findGrammarById(idGrammar);
+            gr = grammarRepository.findGrammarByIdOrderByCreationDateDesc(idGrammar);
         }
 
         model.addAttribute("grammar", gr);

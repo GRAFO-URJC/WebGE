@@ -79,6 +79,10 @@ public class ConfigExperimentDto {
 
     private String tagsText = "";
 
+    @Min(value = 4)
+    @Max(value = 100000)
+    private Integer populationDE = 20;
+
     public Long getId() {
         return id;
     }
@@ -282,5 +286,13 @@ public class ConfigExperimentDto {
 
     public void setTagsText(String tagsText) {
         this.tagsText = tagsText;
+    }
+
+    public Integer getPopulationDE() {
+        return populationDE;
+    }
+
+    public void setPopulationDE(Integer populationDE) {
+        this.populationDE = populationDE;
     }
 }

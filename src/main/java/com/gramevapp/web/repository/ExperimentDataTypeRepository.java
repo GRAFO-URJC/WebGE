@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface ExperimentDataTypeRepository extends JpaRepository<Dataset, Long> {
-    List<Dataset> findAllByUserIdUserId(Long userId);
+    List<Dataset> findAllByUserIdUserIdOrderByCreationDateDesc(Long userId);
 
     Dataset findByDataTypeNameAndUserIdUserId(String name, Long userId);
 }
