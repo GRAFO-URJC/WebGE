@@ -170,7 +170,7 @@ public class ExperimentController {
         Thread thread = new Thread(() -> {
             try {
                 for (Thread th : threads) {
-                    if(executionCancelled){
+                    if (executionCancelled) {
                         break;
                     }
                     th.start();
@@ -252,9 +252,10 @@ public class ExperimentController {
 
         if (configExpDto.getId() != null) {
             exp = experimentService.findExperimentById(configExpDto.getId());
-            configExpDto = fillConfigExpDto(configExpDto, exp,
-                    exp.getDefaultGrammar(), expDataType, true);
+           /* configExpDto = fillConfigExpDto(configExpDto, exp,
+            exp.getDefaultGrammar(), expDataType, true);
             // check if only test was changed
+
             boolean sameExp =
                     exp.getGenerations().equals(configExpDto.getGenerations()) &&
                             exp.getCrossoverProb().equals(configExpDto.getCrossoverProb()) &&
@@ -284,6 +285,7 @@ public class ExperimentController {
                 model.addAttribute(RUNLIST, exp.getIdRunList());
                 return CONFIGEXPERIMENTPATH;
             }
+            */
         }
 
 
@@ -307,7 +309,7 @@ public class ExperimentController {
     public String cloneExperiment(Model model,
                                   @RequestParam("experimentDataTypeId") String experimentDataTypeId,
                                   @ModelAttribute("typeFile") FileModelDto fileModelDto,
-                                  @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto){
+                                  @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto) {
         User user = userService.getLoggedInUser();
         configExpDto.setId(null);
 
@@ -375,8 +377,7 @@ public class ExperimentController {
             Thread th = threadMap.get(threadId);
             if (th != null) {
                 runIt.setStatus(Run.Status.STOPPED);
-                saveDBService.saveRunAsync(runIt);
-
+                runService.saveRun(runIt);
                 th.interrupt();
                 runnables.get(threadId).stopExecution();
             }
@@ -409,15 +410,13 @@ public class ExperimentController {
         while (listRunIt.hasNext()) {
             Run runIt = listRunIt.next();
 
-            if (runIt.getStatus().equals(Run.Status.RUNNING)){
+            if (runIt.getStatus().equals(Run.Status.RUNNING)) {
                 return true;
             }
 
         }
         return false;
     }
-
-
 
 
     @GetMapping(value = "/experiment/runList", params = "showPlotExecutionButton")
@@ -505,28 +504,28 @@ public class ExperimentController {
     }
 
 
-
-
     private void processExperimentDataTypeInfo(String[] splitContent, List<Double> listYLine, List<Double> listFunctionResult, List<Double> result,
                                                Run run) {
         double[] yDoubleArray = new double[splitContent.length - 1];
         double[] functionResultDoubleArray = new double[splitContent.length - 1];
         double yValue;
-        double modelValue;
+        double modelValue = -1;
 
         for (int i = 1; i < splitContent.length; i++) {
             String[] contentSplit = splitContent[i].split(";");
             yValue = Double.parseDouble(contentSplit[0]);
-            modelValue = SymbolicRegressionGE.calculateFunctionValuedResultWithCSVData(run.getModel(),
-                    contentSplit);
+            if (run.getModel() != null &&  listFunctionResult != null) {
+                modelValue = SymbolicRegressionGE.calculateFunctionValuedResultWithCSVData(run.getModel(),
+                        contentSplit);
+                listFunctionResult.add(modelValue);
+            }
             if (listYLine != null) {
                 listYLine.add(yValue);
             }
-            if (listFunctionResult != null) {
-                listFunctionResult.add(modelValue);
-            }
+
             yDoubleArray[i - 1] = yValue;
-            functionResultDoubleArray[i - 1] = modelValue;
+            if (modelValue != -1)
+                functionResultDoubleArray[i - 1] = modelValue;
         }
         // RMSE AVGERROR RSQUARE ABSOLUTEERROR
         result.add(UtilStats.computeRMSE(yDoubleArray, functionResultDoubleArray));
@@ -568,7 +567,6 @@ public class ExperimentController {
     }
 
 
-
     private void createPropertiesFile(String propertiesFilePath, String expName,
                                       ConfigExperimentDto configExpDto, User user, String grammarFilePath,
                                       String dataTypeDirectoryPath, Dataset expDataType) throws IOException {
@@ -606,6 +604,7 @@ public class ExperimentController {
         propertiesWriter.println("UpperBoundDE=" + configExpDto.getUpperBoundDE());
         propertiesWriter.println("RecombinationFactorDE=" + configExpDto.getRecombinationFactorDE());
         propertiesWriter.println("MutationFactorDE=" + configExpDto.getMutationFactorDE());
+        propertiesWriter.println("PopulationSizeDE=" + configExpDto.getPopulationDE());
         propertiesWriter.close();
     }
 
@@ -661,7 +660,7 @@ public class ExperimentController {
                     configExpDto.getPopulationSize(), configExpDto.getMaxWraps(), configExpDto.getTournament(), configExpDto.getCrossoverProb(), configExpDto.getMutationProb(),
                     configExpDto.getNumCodons(), configExpDto.getNumberRuns(), configExpDto.getObjective(),
                     new Timestamp(new Date().getTime()), new Timestamp(new Date().getTime()), configExpDto.isDe(),
-                    configExpDto.getLowerBoundDE(), configExpDto.getUpperBoundDE(), configExpDto.getRecombinationFactorDE(), configExpDto.getMutationFactorDE(), configExpDto.getTagsText());
+                    configExpDto.getLowerBoundDE(), configExpDto.getUpperBoundDE(), configExpDto.getRecombinationFactorDE(), configExpDto.getMutationFactorDE(), configExpDto.getTagsText(), configExpDto.getPopulationDE());
 
         } else {  // The experiment data type configuration already exist
             exp.setUserId(user);
@@ -685,6 +684,7 @@ public class ExperimentController {
             exp.setRecombinationFactorDE(configExpDto.getRecombinationFactorDE());
             exp.setMutationFactorDE(configExpDto.getMutationFactorDE());
             exp.setTags(configExpDto.getTagsText());
+            exp.setPopulationDE(configExpDto.getPopulationDE());
             removeRuns(exp);
 
         }
@@ -735,10 +735,9 @@ public class ExperimentController {
         th.join();
         run = runService.findByRunId(Long.parseLong(runIdStop));
         run.getDiagramData().setStopped(true);
-        saveDBService.saveDiagramDataAsync(run.getDiagramData());
-
+        diagramDataService.saveDiagram(run.getDiagramData());
         run.setStatus(Run.Status.STOPPED);
-        saveDBService.saveRunAsync(run);
+        runService.saveRun(run);
 
         if (model != null) {
             model.addAttribute(EXPDETAILS, run.getExperimentId());
@@ -764,20 +763,19 @@ public class ExperimentController {
         this.executionCancelled = true;
         Experiment experiment = experimentService.findExperimentById(expId);
         List<Run> runList = experiment.getIdRunList();
-        for (Run run : runList){
+        for (Run run : runList) {
 
-           if(!run.getStatus().equals(Run.Status.RUNNING)){
-               run.setStatus(Run.Status.CANCELLED);
-               saveDBService.saveRunAsync(run);
-           }else{
-
-               ajaxStopRunExperiment(String.valueOf(run.getId()));
-           }
+            if (!run.getStatus().equals(Run.Status.RUNNING) && !run.getStatus().equals(Run.Status.FINISHED)  ) {
+                run.setStatus(Run.Status.CANCELLED);
+                saveDBService.saveRunAsync(run);
+            } else if (!run.getStatus().equals(Run.Status.FINISHED)){
+                ajaxStopRunExperiment(String.valueOf(run.getId()));
+            }
 
         }
 
 
-         return true;
+        return true;
     }
 
 
@@ -798,7 +796,7 @@ public class ExperimentController {
                 forEqual ? configExpDto.getExperimentDescription() : exp.getExperimentDescription(), exp.getCrossoverProb(), exp.getGenerations(),
                 exp.getPopulationSize(), exp.getMaxWraps(), exp.getTournament(), exp.getMutationProb(),
                 exp.getNumCodons(), exp.getNumberRuns(), exp.getObjective(), exp.isDe(), exp.getLowerBoundDE(), exp.getUpperBoundDE(), exp.getRecombinationFactorDE(), exp.getMutationFactorDE(),
-                forEqual ? configExpDto.getTagsText() : exp.getTags());
+                forEqual ? configExpDto.getTagsText() : exp.getTags(), exp.getPopulationDE());
 
         configExpDto.setId(exp.getId());
         configExpDto.setDefaultExpDataTypeId(exp.getDefaultExpDataType());
@@ -816,7 +814,7 @@ public class ExperimentController {
                                                Integer tournament, Double mutationProb,
                                                Integer numCodons, Integer numberRuns, String objective, boolean de,
                                                Double lowerBoundDE, Double upperBoundDE, Double recombinationFactorDE, Double mutationFactorDE,
-                                               String tags) {
+                                               String tags, Integer populationDE) {
         configExpDto.setExperimentName(experimentName);
         configExpDto.setExperimentDescription(experimentDescription);
         configExpDto.setCrossoverProb(crossoverProb);
@@ -835,6 +833,7 @@ public class ExperimentController {
         configExpDto.setRecombinationFactorDE(recombinationFactorDE);
         configExpDto.setMutationFactorDE(mutationFactorDE);
         configExpDto.setTagsText(tags);
+        configExpDto.setPopulationDE(populationDE);
     }
 
     public static Map<Long, RunnableExpGramEv> getRunnables() {

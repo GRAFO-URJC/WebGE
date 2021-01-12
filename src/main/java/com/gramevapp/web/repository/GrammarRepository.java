@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface GrammarRepository extends JpaRepository<Grammar, Long> {
-    Grammar findGrammarById(Long grammarId);
+    Grammar findGrammarByIdOrderByCreationDateDesc(Long grammarId);
 
     Grammar findGrammarByGrammarNameAndUserId(String name, Long userId);
 

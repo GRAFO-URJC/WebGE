@@ -49,6 +49,7 @@ public class Common {
     public static final String UPPER_BOUND_DE = "UpperBoundDE";
     public static final String RECOMBINATION_FACTOR_DE = "RecombinationFactorDE";
     public static final String MUTATION_FACTOR_DE = "MutationFactorDE";
+    public static final String POPULATION_DE = "PopulationDE";
 
 
     private Common (){
@@ -84,6 +85,7 @@ public class Common {
         m.put(UPPER_BOUND_DE, "Maximum value for model parameters in DE (" +UPPER_BOUND_DE + ")");
         m.put(RECOMBINATION_FACTOR_DE, "Recombination factor DE (" +RECOMBINATION_FACTOR_DE + ")");
         m.put(MUTATION_FACTOR_DE, "Mutation factor DE (" +MUTATION_FACTOR_DE + ")");
+        m.put(POPULATION_DE, "Population size DE (" +POPULATION_DE + ")");
 
         return m;
     }

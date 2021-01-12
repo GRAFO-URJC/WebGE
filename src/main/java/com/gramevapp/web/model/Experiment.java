@@ -105,7 +105,8 @@ public class Experiment {
     private Double recombinationFactorDE = 0.8803;
     @Column
     private String tags;
-
+    @Column
+    private Integer populationDE = 20;
 
     public Experiment() {
         this.idExpDataTypeList = new ArrayList<>();
@@ -117,7 +118,7 @@ public class Experiment {
                       Double mutationProb, Integer numCodons,
                       Integer numberRuns, String objective, Timestamp creationDate, Timestamp modificationDate,
                       Boolean de, Double lowerBoundDE, Double upperBoundDE, Double recombinationFactorDE,
-                      Double mutationFactorDE, String tagsText) {
+                      Double mutationFactorDE, String tagsText, Integer populationDE) {
         this.userId = user.getId();
         this.experimentName = experimentName;
         this.experimentDescription = experimentDescription;
@@ -140,6 +141,7 @@ public class Experiment {
         this.recombinationFactorDE = recombinationFactorDE;
         this.mutationFactorDE = mutationFactorDE;
         this.tags = tagsText;
+        this.populationDE = populationDE;
     }
 
     public String getObjective() {
@@ -427,5 +429,13 @@ public class Experiment {
 
     public void setTags(String tags) {
         this.tags = tags;
+    }
+
+    public Integer getPopulationDE() {
+        return populationDE;
+    }
+
+    public void setPopulationDE(Integer populationDE) {
+        this.populationDE = populationDE;
     }
 }

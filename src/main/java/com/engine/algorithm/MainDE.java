@@ -9,13 +9,13 @@ import java.util.Properties;
 
 public class MainDE {
 
-    public static final String NUM_INDIVIDUALS_PROP = "NumIndividuals";
     public static final String NUM_GENERATIONS_PROP = "NumGenerations";
     public static final String MUTATION_FACTOR_DE_PROP = "MutationFactorDE";
     public static final String RECOMB_FACTOR_PROP = "RecombinationFactorDE";
     public static final String MODEL_PROP = "ModelDE";
     public static final String LOWER_BOUND_PROP = "LowerBoundDE";
     public static final String UPPER_BOUND_PROP = "UpperBoundDE";
+    public static final String POPULATION_DE = "PopulationSizeDE";
 
     // Identificator of the parameters in the models.
     private static final char ID_FOR_PARAMS = 'w';
@@ -64,7 +64,7 @@ public class MainDE {
 
         // Create algorithm:
         algorithm = new DifferentialEvolution(problem,
-                Integer.valueOf(props.getProperty(NUM_INDIVIDUALS_PROP)),
+                Integer.valueOf(props.getProperty(POPULATION_DE)),
                 Integer.valueOf(props.getProperty(NUM_GENERATIONS_PROP)),
                 true,
                 Double.valueOf(props.getProperty(MUTATION_FACTOR_DE_PROP)),

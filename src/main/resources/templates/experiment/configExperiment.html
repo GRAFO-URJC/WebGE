@@ -74,8 +74,8 @@
             <section class="panel-body">
                 <form th:action="@{/experiment/start}" th:object="${configExp}" enctype="multipart/form-data"
                       role="form" method="POST" onsubmit="
-                      return checkNumberRunsAndPopulationSize();
-                      return checkDeletePreviousRun();">
+                      return checkDeletePreviousRun();
+                        return checkNumberRuns();">
 
                     <div class="row center-block text-center form-horizontal">
                         <div class="col-sm-6 col-md-offset-3 col-lg-offset-3">
@@ -292,23 +292,34 @@
                                 </div>
 
                                 <div class="row form-group text-center">
-                                    <div class='col-sm-12 col-md-6 col-lg-6' hidden id="recombinationfactor_col">
+                                    <div class='col-sm-12 col-md-6 col-lg-4' hidden id="recombinationfactor_col">
                                         <label for="recombinationFactorDE">Recombination Factor:</label>
                                         <div>
                                             <input type="number" class="text-center" th:min="0"  th:max="1" th:step="0.01"
-                                                   style="width: 80%"
+                                                   style="width: 100%"
                                                    th:value="${configuration.getRecombinationFactorDE()}" name="recombinationFactorDE"
                                                    id="recombinationFactorDE"/>
                                         </div>
                                     </div>
-                                    <div class='col-sm-12 col-md-6 col-lg-6' hidden id="mutationfactor_col">
+                                    <div class='col-sm-12 col-md-6 col-lg-4' hidden id="mutationfactor_col">
                                         <label for="mutationFactorDE">Mutation Factor:</label>
                                         <div>
                                             <input type="number" class="text-center" th:min="0"
                                                    th:max="1" th:step="0.01"
-                                                   style="width: 80%"
+                                                   style="width: 100%"
                                                    th:value="${configuration.getMutationFactorDE()}" name="mutationFactorDE"
                                                    id="mutationFactorDE"/>
+                                        </div>
+                                    </div>
+
+                                    <div class='col-sm-12 col-md-6 col-lg-4' hidden id="populationDE_col">
+                                        <label for="populationDE">Population Size:</label>
+                                        <div>
+                                            <input type="number" class="text-center" th:min="4"
+                                                   th:step="1"
+                                                   style="width: 100%"
+                                                   th:value="${configuration.getPopulationDE()}" name="populationDE"
+                                                   id="populationDE"/>
                                         </div>
                                     </div>
 
@@ -646,7 +657,6 @@
             if ($("#tagName").val()) {
             tags = $('#tagsText').val().split("; ");
             tags.pop();
-                console.log(tags);
                 const found = tags.indexOf($("#tagName").val());
                 if(found == -1){
                     tags.push($("#tagName").val());
@@ -658,9 +668,6 @@
                     $("#tagsText").val(tempTag)
                 }
                 $("#tagName").val("");
-
-
-                console.log(tags);
             }
         }
 
@@ -792,7 +799,6 @@
                 return ($(this).val() == experimentInformation['objective']);
             }).prop('selected', true);
 
-            console.log(experimentInformation);
 
         }
 
@@ -860,11 +866,13 @@
                 $('#upperbound_col').attr('hidden', false)
                 $('#recombinationfactor_col').attr('hidden', false)
                 $('#mutationfactor_col').attr('hidden', false)
+                $('#populationDE_col').attr('hidden', false)
             }else{
                $('#lowerbound_col').attr('hidden', 'hidden')
                 $('#upperbound_col').attr('hidden', 'hidden')
                 $('#recombinationfactor_col').attr('hidden', 'hidden')
                 $('#mutationfactor_col').attr('hidden', 'hidden')
+                 $('#populationDE_col').attr('hidden', 'hidden')
             }
 
         }
@@ -1031,15 +1039,12 @@
 
         }
 
-        function checkNumberRunsAndPopulationSize() {
+        function checkNumberRuns() {
             let numberRuns = document.getElementById("numberRuns");
             if (document.getElementById("crossExperiment").checked && numberRuns.value < datasetListInfo[$("#datasetId option:selected").val()].foldSize) {
                 numberRuns.value = datasetListInfo[$("#datasetId option:selected").val()].foldSize;
             }
-            if (document.getElementById("de").checked && populationSize.value < 4) {
-               alert("Population size must be over 4 when computing GE+DE");
-               return false;
-            }
+
             return true;
 
         }

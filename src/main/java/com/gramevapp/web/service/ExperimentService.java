@@ -53,7 +53,7 @@ public class ExperimentService {
     }
 
     public List<Dataset> findAllExperimentDataTypeByUserId(Long userId) {
-        return experimentDataTypeRepository.findAllByUserIdUserId(userId);
+        return experimentDataTypeRepository.findAllByUserIdUserIdOrderByCreationDateDesc(userId);
     }
 
     public Dataset findExperimentDataTypeByDataTypeNameAndUserId( String name, Long userId){

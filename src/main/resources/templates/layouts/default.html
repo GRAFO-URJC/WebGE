@@ -52,7 +52,7 @@
             document.body.removeChild(event.target);
         }
 
-        function tableDefinition(id, idTableBody, target1, target2, targetChill, order) {
+        function tableDefinition(id, idTableBody, target1, target2, targetChill, order, date) {
             table = $(id).DataTable({
                 responsive: true,
                 "paging": true,
@@ -62,7 +62,7 @@
                     "orderable": false,
                 }],
                 columnDefs: [
-                    { type: 'date-euro', targets: order }],
+                    { type: 'date-euro', targets: date }],
             });
 
             $('.dataTables_length').addClass('bs-select');
@@ -122,6 +122,10 @@
                     csvContent += "\n";
 
                     for (let count = 0; count < data['model'].length; count++) {
+                        console.log(data['model'][count]);
+                        if(data['model'][count].length == 0){
+                            data['model'][count] = "Unfinished run"
+                        }
                         csvContent += data['runIndex'][count] + ";" + data['model'][count] + ";" +
                             data['trainingAVG'][count] + ";" + data['trainingRMSE'][count] + ";" +
                             data['trainingAbs'][count] + ";" + data['trainingR2'][count] + ";"
