@@ -500,6 +500,7 @@ public class ExperimentController {
             model.addAttribute("noTest", true);
         }
 
+
         return "experiment/showTestStatsPlot";
     }
 
@@ -514,10 +515,11 @@ public class ExperimentController {
         for (int i = 1; i < splitContent.length; i++) {
             String[] contentSplit = splitContent[i].split(";");
             yValue = Double.parseDouble(contentSplit[0]);
-            if (run.getModel() != null &&  listFunctionResult != null) {
+            if (run.getModel() != null && !run.getModel().isEmpty()) {
                 modelValue = SymbolicRegressionGE.calculateFunctionValuedResultWithCSVData(run.getModel(),
                         contentSplit);
-                listFunctionResult.add(modelValue);
+                if(listFunctionResult!=null)
+                    listFunctionResult.add(modelValue);
             }
             if (listYLine != null) {
                 listYLine.add(yValue);
@@ -676,7 +678,7 @@ public class ExperimentController {
             exp.setNumCodons(configExpDto.getNumCodons());
             exp.setNumberRuns(configExpDto.getNumberRuns());
             exp.setObjective(configExpDto.getObjective());
-
+            exp.setDe(configExpDto.isDe());
             exp.setCreationDate(new Timestamp(new Date().getTime()));
             exp.setModificationDate(new Timestamp(new Date().getTime()));
             exp.setLowerBoundDE(configExpDto.getLowerBoundDE());
@@ -907,10 +909,12 @@ public class ExperimentController {
             List<Double> result = new ArrayList<>();
             processExperimentDataTypeInfo(experimentService.findExperimentDataTypeById(experiment.getDefaultExpDataType()).getInfo().split("\r\n"),
                     null, null, result, run);
-            runResultsDto.getTrainingRMSE()[index] = result.get(0);
-            runResultsDto.getTrainingAVG()[index] = result.get(1);
-            runResultsDto.getTrainingR2()[index] = result.get(2);
-            runResultsDto.getTrainingAbs()[index] = result.get(3);
+            if(run.getModel()!=null && !run.getModel().isEmpty()) {
+                runResultsDto.getTrainingRMSE()[index] = result.get(0);
+                runResultsDto.getTrainingAVG()[index] = result.get(1);
+                runResultsDto.getTrainingR2()[index] = result.get(2);
+                runResultsDto.getTrainingAbs()[index] = result.get(3);
+            }
 
             if (haveTest || experiment.isCrossExperiment()) {
                 result = new ArrayList<>();
@@ -938,10 +942,12 @@ public class ExperimentController {
                 }
                 processExperimentDataTypeInfo(intoForSplit.split("\r\n"),
                         null, null, result, run);
-                runResultsDto.getTestRMSE()[index] = result.get(0);
-                runResultsDto.getTestAVG()[index] = result.get(1);
-                runResultsDto.getTestR2()[index] = result.get(2);
-                runResultsDto.getTestAbs()[index] = result.get(3);
+                if(run.getModel()!=null && !run.getModel().isEmpty()) {
+                    runResultsDto.getTestRMSE()[index] = result.get(0);
+                    runResultsDto.getTestAVG()[index] = result.get(1);
+                    runResultsDto.getTestR2()[index] = result.get(2);
+                    runResultsDto.getTestAbs()[index] = result.get(3);
+                }
             }
             index++;
         }

@@ -120,16 +120,18 @@
                             "Test R^2;";
                     }
                     csvContent += "\n";
-
+                    console.log(data);
+                    console.log(data['trainingAbs'][0])
                     for (let count = 0; count < data['model'].length; count++) {
                         console.log(data['model'][count]);
                         if(data['model'][count].length == 0){
                             data['model'][count] = "Unfinished run"
+                            csvContent += data['runIndex'][count] + ";" + data['model'][count] + ";"
+                        }else{
+                            csvContent += data['runIndex'][count] + ";" + data['model'][count] + ";" +
+                                data['trainingAVG'][count] + ";" + data['trainingRMSE'][count] + ";" +
+                                data['trainingAbs'][count] + ";" + data['trainingR2'][count] + ";"
                         }
-                        csvContent += data['runIndex'][count] + ";" + data['model'][count] + ";" +
-                            data['trainingAVG'][count] + ";" + data['trainingRMSE'][count] + ";" +
-                            data['trainingAbs'][count] + ";" + data['trainingR2'][count] + ";"
-
                         if (data['testAVG'] !== null) {
                             csvContent += data['testAVG'][count] + ";" + data['testRMSE'][count] + ";" +
                                 data['testAbs'][count] + ";" + data['testR2'][count] + ";"
