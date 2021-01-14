@@ -63,9 +63,10 @@ public class RunnableExpGramEv implements Runnable {
                 identifier = Integer.parseInt(splitInfo[i].substring(indexFold + 1));
                 //check if have cross
                 if (crossRunIdentifier < 0 || identifier != crossRunIdentifier) {
-                    StringBuilder stringBuilder = new StringBuilder(datasetInfo);
+                    StringBuilder stringBuilder = new StringBuilder();
                     stringBuilder.append(splitInfo[i].substring(0, indexFold));
                     stringBuilder.append("\r\n");
+                    datasetInfo+= stringBuilder.toString();
                 }
             }
         }

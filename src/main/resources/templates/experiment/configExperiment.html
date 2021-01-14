@@ -4,7 +4,7 @@
       layout:decorate="~{layouts/default}"
       lang="en">
 <head>
-    <title>WebGE - Experiment testing area</title>
+    <title>Web - Experiment testing area</title>
     <style>
         .tooltipcustom {
             font-size: inherit;
@@ -263,7 +263,7 @@
 
                             <div class="row form-group text-center " style="border: 1px solid black">
 
-                                <div class="col-sm-12 col-md-6 col-lg-4" style="padding-top: 22px">
+                                <div class="col-sm-12 col-md-6 col-lg-4" style="padding-top: 20px">
                                     <label for="de">GE + DE: </label>
                                     <input type="checkbox" name="de" id="de"
                                            th:checked="${configExp.isDe()}" onclick="setDE()"
@@ -1076,6 +1076,10 @@
             let grammar = $('#fileText').val();
             let datasetId = $('#experimentDataTypeId').val();
             let tagsText = $('#tagsText').val();
+            let mutationFactorDE = $('#mutationFactorDE').val();
+            let recombinationFactorDE = $('#recombinationFactorDE').val();
+            let populationDE = $('#populationDE').val();
+
             experimentInformation['defaultExpDataTypeId'] =
                 experimentInformation['defaultExpDataTypeId'] == null ? "" : experimentInformation['defaultExpDataTypeId'];
 
@@ -1088,22 +1092,26 @@
                 experimentInformation['numCodons'] == numCodons &&
                 experimentInformation['tournament'] == tournament &&
                 experimentInformation['numberRuns'] == numberRuns &&
-                experimentInformation['objective'] === objective &&
-                experimentInformation['de'] === de &&
-                experimentInformation['tagsText'] === tagsText &&
+                experimentInformation['de'].toString() == de &&
+                experimentInformation['objective'] == objective &&
+                experimentInformation['tagsText'] == tagsText &&
+                experimentInformation['mutationFactorDE'] == mutationFactorDE &&
+                experimentInformation['recombinationFactorDE'] == recombinationFactorDE &&
+                experimentInformation['populationDE'] == populationDE &&
                 grammar.split(/[\s]+/).join() == experimentInformation['fileText'].split(/[\s]+/).join() &&
                 experimentInformation['defaultExpDataTypeId'] == datasetId);
         }
 
         window.onbeforeunload = function (e) {
+
             let experimentName = $('#experimentName').val();
             let experimentDescription = $('#experimentDescription').val();
-
             let nameDescriptionChange = (experimentInformation['experimentName'] === experimentName &&
                 experimentInformation['experimentDescription'] === experimentDescription);
-
+            console.log(experimentInformation['de'].toString() == $('#de').val() )
             if ((document.getElementById("cloneMessage") && !runButton && !saveButton)
                 || ((!checkExperimentInformationEqual() || !nameDescriptionChange) && !runButton && !saveButton)) {
+
                 return 'Sure?';
             }
         }
