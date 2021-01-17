@@ -5,6 +5,7 @@
       layout:decorate="~{layouts/default}">
 <head>
     <title>WebGE - Grammars</title>
+    <script src="https://kit.fontawesome.com/0571a1ed47.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <div id="page" layout:fragment="content" message=${errorMessage}>
@@ -53,23 +54,26 @@
                                                        id="name"/></td>
                                 <td id="descRow"><label th:name="description" th:id="description"
                                                        th:text="${gr.grammarDescription}" id="description"/></td>
-                                <td id="creationDateRow"><label th:name="creationDate" th:id="creationDate"
+                                <td id="creationDateRow">
+                                    <span style="display:none;" th:text="${gr.getCreationDate()}"></span>
+                                    <label th:name="creationDate" th:id="creationDate"
                                                        th:text="${gr.getCreationDateFormated()}" id="creationDate"/>
                                 </td>
                                 <td id="detailsControl" class="details-control">
-                                    <button type="button" class="btn-default btn btn-sm">Display grammar</button>
+                                    <button type="button" class="btn-default btn" rel="tooltip" title="Display grammar"> <span class="fas fa-eye"></span></button>
                                 </td>
                                 <td id="grammarDetailRow">
                                     <form th:action="@{/grammar/grammarDetail}" method="POST">
                                         <button type="submit"
-                                                class="btn-default btn btn-sm">Duplicate grammar
+                                                class="btn-default btn " rel="tooltip" title="Duplicate grammar">
+                                            <span class = "fas fa-copy"></span>
                                         </button>
                                         <input type="hidden" name="grammarId" th:value="${gr.getId()}"/>
                                         <input type="hidden" name="existed" value="false"/>
                                         <button type="button" th:name="${gr.id}"
                                                 th:id="${'downloadGrammar' + gr.getId()}"
                                                 th:attr="onclick=|downloadGrammar('fileText${gr.getId()}')|"
-                                                class="btn-default btn btn-sm"
+                                                class="btn-default btn"
                                                 rel="tooltip"
                                                 title="Download grammar"
                                         ><span
@@ -77,11 +81,11 @@
                                         <button type="button" name="deleteGrammarButton"
                                                 th:id="${'deleteGrammar' + iterStat.index}"
                                                 th:onclick="'confirmDelete(this.id,'+${gr.id}+')'"
-                                                class="btn-default btn btn-sm"
+                                                class="btn-default btn"
                                                 rel="tooltip"
                                                 title="Delete grammar"
                                         ><span
-                                                class="glyphicon glyphicon-trash small"></span></button>
+                                                class="fas fa-trash"></span></button>
                                     </form>
                                 </td>
                                 <td class="hidden" colspan="6">

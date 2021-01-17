@@ -8,6 +8,7 @@
 
 
     <title>WebGE - Experiment list by User</title>
+    <script src="https://kit.fontawesome.com/0571a1ed47.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <div id="page" layout:fragment="content" message=${errorMessage}>
@@ -41,11 +42,11 @@
                         <caption class = "hidden">Experiment Repository</caption>
                         <thead>
                         <tr>
-                            <th id="number">#</th>
-                            <th id="expName">Experiment name</th>
-                            <th id="expDesc">Experiment description</th>
-                            <th id="tags">Tags</th>
-                            <th id="lastModDate">Last modification date</th>
+                            <th id="number" style="width: 5%">#</th>
+                            <th id="expName" style="width: 15%">Experiment name</th>
+                            <th id="expDesc" style="width: 25%">Experiment description</th>
+                            <th id="tags" style="width: 20%">Tags</th>
+                            <th id="lastModDate"style="width: 18%">Last modification date</th>
                             <th id="empty"></th>
                             <th id="empty2"></th>
                             <th id="expInfo" class="hidden">Experiment information</th>
@@ -71,7 +72,10 @@
                                                        id="creationDate"/>
                                 </td>
                                 <td class="details-control">
-                                    <button type="button" class="btn-default btn btn-sm">More information
+                                    <button type="button" class="btn-default btn"
+                                            rel="tooltip"
+                                            title="More information"
+                                    ><span class="fas fa-info"></span>
                                     </button>
                                 </td>
                                 <td>
@@ -80,16 +84,18 @@
                                         <input type="text" class="hidden" th:name="id"
                                                th:value="${exp.getId()}"/>
                                         <button type="submit"
-                                                th:name="loadExperimentButton" class="btn-default btn btn-sm">Load
-                                            experiment
+                                                th:name="loadExperimentButton" class="btn-default btn "
+                                                rel="tooltip"
+                                                title="Load experiment"
+                                        ><span class="fas fa-chart-bar"></span>
                                         </button>
                                         <button type="button" name="deleteButton"
                                                 th:id="${iterStat.index}"
                                                 th:onclick="'confirmDelete(this.id,'+ ${exp.id}+')'"
-                                                class="btn-default btn btn-sm"
+                                                class="btn-default btn"
                                                 rel="tooltip"
                                                 title="Delete experiment"
-                                        ><span class="glyphicon glyphicon-trash small"></span></button>
+                                        ><span class="fas fa-trash"></span></button>
                                     </form>
                                 </td>
                                 <!--with extra information-->
@@ -134,7 +140,7 @@
                                             </thead>
                                             <tbody>
                                             <th:block th:each="run, iterStat : ${exp.getIdRunList()}">
-                                                <tr th:if="${run.getDiagramData()!=null}">
+                                                <tr th:if="${run.getDiagramData()}!=null">
                                                     <td><label th:text="${iterStat.index+1}"
                                                                            th:id="'runId'+${iterStat.index}"/></td>
                                                     <td><label th:name="bestIndividual"

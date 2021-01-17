@@ -159,20 +159,24 @@ height: 300px;font-size: 11px"
                     for (loaderCount; loaderCount < data.length; loaderCount++) {
                         xPoint = data[loaderCount]['currentGeneration'];
                         yPoint = data[loaderCount]['bestIndividual'];
-
                         dataPoints.push({x: parseInt(xPoint), y: parseFloat(yPoint)});
-                        dataLoaderCount++
+                        if(data.length!= dataLoaderCount){
+                            dataLoaderCount++
+                        }
                     }
                     if (loaderCount === 0) {
                         loaderCount = 1;
                     }
-                    isFinnish = data[loaderCount - 1]['finished'];
-                    isStopped = data[loaderCount - 1]['stopped'];
-                    isFailed = data[loaderCount - 1]['failed'];
 
-                    chart.render();
-                    executionReportTextArea.textContent = data[loaderCount - 1]['runExecutionReport'];
-                    executionReportTextArea.scrollTop = executionReportTextArea.scrollHeight;
+                    if(data[loaderCount - 1]){
+                        isFinnish = data[loaderCount - 1]['finished'];
+                        isStopped = data[loaderCount - 1]['stopped'];
+                        isFailed = data[loaderCount - 1]['failed'];
+                        chart.render();
+                        executionReportTextArea.textContent = data[loaderCount - 1]['runExecutionReport'];
+                        console.log(data);
+                        executionReportTextArea.scrollTop = executionReportTextArea.scrollHeight;
+                    }
                 },
                 complete: function () {
                     setTimeout(function () {

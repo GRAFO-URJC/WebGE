@@ -4,6 +4,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/default}">
 <head>
+    <script src="https://kit.fontawesome.com/0571a1ed47.js" crossorigin="anonymous"></script>
     <title>WebGE - Datasets</title>
 </head>
 <body>
@@ -53,19 +54,23 @@
                                 <td id="descRow"><label th:name="description" th:id="description"
                                                        th:text="${dataset.getDataTypeDescription()}"
                                                        id="description"/></td>
-                                <td id="creationDateRow"><label th:name="creationDate" th:id="creationDate"
+                                <td id="creationDateRow">
+                                    <span style="display:none;" th:text="${dataset.getCreationDate()}"></span>
+                                    <label th:name="creationDate" th:id="creationDate"
                                                        th:text="${dataset.getCreationDateFormated()}"
                                                        id="creationDate"/>
                                 </td>
                                 <td id="detailsControl" class="details-control">
-                                    <button type="button" class="btn-default btn btn-sm">Display dataset</button>
+                                    <button type="button" class="btn-default btn " rel="tooltip" title="Display dataset">
+                                    <span class="fas fa-eye"></span>
+                                    </button>
                                 </td>
                                 <td>
                                     <button type="button"
                                             th:id="${'foldDataset' + dataset.getId()}"
                                             th:onclick="'foldExperiment('+${dataset.getId()}+')'"
                                             th:disabled="${dataset.getInfo().contains('K-Fold')}"
-                                            class="btn-default btn btn-sm"
+                                            class="btn-default btn "
                                             rel="tooltip"
                                             title="Fold dataset">
                                         Fold
@@ -73,7 +78,7 @@
                                     <button type="button" th:name="${dataset.getId()}"
                                             th:id="${'downloadDataset' + dataset.getId()}"
                                             onclick="downloadDataset(this)"
-                                            class="btn-default btn btn-sm"
+                                            class="btn-default btn "
                                             rel="tooltip"
                                             title="Download dataset"
                                     ><span
@@ -82,12 +87,12 @@
                                             name="deleteDatasetButton"
                                             th:id="${'deleteDataset' + iterStat.index}"
                                             th:onclick="'confirmDelete(this.id, '+${dataset.getId()}+')'"
-                                            class="btn-default btn btn-sm"
+                                            class="btn-default btn"
                                             rel="tooltip"
                                             title="Delete dataset"
                                             th:disabled="${datasetListDisabled.get(iterStat.index)}"
                                     ><span
-                                            class="glyphicon glyphicon-trash small"></span></button>
+                                            class="fas fa-trash"></span></button>
 
                                 </td>
                                 <!--dataset information-->
