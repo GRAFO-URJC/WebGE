@@ -5,6 +5,7 @@
       lang="en">
 <head>
     <title>Web - Experiment testing area</title>
+    <script src="https://kit.fontawesome.com/0571a1ed47.js" crossorigin="anonymous"></script>
     <style>
         .tooltipcustom {
             font-size: inherit;
@@ -138,13 +139,13 @@
                             </div>
                             <div class="row form-group">
                                 <div class="col-sm-2 col-md-2 col-lg-2">
-                                    <input id="tagName" placeholder="Tag name"/>
+                                    <input id="tagName" placeholder="Tag name" width="120%"/>
                                 </div>
                                 <div class="col-sm-2 col-md-2 col-lg-2">
                                     <button type="button" class = "btn" onclick="addTag()">Add new tag</button>
                                 </div>
                                 <div class="col-sm-2 col-md-2 col-lg-2">
-                                    <input id="tagNameRemove" placeholder="Tag name"/>
+                                    <input id="tagNameRemove" placeholder="Tag name" width="120%"/>
                                 </div>
                                 <div class="col-sm-2 col-md-2 col-lg-2">
                                     <button type="button"  class = "btn"  onclick="removeTag()">Remove tag</button>
@@ -548,7 +549,7 @@
                         <th scope="col">Creation date</th>
                         <th scope="col">Last modification date</th>
                         <th scope="col">Model</th>
-                        <th scope="col"></th>
+                        <th scope="col" style="width:1%"></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -583,30 +584,30 @@
                                     <button type="button" th:name="${run.id}"
                                             th:id="${'stopRun' + iterStat.index}"
                                             onclick="stopRun(this.id, this.name)"
-                                            class="btn-default btn btn-sm"
+                                            class="btn-default btn"
                                             rel="tooltip"
                                             title="Stop run execution"
-                                    >Stop run
+                                    ><span class="fas fa-stop"></span>
                                     </button>
                                 </div>
                                 <div th:id="'showPlot'+${iterStat.index}" class="hidden" style="display:inline">
                                     <a th:href="@{/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}"
-                                       target="_blank" class="btn-default btn-sm btn loadButton">Plot</a>
+                                       target="_blank" class="btn-default btn loadButton" rel="tooltip" title="Show plot"><span class="fas fa-chart-area"></span></a>
                                 </div>
                                 <div th:id="'showDelete'+${iterStat.index}" style="display:inline">
                                     <a th:id="'showTestStats'+${iterStat.index}"
                                        th:href="@{/experiment/runList(runId=${run.getId()}, showTestStatsPlotButton='showTestStatsPlotButton')}"
-                                       target="_blank" class="btn-default btn-sm btn loadButton"
-                                       th:disabled="${run.getStatus().toString().equals('FAILED')}"
-                                    >Stats</a>
+                                       target="_blank" class="btn-default btn loadButton"
+                                       th:disabled="${run.getStatus().toString().equals('FAILED')}" rel="tooltip" title="See stats"
+                                    ><span class="fas fa-stream"></span></a>
                                     <button type="button" th:name="${run.id}"
                                             th:id="${'deleteRun' + iterStat.index}"
                                             onclick="confirmDelete(this.id, this.name)"
-                                            class="btn-default btn btn-sm"
+                                            class="btn-default btn"
                                             rel="tooltip"
                                             title="Delete run"
                                     ><span
-                                            class="glyphicon glyphicon-trash small"></span></button>
+                                            class="fas fa-trash"></span></button>
                                 </div>
                             </td>
                         </tr>
@@ -740,6 +741,7 @@
             updateTestDatasetContent()
             setObjectiveFunction();
             setDE();
+            checkStopAllRuns()
 
 
             $('[name="status"]').each(function (index) {
@@ -765,6 +767,7 @@
             });
 
             calculateRunsStats(runTable, '#runsAVG', '#runsDeviation', '#maxBestSolution', '#minBestSolution');
+            checkStopAllRuns()
             //all input check
             $("input").change(function () {
                 if (this.id != "grammarName" && this.id != "grammarDescription") {
@@ -938,6 +941,7 @@
                             }, 2000);
                         }
                         calculateRunsStats(runTable, '#runsAVG', '#runsDeviation', '#maxBestSolution', '#minBestSolution');
+                        checkStopAllRuns()
                     }
                     if ($(status).text() == "CANCELLED") {
                         $("#showDelete" + iterStat).removeClass("hidden");
@@ -984,6 +988,7 @@
                     dataType: "json",
                     success: function () {
                         $("#stopRunSection" + cleanIterStat).addClass("hidden");
+
                     }
                 });
             }
@@ -1002,7 +1007,7 @@
                     dataType: "json",
                     success: function () {
                        alert("All runs have been canceled properly");
-
+                        $('#stopAllRuns').addClass('disabled');
                     }
                 });
             }
@@ -1039,14 +1044,26 @@
 
         }
 
+        function checkStopAllRuns(){
+            let able = false;
+            for(let i = 0; i < document.getElementById("expTypeTable").rows.length-2; i++){
+                if ($('#status' + i)[0].innerHTML == 'WAITING' || $('#status' + i)[0].innerHTML == 'RUNNING'){
+                    able = true;
+                }
+            }
+            if(able == true){
+                $('#stopAllRuns').removeClass('disabled');
+            }else{
+                $('#stopAllRuns').addClass('disabled');
+            }
+        }
+
         function checkNumberRuns() {
             let numberRuns = document.getElementById("numberRuns");
             if (document.getElementById("crossExperiment").checked && numberRuns.value < datasetListInfo[$("#datasetId option:selected").val()].foldSize) {
                 numberRuns.value = datasetListInfo[$("#datasetId option:selected").val()].foldSize;
             }
-
             return true;
-
         }
 
         function checkDeletePreviousRun() {
@@ -1076,7 +1093,7 @@
             let grammar = $('#fileText').val();
             let datasetId = $('#experimentDataTypeId').val();
             let tagsText = $('#tagsText').val();
-            let mutationFactorDE = $('#mutationFactorDE').val();
+            let mutationfactorDE = $('#mutationFactorDE').val();
             let recombinationFactorDE = $('#recombinationFactorDE').val();
             let populationDE = $('#populationDE').val();
 
@@ -1095,7 +1112,7 @@
                 experimentInformation['de'].toString() == de &&
                 experimentInformation['objective'] == objective &&
                 experimentInformation['tagsText'] == tagsText &&
-                experimentInformation['mutationFactorDE'] == mutationFactorDE &&
+                experimentInformation['mutationfactorDE'] == mutationfactorDE &&
                 experimentInformation['recombinationFactorDE'] == recombinationFactorDE &&
                 experimentInformation['populationDE'] == populationDE &&
                 grammar.split(/[\s]+/).join() == experimentInformation['fileText'].split(/[\s]+/).join() &&

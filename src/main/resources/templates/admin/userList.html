@@ -5,6 +5,7 @@
       layout:decorate="~{layouts/default}">
 <head>
     <title>WebGE - User list</title>
+    <script src="https://kit.fontawesome.com/0571a1ed47.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <div id="page" layout:fragment="content" message=${errorMessage}>
@@ -51,24 +52,26 @@
                                     <td id="institutionRow"><label th:name="institution"
                                                            th:text="${user.getInstitution()}"/></td>
                                     <td id="detailsConstrol" class="details-control">
-                                        <button type="button" class="btn-default btn btn-sm">Display user</button>
+                                        <button type="button" class="btn-default btn " rel="tooltip" title="Display user">
+                                            <span class="fas fa-eye"></span>
+                                        </button>
                                     </td>
                                     <td id="buttonChangePass">
                                         <button type="button" th:name="${user.getId()}"
                                                 onclick="changePassword(this.name)"
-                                                class="btn-default btn btn-sm"
+                                                class="btn-default btn"
                                                 rel="tooltip"
                                                 title="Change password"
                                         ><span
-                                                class="glyphicon glyphicon-lock small"></span></button>
+                                                class="fas fa-key"></span></button>
                                         <button type="button" name="deleteUserButton"
                                                 th:id="${'deleteUser' + iterStat.index}"
                                                 th:onclick="'confirmDelete(this.id, '+${user.getId()}+')'"
-                                                class="btn-default btn btn-sm"
+                                                class="btn-default btn "
                                                 rel="tooltip"
                                                 title="Delete user"
                                         ><span
-                                                class="glyphicon glyphicon-trash small"></span></button>
+                                                class="fas fa-trash"></span></button>
                                     </td>
                                     <td class="hidden">
                                         <div class="row">
