@@ -544,12 +544,12 @@
                     <tr>
                         <th scope="col"># Run</th>
                         <th scope="col">Best solution</th>
-                        <th scope="col">Current generation</th>
+                        <th scope="col">Curr. Gen.</th>
                         <th scope="col">Status</th>
-                        <th scope="col">Creation date</th>
-                        <th scope="col">Last modification date</th>
+                        <th scope="col">Creation</th>
+                        <th scope="col">Modified</th>
                         <th scope="col">Model</th>
-                        <th scope="col" style="width:1%"></th>
+                        <th scope="col" style="width:15%"></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -575,9 +575,31 @@
                                                     th:text="${run.getIniDateFormated()}"/></td>
                             <td id="lastDate"><label th:name="lastDate" th:id="lastDate+${iterStat.index}"
                                                      th:text="${run.getModificationDateFormated()}"/></td>
-                            <td id="model"><label th:name="model" th:id="model+${iterStat.index}"
-                                                  th:text="${run.getModel()}"/></td>
+                            <td id="model">
+                                <label style="word-break: break-word" th:name="model" th:id="model+${iterStat.index}"
+                                                  th:text="${run.getModel()}"/> </td>
+
                             <td id="stopExec">
+
+                                <div th:id="'showPlot'+${iterStat.index}" class="hidden" style="display:inline">
+                                    <a th:href="@{/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}"
+                                       target="_blank" class="btn-default btn loadButton" rel="tooltip" title="Show plot"><span class="fas fa-chart-area"></span></a>
+                                </div>
+                                <div th:id="'showDelete'+${iterStat.index}" style="display:inline">
+                                    <a th:id="'showTestStats'+${iterStat.index}"
+                                       th:href="@{/experiment/runList(runId=${run.getId()}, showTestStatsPlotButton='showTestStatsPlotButton')}"
+                                       target="_blank" class="btn-default btn loadButton"
+                                       th:disabled="${run.getStatus().toString().equals('FAILED')}" rel="tooltip" title="See stats"
+                                    ><span class="fas fa-chart-bar"></span></a>
+                                    <button type="button" th:name="${run.id}"
+                                            th:id="${'deleteRun' + iterStat.index}"
+                                            onclick="confirmDelete(this.id, this.name)"
+                                            class="btn-default btn"
+                                            rel="tooltip"
+                                            title="Delete run"
+                                    ><span
+                                            class="fas fa-trash"></span></button>
+                                </div>
                                 <div th:id="${'stopRunSection' + iterStat.index}"
                                      th:class="${run.getStatus().toString().equals('RUNNING')?'':'hidden'}"
                                      style="display:inline">
@@ -589,25 +611,6 @@
                                             title="Stop run execution"
                                     ><span class="fas fa-stop"></span>
                                     </button>
-                                </div>
-                                <div th:id="'showPlot'+${iterStat.index}" class="hidden" style="display:inline">
-                                    <a th:href="@{/experiment/runList(runId=${run.getId()}, showPlotExecutionButton='showPlotExecutionButton')}"
-                                       target="_blank" class="btn-default btn loadButton" rel="tooltip" title="Show plot"><span class="fas fa-chart-area"></span></a>
-                                </div>
-                                <div th:id="'showDelete'+${iterStat.index}" style="display:inline">
-                                    <a th:id="'showTestStats'+${iterStat.index}"
-                                       th:href="@{/experiment/runList(runId=${run.getId()}, showTestStatsPlotButton='showTestStatsPlotButton')}"
-                                       target="_blank" class="btn-default btn loadButton"
-                                       th:disabled="${run.getStatus().toString().equals('FAILED')}" rel="tooltip" title="See stats"
-                                    ><span class="fas fa-stream"></span></a>
-                                    <button type="button" th:name="${run.id}"
-                                            th:id="${'deleteRun' + iterStat.index}"
-                                            onclick="confirmDelete(this.id, this.name)"
-                                            class="btn-default btn"
-                                            rel="tooltip"
-                                            title="Delete run"
-                                    ><span
-                                            class="fas fa-trash"></span></button>
                                 </div>
                             </td>
                         </tr>
