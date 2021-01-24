@@ -647,6 +647,7 @@
         let data = {};
         let indexesShow = [];
         let indexesHide = [];
+        let indexesStopped = [];
         let experimentInformation;
         let runButton = false;
         let saveButton = false;
@@ -748,10 +749,11 @@
 
 
             $('[name="status"]').each(function (index) {
-                if (($(this).text() == "FINISHED") || ($(this).text() == "STOPPED") || ($(this).text() == "FAILED") || ($(this).text() == "CANCELLED")) {
+                if ($(this).text() == "FINISHED")  {
                     indexesShow[index] = index;
-                }
-                if (($(this).text() == "RUNNING") || ($(this).text() == "INITIALIZING") || ($(this).text() == "WAITING")) {
+                }else if ( $(this).text() == "STOPPED" ){
+                     indexesStopped[index] = index;
+                }else{
                     indexesHide[index] = index;
                     showRunStatus("runExperimentButton" + index);
                 }
@@ -764,9 +766,18 @@
                 $("#showPlot" + indexesShow[index]).removeClass("hidden");
             });
 
+            indexesStopped.forEach(function (element, index) {
+                $("#showPlot" + indexesStopped[index]).removeClass("hidden");
+                $("#runExperimentButton" + indexesStopped[index]).removeClass("hidden");
+                $("#showDelete" + indexesStopped[index]).removeClass("hidden");
+                document.getElementById("showTestStats" + index).setAttribute("disabled", "disabled");
+
+            });
+
+
             indexesHide.forEach(function (element, index) {
                 $("#showDelete" + indexesHide[index]).addClass("hidden");
-                $("#runExperimentButton" + indexesShow[index]).addClass("hidden");
+                $("#runExperimentButton" + indexesHide[index]).addClass("hidden");
             });
 
             calculateRunsStats(runTable, '#runsAVG', '#runsDeviation', '#maxBestSolution', '#minBestSolution');
@@ -929,11 +940,10 @@
                         }, 2000);
                     }
 
-                    if (($(status).text() == "FINISHED") || ($(status).text() == "STOPPED") || ($(status).text() == "FAILED") ) {
-                        if ($(status).text() == "FAILED" || ($(status).text() == "STOPPED")  ) {
+                    if ($(status).text() == "FINISHED" || $(status).text() == "STOPPED"){
+                        if ($(status).text() == "STOPPED") {
                             document.getElementById("showTestStats" + iterStat).setAttribute("disabled", "disabled");
                         }
-
                         $("#showPlot" + iterStat).removeClass("hidden");
                         $("#showDelete" + iterStat).removeClass("hidden");
                         $("#stopRunSection" + iterStat).addClass("hidden");
@@ -950,6 +960,12 @@
                         $("#showDelete" + iterStat).removeClass("hidden");
                         document.getElementById("showTestStats" + iterStat).setAttribute("disabled", "disabled");
                     }
+                     if ($(status).text() == "FAILED" ){
+                        $("#showDelete" + iterStat).removeClass("hidden");
+                         document.getElementById("showTestStats" + iterStat).setAttribute("disabled", "disabled");
+                         $("#stopRunSection" + iterStat).addClass("hidden");
+                     }
+
                 }
             });
         };
@@ -999,6 +1015,7 @@
 
         function stopAllRuns(){
             if (confirm("Are you sure of stopping or cancelling all runs?")) {
+                alert("Runs are being stopped");
                 $.ajax({
                     url: encodeURI("/experiment/stopAllRunsAjax"),
                     data: {
@@ -1128,7 +1145,7 @@
             let experimentDescription = $('#experimentDescription').val();
             let nameDescriptionChange = (experimentInformation['experimentName'] === experimentName &&
                 experimentInformation['experimentDescription'] === experimentDescription);
-            console.log(experimentInformation['de'].toString() == $('#de').val() )
+
             if ((document.getElementById("cloneMessage") && !runButton && !saveButton)
                 || ((!checkExperimentInformationEqual() || !nameDescriptionChange) && !runButton && !saveButton)) {
 
