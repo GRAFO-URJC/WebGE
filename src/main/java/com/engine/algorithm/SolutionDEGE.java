@@ -3,6 +3,7 @@ package com.engine.algorithm;
 import jeco.core.problem.Solution;
 import jeco.core.problem.Variable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.stream.IntStream;
 
@@ -86,11 +87,11 @@ public class SolutionDEGE {
         this.testCost = testCost;
     }
 
-    public static HashMap<String,Double> obtainParameterValues(Solution<Variable<?>> sol) {
+    public HashMap<String,Double> obtainParameterValues(Solution<Variable<?>> sol, ArrayList<String> parameters) {
         HashMap<String,Double> parameterValues = new HashMap<>(sol.getVariables().size());
         // Include the values of the parameters:
         for (int j = 0; j < sol.getVariables().size(); j++) {
-            parameterValues.put(MainDE.parameters.get(j), (Double) sol.getVariable(j).getValue());
+            parameterValues.put(parameters.get(j), (Double) sol.getVariable(j).getValue());
         }
 
         return parameterValues;
