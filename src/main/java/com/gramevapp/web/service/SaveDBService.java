@@ -35,21 +35,7 @@ public class SaveDBService {
         th = new Thread() {
             @Override
             public void run() {
-                /*
-                while (!terminate) {
-                    if (!runsQueue.isEmpty()) {
-                        try {
-                            runService.saveRun(runsQueue.take());
 
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            Thread.currentThread().interrupt();
-                        }
-                    }
-                    if (runsQueue.isEmpty() && th.isInterrupted()) {
-                        terminate = true;
-                    }
-                }*/
                 while(!terminate) {
                     try {
                         if (runsQueue.isEmpty() && th.isInterrupted()) {
@@ -71,20 +57,7 @@ public class SaveDBService {
         th2 = new Thread() {
             @Override
             public void run() {
-                /*while (!terminate2) {
-                    if (!diagramDataqueue.isEmpty()) {
-                        try {
-                            diagramDataService.saveDiagram(diagramDataqueue.take());
 
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            Thread.currentThread().interrupt();
-                        }
-                    }
-                    if (diagramDataqueue.isEmpty() && th2.isInterrupted()) {
-                        terminate2= true;
-                    }
-                }*/
                 while(!terminate2) {
                     try {
                         if (diagramDataqueue.isEmpty() && th2.isInterrupted()) {

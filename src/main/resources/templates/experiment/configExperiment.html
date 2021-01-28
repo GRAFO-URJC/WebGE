@@ -1066,15 +1066,18 @@
 
         function checkStopAllRuns(){
             let able = false;
-            for(let i = 0; i < document.getElementById("expTypeTable").rows.length-2; i++){
-                if ($('#status' + i)[0].innerHTML == 'WAITING' || $('#status' + i)[0].innerHTML == 'RUNNING'){
-                    able = true;
+
+            if(document.getElementById("expTypeTable") && document.getElementById("expTypeTable").rows){
+                for(let i = 0; i < document.getElementById("expTypeTable").rows.length-2; i++){
+                    if ($('#status' + i)[0].innerHTML == 'WAITING' || $('#status' + i)[0].innerHTML == 'RUNNING'){
+                        able = true;
+                    }
                 }
-            }
-            if(able == true){
-                $('#stopAllRuns').removeClass('disabled');
-            }else{
-                $('#stopAllRuns').addClass('disabled');
+                if(able == true){
+                    $('#stopAllRuns').removeClass('disabled');
+                }else{
+                    $('#stopAllRuns').addClass('disabled');
+                }
             }
         }
 
@@ -1087,11 +1090,17 @@
         }
 
         function checkDeletePreviousRun() {
-            if (document.getElementById("runForms") && !cloneButton && !(saveButton && checkExperimentInformationEqual())) {
-                if (saveButton) {
-                    return confirm('Saving will delete previous runs. Do you want to save the experiment?');
+
+            if (document.getElementById("runForms") && !cloneButton) {
+                if (saveButton ) {
+                    if(!checkExperimentInformationEqual()){
+                        return confirm('Saving will delete previous runs. Do you want to save the experiment?');
+                    }else{
+                        return true;
+                    }
+                }else{
+                    return confirm('Running will delete previous runs. Do you want to run the experiment?');
                 }
-                return confirm('Running will delete previous runs. Do you want to run the experiment?');
 
             } else {
                 return true;
@@ -1099,7 +1108,6 @@
         }
 
         function checkExperimentInformationEqual() {
-
             let generations = $('#generations').val();
             let crossoverProb = $('#crossoverProb').val();
             let populationSize = $('#populationSize').val();
@@ -1112,7 +1120,6 @@
             let de = $('#de').val();
             let grammar = $('#fileText').val();
             let datasetId = $('#experimentDataTypeId').val();
-            let tagsText = $('#tagsText').val();
             let mutationfactorDE = $('#mutationFactorDE').val();
             let recombinationFactorDE = $('#recombinationFactorDE').val();
             let populationDE = $('#populationDE').val();
@@ -1120,8 +1127,7 @@
             experimentInformation['defaultExpDataTypeId'] =
                 experimentInformation['defaultExpDataTypeId'] == null ? "" : experimentInformation['defaultExpDataTypeId'];
 
-            return (
-                experimentInformation['generations'] == generations &&
+            return (experimentInformation['generations'] == generations &&
                 experimentInformation['crossoverProb'] == crossoverProb &&
                 experimentInformation['populationSize'] == populationSize &&
                 experimentInformation['mutationProb'] == mutationProb &&
@@ -1131,8 +1137,7 @@
                 experimentInformation['numberRuns'] == numberRuns &&
                 experimentInformation['de'].toString() == de &&
                 experimentInformation['objective'] == objective &&
-                experimentInformation['tagsText'] == tagsText &&
-                experimentInformation['mutationfactorDE'] == mutationfactorDE &&
+                experimentInformation['mutationFactorDE'] == mutationfactorDE &&
                 experimentInformation['recombinationFactorDE'] == recombinationFactorDE &&
                 experimentInformation['populationDE'] == populationDE &&
                 grammar.split(/[\s]+/).join() == experimentInformation['fileText'].split(/[\s]+/).join() &&
@@ -1140,12 +1145,12 @@
         }
 
         window.onbeforeunload = function (e) {
-
             let experimentName = $('#experimentName').val();
             let experimentDescription = $('#experimentDescription').val();
             let nameDescriptionChange = (experimentInformation['experimentName'] === experimentName &&
                 experimentInformation['experimentDescription'] === experimentDescription);
 
+            console.log("aquí estoy");
             if ((document.getElementById("cloneMessage") && !runButton && !saveButton)
                 || ((!checkExperimentInformationEqual() || !nameDescriptionChange) && !runButton && !saveButton)) {
 

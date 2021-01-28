@@ -138,7 +138,7 @@ public class ExperimentController {
                 , user,
                 (testExperimentDataTypeId.equals("")) ? null : experimentService.
                         findExperimentDataTypeById(Long.valueOf(testExperimentDataTypeId))
-                , expDataType, configExpDto, configExpDto.getFileText());
+                , expDataType, configExpDto, configExpDto.getFileText(), true);
         experimentService.saveExperiment(exp);
         // END - Experiment section
 
@@ -289,10 +289,38 @@ public class ExperimentController {
         }
 
 
-        exp = experimentSection(exp, user, testExperimentDataType, expDataType, configExpDto, configExpDto.getFileText());
-        // END - Experiment section
 
-        removeRuns(exp);
+       // END - Experiment section
+
+
+        /*Check if exp only changed name, desc or tags, in that case, dont remove runs*/
+
+
+        boolean sameExp =
+                exp.getGenerations().equals(configExpDto.getGenerations()) &&
+                        exp.getCrossoverProb().equals(configExpDto.getCrossoverProb()) &&
+                        exp.getPopulationSize().equals(configExpDto.getPopulationSize()) &&
+                        exp.getMutationProb().equals(configExpDto.getMutationProb()) &&
+                        exp.getMaxWraps().equals(configExpDto.getMaxWraps()) &&
+                        exp.getNumCodons().equals(configExpDto.getNumCodons()) &&
+                        exp.getTournament().equals(configExpDto.getTournament()) &&
+                        exp.getNumberRuns().equals(configExpDto.getNumberRuns()) &&
+                        exp.getObjective().equals(configExpDto.getObjective()) &&
+                        exp.getDefaultGrammar().equals(configExpDto.getFileText()) &&
+                        exp.getDefaultExpDataType().equals(Long.valueOf(experimentDataTypeId)) &&
+                        exp.isDe() == configExpDto.isDe() &&
+                        exp.getUpperBoundDE().equals(configExpDto.getUpperBoundDE()) &&
+                        exp.getLowerBoundDE().equals(configExpDto.getLowerBoundDE())&&
+                        exp.getRecombinationFactorDE().equals(configExpDto.getRecombinationFactorDE()) &&
+                        exp.getMutationFactorDE().equals(configExpDto.getMutationFactorDE()) &&
+                        exp.getPopulationDE().equals(configExpDto.getPopulationDE());
+
+
+
+        exp = experimentSection(exp, user, testExperimentDataType, expDataType, configExpDto, configExpDto.getFileText(), !sameExp);
+        List<Run> runList = exp.getIdRunList();
+
+
         experimentService.saveExperiment(exp);
         fillConfigExpDto(configExpDto, exp, exp.getDefaultGrammar(), expDataType, false);
 
@@ -301,6 +329,7 @@ public class ExperimentController {
                 exp.getIdExpDataTypeList(), testExperimentDataType == null ? null : testExperimentDataType.getId());
 
         model.addAttribute(EXPCONFIG, configExpDto);
+        model.addAttribute(RUNLIST, runList);
         return CONFIGEXPERIMENTPATH;
 
     }
@@ -534,6 +563,7 @@ public class ExperimentController {
         result.add(UtilStats.computeAvgError(yDoubleArray, functionResultDoubleArray));
         result.add(UtilStats.computeRSquare(yDoubleArray, functionResultDoubleArray));
         result.add(UtilStats.computeAbsoluteError(yDoubleArray, functionResultDoubleArray));
+        result.add(UtilStats.computeRelativeErr(yDoubleArray, functionResultDoubleArray));
     }
 
     private Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier, String objective, boolean DE) throws IOException {
@@ -656,7 +686,7 @@ public class ExperimentController {
 
     private Experiment experimentSection(Experiment exp, User user, Dataset testExpDataType,
                                          Dataset expDataType,
-                                         ConfigExperimentDto configExpDto, String grammar) {
+                                         ConfigExperimentDto configExpDto, String grammar, boolean removeRuns) {
         if (exp == null) {   // We create it
             exp = new Experiment(user, configExpDto.getExperimentName(), configExpDto.getExperimentDescription(), configExpDto.getGenerations(),
                     configExpDto.getPopulationSize(), configExpDto.getMaxWraps(), configExpDto.getTournament(), configExpDto.getCrossoverProb(), configExpDto.getMutationProb(),
@@ -687,7 +717,8 @@ public class ExperimentController {
             exp.setMutationFactorDE(configExpDto.getMutationFactorDE());
             exp.setTags(configExpDto.getTagsText());
             exp.setPopulationDE(configExpDto.getPopulationDE());
-            removeRuns(exp);
+            if (removeRuns)
+                removeRuns(exp);
 
         }
         exp.addExperimentDataType(expDataType);
@@ -914,6 +945,7 @@ public class ExperimentController {
                 runResultsDto.getTrainingAVG()[index] = result.get(1);
                 runResultsDto.getTrainingR2()[index] = result.get(2);
                 runResultsDto.getTrainingAbs()[index] = result.get(3);
+                runResultsDto.getTrainingRel()[index] = result.get(4);
             }
 
             if (haveTest || experiment.isCrossExperiment()) {
@@ -947,6 +979,7 @@ public class ExperimentController {
                     runResultsDto.getTestAVG()[index] = result.get(1);
                     runResultsDto.getTestR2()[index] = result.get(2);
                     runResultsDto.getTestAbs()[index] = result.get(3);
+                    runResultsDto.getTestAbs()[index] = result.get(4);
                 }
             }
             index++;

@@ -49,6 +49,18 @@ public class UtilStats {
         return error;
     }
 
+    public static double computeRelativeErr(double[] expected, double[] observed) {
+        double acu = 0;
+
+        for (int i = 0; i < expected.length; i++) {
+            acu += Math.abs(expected[i]- observed[i]) * 100.0 / expected[i];
+        }
+
+        return acu / (double) observed.length;
+    }
+
+
+
     public static double getAverage(double[] darr) {
         return StatUtils.mean(darr);
     }
