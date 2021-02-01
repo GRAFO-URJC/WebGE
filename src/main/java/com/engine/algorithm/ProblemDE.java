@@ -8,14 +8,18 @@ import jeco.core.util.random.RandomGenerator;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 
+import java.util.ArrayList;
+
 
 public class ProblemDE extends Problem<Variable<Double>> {
 
     String model;
     String objective;
     String[][] func;
+    public ArrayList<String> parameters;
 
-    public ProblemDE(int numberOfVariables, double lowerBnd, double upperBnd, String objective, String[][] func) {
+    public ProblemDE(int numberOfVariables, double lowerBnd, double upperBnd, String objective, String[][] func, String model,
+                     ArrayList<String> parameters) {
         super(numberOfVariables, 1);
         this.objective = objective;
         // Upper and lower bounds for the weights
@@ -24,6 +28,8 @@ public class ProblemDE extends Problem<Variable<Double>> {
             upperBound[i] = upperBnd;
         }
         this.func = func;
+        this.model = model;
+        this.parameters = parameters;
 
     }
 
@@ -50,14 +56,14 @@ public class ProblemDE extends Problem<Variable<Double>> {
         ExpressionBuilder eb = ModelEvaluator.includeInputVariables(model, func);
 
         // Include the identificators of the parameters:
-        for (String param : MainDE.parameters) {
+        for (String param : parameters) {
             eb.variable(param);
         }
         Expression exp = eb.build();
 
         // Include the values of the parameters:
         for (int j = 0; j < solution.getVariables().size(); j++) {
-            exp.setVariable(MainDE.parameters.get(j), solution.getVariable(j).getValue());
+            exp.setVariable(parameters.get(j), solution.getVariable(j).getValue());
         }
 
 

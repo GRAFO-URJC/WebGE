@@ -7,10 +7,12 @@ public class RunResultsDto {
     private double[] trainingRMSE;
     private double[] trainingAbs;
     private double[] trainingR2;
+    private double[] trainingRel;
     private double[] testAVG;
     private double[] testRMSE;
     private double[] testAbs;
     private double[] testR2;
+    private double[] testRel;
 
     public RunResultsDto(int size, boolean haveTest) {
         runIndex = new int[size];
@@ -19,11 +21,13 @@ public class RunResultsDto {
         trainingRMSE = new double[size];
         trainingAbs = new double[size];
         trainingR2 = new double[size];
+        trainingRel = new double[size];
         if (haveTest) {
             testAVG = new double[size];
             testRMSE = new double[size];
             testAbs = new double[size];
             testR2 = new double[size];
+            testRel = new double[size];
         }
     }
 
@@ -105,5 +109,21 @@ public class RunResultsDto {
 
     public void setTestR2(double[] testR2) {
         this.testR2 = testR2;
+    }
+
+    public double[] getTrainingRel() {
+        return trainingRel;
+    }
+
+    public void setTrainingRel(double[] trainingRel) {
+        this.trainingRel = trainingRel;
+    }
+
+    public double[] getTestRel() {
+        return testRel;
+    }
+
+    public void setTestRel(double[] testRel) {
+        this.testRel = testRel;
     }
 }

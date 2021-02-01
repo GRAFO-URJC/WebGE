@@ -42,13 +42,12 @@
                         <caption class = "hidden">Experiment Repository</caption>
                         <thead>
                         <tr>
-                            <th id="number" style="width: 5%">#</th>
+                            <th id="number" style="width: 4%">#</th>
                             <th id="expName" style="width: 15%">Experiment name</th>
-                            <th id="expDesc" style="width: 25%">Experiment description</th>
-                            <th id="tags" style="width: 20%">Tags</th>
-                            <th id="lastModDate"style="width: 18%">Last modification date</th>
-                            <th id="empty"></th>
-                            <th id="empty2"></th>
+                            <th id="expDesc" style="width: 22%">Experiment description</th>
+                            <th id="tags" style="width: 20%; resize:none">Tags</th>
+                            <th id="lastModDate"style="width: 16%">Last modification date</th>
+                            <th id="empty2" style="width: 13%"></th>
                             <th id="expInfo" class="hidden">Experiment information</th>
                         </tr>
                         </thead>
@@ -62,7 +61,7 @@
                                 <td ><label th:name="description"
                                                        th:text="${exp.experimentDescription}" id="description"/>
                                 </td>
-                                <td ><label th:name="tags"
+                                <td ><label style="word-break: break-word"  th:name="tags"
                                             th:text="${exp.tags}" id="exptags"/>
                                 </td>
                                 <td>
@@ -71,23 +70,25 @@
                                                        th:text="${exp.getModificationDateFormated()}"
                                                        id="creationDate"/>
                                 </td>
+
                                 <td class="details-control">
-                                    <button type="button" class="btn-default btn"
-                                            rel="tooltip"
-                                            title="More information"
-                                    ><span class="fas fa-info"></span>
-                                    </button>
-                                </td>
-                                <td>
                                     <form th:action="@{/experiment/expRepoSelected}" th:object="${expRepository}"
                                           method="GET">
+                                        <button type="button" class="btn-default btn"
+                                                rel="tooltip"
+                                                title="More information"
+
+                                        ><span class="fas fa-info"></span>
+                                        </button>
+
                                         <input type="text" class="hidden" th:name="id"
                                                th:value="${exp.getId()}"/>
                                         <button type="submit"
                                                 th:name="loadExperimentButton" class="btn-default btn "
                                                 rel="tooltip"
                                                 title="Load experiment"
-                                        ><span class="fas fa-chart-bar"></span>
+
+                                        ><span class="fas fa-folder-open"></span>
                                         </button>
                                         <button type="button" name="deleteButton"
                                                 th:id="${iterStat.index}"
@@ -95,6 +96,7 @@
                                                 class="btn-default btn"
                                                 rel="tooltip"
                                                 title="Delete experiment"
+
                                         ><span class="fas fa-trash"></span></button>
                                     </form>
                                 </td>
@@ -119,6 +121,19 @@
                                         <label th:text="${exp.getNumberRuns()}"></label>
                                         ; <strong>Objective:</strong>
                                         <label th:text="${exp.getObjective()}"></label>
+
+
+                                        <strong th:if="${exp.isDe()}"> DE: </strong>
+                                        <strong th:if="${exp.isDe()}"> Param. Lower Bound: </strong>
+                                        <label th:if="${exp.isDe()}" th:text="${exp.getLowerBoundDE()}";></label>
+                                         <strong th:if="${exp.isDe()}"> Param. Upper Bound: </strong>
+                                        <label th:if="${exp.isDe()}" th:text="${exp.getUpperBoundDE()}";></label>
+                                        <strong th:if="${exp.isDe()}"> Recombination Factor: </strong>
+                                        <label th:if="${exp.isDe()}" th:text="${exp.getRecombinationFactorDE()}";></label>
+                                        <strong th:if="${exp.isDe()}" > Mutation Factor: </strong>
+                                        <label th:if="${exp.isDe()}"th:text="${exp.getMutationFactorDE()}";></label>
+                                        <strong th:if="${exp.isDe()}" > DE Population Size: </strong>
+                                        <label th:if="${exp.isDe()}" th:text="${exp.getPopulationDE()}";></label>
                                         </span>
 
                                     </div>
@@ -239,7 +254,7 @@
                 }
             }
 
-            tableDefinition('#expRepository', "#expTableBody", 4, 5, 7, 0, 4);
+            tableDefinition('#expRepository', "#expTableBody", 4, 5, 6, 0, 4);
         });
 
         function confirmDelete(iterStat, expId) {

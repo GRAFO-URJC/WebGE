@@ -10,6 +10,7 @@ import com.gramevapp.web.model.Run;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.SaveDBService;
 import jeco.core.algorithm.Algorithm;
+import jeco.core.algorithm.de.DifferentialEvolution;
 import jeco.core.algorithm.ge.SimpleGrammaticalEvolution;
 import jeco.core.algorithm.moge.AbstractProblemGE;
 import jeco.core.algorithm.moge.MultiObjectiveGrammaticalEvolution;
@@ -61,8 +62,19 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     public static final int LOG_EVALUATION_MASK = 16;
 
 
+    public static final String NUM_GENERATIONS_PROP = "NumGenerations";
+    public static final String MUTATION_FACTOR_DE_PROP = "MutationFactorDE";
+    public static final String RECOMB_FACTOR_PROP = "RecombinationFactorDE";
+    public static final String MODEL_PROP = "ModelDE";
+    public static final String LOWER_BOUND_PROP = "LowerBoundDE";
+    public static final String UPPER_BOUND_PROP = "UpperBoundDE";
+    public static final String POPULATION_DE = "PopulationSizeDE";
+
+    private static final char ID_FOR_PARAMS = 'w';
+
     private Algorithm<Variable<Integer>> algorithm;
     private boolean stop;
+    public ArrayList<String> parameters;
 
     public static final String REPORT_HEADER = "Obj.;Model;Time";
     public List<String> executionReport = new ArrayList<>();
@@ -99,11 +111,43 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
         if(DE){
 
-            // Create the DE problem and algorithm to optimize this solution:
-            MainDE.setupDE(phenotype.toString(),properties, objective, func);
+            // Parameters are stored in a list according to their position.
+            // The number of elements to be tuned is the number of variables -> size of the list.
+            // In addition, we control that repetition of parameters are not new parameters !
+            HashSet<String> paramIds = new HashSet<>();
+            parameters = new ArrayList<>();
+            int i = 0;
+
+            String model = phenotype.toString();
+            while (i<model.length()) {
+                if (model.charAt(i) == ID_FOR_PARAMS) {
+                    // Parse element:
+                    String id = ID_FOR_PARAMS + "";
+                    i++;
+                    while ((i<model.length()) && (Character.isDigit(model.charAt(i)))) {
+                        id += model.charAt(i);
+                        i++;
+                    }
+                    if (!paramIds.contains(id)) {
+                        parameters.add(id);
+                        paramIds.add(id);
+                    }
+                } else {
+                    i++;
+                }
+            }
+
+            ProblemDE problem = new ProblemDE(parameters.size(),
+                    Double.valueOf(properties.getProperty(LOWER_BOUND_PROP)),
+                    Double.valueOf(properties.getProperty(UPPER_BOUND_PROP)), objective, func, phenotype.toString(), parameters);
 
             // Optimize model with DE
-            Algorithm alg = MainDE.getAlgorithm();
+            Algorithm alg = new DifferentialEvolution(problem,
+                            Integer.valueOf(properties.getProperty(POPULATION_DE)),
+                            Integer.valueOf(properties.getProperty(NUM_GENERATIONS_PROP)),
+                            true,
+                            Double.valueOf(properties.getProperty(MUTATION_FACTOR_DE_PROP)),
+                            Double.valueOf(properties.getProperty(RECOMB_FACTOR_PROP)));
             try {
                 alg.initialize();
             }catch(Exception e){
@@ -118,7 +162,11 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             if (obj < bestSolution.getCost()) {
                 bestSolution.setCost(obj);
                 bestSolution.setModel(phenotype.toString());
-                HashMap<String,Double> parameterValues = SolutionDEGE.obtainParameterValues(best);
+                HashMap<String,Double> parameterValues = new HashMap<>(best.getVariables().size());
+                // Include the values of the parameters:
+                for (int j = 0; j < best.getVariables().size(); j++) {
+                    parameterValues.put(parameters.get(j), (Double) best.getVariable(j).getValue());
+                }
                 bestSolution.setParameterValues(parameterValues);
             }
         }else {
@@ -165,11 +213,11 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         }
     }
 
-    public static HashMap<String,Double> obtainParameterValues(Solution<Variable<?>> sol) {
+    public HashMap<String,Double> obtainParameterValues(Solution<Variable<?>> sol) {
         HashMap<String,Double> parameterValues = new HashMap<>(sol.getVariables().size());
         // Include the values of the parameters:
         for (int j = 0; j < sol.getVariables().size(); j++) {
-            parameterValues.put(MainDE.parameters.get(j), (Double) sol.getVariable(j).getValue());
+            parameterValues.put(parameters.get(j), (Double) sol.getVariable(j).getValue());
         }
 
         return parameterValues;
