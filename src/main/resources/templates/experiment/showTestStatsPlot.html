@@ -72,6 +72,11 @@
                                     <td th:if="${noTest==null}" th:text="${testAbsoluteError}"></td>
                                 </tr>
                                 <tr>
+                                    <th scope="row">Relative error</th>
+                                    <td th:text="${relativeError}"></td>
+                                    <td th:if="${noTest==null}" th:text="${testRelativeError}"></td>
+                                </tr>
+                                <tr>
                                     <th scope="row">R<sup>2</sup></th>
                                     <td th:text="${RSquare}"></td>
                                     <td th:if="${noTest==null}" th:text="${testRSquare}"></td>
@@ -231,7 +236,7 @@
                         tickThickness: 0.5,
                     },
                     axisY: {
-                        title: "Volume",
+                        title: "Value",
                         lineThickness: 1,
                         tickThickness: 1,
                         gridThickness: 1,

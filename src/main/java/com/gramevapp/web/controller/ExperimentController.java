@@ -503,6 +503,7 @@ public class ExperimentController {
         model.addAttribute("AvgError", trainingResult.get(1));
         model.addAttribute("RSquare", trainingResult.get(2));
         model.addAttribute("absoluteError", trainingResult.get(3));
+        model.addAttribute("relativeError", trainingResult.get(4));
         model.addAttribute(INDEX, run.getExperimentId().getIdRunList().indexOf(run) + 1);
         model.addAttribute("model", run.getModel());
 
@@ -522,6 +523,7 @@ public class ExperimentController {
             model.addAttribute("testAvgError", testResult.get(1));
             model.addAttribute("testRSquare", testResult.get(2));
             model.addAttribute("testAbsoluteError", testResult.get(3));
+            model.addAttribute("testRelativeError", testResult.get(4));
             model.addAttribute("testListYLine", testListYLine);
             model.addAttribute("testListFunctionResult", testListFunctionResult);
 
@@ -979,7 +981,7 @@ public class ExperimentController {
                     runResultsDto.getTestAVG()[index] = result.get(1);
                     runResultsDto.getTestR2()[index] = result.get(2);
                     runResultsDto.getTestAbs()[index] = result.get(3);
-                    runResultsDto.getTestAbs()[index] = result.get(4);
+                    runResultsDto.getTestRel()[index] = result.get(4);
                 }
             }
             index++;

@@ -113,11 +113,11 @@
                 type: "GET",
                 dataType: "json",
                 success: function (data) {
-                    let csvContent = "Run;Model;Training - AVG. Error; Training - RMSE; Training - Abs. Error;" +
-                        "Training R^2; Training Rel. Error;"
+                    let csvContent = "Run;Model; Training - AVG. Error; Training - RMSE; Training - Abs. Error;" +
+                        " Training - R^2; Training - Rel. Error;"
                     if (data['testAVG'] !== null) {
                         csvContent += "Test - AVG. Error; Test - RMSE; Test - Abs. Error;" +
-                            "Test R^2; Test - Rel. Error;"
+                            "Test - R^2; Test - Rel. Error;"
                     }
                     csvContent += "\n";
 
