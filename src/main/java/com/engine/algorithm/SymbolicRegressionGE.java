@@ -21,7 +21,6 @@ import jeco.core.problem.Solutions;
 import jeco.core.problem.Variable;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
-import org.springframework.ui.Model;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -33,8 +32,6 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import static com.engine.util.Common.currentDateTimeAsFormattedString;
-
-import static com.engine.util.Common.TRAINING_PATH_PROP;
 
 /**
  * @author Carlos García Moreno, J. M. Colmenar
@@ -73,6 +70,8 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     private static final char ID_FOR_PARAMS = 'w';
 
     private Algorithm<Variable<Integer>> algorithm;
+
+    private Algorithm alg;
     private boolean stop;
     public ArrayList<String> parameters;
 
@@ -104,12 +103,16 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     public void stopExecution() {
         stop = true;
         algorithm.stopExection();
+        if (this.DE) {
+            alg.stopExection();
+
+        }
     }
 
     @Override
     public void evaluate(Solution<Variable<Integer>> solution, Phenotype phenotype) {
 
-        if(DE){
+        if (DE) {
 
             // Parameters are stored in a list according to their position.
             // The number of elements to be tuned is the number of variables -> size of the list.
@@ -119,12 +122,12 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             int i = 0;
 
             String model = phenotype.toString();
-            while (i<model.length()) {
+            while (i < model.length()) {
                 if (model.charAt(i) == ID_FOR_PARAMS) {
                     // Parse element:
                     String id = ID_FOR_PARAMS + "";
                     i++;
-                    while ((i<model.length()) && (Character.isDigit(model.charAt(i)))) {
+                    while ((i < model.length()) && (Character.isDigit(model.charAt(i)))) {
                         id += model.charAt(i);
                         i++;
                     }
@@ -142,34 +145,39 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
                     Double.valueOf(properties.getProperty(UPPER_BOUND_PROP)), objective, func, phenotype.toString(), parameters);
 
             // Optimize model with DE
-            Algorithm alg = new DifferentialEvolution(problem,
-                            Integer.valueOf(properties.getProperty(POPULATION_DE)),
-                            Integer.valueOf(properties.getProperty(NUM_GENERATIONS_PROP)),
-                            true,
-                            Double.valueOf(properties.getProperty(MUTATION_FACTOR_DE_PROP)),
-                            Double.valueOf(properties.getProperty(RECOMB_FACTOR_PROP)));
+            alg = new DifferentialEvolution(problem,
+                    Integer.valueOf(properties.getProperty(POPULATION_DE)),
+                    Integer.valueOf(properties.getProperty(NUM_GENERATIONS_PROP)),
+                    true,
+                    Double.valueOf(properties.getProperty(MUTATION_FACTOR_DE_PROP)),
+                    Double.valueOf(properties.getProperty(RECOMB_FACTOR_PROP)));
             try {
                 alg.initialize();
-            }catch(Exception e){
+            } catch (Exception e) {
                 logger.info(e.toString());
             }
-            Solution<Variable<?>> best = (Solution<Variable<?>>) alg.execute().get(0);
 
-            // Store objective
-            double obj = best.getObjective(0);
-            solution.getObjectives().set(0,obj);
 
-            if (obj < bestSolution.getCost()) {
-                bestSolution.setCost(obj);
-                bestSolution.setModel(phenotype.toString());
-                HashMap<String,Double> parameterValues = new HashMap<>(best.getVariables().size());
-                // Include the values of the parameters:
-                for (int j = 0; j < best.getVariables().size(); j++) {
-                    parameterValues.put(parameters.get(j), (Double) best.getVariable(j).getValue());
+            if (!stop) {
+                Solution<Variable<?>> best = (Solution<Variable<?>>) alg.execute().get(0);
+                // Store objective
+                double obj = best.getObjective(0);
+                solution.getObjectives().set(0, obj);
+
+
+                if (obj < bestSolution.getCost()) {
+                    bestSolution.setCost(obj);
+                    bestSolution.setModel(phenotype.toString());
+                    HashMap<String, Double> parameterValues = new HashMap<>(best.getVariables().size());
+                    // Include the values of the parameters:
+                    for (int j = 0; j < best.getVariables().size(); j++) {
+                        parameterValues.put(parameters.get(j), (Double) best.getVariable(j).getValue());
+                    }
+                    bestSolution.setParameterValues(parameterValues);
                 }
-                bestSolution.setParameterValues(parameterValues);
             }
-        }else {
+
+        } else {
             String originalFunction = phenotype.toString();
 
             //Create array of prediction
@@ -213,8 +221,8 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         }
     }
 
-    public HashMap<String,Double> obtainParameterValues(Solution<Variable<?>> sol) {
-        HashMap<String,Double> parameterValues = new HashMap<>(sol.getVariables().size());
+    public HashMap<String, Double> obtainParameterValues(Solution<Variable<?>> sol) {
+        HashMap<String, Double> parameterValues = new HashMap<>(sol.getVariables().size());
         // Include the values of the parameters:
         for (int j = 0; j < sol.getVariables().size(); j++) {
             parameterValues.put(parameters.get(j), (Double) sol.getVariable(j).getValue());
@@ -225,7 +233,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
 
     //Method to replace the unknowns variables by values
-    private String calculateFunctionValued(String originalFunction, int index ) {
+    private String calculateFunctionValued(String originalFunction, int index) {
         String newFunction = originalFunction;
 
         for (Map.Entry<String, Integer> stringIntegerEntry : vars.entrySet()) {
@@ -322,7 +330,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         UtilStats.setCEGPenalties(properties);
 
         if (numObjectives == 2) {
-            algorithm = new MultiObjectiveGrammaticalEvolution(this, Integer.parseInt(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.parseInt(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), mutationProb, crossOverProb,tournamentSize);
+            algorithm = new MultiObjectiveGrammaticalEvolution(this, Integer.parseInt(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.parseInt(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), mutationProb, crossOverProb, tournamentSize);
         } else {
             algorithm = new SimpleGrammaticalEvolution(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), mutationProb, crossOverProb);
         }
@@ -374,12 +382,12 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
             } else {
                 executionReport.add(solutions.get(0).getObjective(0) + ";" + this.generatePhenotype(solutions.get(0)).toString() + ";" + time);
-                if(bestSolution.getModel()!=null){
-                    for(int j = 0; j<= (this.vars.size()); j++){
+                if (bestSolution.getModel() != null) {
+                    for (int j = 0; j <= (this.vars.size()); j++) {
                         String currentWeight = "w" + j;
-                        if(bestSolution.getParameterValues().get(currentWeight)!= null){
+                        if (bestSolution.getParameterValues().get(currentWeight) != null) {
 
-                            executionReport.add(currentWeight +"= " + bestSolution.getParameterValues().get(currentWeight) +";");
+                            executionReport.add(currentWeight + "= " + bestSolution.getParameterValues().get(currentWeight) + ";");
                         }
                     }
 
@@ -389,7 +397,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             }
 
             for (String s : executionReport) {
-                log.add(i+1 + ";" + s);
+                log.add(i + 1 + ";" + s);
             }
 
             i++;
@@ -411,8 +419,8 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
         String model = this.getModel();
         String replacePart;
-        if(bestSolution.getModel()!=null){
-            for(int j = (this.vars.size());j>=0; j--){
+        if (bestSolution.getModel() != null) {
+            for (int j = (this.vars.size()); j >= 0; j--) {
                 replacePart = "w" + j;
                 model = model.replaceAll(replacePart, String.valueOf(bestSolution.getParameterValues().get(replacePart)));
             }
@@ -420,7 +428,6 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         }
 
         run.setModel(model);
-
 
 
         if (failed) {
@@ -485,9 +492,9 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         ArrayList<String> columnList = new ArrayList<>();
 
         String[] columns = infoSplit[0].split("\r\n");
-        int index  = 0;
+        int index = 0;
         for (String column : columns[0].split(";")) {
-            if ( index == 0) {
+            if (index == 0) {
                 columnList.add("#Y");
             } else {
                 columnList.add("X" + index);

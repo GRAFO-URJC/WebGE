@@ -250,6 +250,8 @@ public class ExperimentController {
         Dataset testExperimentDataType = (testExperimentDataTypeId.equals("")) ? null : experimentService.
                 findExperimentDataTypeById(Long.valueOf(testExperimentDataTypeId));
 
+
+        boolean sameExp = false;
         if (configExpDto.getId() != null) {
             exp = experimentService.findExperimentById(configExpDto.getId());
            /* configExpDto = fillConfigExpDto(configExpDto, exp,
@@ -286,40 +288,36 @@ public class ExperimentController {
                 return CONFIGEXPERIMENTPATH;
             }
             */
+
+            /*Check if exp only changed name, desc or tags, in that case, dont remove runs*/
+            sameExp =
+                    exp.getGenerations().equals(configExpDto.getGenerations()) &&
+                            exp.getCrossoverProb().equals(configExpDto.getCrossoverProb()) &&
+                            exp.getPopulationSize().equals(configExpDto.getPopulationSize()) &&
+                            exp.getMutationProb().equals(configExpDto.getMutationProb()) &&
+                            exp.getMaxWraps().equals(configExpDto.getMaxWraps()) &&
+                            exp.getNumCodons().equals(configExpDto.getNumCodons()) &&
+                            exp.getTournament().equals(configExpDto.getTournament()) &&
+                            exp.getNumberRuns().equals(configExpDto.getNumberRuns()) &&
+                            exp.getObjective().equals(configExpDto.getObjective()) &&
+                            exp.getDefaultGrammar().equals(configExpDto.getFileText()) &&
+                            exp.getDefaultExpDataType().equals(Long.valueOf(experimentDataTypeId)) &&
+                            exp.isDe() == configExpDto.isDe() &&
+                            exp.getUpperBoundDE().equals(configExpDto.getUpperBoundDE()) &&
+                            exp.getLowerBoundDE().equals(configExpDto.getLowerBoundDE()) &&
+                            exp.getRecombinationFactorDE().equals(configExpDto.getRecombinationFactorDE()) &&
+                            exp.getMutationFactorDE().equals(configExpDto.getMutationFactorDE()) &&
+                            exp.getPopulationDE().equals(configExpDto.getPopulationDE());
+
         }
 
 
-
-       // END - Experiment section
-
-
-        /*Check if exp only changed name, desc or tags, in that case, dont remove runs*/
-
-
-        boolean sameExp =
-                exp.getGenerations().equals(configExpDto.getGenerations()) &&
-                        exp.getCrossoverProb().equals(configExpDto.getCrossoverProb()) &&
-                        exp.getPopulationSize().equals(configExpDto.getPopulationSize()) &&
-                        exp.getMutationProb().equals(configExpDto.getMutationProb()) &&
-                        exp.getMaxWraps().equals(configExpDto.getMaxWraps()) &&
-                        exp.getNumCodons().equals(configExpDto.getNumCodons()) &&
-                        exp.getTournament().equals(configExpDto.getTournament()) &&
-                        exp.getNumberRuns().equals(configExpDto.getNumberRuns()) &&
-                        exp.getObjective().equals(configExpDto.getObjective()) &&
-                        exp.getDefaultGrammar().equals(configExpDto.getFileText()) &&
-                        exp.getDefaultExpDataType().equals(Long.valueOf(experimentDataTypeId)) &&
-                        exp.isDe() == configExpDto.isDe() &&
-                        exp.getUpperBoundDE().equals(configExpDto.getUpperBoundDE()) &&
-                        exp.getLowerBoundDE().equals(configExpDto.getLowerBoundDE())&&
-                        exp.getRecombinationFactorDE().equals(configExpDto.getRecombinationFactorDE()) &&
-                        exp.getMutationFactorDE().equals(configExpDto.getMutationFactorDE()) &&
-                        exp.getPopulationDE().equals(configExpDto.getPopulationDE());
-
+        // END - Experiment section
 
 
         exp = experimentSection(exp, user, testExperimentDataType, expDataType, configExpDto, configExpDto.getFileText(), !sameExp);
-        List<Run> runList = exp.getIdRunList();
 
+        List<Run> runList = exp.getIdRunList();
 
         experimentService.saveExperiment(exp);
         fillConfigExpDto(configExpDto, exp, exp.getDefaultGrammar(), expDataType, false);
@@ -549,7 +547,7 @@ public class ExperimentController {
             if (run.getModel() != null && !run.getModel().isEmpty()) {
                 modelValue = SymbolicRegressionGE.calculateFunctionValuedResultWithCSVData(run.getModel(),
                         contentSplit);
-                if(listFunctionResult!=null)
+                if (listFunctionResult != null)
                     listFunctionResult.add(modelValue);
             }
             if (listYLine != null) {
@@ -800,10 +798,10 @@ public class ExperimentController {
         List<Run> runList = experiment.getIdRunList();
         for (Run run : runList) {
 
-            if (!run.getStatus().equals(Run.Status.RUNNING) && !run.getStatus().equals(Run.Status.FINISHED)  ) {
+            if (!run.getStatus().equals(Run.Status.RUNNING) && !run.getStatus().equals(Run.Status.FINISHED)) {
                 run.setStatus(Run.Status.CANCELLED);
                 saveDBService.saveRunAsync(run);
-            } else if (!run.getStatus().equals(Run.Status.FINISHED)){
+            } else if (!run.getStatus().equals(Run.Status.FINISHED)) {
                 ajaxStopRunExperiment(String.valueOf(run.getId()));
             }
 
@@ -942,7 +940,7 @@ public class ExperimentController {
             List<Double> result = new ArrayList<>();
             processExperimentDataTypeInfo(experimentService.findExperimentDataTypeById(experiment.getDefaultExpDataType()).getInfo().split("\r\n"),
                     null, null, result, run);
-            if(run.getModel()!=null && !run.getModel().isEmpty()) {
+            if (run.getModel() != null && !run.getModel().isEmpty()) {
                 runResultsDto.getTrainingRMSE()[index] = result.get(0);
                 runResultsDto.getTrainingAVG()[index] = result.get(1);
                 runResultsDto.getTrainingR2()[index] = result.get(2);
@@ -976,7 +974,7 @@ public class ExperimentController {
                 }
                 processExperimentDataTypeInfo(intoForSplit.split("\r\n"),
                         null, null, result, run);
-                if(run.getModel()!=null && !run.getModel().isEmpty()) {
+                if (run.getModel() != null && !run.getModel().isEmpty()) {
                     runResultsDto.getTestRMSE()[index] = result.get(0);
                     runResultsDto.getTestAVG()[index] = result.get(1);
                     runResultsDto.getTestR2()[index] = result.get(2);
