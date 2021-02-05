@@ -53,7 +53,7 @@ public class UtilStats {
         double acu = 0;
 
         for (int i = 0; i < expected.length; i++) {
-            acu += Math.abs(expected[i]- observed[i]) * 100.0 / expected[i];
+            acu += Math.abs(expected[i]- observed[i]) / expected[i];
         }
 
         return acu / (double) observed.length;

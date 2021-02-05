@@ -44,7 +44,7 @@ public class ModelEvaluator {
         double acu = 0;
 
         for (int i = 0; i < expected.length; i++) {
-            acu += Math.abs(expected[i]- prediction[i]) * 100.0 / expected[i];
+            acu += Math.abs(expected[i]- prediction[i]) / expected[i];
         }
 
         return acu / (double) prediction.length;
