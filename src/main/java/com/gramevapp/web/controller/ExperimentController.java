@@ -167,14 +167,26 @@ public class ExperimentController {
         }
         experimentService.saveExperiment(exp);
         executionCancelled = false;
+
+        // Use half of the available processors.
+        int availableProcessors = Runtime.getRuntime().availableProcessors() / 2;
+
         Thread thread = new Thread(() -> {
             try {
-                for (Thread th : threads) {
-                    if (executionCancelled) {
-                        break;
+                int i = 0;
+                while (i < threads.size() && !executionCancelled) {
+                    ArrayList<Thread> runThreads = new ArrayList<>();
+                    int limit = availableProcessors;
+                    if ((threads.size()-i) < availableProcessors) limit = threads.size()-i;
+                    // Start threads
+                    for (int j = i; j < i+limit; j++) {
+                        threads.get(j).start();
                     }
-                    th.start();
-                    th.join();
+                    // Wait for them
+                    for (int j = i; j < i+limit; j++) {
+                        threads.get(j).join();
+                    }
+                    i += limit;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
