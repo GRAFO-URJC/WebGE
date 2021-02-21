@@ -929,6 +929,7 @@
                     if ($(status).text() === "RUNNING") {
                         $("#showPlot" + iterStat).removeClass("hidden");
                         $("#stopRunSection" + iterStat).removeClass("hidden");
+                        $('#stopAllRuns').removeClass('disabled');
                     }
 
                     if (($(status).text() != "FINISHED") && ($(status).text() != "STOPPED") && ($(status).text() != "FAILED")
@@ -1069,7 +1070,7 @@
 
             if(document.getElementById("expTypeTable") && document.getElementById("expTypeTable").rows){
                 for(let i = 0; i < document.getElementById("expTypeTable").rows.length-2; i++){
-                    if ($('#status' + i)[0].innerHTML == 'WAITING' || $('#status' + i)[0].innerHTML == 'RUNNING'){
+                    if ($('#status' + i)[0].innerHTML == 'RUNNING'){
                         able = true;
                     }
                 }
