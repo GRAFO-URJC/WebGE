@@ -1,5 +1,6 @@
 package com.gramevapp.web.controller;
 
+import com.engine.algorithm.ModelEvaluator;
 import com.engine.algorithm.RunnableExpGramEv;
 import com.engine.algorithm.SymbolicRegressionGE;
 import com.engine.util.UtilStats;
@@ -571,11 +572,11 @@ public class ExperimentController {
                 functionResultDoubleArray[i - 1] = modelValue;
         }
         // RMSE AVGERROR RSQUARE ABSOLUTEERROR
-        result.add(UtilStats.computeRMSE(yDoubleArray, functionResultDoubleArray));
-        result.add(UtilStats.computeAvgError(yDoubleArray, functionResultDoubleArray));
-        result.add(UtilStats.computeRSquare(yDoubleArray, functionResultDoubleArray));
-        result.add(UtilStats.computeAbsoluteError(yDoubleArray, functionResultDoubleArray));
-        result.add(UtilStats.computeRelativeErr(yDoubleArray, functionResultDoubleArray));
+        result.add(ModelEvaluator.computeRMSE(yDoubleArray, functionResultDoubleArray));
+        result.add(ModelEvaluator.computeAvgError(yDoubleArray, functionResultDoubleArray));
+        result.add(ModelEvaluator.computeR2(yDoubleArray, functionResultDoubleArray));
+        result.add(ModelEvaluator.computeAbsoluteError(yDoubleArray, functionResultDoubleArray));
+        result.add(ModelEvaluator.computeRelativeError(yDoubleArray, functionResultDoubleArray));
     }
 
     private Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier, String objective, boolean DE) throws IOException {

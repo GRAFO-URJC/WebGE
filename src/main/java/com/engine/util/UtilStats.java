@@ -27,38 +27,6 @@ public class UtilStats {
     private UtilStats(){
         //private constructor to hide the public one
     }
-    /**
-     * Computes the Root Mean Squared Error (RMSE) between two arrays of engine.data.
-     */
-    public static double computeRMSE(double[] l1, double[] l2) {
-        double acu = 0.0;
-
-        for (int i = 0; i < l1.length; i++) {
-            acu += Math.pow(l1[i] - l2[i], 2);
-        }
-
-        return Math.sqrt(acu / l1.length);
-    }
-
-    public static double computeAvgError(double[] expected, double[] observed) {
-        double error = 0.0;
-        for (int k = 0; k < expected.length; ++k) {
-            error += Math.abs(expected[k] - observed[k]);
-        }
-        error /= expected.length;
-        return error;
-    }
-
-    public static double computeRelativeErr(double[] expected, double[] observed) {
-        double acu = 0;
-
-        for (int i = 0; i < expected.length; i++) {
-            acu += Math.abs(expected[i]- observed[i]) / expected[i];
-        }
-
-        return acu / (double) observed.length;
-    }
-
 
 
     public static double getAverage(double[] darr) {
@@ -209,6 +177,7 @@ public class UtilStats {
         return error;
     }
 
+/*
     public static double computeRSquare(double[] expected, double[] observed) {
 
         // Implementing this method: https://support.office.com/es-es/article/COEFICIENTE-R2-funci%C3%B3n-COEFICIENTE-R2-d7161715-250d-4a01-b80d-a8364f2be08f
@@ -229,17 +198,7 @@ public class UtilStats {
 
         return Math.pow(r, 2);
     }
-
-    /**
-     * Absolute error between observed and expected values.
-     */
-    public static double computeAbsoluteError(double[] expected, double[] observed) {
-        double error = 0.0;
-        for (int k = 0; k < expected.length; ++k) {
-            error += Math.abs(expected[k] - observed[k]);
-        }
-        return error;
-    }
+*/
 
     /**
      * Sets the values of the penalty coeficients for the CEG objective function.

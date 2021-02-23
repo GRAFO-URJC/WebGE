@@ -30,7 +30,9 @@ public class ModelEvaluator {
         return createRegressionMatrix(expected, observed).getRSquare();
     }
 
-
+    /**
+     * Absolute error between observed and expected values.
+     */
     public static double computeAbsoluteError(double[] expected, double[] observed) {
         double error = 0.0;
         for (int k = 0; k < expected.length; ++k) {
@@ -39,12 +41,20 @@ public class ModelEvaluator {
         return error;
     }
 
-    private static double computeRelativeError(double[] expected, double[] prediction) {
-        // Mean squared error:
+    public static double computeAvgError(double[] expected, double[] observed) {
+        double error = 0.0;
+        for (int k = 0; k < expected.length; ++k) {
+            error += Math.abs(expected[k] - observed[k]);
+        }
+        error /= expected.length;
+        return error;
+    }
+
+    public static double computeRelativeError(double[] expected, double[] prediction) {
         double acu = 0;
 
         for (int i = 0; i < expected.length; i++) {
-            acu += Math.abs(expected[i]- prediction[i]) / expected[i];
+            acu += Math.abs(expected[i]- prediction[i]) / Math.abs(expected[i]);
         }
 
         return acu / (double) prediction.length;
