@@ -4,11 +4,7 @@ import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 
-import java.io.*;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.logging.Logger;
 
 public class ModelEvaluator {
 
@@ -116,7 +112,7 @@ public class ModelEvaluator {
                 return computeRelativeError(targetDouble, predictionDouble);
             default:
                 // RMSE
-                return Math.sqrt(computeMSE(targetDouble, predictionDouble));
+                return computeRMSE(targetDouble, predictionDouble);
         }
 
     }
