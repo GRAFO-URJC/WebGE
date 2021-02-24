@@ -238,10 +238,12 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     private String calculateFunctionValued(String originalFunction, int index) {
         String newFunction = originalFunction;
 
-        for (Map.Entry<String, Integer> stringIntegerEntry : vars.entrySet()) {
-            String key = stringIntegerEntry.getKey().toUpperCase();
-            int keyPosition = Integer.parseInt(stringIntegerEntry.getValue().toString());
-            newFunction = newFunction.replace(key, func[index][keyPosition]);
+        // TODO: unify this function and the other one with same idea
+        String key;
+        for (int i = vars.size(); i > 0; i--) {
+            key = "X" + i;
+            int keyPosition = vars.get(key);
+            newFunction = newFunction.replaceAll(key, func[index][keyPosition]);
         }
         return newFunction;
     }
