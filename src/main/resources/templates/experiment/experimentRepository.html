@@ -137,8 +137,7 @@
                                         </span>
 
                                     </div>
-                                    <!--
-                            <div th:if="${not #lists.isEmpty(exp.getIdRunList())}">
+                            <div th:if="${not #lists.isEmpty(runList.get(exp.getId()))}">
                                 <table class="table table-hover"
                                        th:name="runTable+${iterStat.index}"
                                        th:id="runTable+${iterStat.index}">
@@ -155,17 +154,17 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <th:block th:each="run, iterStat : ${exp.getIdRunList()}">
-                                        <tr th:if="${run.getDiagramData()}!=null">
+                                    <th:block th:each="run, iterStat : ${runList.get(exp.getId())}">
+                                        <tr th:if="${run}!=null">
                                             <td><label th:text="${iterStat.index+1}"
                                                                    th:id="'runId'+${iterStat.index}"/></td>
                                             <td><label th:name="bestIndividual"
                                                                    th:id="'bestIndividual'+${iterStat.index}"
-                                                                   th:text="${run.getDiagramData().bestIndividual}"/>
+                                                                   th:text="${run.getBestIndividual()}"/>
                                             </td>
                                             <td><label th:name="currentGeneration"
                                                                    th:id="'currentGeneration'+${iterStat.index}"
-                                                                   th:text="${run.getDiagramData().currentGeneration}"/>
+                                                                   th:text="${run.getCurrentGeneration()}"/>
                                             </td>
                                             <td><label th:name="status"
                                                                    th:id="'status'+${iterStat.index}"
@@ -198,7 +197,6 @@
                                             </tbody>
                                         </table>
                                     </div>
-                                                                        -->
                                 </td>
                             </tr>
                         </th:block>

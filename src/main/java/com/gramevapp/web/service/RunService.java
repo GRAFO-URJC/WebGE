@@ -1,5 +1,6 @@
 package com.gramevapp.web.service;
 
+import com.gramevapp.web.model.IRunDto;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.model.RunExecutionReport;
 import com.gramevapp.web.repository.ExperimentRepository;
@@ -8,6 +9,7 @@ import com.gramevapp.web.repository.RunRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service("runService")
@@ -47,5 +49,9 @@ public class RunService {
 
     public void removeExecutionReport(RunExecutionReport runExecutionReport) {
         runExecutionReportRepository.delete(runExecutionReport);
+    }
+
+    public List<IRunDto> findRunsByExpId(Long expId) {
+        return runRepository.findRunDTOsByExpId(expId);
     }
 }

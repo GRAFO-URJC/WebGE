@@ -3,7 +3,6 @@ package com.gramevapp.web.controller;
 import com.engine.algorithm.ModelEvaluator;
 import com.engine.algorithm.RunnableExpGramEv;
 import com.engine.algorithm.SymbolicRegressionGE;
-import com.engine.util.UtilStats;
 import com.gramevapp.web.model.*;
 import com.gramevapp.web.repository.GrammarRepository;
 import com.gramevapp.web.service.*;
@@ -369,8 +368,13 @@ public class ExperimentController {
 
         User user = userService.getLoggedInUser();
         List<Experiment> lExperiment = experimentService.findByUserOptimized(user);
+        HashMap<Long,List<IRunDto>> lRuns = new HashMap<>();
+        for (Experiment exp : lExperiment) {
+            lRuns.put(exp.getId(),runService.findRunsByExpId(exp.getId()));
+        }
         model.addAttribute("experimentList", lExperiment);
         model.addAttribute("user", user);
+        model.addAttribute("runList", lRuns);
 
         return "experiment/experimentRepository";
     }
