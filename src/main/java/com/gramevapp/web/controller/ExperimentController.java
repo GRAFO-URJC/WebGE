@@ -368,7 +368,7 @@ public class ExperimentController {
     public String experimentRepository(Model model) {
 
         User user = userService.getLoggedInUser();
-        List<Experiment> lExperiment = experimentService.findByUser(user);
+        List<Experiment> lExperiment = experimentService.findByUserOptimized(user);
         model.addAttribute("experimentList", lExperiment);
         model.addAttribute("user", user);
 

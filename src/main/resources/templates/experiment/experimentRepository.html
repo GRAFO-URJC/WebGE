@@ -137,49 +137,50 @@
                                         </span>
 
                                     </div>
-                                    <div th:if="${not #lists.isEmpty(exp.getIdRunList())}">
-                                        <table class="table table-hover"
-                                               th:name="runTable+${iterStat.index}"
-                                               th:id="runTable+${iterStat.index}">
-                                            <caption class = "hidden">Run's List</caption>
-                                            <thead>
-                                            <tr>
-                                                <th id ="numer"># Run</th>
-                                                <th id="bestSol">Best solution</th>
-                                                <th id="currentGen">Current generation</th>
-                                                <th id="status">Status</th>
-                                                <th id="runCreationDate">Creation date</th>
-                                                <th id="lastModifDate">Last modification date</th>
-                                                <th id="model">Model</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            <th:block th:each="run, iterStat : ${exp.getIdRunList()}">
-                                                <tr th:if="${run.getDiagramData()}!=null">
-                                                    <td><label th:text="${iterStat.index+1}"
-                                                                           th:id="'runId'+${iterStat.index}"/></td>
-                                                    <td><label th:name="bestIndividual"
-                                                                           th:id="'bestIndividual'+${iterStat.index}"
-                                                                           th:text="${run.getDiagramData().bestIndividual}"/>
-                                                    </td>
-                                                    <td><label th:name="currentGeneration"
-                                                                           th:id="'currentGeneration'+${iterStat.index}"
-                                                                           th:text="${run.getDiagramData().currentGeneration}"/>
-                                                    </td>
-                                                    <td><label th:name="status"
-                                                                           th:id="'status'+${iterStat.index}"
-                                                                           th:text="${run.getStatus()}"/></td>
-                                                    <td><label th:name="iniDate" th:id="iniDate"
-                                                                           th:text="${run.getIniDateFormated()}"/>
-                                                    </td>
-                                                    <td><label th:name="lastDate" th:id="lastDate"
-                                                                           th:text="${run.getModificationDateFormated()}"/>
-                                                    </td>
-                                                    <td><label th:name="model"
-                                                                           th:id="model+${iterStat.index}"
-                                                                           th:text="${run.getModel()}"/></td>
-                                                </tr>
-                                            </th:block>
+                                    <!--
+                            <div th:if="${not #lists.isEmpty(exp.getIdRunList())}">
+                                <table class="table table-hover"
+                                       th:name="runTable+${iterStat.index}"
+                                       th:id="runTable+${iterStat.index}">
+                                    <caption class = "hidden">Run's List</caption>
+                                    <thead>
+                                    <tr>
+                                        <th id ="numer"># Run</th>
+                                        <th id="bestSol">Best solution</th>
+                                        <th id="currentGen">Current generation</th>
+                                        <th id="status">Status</th>
+                                        <th id="runCreationDate">Creation date</th>
+                                        <th id="lastModifDate">Last modification date</th>
+                                        <th id="model">Model</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <th:block th:each="run, iterStat : ${exp.getIdRunList()}">
+                                        <tr th:if="${run.getDiagramData()}!=null">
+                                            <td><label th:text="${iterStat.index+1}"
+                                                                   th:id="'runId'+${iterStat.index}"/></td>
+                                            <td><label th:name="bestIndividual"
+                                                                   th:id="'bestIndividual'+${iterStat.index}"
+                                                                   th:text="${run.getDiagramData().bestIndividual}"/>
+                                            </td>
+                                            <td><label th:name="currentGeneration"
+                                                                   th:id="'currentGeneration'+${iterStat.index}"
+                                                                   th:text="${run.getDiagramData().currentGeneration}"/>
+                                            </td>
+                                            <td><label th:name="status"
+                                                                   th:id="'status'+${iterStat.index}"
+                                                                   th:text="${run.getStatus()}"/></td>
+                                            <td><label th:name="iniDate" th:id="iniDate"
+                                                                   th:text="${run.getIniDateFormated()}"/>
+                                            </td>
+                                            <td><label th:name="lastDate" th:id="lastDate"
+                                                                   th:text="${run.getModificationDateFormated()}"/>
+                                            </td>
+                                            <td><label th:name="model"
+                                                                   th:id="model+${iterStat.index}"
+                                                                   th:text="${run.getModel()}"/></td>
+                                        </tr>
+                                    </th:block>
                                             <tr>
                                                 <td colspan="7">
                                                         <strong>Avg. :</strong><label th:name="runsAVG+${iterStat.index}"
@@ -197,6 +198,7 @@
                                             </tbody>
                                         </table>
                                     </div>
+                                                                        -->
                                 </td>
                             </tr>
                         </th:block>

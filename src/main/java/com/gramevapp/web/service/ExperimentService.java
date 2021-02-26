@@ -37,6 +37,15 @@ public class ExperimentService {
         return experimentRepository.findByUserIdOrderByCreationDateDesc(user.getId());
     }
 
+    /**
+     * Returns experiments without any of the related objects.
+     * @param user
+     * @return
+     */
+    public List<Experiment> findByUserOptimized(User user) {
+        return experimentRepository.findByUserIdOrderByCreationDateDescOptimized(user.getId());
+    }
+
     public Dataset findDataTypeById(Long dataTypeId) {
         Optional<Dataset> check = experimentDataTypeRepository.findById(dataTypeId);
         return check.orElse(null);
@@ -71,4 +80,5 @@ public class ExperimentService {
     public List<Experiment> findAll() {
         return experimentRepository.findAll();
     }
+
 }
