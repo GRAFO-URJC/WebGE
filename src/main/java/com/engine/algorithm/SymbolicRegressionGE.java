@@ -21,6 +21,7 @@ import jeco.core.problem.Solutions;
 import jeco.core.problem.Variable;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -243,7 +244,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         for (int i = vars.size(); i > 0; i--) {
             key = "X" + i;
             int keyPosition = vars.get(key);
-            newFunction = newFunction.replaceAll(key, func[index][keyPosition]);
+            newFunction = StringUtils.replace(newFunction, key, func[index][keyPosition]);
         }
         return newFunction;
     }
