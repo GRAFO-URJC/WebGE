@@ -51,9 +51,9 @@ public class Run {
 
     @Column
     private String model = "";
-    @OneToOne(mappedBy = "run", cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY)
-    private RunExecutionReport runExecutionReport;
+
+    @Column
+    private String execReport = "";
 
     public Run() {
         /*Do nothing*/
@@ -154,14 +154,6 @@ public class Run {
         this.model = model;
     }
 
-    public com.gramevapp.web.model.RunExecutionReport getRunExecutionReport() {
-        return runExecutionReport;
-    }
-
-    public void setRunExecutionReport(com.gramevapp.web.model.RunExecutionReport runExecutionReport) {
-        this.runExecutionReport = runExecutionReport;
-    }
-
     public DiagramData getDiagramData() {
         if (diagramData.isEmpty()) {
             return null;
@@ -175,5 +167,13 @@ public class Run {
 
     public void addDiagramData(DiagramData diagramData) {
         this.diagramData.add(diagramData);
+    }
+
+    public String getExecReport() {
+        return execReport;
+    }
+
+    public void setExecReport(String execReport) {
+        this.execReport = execReport;
     }
 }

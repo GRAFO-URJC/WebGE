@@ -427,7 +427,6 @@ public class ExperimentController {
             }
             listRunIt.remove();
             runIt.setExperimentId(null);
-            runService.removeExecutionReport(runService.getRunExecutionReport(runIt.getId()));
         }
 
         Iterator<Dataset> listDataTypeIt = expConfig.getIdExpDataTypeList().iterator();
@@ -598,9 +597,7 @@ public class ExperimentController {
                 saveDBService, crossRunIdentifier, objective, DE);
         Thread.UncaughtExceptionHandler h = (th, ex) -> {
             run.setStatus(Run.Status.FAILED);
-            RunExecutionReport runExecutionReport = runService.getRunExecutionReport(run.getId());
-            runExecutionReport.setExecutionReport(runExecutionReport.getExecutionReport() + "\nUncaught exception: " + ex);
-            runService.saveRunExecutionReport(runExecutionReport);
+            run.setExecReport(run.getExecReport() + "\nUncaught exception: " + ex);
             logger.warning("Uncaught exception: " + ex);
         };
         Thread th = new Thread(obj);
@@ -663,11 +660,7 @@ public class ExperimentController {
         run.setModificationDate(new Timestamp(new Date().getTime()));
         exp.getIdRunList().add(run);
         run.setExperimentId(exp);
-
-        RunExecutionReport runExecutionReport = new RunExecutionReport();
-        runExecutionReport.setId(run.getId());
-        runService.saveRunExecutionReport(runExecutionReport);
-
+        run.setExecReport(run.getExecReport()+"Initializing...\n\n");
     }
 
     private String grammarFileSection(User user, ConfigExperimentDto configExpDto, String grammar) throws IOException {
@@ -756,7 +749,6 @@ public class ExperimentController {
                 th.interrupt();
                 runnables.get(oldRun.getThreaId()).stopExecution();
             }
-            runService.removeExecutionReport(runService.getRunExecutionReport(oldRun.getId()));
             exp.removeRun(oldRun);
             runService.deleteRun(oldRun);
         }
@@ -900,12 +892,12 @@ public class ExperimentController {
                 String logInfo = new String(buf);
                 if (logInfo.contains("j.c.algorithm.ga.SimpleGeneticAlgorithm") ||
                         logInfo.contains("c.engine.algorithm.SymbolicRegressionGE")) {
-                    String infoFormated = "";
+                    String infoFormatted = "";
                     Pattern pattern =
                             Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}");
                     Matcher matcher = pattern.matcher(logInfo);
                     if (matcher.find()) {
-                        infoFormated += matcher.group() + (logInfo.contains("j.c.algorithm.ga.SimpleGeneticAlgorithm") ?
+                        infoFormatted += matcher.group() + (logInfo.contains("j.c.algorithm.ga.SimpleGeneticAlgorithm") ?
                                 " j.c.algorithm.ga.SimpleGeneticAlgorithm :" : " c.engine.algorithm.SymbolicRegressionGE :");
                     }
                     pattern =
@@ -914,26 +906,23 @@ public class ExperimentController {
 
                     if (matcher.find()) {
                         //j.c.algorithm.ga.SimpleGeneticAlgorithm
-                        infoFormated += matcher.group() + "\r\n";
+                        infoFormatted += matcher.group() + "\r\n";
                     } else {
                         //c.engine.algorithm.SymbolicRegressionGE
-                        infoFormated += logInfo.substring(logInfo.indexOf(messageSkip) + messageSkip.length());
+                        infoFormatted += logInfo.substring(logInfo.indexOf(messageSkip) + messageSkip.length());
                     }
                     pattern =
                             Pattern.compile("Thread-[0-9]+");
                     matcher = pattern.matcher(logInfo);
                     if (matcher.find()) {
                         String threadName = matcher.group();
-                        RunExecutionReport runExecutionReport = runService.getRunExecutionReport(threadRunMap.get(threadName));
-                        if (runExecutionReport.getExecutionReport() == null) {
-                            runExecutionReport.setExecutionReport("");
+
+                        if (infoFormatted.contains("2m---\u001B[0;39m \u001B[2m[     Thread-")) {
+                            infoFormatted = infoFormatted.replaceAll("2m---\u001B\\[0;39m \u001B\\[2m\\[     Thread-[0-9]+]\u001B\\[0;39m \u001B\\[36mj.c.algorithm.ga.SimpleGeneticAlgorithm \u001B\\[0;39m \u001B\\[2m:\u001B\\[0;39m ", "");
                         }
 
-                        if (infoFormated.contains("2m---\u001B[0;39m \u001B[2m[     Thread-")) {
-                            infoFormated = infoFormated.replaceAll("2m---\u001B\\[0;39m \u001B\\[2m\\[     Thread-[0-9]+]\u001B\\[0;39m \u001B\\[36mj.c.algorithm.ga.SimpleGeneticAlgorithm \u001B\\[0;39m \u001B\\[2m:\u001B\\[0;39m ", "");
-                        }
-                        runExecutionReport.setExecutionReport(runExecutionReport.getExecutionReport() + infoFormated);
-                        runService.saveRunExecutionReport(runExecutionReport);
+                        runService.updateExecutionReport(threadRunMap.get(threadName),infoFormatted);
+
                     }
 
                 }

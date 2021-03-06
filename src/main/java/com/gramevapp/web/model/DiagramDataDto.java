@@ -14,7 +14,7 @@ public class DiagramDataDto {
         this.finished = diagramData.getFinished();
         this.stopped = diagramData.getStopped();
         this.failed = diagramData.getFailed();
-        this.runExecutionReport = diagramData.getRunId().getRunExecutionReport().getExecutionReport();
+        this.runExecutionReport = diagramData.getRunId().getExecReport();
     }
 
     public Integer getCurrentGeneration() {
