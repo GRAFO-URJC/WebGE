@@ -2,9 +2,7 @@ package com.gramevapp.web.service;
 
 import com.gramevapp.web.model.IRunDto;
 import com.gramevapp.web.model.Run;
-import com.gramevapp.web.model.RunExecutionReport;
 import com.gramevapp.web.repository.ExperimentRepository;
-import com.gramevapp.web.repository.RunExecutionReportRepository;
 import com.gramevapp.web.repository.RunRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,8 +18,6 @@ public class RunService {
     @Autowired
     ExperimentRepository experimentRepository;
 
-    @Autowired
-    RunExecutionReportRepository runExecutionReportRepository;
 
     public Run saveRun(Run run) {
         return runRepository.save(run);
@@ -38,20 +34,11 @@ public class RunService {
         runRepository.delete(run);
     }
 
-    public RunExecutionReport getRunExecutionReport(Long id) {
-        Optional<RunExecutionReport> check = runExecutionReportRepository.findById(id);
-        return check.orElse(null);
-    }
-
-    public void saveRunExecutionReport(RunExecutionReport runExecutionReport) {
-        runExecutionReportRepository.save(runExecutionReport);
-    }
-
-    public void removeExecutionReport(RunExecutionReport runExecutionReport) {
-        runExecutionReportRepository.delete(runExecutionReport);
-    }
-
     public List<IRunDto> findRunsByExpId(Long expId) {
         return runRepository.findRunDTOsByExpId(expId);
+    }
+
+    public void updateExecutionReport(Long runId, String report) {
+        runRepository.updateExecutionReport(runId,report);
     }
 }
