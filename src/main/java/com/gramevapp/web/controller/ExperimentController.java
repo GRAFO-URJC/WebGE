@@ -162,7 +162,8 @@ public class ExperimentController {
             propPath = expPropertiesSet(configExpDto,
                     user, expDataType, grammarFilePath);
             // Run experiment in new thread
-            threads.add(runExperimentDetails(run, propPath, exp.isCrossExperiment() ? (i + 1) / expDataType.getFoldSize() : -1, configExpDto.getObjective(), configExpDto.isDe()));
+            int crossRunIdentifier = exp.isCrossExperiment() ? run.getExperimentId().getIdRunList().indexOf(run) + 1 : -1;
+            threads.add(runExperimentDetails(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe()));
 
         }
         experimentService.saveExperiment(exp);
@@ -480,6 +481,49 @@ public class ExperimentController {
     public String showRunTestStatsExperiment(Model model,
                                              @RequestParam(value = RUNID) String runId) {
         Run run = runService.findByRunId(Long.parseLong(runId));
+
+        HashMap<String, List<Double>> results = collectTrainingAndTestStats(run);
+
+        List<Double> listYLine = results.get("listYLine");
+        List<Double> listFunctionResult = results.get("listFunctionResult");
+        List<Double> trainingResult = results.get("trainingResult");
+
+        model.addAttribute(EXPDETAILS, run.getExperimentId());
+        model.addAttribute("listYLine", listYLine);
+        model.addAttribute("listFunctionResult", listFunctionResult);
+        model.addAttribute("RMSE", trainingResult.get(0));
+        model.addAttribute("AvgError", trainingResult.get(1));
+        model.addAttribute("RSquare", trainingResult.get(2));
+        model.addAttribute("absoluteError", trainingResult.get(3));
+        model.addAttribute("relativeError", trainingResult.get(4));
+        model.addAttribute(INDEX, run.getExperimentId().getIdRunList().indexOf(run) + 1);
+        model.addAttribute("model", run.getModel());
+
+        if (run.getExperimentId().getDefaultTestExpDataTypeId() != null || run.getExperimentId().isCrossExperiment()) {
+            List<Double> testResult = results.get("testResult");
+            List<Double> testListYLine = results.get("testListYLine");;
+            List<Double> testListFunctionResult = results.get("testListFunctionResult");
+
+            model.addAttribute("testRMSE", testResult.get(0));
+            model.addAttribute("testAvgError", testResult.get(1));
+            model.addAttribute("testRSquare", testResult.get(2));
+            model.addAttribute("testAbsoluteError", testResult.get(3));
+            model.addAttribute("testRelativeError", testResult.get(4));
+            model.addAttribute("testListYLine", testListYLine);
+            model.addAttribute("testListFunctionResult", testListFunctionResult);
+
+        } else {
+            model.addAttribute("noTest", true);
+        }
+
+        return "experiment/showTestStatsPlot";
+    }
+
+
+    private HashMap<String,List<Double>> collectTrainingAndTestStats(Run run) {
+
+        HashMap<String, List<Double>> results = new HashMap<>();
+
         int crossRunIdentifier = run.getExperimentId().getIdRunList().indexOf(run) + 1;
         List<Double> listYLine = new ArrayList<>();
         List<Double> listFunctionResult = new ArrayList<>();
@@ -510,16 +554,10 @@ public class ExperimentController {
 
         processExperimentDataTypeInfo(splitContent, listYLine, listFunctionResult, trainingResult, run);
 
-        model.addAttribute(EXPDETAILS, run.getExperimentId());
-        model.addAttribute("listYLine", listYLine);
-        model.addAttribute("listFunctionResult", listFunctionResult);
-        model.addAttribute("RMSE", trainingResult.get(0));
-        model.addAttribute("AvgError", trainingResult.get(1));
-        model.addAttribute("RSquare", trainingResult.get(2));
-        model.addAttribute("absoluteError", trainingResult.get(3));
-        model.addAttribute("relativeError", trainingResult.get(4));
-        model.addAttribute(INDEX, run.getExperimentId().getIdRunList().indexOf(run) + 1);
-        model.addAttribute("model", run.getModel());
+        results.put("listYLine",listYLine);
+        results.put("listFunctionResult",listFunctionResult);
+        results.put("trainingResult",trainingResult);
+
 
         if (run.getExperimentId().getDefaultTestExpDataTypeId() != null || run.getExperimentId().isCrossExperiment()) {
             List<Double> testListYLine = new ArrayList<>();
@@ -532,22 +570,15 @@ public class ExperimentController {
             }
             if (splitContent != null) {
                 processExperimentDataTypeInfo(splitContent, testListYLine, testListFunctionResult, testResult, run);
+                results.put("testListYLine",testListYLine);
+                results.put("testListFunctionResult",testListFunctionResult);
+                results.put("testResult",testResult);
             }
-            model.addAttribute("testRMSE", testResult.get(0));
-            model.addAttribute("testAvgError", testResult.get(1));
-            model.addAttribute("testRSquare", testResult.get(2));
-            model.addAttribute("testAbsoluteError", testResult.get(3));
-            model.addAttribute("testRelativeError", testResult.get(4));
-            model.addAttribute("testListYLine", testListYLine);
-            model.addAttribute("testListFunctionResult", testListFunctionResult);
-
-        } else {
-            model.addAttribute("noTest", true);
         }
 
-
-        return "experiment/showTestStatsPlot";
+        return results;
     }
+
 
 
     private void processExperimentDataTypeInfo(String[] splitContent, List<Double> listYLine, List<Double> listFunctionResult, List<Double> result,
@@ -932,6 +963,11 @@ public class ExperimentController {
         });
     }
 
+    /**
+     * Returns info to be downloaded in a datafile
+     * @param expId
+     * @return
+     */
     @GetMapping(value = "/runResultsInfo")
     @ResponseBody
     public RunResultsDto getRunResultsInfo(@RequestParam("expId") String expId) {
@@ -941,51 +977,28 @@ public class ExperimentController {
                 haveTest || experiment.isCrossExperiment());
         int index = 0;
         for (Run run : experiment.getIdRunList()) {
+
             runResultsDto.getRunIndex()[index] = index + 1;
             runResultsDto.getModel()[index] = run.getModel();
-            List<Double> result = new ArrayList<>();
-            processExperimentDataTypeInfo(experimentService.findExperimentDataTypeById(experiment.getDefaultExpDataType()).getInfo().split("\r\n"),
-                    null, null, result, run);
+
+            HashMap<String, List<Double>> results = collectTrainingAndTestStats(run);
+
             if (run.getModel() != null && !run.getModel().isEmpty()) {
-                runResultsDto.getTrainingRMSE()[index] = result.get(0);
-                runResultsDto.getTrainingAVG()[index] = result.get(1);
-                runResultsDto.getTrainingR2()[index] = result.get(2);
-                runResultsDto.getTrainingAbs()[index] = result.get(3);
-                runResultsDto.getTrainingRel()[index] = result.get(4);
-            }
+                List<Double> trainingResult = results.get("trainingResult");
+                runResultsDto.getTrainingRMSE()[index] = trainingResult.get(0);
+                runResultsDto.getTrainingAVG()[index] = trainingResult.get(1);
+                runResultsDto.getTrainingR2()[index] = trainingResult.get(2);
+                runResultsDto.getTrainingAbs()[index] = trainingResult.get(3);
+                runResultsDto.getTrainingRel()[index] = trainingResult.get(4);
 
-            if (haveTest || experiment.isCrossExperiment()) {
-                result = new ArrayList<>();
-                String intoForSplit = "";
-                if (haveTest) {
-                    intoForSplit = experimentService.findExperimentDataTypeById(experiment.getDefaultTestExpDataTypeId()).getInfo();
-                } else {
-                    String[] rows = experimentService.findExperimentDataTypeById(experiment.getDefaultExpDataType()).getInfo().split("\r\n");
-                    intoForSplit += rows[0].substring(0, rows[0].length() - 7) + "\r\n";
+                if (haveTest || experiment.isCrossExperiment()) {
+                    List<Double> testResult = results.get("testResult");
+                    runResultsDto.getTestRMSE()[index] = testResult.get(0);
+                    runResultsDto.getTestAVG()[index] = testResult.get(1);
+                    runResultsDto.getTestR2()[index] = testResult.get(2);
+                    runResultsDto.getTestAbs()[index] = testResult.get(3);
+                    runResultsDto.getTestRel()[index] = testResult.get(4);
 
-                    int indexFold = 0;
-                    int identifier = 0;
-                    int crossRunIdentifier = experiment.getIdRunList().indexOf(run) + 1;
-                    for (int i = 1; i < rows.length; i++) {
-                        indexFold = rows[i].lastIndexOf(';');
-                        identifier = Integer.parseInt(rows[i].substring(indexFold + 1));
-                        //check if have cross
-                        if (crossRunIdentifier < 0 || identifier == crossRunIdentifier) {
-                            StringBuilder stringBuilder = new StringBuilder(intoForSplit);
-                            stringBuilder.append(rows[i].substring(0, indexFold));
-                            stringBuilder.append("\r\n");
-                            intoForSplit = String.valueOf(stringBuilder);
-                        }
-                    }
-                }
-                processExperimentDataTypeInfo(intoForSplit.split("\r\n"),
-                        null, null, result, run);
-                if (run.getModel() != null && !run.getModel().isEmpty()) {
-                    runResultsDto.getTestRMSE()[index] = result.get(0);
-                    runResultsDto.getTestAVG()[index] = result.get(1);
-                    runResultsDto.getTestR2()[index] = result.get(2);
-                    runResultsDto.getTestAbs()[index] = result.get(3);
-                    runResultsDto.getTestRel()[index] = result.get(4);
                 }
             }
             index++;
