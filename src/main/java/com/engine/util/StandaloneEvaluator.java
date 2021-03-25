@@ -11,6 +11,17 @@ public class StandaloneEvaluator {
 
     public static void main(String[] args) {
 
+        String dir05 = "/Users/chema/OneDrive - Universidad Rey Juan Carlos/Research/Emisiones_CO2/Datos_febrero_2021/Experimentos_05_como_03_pero_usando_X2/";
+        String dir03 = "/Users/chema/OneDrive - Universidad Rey Juan Carlos/Research/Emisiones_CO2/Datos_febrero_2021/Experimentos_03_target_agregado/";
+        String dir06 = "/Users/chema/OneDrive - Universidad Rey Juan Carlos/Research/Emisiones_CO2/Datos_febrero_2021/Experimentos_06_GE_DE/";
+
+        args = new String[2];
+        // Model
+        args[0] = dir06+"E06-01_todas_USA_resultados_long.csv";
+        // Dataset
+        //args[1] = dir03+"Pensilvania_52_vars_datos_CO2_agregado.csv";
+        args[1] = dir03+"USA_39_vars_datos_CO2_agregado.csv";
+
         if (args.length != 2) {
             System.out.println("\nInvalid number of arguments. Usage:\n\n\tjava -jar standaloneEvaluator.jar <downloaded results file> <dataset file>");
             System.exit(0);

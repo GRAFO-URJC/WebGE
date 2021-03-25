@@ -625,9 +625,9 @@
                             <strong style="margin-left: 15px">Max: </strong><label id="maxBestSolution">Waiting
                             runs</label>
                             <button style="margin-left: 15px" class="btn-default btn btn-sm"
-                                    th:onclick="'downloadExperimentRunResults('+${configExp.getId()}+')'">Download
-                                results
-                            </button>
+                                    th:onclick="'downloadExperimentRunResults('+${configExp.getId()}+')'">Download stats</button>
+                            <button style="margin-left: 15px" class="btn-default btn btn-sm"
+                                    th:onclick="'downloadPredictions('+${configExp.getId()}+')'">Download predictions</button>
                         </td>
                     </tr>
                     </tbody>
