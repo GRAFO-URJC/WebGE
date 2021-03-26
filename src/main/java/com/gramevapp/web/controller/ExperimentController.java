@@ -1072,6 +1072,7 @@ public class ExperimentController {
     }
 
     private String[][] fillInResultsAndStats(String label,List<Double> target, List<List<Double>> predictions, List<List<Double>> stats, ArrayList<String> models) {
+        if (target == null) return null;
         String[][] results = new String[target.size()+6][models.size()+1];
         results[0][0] = label + "Target";
         for (int i=1; i <= target.size(); i++)
