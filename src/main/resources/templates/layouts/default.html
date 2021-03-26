@@ -176,32 +176,23 @@
                 type: "GET",
                 dataType: "json",
                 success: function (data) {
-                    let csvContent = "Run;Model; Training - AVG. Error; Training - RMSE; Training - Abs. Error;" +
-                        " Training - R^2; Training - Rel. Error;"
-                    if (data['testAVG'] !== null) {
-                        csvContent += "Test - AVG. Error; Test - RMSE; Test - Abs. Error;" +
-                            "Test - R^2; Test - Rel. Error;"
+                    let csvContent = "";
+                    // Training
+                    for (let i = 0; i < data["training"].length; i++) {
+                        for (let j = 0; j < data["training"][i].length; j++) {
+                            csvContent += data["training"][i][j] + ";"
+                        }
+                        csvContent += "\n";
                     }
                     csvContent += "\n";
-
-                    for (let count = 0; count < data['model'].length; count++) {
-
-                        if(data['model'][count].length == 0){
-                            data['model'][count] = "Unfinished run"
-                            csvContent += data['runIndex'][count] + ";" + data['model'][count] + ";"
-                        }else{
-                            csvContent += data['runIndex'][count] + ";" + data['model'][count] + ";" +
-                                data['trainingAVG'][count] + ";" + data['trainingRMSE'][count] + ";" +
-                                data['trainingAbs'][count] + ";" + data['trainingR2'][count] + ";" +
-                                data['trainingRel'][count] + ";"
+                    // Test
+                    if (data["test"] != null) {
+                        for (let i = 0; i < data["test"].length; i++) {
+                            for (let j = 0; j < data["test"][i].length; j++) {
+                                csvContent += data["test"][i][j] + ";"
+                            }
+                            csvContent += "\n";
                         }
-                        if (data['testAVG'] !== null) {
-                            csvContent += data['testAVG'][count] + ";" + data['testRMSE'][count] + ";" +
-                                data['testAbs'][count] + ";" + data['testR2'][count] + ";" +
-                                data['testRel'][count] + ";"
-                        }
-
-                        csvContent += "\n";
                     }
 
                     let textFileAsBlob = new Blob([csvContent], {type: 'text/csv'});

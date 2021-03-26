@@ -482,7 +482,7 @@ public class ExperimentController {
                                              @RequestParam(value = RUNID) String runId) {
         Run run = runService.findByRunId(Long.parseLong(runId));
 
-        HashMap<String, List<Double>> results = collectTrainingAndTestStats(run);
+        HashMap<String, List<Double>> results = collectTrainingAndTestStats(run,true);
 
         List<Double> listYLine = results.get("listYLine");
         List<Double> listFunctionResult = results.get("listFunctionResult");
@@ -520,7 +520,9 @@ public class ExperimentController {
     }
 
 
-    private HashMap<String,List<Double>> collectTrainingAndTestStats(Run run) {
+    private HashMap<String,List<Double>> collectTrainingAndTestStats(Run run, boolean mustConsiderCrossValidation) {
+
+        boolean considerCrossValidation = mustConsiderCrossValidation && run.getExperimentId().isCrossExperiment();
 
         HashMap<String, List<Double>> results = new HashMap<>();
 
@@ -532,7 +534,7 @@ public class ExperimentController {
                 experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()).getInfo().split("\r\n");
         String[] testSplitContent = null;
 
-        if (run.getExperimentId().isCrossExperiment()) {
+        if (considerCrossValidation) {
             List<String> splitContentList = new ArrayList<>();
             List<String> testSplitContentList = new ArrayList<>();
             splitContent[0] = splitContent[0].substring(0, splitContent[0].length() - 5) + "\r\n";
@@ -559,11 +561,11 @@ public class ExperimentController {
         results.put("trainingResult",trainingResult);
 
 
-        if (run.getExperimentId().getDefaultTestExpDataTypeId() != null || run.getExperimentId().isCrossExperiment()) {
+        if (run.getExperimentId().getDefaultTestExpDataTypeId() != null || considerCrossValidation) {
             List<Double> testListYLine = new ArrayList<>();
             List<Double> testListFunctionResult = new ArrayList<>();
             List<Double> testResult = new ArrayList<>();
-            if (run.getExperimentId().isCrossExperiment()) {
+            if (considerCrossValidation) {
                 splitContent = testSplitContent;
             } else {
                 splitContent = experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultTestExpDataTypeId()).getInfo().split("\r\n");
@@ -981,7 +983,7 @@ public class ExperimentController {
             runResultsDto.getRunIndex()[index] = index + 1;
             runResultsDto.getModel()[index] = run.getModel();
 
-            HashMap<String, List<Double>> results = collectTrainingAndTestStats(run);
+            HashMap<String, List<Double>> results = collectTrainingAndTestStats(run,true);
 
             if (run.getModel() != null && !run.getModel().isEmpty()) {
                 List<Double> trainingResult = results.get("trainingResult");
@@ -1006,6 +1008,92 @@ public class ExperimentController {
         return runResultsDto;
     }
 
+    /**
+     * Returns info to be downloaded in a datafile
+     * @param expId
+     * @return
+     */
+    @GetMapping(value = "/experimentRunsPredictions")
+    @ResponseBody
+    public Map<String,String[][]> getExperimentPredictions(@RequestParam("expId") String expId) {
+        // For cross-validation experiments, the full evaluation of training is returned. Hence,
+        // test is only calculated if a test file is selected.
+        Experiment experiment = experimentService.findExperimentById(Long.valueOf(expId));
+        boolean haveTest = experiment.getDefaultTestExpDataTypeId() != null;
+
+        ArrayList<String> models = new ArrayList<>();
+
+        List<Double> trainingTarget = null;
+        List<List<Double>> trainingPreds = new ArrayList<>();
+        List<List<Double>> trainingStats = new ArrayList<>();
+
+        List<Double> testTarget = null;
+        List<List<Double>> testPreds = new ArrayList<>();
+        List<List<Double>> testStats = new ArrayList<>();
+
+        // For each model, information is retrieved.
+        for (Run run : experiment.getIdRunList()) {
+
+            HashMap<String, List<Double>> results = collectTrainingAndTestStats(run,false);
+
+            if (trainingTarget == null) {
+                trainingTarget = results.get("listYLine");
+            }
+
+            if (run.getModel() != null && !run.getModel().isEmpty()) {
+
+                models.add(run.getModel());
+                trainingPreds.add(results.get("listFunctionResult"));
+                trainingStats.add(results.get("trainingResult"));
+
+                if (haveTest) {
+                    if (testTarget == null) {
+                        testTarget = results.get("testListYLine");
+                    }
+                    testPreds.add(results.get("testListFunctionResult"));
+                    testStats.add(results.get("testResult"));
+                }
+            }
+        }
+
+        // Return map with two matrices: training and test
+        Map<String,String[][]> finalResults = new HashMap<>();
+        // Rows are training size + header + 5 stats.
+        // Columns are models + target, which is the first one.
+        String[][] trainingResults = fillInResultsAndStats("Training",trainingTarget,trainingPreds,trainingStats,models);
+        finalResults.put("training",trainingResults);
+
+        if (haveTest) {
+            String[][] testResults = fillInResultsAndStats("Test",testTarget,testPreds,testStats,models);
+            finalResults.put("test", testResults);
+        }
+
+        return finalResults;
+    }
+
+    private String[][] fillInResultsAndStats(String label,List<Double> target, List<List<Double>> predictions, List<List<Double>> stats, ArrayList<String> models) {
+        String[][] results = new String[target.size()+6][models.size()+1];
+        results[0][0] = label + "Target";
+        for (int i=1; i <= target.size(); i++)
+            results[i][0] = String.valueOf(target.get(i - 1));
+        // Add stats headers:
+        results[target.size()+1][0] = "RMSE";
+        results[target.size()+2][0] = "Avg. Error";
+        results[target.size()+3][0] = "R2";
+        results[target.size()+4][0] = "Absolute Error";
+        results[target.size()+5][0] = "Relative Error";
+
+        for (int j = 0; j < models.size(); j++) {
+            results[0][j+1] = models.get(j);
+            for (int i=1; i <= predictions.get(j).size(); i++)
+                results[i][j+1] = String.valueOf(predictions.get(j).get(i-1));
+            // Add stats:
+            for (int i=0; i<stats.get(j).size(); i++)
+                results[predictions.get(j).size()+1+i][j+1] = String.valueOf(stats.get(j).get(i));
+        }
+
+        return results;
+    }
 
 
 }
