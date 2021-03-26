@@ -190,8 +190,8 @@
                                                                           th:id="minBestSolution+${iterStat.index}"></label>
                                                         <strong style="margin-left: 15px">Max: </strong><label th:name="maxBestSolution+${iterStat.index}"
                                                                           th:id="maxBestSolution+${iterStat.index}"></label>
-                                                    <button style="margin-left: 15px" class="btn-default btn btn-sm" th:onclick="'downloadExperimentRunResults('+${exp.getId()}+')'">Download results
-                                                    </button>
+                                                    <button style="margin-left: 15px" class="btn-default btn btn-sm" th:onclick="'downloadExperimentRunResults('+${exp.getId()}+')'">Download stats</button>
+                                                    <button style="margin-left: 15px" class="btn-default btn btn-sm" th:onclick="'downloadPredictions('+${exp.getId()}+')'">Download predictions</button>
                                                 </td>
                                             </tr>
                                             </tbody>
