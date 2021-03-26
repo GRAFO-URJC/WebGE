@@ -143,7 +143,61 @@
 
                     let textFileAsBlob = new Blob([csvContent], {type: 'text/csv'});
                     let downloadLink = document.createElement("a");
-                    downloadLink.download = "runResults.csv";
+                    downloadLink.download = "experimentStats.csv";
+                    downloadLink.innerHTML = "Download File";
+
+                    if (window.webkitURL != null) {
+                        // Chrome allows the link to be clicked without actually adding it to the DOM.
+                        downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+                    } else {
+                        // Firefox requires the link to be added to the DOM before it can be clicked.
+                        downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+                        downloadLink.onclick = destroyClickedElement;
+                        downloadLink.style.display = "none";
+                        document.body.appendChild(downloadLink);
+                    }
+
+                    downloadLink.click();
+                },
+                error: function () {
+                    alert("Wait until all runs have finished.");
+                }
+            });
+        }
+
+        function downloadPredictions(id) {
+            $.ajax({
+                url: encodeURI("/experimentRunsPredictions"),
+                data: {
+                    'expId': id.toString(),
+                },
+                cache: false,
+                async: true,
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    let csvContent = "";
+                    // Training
+                    for (let i = 0; i < data["training"].length; i++) {
+                        for (let j = 0; j < data["training"][i].length; j++) {
+                            csvContent += data["training"][i][j] + ";"
+                        }
+                        csvContent += "\n";
+                    }
+                    csvContent += "\n";
+                    // Test
+                    if (data["test"] != null) {
+                        for (let i = 0; i < data["test"].length; i++) {
+                            for (let j = 0; j < data["test"][i].length; j++) {
+                                csvContent += data["test"][i][j] + ";"
+                            }
+                            csvContent += "\n";
+                        }
+                    }
+
+                    let textFileAsBlob = new Blob([csvContent], {type: 'text/csv'});
+                    let downloadLink = document.createElement("a");
+                    downloadLink.download = "modelPredictions.csv";
                     downloadLink.innerHTML = "Download File";
 
                     if (window.webkitURL != null) {
