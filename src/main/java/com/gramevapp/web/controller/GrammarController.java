@@ -1,6 +1,7 @@
 package com.gramevapp.web.controller;
 
 import com.gramevapp.web.model.Grammar;
+import com.gramevapp.web.model.GrammarDTO;
 import com.gramevapp.web.model.User;
 import com.gramevapp.web.repository.GrammarRepository;
 import com.gramevapp.web.service.ExperimentService;
@@ -82,9 +83,11 @@ public class GrammarController {
 
 
     @PostMapping(value = "/grammar/saveGrammar")
-    public String saveGrammar(Model model, @ModelAttribute("grammar") Grammar gr) {
+    public String saveGrammar(Model model, @ModelAttribute("grammar") GrammarDTO g) {
         User user = userService.getLoggedInUser();
-        gr.setCreationDate(new Timestamp(new Date().getTime()));
+        // Creation date is updated
+        Grammar gr = new Grammar(g);
+        gr.setUserId(user.getId());
         if(grammarRepository.findGrammarByGrammarNameAndUserId(gr.getGrammarName(), user.getId()) == null) {
             grammarRepository.save(gr);
             return grammarRepository(model);

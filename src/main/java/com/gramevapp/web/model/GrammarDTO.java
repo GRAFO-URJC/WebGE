@@ -1,65 +1,35 @@
 package com.gramevapp.web.model;
 
 import com.gramevapp.web.other.DateFormat;
-import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.Date;
 
-@Entity
-@Table(name = "grammar")
-@DynamicUpdate
-public class Grammar {
+/**
+ * This class is devoted to follow the advice avoid persistent entities
+ * to be used as arguments of "@RequestMapping" methods, since this is a vulnerability.
+ */
+public class GrammarDTO {
 
-    @Id
-    @Column(name = "GRAMMAR_ID", nullable = false, updatable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-    @Column
     private String grammarName;
-
-    @Column
     private String grammarDescription;
-
-    @Column(name = "creation_date")
     private Timestamp creationDate = null;
-
-    @Column(columnDefinition = "TEXT")
-    // https://stackoverflow.com/questions/31833337/hibernate-could-not-execute-statement-sql-n-a-saving-nested-object
     private String fileText; // This is the text on the file - That's written in a areaText - So we can take it as a String
-
-    @Column(name = "user_id")
     private Long userId;
-
-    public Grammar(GrammarDTO g) {
-        this.creationDate = new Timestamp(new Date().getTime());
-        this.grammarName=g.getGrammarName();
-        this.grammarDescription=g.getGrammarDescription();
-        this.fileText=g.getFileText();
-    }
 
     public Timestamp getCreationDate() {
         return creationDate;
     }
 
-    public Grammar() {
+    public GrammarDTO() {
     }
 
-    public Grammar(String grammarName, String grammarDescription, String fileText) {
+    public GrammarDTO(String grammarName, String grammarDescription, String fileText) {
         this.creationDate = new Timestamp(new Date().getTime());
         this.grammarName=grammarName;
         this.grammarDescription=grammarDescription;
         this.fileText=fileText;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getGrammarName() {
