@@ -18,6 +18,7 @@ import javax.validation.Valid;
 import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -651,7 +652,9 @@ public class ExperimentController {
                                       String dataTypeDirectoryPath, Dataset expDataType) throws IOException {
         File propertiesNewFile = new File(propertiesFilePath);
         if (!propertiesNewFile.exists()) {
-            propertiesNewFile.createNewFile();
+            if (!propertiesNewFile.createNewFile()) {
+                logger.log(Level.SEVERE,"Cannot create properties file at "+propertiesFilePath);
+            }
         }
         PrintWriter propertiesWriter = new PrintWriter(propertiesNewFile);
 
