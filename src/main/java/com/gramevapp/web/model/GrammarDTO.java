@@ -2,7 +2,6 @@ package com.gramevapp.web.model;
 
 import com.gramevapp.web.other.DateFormat;
 
-import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.Date;
 
