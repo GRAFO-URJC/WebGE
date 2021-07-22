@@ -1,6 +1,7 @@
 package com.gramevapp.web.controller;
 
 import com.gramevapp.web.model.Dataset;
+import com.gramevapp.web.model.DatasetDTO;
 import com.gramevapp.web.model.Experiment;
 import com.gramevapp.web.model.User;
 import com.gramevapp.web.service.ExperimentService;
@@ -94,10 +95,12 @@ public class DataSetController {
     }
 
     @PostMapping(value = "/dataset/saveDataset")
-    public String saveDataset(Model model, @ModelAttribute("experimentDataType") @Valid Dataset experimentDataType,
+    public String saveDataset(Model model, @ModelAttribute("experimentDataType") @Valid DatasetDTO datasetDto,
                               @Param("checkFold") String checkFold, @Param("kFoldNumber") int kFoldNumber) {
 
         User user = userService.getLoggedInUser();
+        Dataset experimentDataType = new Dataset(datasetDto);
+
         if(experimentService.findExperimentDataTypeByDataTypeNameAndUserId(experimentDataType.getDataTypeName(), user.getId())== null) {
 
             experimentDataType.setDataTypeType("training");

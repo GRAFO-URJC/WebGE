@@ -1,52 +1,24 @@
 package com.gramevapp.web.model;
 
 import com.gramevapp.web.other.DateFormat;
-import org.hibernate.annotations.DynamicUpdate;
-
-import javax.persistence.*;
 import java.sql.Timestamp;
 
-@Entity
-@Table(name = "dataset")
-@DynamicUpdate
-public class Dataset {
+/**
+ * This class is devoted to follow the advice avoid persistent entities
+ * to be used as arguments of "@RequestMapping" methods, since this is a vulnerability.
+ */
+public class DatasetDTO {
 
-    @Id
-    @Column(name = "experimentdatatype_id", nullable = false, updatable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-    @Column
     private String dataTypeName;
-
-    @Column
     private String info;
-
-    @Column
     private String dataTypeDescription;
-
-    @Column
     private String dataTypeType;        // Validation, training, test
-
-    @Column
     private Long userIdUserId;
-
-    @Column(name = "fold_size")
     private Integer foldSize = 0;
-
-    // https://softwareyotrasdesvirtudes.com/2012/09/20/anotaciones-en-jpa-para-sobrevivir-a-una-primera-persistenica/
-    @Column(name = "creation_date")
     private Timestamp creationDate = null;
 
-    public Dataset() {
+    public DatasetDTO() {
         //Empty constructor
-    }
-
-    public Dataset(DatasetDTO datasetDto) {
-        this.dataTypeName = datasetDto.getDataTypeName();
-        this.dataTypeDescription = datasetDto.getDataTypeDescription();
-        this.info = datasetDto.getInfo();
-        this.foldSize = datasetDto.getFoldSize();
     }
 
 
@@ -56,14 +28,6 @@ public class Dataset {
 
     public void setDataTypeType(String dataTypeType) {
         this.dataTypeType = dataTypeType;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getDataTypeName() {
