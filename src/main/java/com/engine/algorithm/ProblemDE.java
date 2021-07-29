@@ -9,6 +9,7 @@ import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class ProblemDE extends Problem<Variable<Double>> {
@@ -16,10 +17,10 @@ public class ProblemDE extends Problem<Variable<Double>> {
     String model;
     String objective;
     String[][] func;
-    public ArrayList<String> parameters;
+    public List<String> parameters;
 
     public ProblemDE(int numberOfVariables, double lowerBnd, double upperBnd, String objective, String[][] func, String model,
-                     ArrayList<String> parameters) {
+                     List<String> parameters) {
         super(numberOfVariables, 1);
         this.objective = objective;
         // Upper and lower bounds for the weights
@@ -79,12 +80,15 @@ public class ProblemDE extends Problem<Variable<Double>> {
     }
 
     @Override
-    public Problem<Variable<Double>> clone() {
+    public ProblemDE clone() {
+        List<String> clonedParams = new ArrayList<>(parameters);
+
         return new ProblemDE(numberOfVariables,this.getLowerBound(0),this.getUpperBound(0),
-                objective, func.clone(), model, (ArrayList<String>) parameters.clone());
+                objective, func.clone(), model, clonedParams);
     }
 
     public void setModel(String model) {
         this.model = model;
     }
+
 }
