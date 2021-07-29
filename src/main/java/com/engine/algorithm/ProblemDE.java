@@ -80,7 +80,8 @@ public class ProblemDE extends Problem<Variable<Double>> {
 
     @Override
     public Problem<Variable<Double>> clone() {
-        return null;
+        return new ProblemDE(numberOfVariables,this.getLowerBound(0),this.getUpperBound(0),
+                objective, func.clone(), model, (ArrayList<String>) parameters.clone());
     }
 
     public void setModel(String model) {
