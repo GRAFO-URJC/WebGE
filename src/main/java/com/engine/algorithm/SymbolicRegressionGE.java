@@ -362,7 +362,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             try {
                 algorithm.initialize();
             } catch (Exception e) {
-                logger.info(e.toString() + " Incorrect grammar");
+                logger.log(Level.INFO,"{0} Incorrect grammar",e.toString());
                 run = runService.findByRunId(run.getId());
                 run.setStatus(Run.Status.FAILED);
                 saveDBService.saveRunAsync(run);
@@ -371,16 +371,16 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             solutions = algorithm.execute();
             if (failed) {
                 if (illegalArgumentException != null) {
-                    logger.info(illegalArgumentException.toString() + " Incorrect grammar");
+                    logger.log(Level.INFO,"{0} Incorrect grammar",illegalArgumentException.toString());
                 }
                 if (numberFormatException != null) {
-                    logger.info(numberFormatException.toString() + ", target duplicate in dataset");
+                    logger.log(Level.INFO,"{0} target duplicate in dataset",numberFormatException.toString());
                 }
             }
-            logger.info("Run #" + i);
+            logger.log(Level.INFO,"Run #{0}", i);
             logger.info("========");
             double time = (new Date().getTime() - startTime) / 1000;
-            logger.info("Execution time: " + time + " seconds.");
+            logger.log(Level.INFO,"Execution time: {0} seconds.",time);
 
             executionReport.clear();
 
@@ -402,7 +402,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
                 }
                 // Just for interrupted executions:
-                logger.info("@@;" + this.generatePhenotype(solutions.get(0)).toString());
+                logger.log(Level.INFO,"@@;{0}",this.generatePhenotype(solutions.get(0)).toString());
             }
 
             for (String s : executionReport) {
@@ -417,7 +417,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
         logger.info("Execution report");
         logger.info("==================");
-        logger.info("#Run;" + SymbolicRegressionGE.REPORT_HEADER);
+        logger.log(Level.INFO,"#Run;{0}",SymbolicRegressionGE.REPORT_HEADER);
         executionReport.clear();
         for (String s : log) {
             logger.info(s);
