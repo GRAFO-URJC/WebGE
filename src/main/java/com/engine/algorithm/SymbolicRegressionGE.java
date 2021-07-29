@@ -104,10 +104,10 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     public void stopExecution() {
         stop = true;
         algorithm.stopExection();
-        logger.log(Level.INFO,">>>> GE STOPPED - "+Thread.currentThread().getName());
+        logger.log(Level.INFO,">>>> GE STOPPED - {0}",Thread.currentThread().getName());
         if (this.DE) {
             alg.stopExection();
-            logger.log(Level.INFO,">>>> DE STOPPED - "+Thread.currentThread().getName());
+            logger.log(Level.INFO,">>>> DE STOPPED - {0}",Thread.currentThread().getName());
 
         }
     }
