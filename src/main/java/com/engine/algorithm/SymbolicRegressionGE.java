@@ -473,10 +473,11 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     private void addToLogFile(String str) {
         try {
             File file = new File(logPopulationOutputFile);
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
-            writer.write(str);
-            writer.flush();
-            writer.close();
+            // Try-with-resources closes the stream.
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
+                writer.write(str);
+                writer.flush();
+            }
         } catch (Exception ex) {
             logger.warning("Error in log population file: " + ex.getLocalizedMessage());
         }
