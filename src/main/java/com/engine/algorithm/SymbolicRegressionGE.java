@@ -461,29 +461,6 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         return aux;
     }
 
-    //Method to get the logger from class SimpleGeneticAlgorithm
-    private static Logger getSimpleGeneticAlgorithmLogger() {
-        LogManager manager = LogManager.getLogManager();
-        return manager.getLogger("jeco.core.algorithm.ga.SimpleGeneticAlgorithm");
-    }
-
-    /**
-     * Opens the log population file to add the string that was passed as a
-     * parameter.
-     */
-    private void addToLogFile(String str) {
-        try {
-            File file = new File(logPopulationOutputFile);
-            // Try-with-resources closes the stream.
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
-                writer.write(str);
-                writer.flush();
-            }
-        } catch (Exception ex) {
-            logger.warning("Error in log population file: " + ex.getLocalizedMessage());
-        }
-    }
-
     public Boolean getStop() {
         return stop;
     }
