@@ -217,13 +217,15 @@ public class ExperimentController {
         // Execute program with experiment info
 
         File propertiesFile = new File(propertiesFilePath);
-        Reader propertiesReader = new FileReader(propertiesFile);
+        // Try-with-resources does not need closing stream
+        try (Reader propertiesReader = new FileReader(propertiesFile)) {
 
-        Properties properties = new Properties();
-        properties.load(propertiesReader);
+            Properties properties = new Properties();
+            properties.load(propertiesReader);
 
-        properties.setProperty(TRAINING_PATH_PROP, "");
-        propertiesReader.close();
+            properties.setProperty(TRAINING_PATH_PROP, "");
+
+        }
         return propertiesFilePath;
     }
 
@@ -618,11 +620,12 @@ public class ExperimentController {
 
     private Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier, String objective, boolean DE) throws IOException {
         File propertiesFile = new File(propPath);
-
-        Reader propertiesReader = new FileReader(propertiesFile);
-
         Properties properties = new Properties();
-        properties.load(propertiesReader);
+
+        // Try-with-resources does not need closing stream
+        try(Reader propertiesReader = new FileReader(propertiesFile)) {
+            properties.load(propertiesReader);
+        }
         properties.setProperty(TRAINING_PATH_PROP, propPath);
 
 
@@ -642,7 +645,6 @@ public class ExperimentController {
         runnables.put(th.getId(), obj);
         // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
 
-        propertiesReader.close();
         return th;
     }
 
@@ -710,7 +712,9 @@ public class ExperimentController {
 
         File grammarNewFile = new File(grammarFilePath);
         if (!grammarNewFile.exists()) {
-            grammarNewFile.createNewFile();
+            if (!grammarNewFile.createNewFile()) {
+                logger.log(Level.SEVERE, "Grammar file could not be created at {0}",grammarFilePath);
+            }
         }
 
         PrintWriter grammarWriter = new PrintWriter(grammarNewFile);
