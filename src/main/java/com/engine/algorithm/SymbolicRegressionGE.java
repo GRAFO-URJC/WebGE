@@ -72,7 +72,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
     private Algorithm<Variable<Integer>> algorithm;
 
-    private Algorithm alg;
+    private Algorithm<Variable<Double>> alg;
     private boolean stop;
     public ArrayList<String> parameters;
 
@@ -162,7 +162,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
 
             if (!stop) {
-                Solution<Variable<?>> best = (Solution<Variable<?>>) alg.execute().get(0);
+                Solution<Variable<Double>> best = alg.execute().get(0);
                 // Store objective
                 double obj = best.getObjective(0);
                 solution.getObjectives().set(0, obj);
