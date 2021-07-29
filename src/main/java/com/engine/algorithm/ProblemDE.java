@@ -55,7 +55,7 @@ public class ProblemDE extends Problem<Variable<Double>> {
         // First, include the identifiers of the input variables.
         ExpressionBuilder eb = ModelEvaluator.includeInputVariables(model, func);
 
-        // Include the identificators of the parameters:
+        // Include the labels of the parameters:
         for (String param : parameters) {
             eb.variable(param);
         }
