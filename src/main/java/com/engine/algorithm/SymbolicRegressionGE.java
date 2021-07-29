@@ -283,8 +283,10 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         vars = getVariables(func);
         logger.setLevel(Level.ALL);
 
-        logger.log(Level.INFO,"Training set input variables: "+(func[0].length-1));
-        logger.log(Level.INFO,"Training set entries: "+(func.length-1)+"\n");
+        int vars = func[0].length-1;
+        int entries = func.length-1;
+        logger.log(Level.INFO,"Training set input variables: {0}",vars);
+        logger.log(Level.INFO,"Training set entries: {0}\n",entries);
 
         // Log population:
         int logPopulation = Integer.parseInt(properties.getProperty(com.engine.util.Common.LOG_POPULATION_PROP));
@@ -310,7 +312,6 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
                 buffer.append("Evaluation;");
             }
             buffer.append("\n");
-            //addToLogFile(buffer.toString());
         }
 
         int numObjectives = 1;
