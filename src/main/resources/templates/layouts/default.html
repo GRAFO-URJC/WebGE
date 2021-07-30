@@ -246,7 +246,7 @@
                     <li><a th:href="@{/user/profile}" id="userProfileButton" rel="tooltip" title="User profile"><span class="glyphicon glyphicon-user">
                     </span><span th:text="${
                     session.userDetails!=null?
-                    session.userDetails.getFirstName()+
+                    ' '+session.userDetails.getFirstName()+
                     ' '+session.userDetails.getLastName():''}" > </span>
                     </a></li>
 
