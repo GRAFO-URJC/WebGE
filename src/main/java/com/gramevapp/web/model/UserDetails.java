@@ -1,10 +1,11 @@
 package com.gramevapp.web.model;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "user_details")
-public class UserDetails {
+public class UserDetails implements Serializable {
 
     @Id
     @Column(name = "USER_ID", nullable = false, updatable = false)
