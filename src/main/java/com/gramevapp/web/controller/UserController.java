@@ -159,7 +159,7 @@ public class UserController extends UserCommon {
 
     @GetMapping("/access-denied")
     public String accessDenied() {
-        return "/error/access-denied";
+        return "access-denied";
     }
 
     @ModelAttribute("user") // Without this. The registration won't work

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.w3.org/1999/xhtml"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}"
+      lang="en">
+<head>
+    <link rel="stylesheet" th:href="@{/assets/dist/css/index.css}"/>
+    <title>WebGE – Grammatical Evolution – URJC</title>
+</head>
+
+<body>
+<div id="page" layout:fragment="content" message=${errorMessage}>
+    <!-- Header -->
+    <!-- Main -->
+    <div class="container">
+        <div id="forms" class="panel panel-default">
+            <header class="panel-heading">
+                <h2>Error</h2>
+            </header>
+            <section class="panel-body form-horizontal center-block text-center">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12 mt-12 form-group">
+
+                        <h1>Access Denied</h1>
+                        <a href="/"><strong>Go back home </strong></a>
+                    </div>
+
+                </div>
+            </section>
+        </div>
+        <!-- END Main -->
+    </div>
+</div>
+</body>
+</html>
