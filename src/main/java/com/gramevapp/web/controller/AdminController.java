@@ -36,7 +36,7 @@ public class AdminController extends UserCommon {
         List<User> usersList = userService.findAllUserWithoutAdmin();
         for (User u : usersList) {
             Experiment experiment = experimentService.findLastExperimentByUserOptimized(u);
-            if (experiment.getIdRunList() != null && !experiment.getIdRunList().isEmpty()) {
+            if (experiment != null && experiment.getIdRunList() != null && !experiment.getIdRunList().isEmpty()) {
                summaryExperiment.put(u, experiment.getIdRunList().get(experiment.getIdRunList().size() - 1));
             }
         }
