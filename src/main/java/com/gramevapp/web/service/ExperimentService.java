@@ -46,6 +46,10 @@ public class ExperimentService {
         return experimentRepository.findByUserIdOrderByCreationDateDescOptimized(user.getId());
     }
 
+    public Experiment findLastExperimentByUserOptimized(User user) {
+        return experimentRepository.findByUserIdMostRecentExperimentOptimized(user.getId());
+    }
+
     public Dataset findDataTypeById(Long dataTypeId) {
         Optional<Dataset> check = experimentDataTypeRepository.findById(dataTypeId);
         return check.orElse(null);

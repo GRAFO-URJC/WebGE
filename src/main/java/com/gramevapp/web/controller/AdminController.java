@@ -30,13 +30,14 @@ public class AdminController extends UserCommon {
             model.addAttribute(MESSAGE, "Please change the password, now is the default password, you can click" +
                     " the message.");
         }
+
+        // For each user, get the last experiment
         HashMap<User, Run> summaryExperiment = new HashMap<>();
         List<User> usersList = userService.findAllUserWithoutAdmin();
         for (User u : usersList) {
-            for (Experiment experiment : experimentService.findByUserOptimized(u)) {
-                if (experiment.getIdRunList() != null && !experiment.getIdRunList().isEmpty()) {
-                    summaryExperiment.put(u, experiment.getIdRunList().get(experiment.getIdRunList().size() - 1));
-                }
+            Experiment experiment = experimentService.findLastExperimentByUserOptimized(u);
+            if (experiment.getIdRunList() != null && !experiment.getIdRunList().isEmpty()) {
+               summaryExperiment.put(u, experiment.getIdRunList().get(experiment.getIdRunList().size() - 1));
             }
         }
 

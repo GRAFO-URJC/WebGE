@@ -18,4 +18,7 @@ public interface ExperimentRepository extends JpaRepository<Experiment, Long> {
 
     @Query(value = "SELECT * FROM webge.experiment e WHERE e.user_id=?1 ORDER BY creation_date DESC", nativeQuery = true)
     List<Experiment> findByUserIdOrderByCreationDateDescOptimized(Long id);
+
+    @Query(value = "SELECT * FROM webge.experiment e WHERE e.user_id=?1 ORDER BY update_date DESC LIMIT 1", nativeQuery = true)
+    Experiment findByUserIdMostRecentExperimentOptimized(Long id);
 }
