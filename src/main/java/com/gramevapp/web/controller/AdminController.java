@@ -31,13 +31,15 @@ public class AdminController extends UserCommon {
                     " the message.");
         }
         HashMap<User, Run> summaryExperiment = new HashMap<>();
-        List<Experiment> experimentList = experimentService.findAll();
-        for (Experiment experiment : experimentList) {
-            User u = userService.getById(experiment.getUserId());
-            if (experiment.getIdRunList() != null && !experiment.getIdRunList().isEmpty()) {
-                summaryExperiment.put(u, experiment.getIdRunList().get(experiment.getIdRunList().size() - 1));
+        List<User> usersList = userService.findAllUserWithoutAdmin();
+        for (User u : usersList) {
+            for (Experiment experiment : experimentService.findByUserOptimized(u)) {
+                if (experiment.getIdRunList() != null && !experiment.getIdRunList().isEmpty()) {
+                    summaryExperiment.put(u, experiment.getIdRunList().get(experiment.getIdRunList().size() - 1));
+                }
             }
         }
+
         model.addAttribute("summaryExperiment", summaryExperiment);
         model.addAttribute("userList", new ArrayList<>(summaryExperiment.keySet()));
         model.addAttribute("running", Run.Status.RUNNING);

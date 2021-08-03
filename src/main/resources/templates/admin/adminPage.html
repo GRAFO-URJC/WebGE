@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.w3.org/1999/xhtml"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns="http://www.w3.org/1999/html"
       layout:decorate="~{layouts/default}"
       lang="en">
@@ -11,7 +10,7 @@
 </head>
 
 <body>
-<div id="page" layout:fragment="content" message=${errorMessage}>
+<div id="page" layout:fragment="content">
     <!-- Header -->
     <!-- Main -->
     <div class="container">
@@ -22,9 +21,9 @@
 
             <section class="panel-body form-horizontal center-block text-center">
                 <div th:if="${message}" class="alert alert-info">
-                    <form action="/admin/profile" onclick="">
-                        <input type="text" id="areaActive" name="areaActive" value="passwordActive" hidden/>
-                        <button class="btn btn-link" type="submit" th:text="${message}"/>
+                    <form th:action="@{/admin/profile}" onclick="">
+                        <label for="areaActive"></label><input type="text" id="areaActive" name="areaActive" value="passwordActive" hidden/>
+                        <button class="btn btn-link" type="submit" th:text="${message}"></button>
                     </form>
                 </div>
                 <div th:if="${messageUserCreated}" class="alert alert-info">
@@ -70,9 +69,14 @@
                         </div>
                     </a>
                 </div>
+
                 <div th:if="${not #lists.isEmpty(userList)}">
+
+                    <hr/>
+
+                    <h4 class="card-title mt-3">Last Experiments</h4>
                     <table class="table table-hover" id="lastRunsSummaryTable">
-                        <caption class = "hidden">User's List</caption>
+                        <caption class = "hidden">Last Experiments</caption>
                         <thead>
                         <tr>
                             <th id="userFirstName">Name</th>
@@ -84,17 +88,15 @@
                         </tr>
                         </thead>
                         <tbody id="lastRunsSummaryTbody">
-                        <th:block th:each="user : ${userList}">
-                            <tr th:with="run=${summaryExperiment.get(user)}">
-                                <td id="userFirstName row" style="text-align:left;" ><label th:text="${user.getUserDetails().getFirstName()}"/></td>
-                                <td id="userLastName row" style="text-align:left;" ><label th:text="${user.getUserDetails().getLastName()}"/></td>
-                                <td id="userInstitution row" style="text-align:left;"  ><label th:text="${user.getInstitution()}"/></td>
-                                <td id="expName row" style="text-align:left;"  ><label th:text="${run.getExperimentId().getExperimentName()}"/></td>
-                                <td id="runStatus row" style="text-align:left;" ><label name="status" th:id="${run.getId()}" th:text="${run.getStatus()}"/></td>
+                            <tr th:each="user : ${userList}" th:with="run=${summaryExperiment.get(user)}">
+                                <td id="userFirstName row" style="text-align:left;" ><label th:text="${user.getUserDetails().getFirstName()}"></label></td>
+                                <td id="userLastName row" style="text-align:left;" ><label th:text="${user.getUserDetails().getLastName()}"></label></td>
+                                <td id="userInstitution row" style="text-align:left;"  ><label th:text="${user.getInstitution()}"></label></td>
+                                <td id="expName row" style="text-align:left;"  ><label th:text="${run.getExperimentId().getExperimentName()}"></label></td>
+                                <td id="runStatus row" style="text-align:left;" ><label th:id="${run.getId()}" th:text="${run.getStatus()}"></label></td>
                                 <td id="modifDate row" style="text-align:left;" ><label th:text="${run.getStatus().equals(running)?run.getIniDate():
-                                                    run.getModificationDate()}"/></td>
+                                                    run.getModificationDate()}"></label></td>
                             </tr>
-                        </th:block>
                         </tbody>
                     </table>
                 </div>
@@ -107,8 +109,8 @@
                     });
                     $('.dataTables_length').addClass('bs-select');
 
-                    $('[name="status"]').each(function (index) {
-                        if (($(this).text() == "RUNNING") || ($(this).text() == "INITIALIZING") || ($(this).text() == "WAITING")) {
+                    $('[name="status"]').each(function () {
+                        if (($(this).text() === "RUNNING") || ($(this).text() === "INITIALIZING") || ($(this).text() === "WAITING")) {
                             showRunStatus(this.id,$(this).text());
                         }
                     });
@@ -138,14 +140,14 @@
                             $("#"+runId).text(statusStr);
                         },
                         complete: function () {
-                            if (($(status).text() != "FINISHED") && ($(status).text() != "STOPPED") && ($(status).text() != "FAILED")) {
+                            if (($(status).text() !== "FINISHED") && ($(status).text() !== "STOPPED") && ($(status).text() !== "FAILED")) {
                                 setTimeout(function () {
                                     checkRunStatus(runId, status);
                                 }, 1000);
                             }
                         }
                     });
-                };
+                }
             </script>
         </div>
         <!-- END Main -->
