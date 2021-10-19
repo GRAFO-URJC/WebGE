@@ -77,7 +77,7 @@
                                     </button>
                                     <button type="button" th:name="${dataset.getId()}"
                                             th:id="${'downloadDataset' + dataset.getId()}"
-                                            onclick="downloadDataset(this)"
+                                            th:onclick="'downloadDataset(this.id, '+${dataset.getId()}+')'"
                                             class="btn-default btn "
                                             rel="tooltip"
                                             title="Download dataset"
@@ -164,37 +164,115 @@
             dataSetPage =true;
         })
 
-        function downloadDataset(button) {
-            let textToWrite = $('#fileText'+button.name).val().split(/\n/);
-            const rows = [];
-            textToWrite.forEach(function (value) {
-                rows.push(value.split(";"));
-            });
-            let csvContent = "";
+        // function downloadDataset(button, datasetId) {
+        //     /*let textToWrite = $('#fileText'+button.name).val().split(/\n/);
+        //     const rows = [];
+        //     textToWrite.forEach(function (value) {
+        //         rows.push(value.split(";"));
+        //     });
+        //     let csvContent = "";*/
+        //     console.log("buenas desde fuera del todo");
+        //     $.ajax({
+        //         url: encodeURI("/getDataset"),
+        //         data: {
+        //             'datasetId': datasetId
+        //         },
+        //         cache: false,
+        //         async: true,
+        //         type: "POST",
+        //         dataType: "json",
+        //         success: function (data) {
+        //             if (data == -1) {
+        //                 console.log("bad");
+        //                 alert("Cannot get dataset");
+        //             } else {
+        //                 console.log("hola");
+        //                 let textToWrite = data; // ya es json
+        //                 console.log(data);
+        //                 const rows = [];
+        //                 textToWrite.forEach(function (value) {
+        //                     rows.push(value.split(";"));
+        //                 });
+        //                 let csvContent = "";
 
-            rows.forEach(function (rowArray) {
+        //                 rows.forEach(function (rowArray) {
+        //                 let row = rowArray.join(";");
+        //                 csvContent += row+"\r\n";
+        //                 });
+        //                 let textFileAsBlob = new Blob([csvContent], {type: 'text/csv'});
+
+        //                 let downloadLink = document.createElement("a");
+        //                 downloadLink.download = "dataset.csv";
+        //                 downloadLink.innerHTML = "Download File";
+
+        //                 if (window.webkitURL != null) {
+        //                     // Chrome allows the link to be clicked without actually adding it to the DOM.
+        //                     downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+        //                 } else {
+        //                     // Firefox requires the link to be added to the DOM before it can be clicked.
+        //                     downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+        //                     downloadLink.onclick = destroyClickedElement;
+        //                     downloadLink.style.display = "none";
+        //                     document.body.appendChild(downloadLink);
+        //                 }
+
+        //                 downloadLink.click();
+        //             }
+        //         }
+        //     });
+        // }
+
+
+
+        function downloadDataset(button, datasetId) {
+            let dataFromBack = -1;
+            $.ajax({
+                url: encodeURI("/getDataset"),
+                data: {
+                    'datasetId': datasetId
+                },
+                cache: false,
+                async: true,
+                type: "POST",
+            }).done((data) => {
+                console.log("entro");
+                let textToWrite = data.split(/\n/);
+                console.log(data);
+                const rows = [];
+                textToWrite.forEach(function (value) {
+                    rows.push(value.split(";"));
+                });
+                let csvContent = "";
+
+                rows.forEach(function (rowArray) {
                 let row = rowArray.join(";");
                 csvContent += row+"\r\n";
+                });
+                let textFileAsBlob = new Blob([csvContent], {type: 'text/csv'});
+
+                let downloadLink = document.createElement("a");
+                downloadLink.download = "dataset.csv";
+                downloadLink.innerHTML = "Download File";
+
+                if (window.webkitURL != null) {
+                    // Chrome allows the link to be clicked without actually adding it to the DOM.
+                    downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+                } else {
+                    // Firefox requires the link to be added to the DOM before it can be clicked.
+                    downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+                    downloadLink.onclick = destroyClickedElement;
+                    downloadLink.style.display = "none";
+                    document.body.appendChild(downloadLink);
+                }
+
+                downloadLink.click();
+
+            }).fail(function(err) {
+                console.error(err);
             });
-            let textFileAsBlob = new Blob([csvContent], {type: 'text/csv'});
-
-            let downloadLink = document.createElement("a");
-            downloadLink.download = "dataset.csv";
-            downloadLink.innerHTML = "Download File";
-
-            if (window.webkitURL != null) {
-                // Chrome allows the link to be clicked without actually adding it to the DOM.
-                downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
-            } else {
-                // Firefox requires the link to be added to the DOM before it can be clicked.
-                downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
-                downloadLink.onclick = destroyClickedElement;
-                downloadLink.style.display = "none";
-                document.body.appendChild(downloadLink);
-            }
-
-            downloadLink.click();
         }
+
+
 
         function changeTextareInfo(buttonInfo) {
             $(buttonInfo).closest(".slider").find('textarea').text(buttonInfo.getAttribute("value"));
