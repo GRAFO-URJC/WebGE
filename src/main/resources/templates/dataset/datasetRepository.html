@@ -77,7 +77,7 @@
                                     </button>
                                     <button type="button" th:name="${dataset.getId()}"
                                             th:id="${'downloadDataset' + dataset.getId()}"
-                                            onclick="downloadDataset(this)"
+                                            th:onclick="'downloadDataset(this.id, '+${dataset.getId()}+')'"
                                             class="btn-default btn "
                                             rel="tooltip"
                                             title="Download dataset"
@@ -162,39 +162,55 @@
         $(document).ready(function () {
             tableDefinition('#datasetRepository', "#datasetTbody", 3, 4, 5, 2, 2);
             dataSetPage =true;
-        })
+        });
 
-        function downloadDataset(button) {
-            let textToWrite = $('#fileText'+button.name).val().split(/\n/);
-            const rows = [];
-            textToWrite.forEach(function (value) {
-                rows.push(value.split(";"));
-            });
-            let csvContent = "";
+        function downloadDataset(button, datasetId) {
+            let dataFromBack = -1;
+            $.ajax({
+                url: encodeURI("/getDataset"),
+                data: {
+                    'datasetId': datasetId
+                },
+                cache: false,
+                async: true,
+                type: "POST",
+            }).success((data) => {
+                let textToWrite = data.split(/\n/);
+                const rows = [];
+                textToWrite.forEach(function (value) {
+                    rows.push(value.split(";"));
+                });
+                let csvContent = "";
 
-            rows.forEach(function (rowArray) {
+                rows.forEach(function (rowArray) {
                 let row = rowArray.join(";");
-                csvContent += row+"\r\n";
+                csvContent += row;
+                });
+                let textFileAsBlob = new Blob([csvContent], {type: 'text/csv'});
+
+                let downloadLink = document.createElement("a");
+                downloadLink.download = "dataset.csv";
+                downloadLink.innerHTML = "Download File";
+
+                if (window.webkitURL != null) {
+                    // Chrome allows the link to be clicked without actually adding it to the DOM.
+                    downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+                } else {
+                    // Firefox requires the link to be added to the DOM before it can be clicked.
+                    downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+                    downloadLink.onclick = destroyClickedElement;
+                    downloadLink.style.display = "none";
+                    document.body.appendChild(downloadLink);
+                }
+
+                downloadLink.click();
+
+            }).fail(function(err) {
+                console.error(err);
             });
-            let textFileAsBlob = new Blob([csvContent], {type: 'text/csv'});
-
-            let downloadLink = document.createElement("a");
-            downloadLink.download = "dataset.csv";
-            downloadLink.innerHTML = "Download File";
-
-            if (window.webkitURL != null) {
-                // Chrome allows the link to be clicked without actually adding it to the DOM.
-                downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
-            } else {
-                // Firefox requires the link to be added to the DOM before it can be clicked.
-                downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
-                downloadLink.onclick = destroyClickedElement;
-                downloadLink.style.display = "none";
-                document.body.appendChild(downloadLink);
-            }
-
-            downloadLink.click();
         }
+
+
 
         function changeTextareInfo(buttonInfo) {
             $(buttonInfo).closest(".slider").find('textarea').text(buttonInfo.getAttribute("value"));

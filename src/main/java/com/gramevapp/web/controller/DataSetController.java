@@ -176,4 +176,13 @@ public class DataSetController {
         }
         experimentDataType.setInfo(newDataSetInfo);
     }
+
+    ////////
+    @PostMapping(value = "/getDataset")
+    @ResponseBody
+    public String getDatasetContent(@RequestParam("datasetId") String datasetId) {
+        Dataset dataset = experimentService.findExperimentDataTypeById(Long.parseLong(datasetId));
+        return dataset.getInfo();
+    }
+
 }
