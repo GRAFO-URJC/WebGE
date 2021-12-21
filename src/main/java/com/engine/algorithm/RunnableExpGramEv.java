@@ -19,10 +19,10 @@ public class RunnableExpGramEv implements Runnable {
     private int crossRunIdentifier;
     private SaveDBService saveDBService;
     private String objective;
-    private boolean DE;
+    private boolean de;
 
     public RunnableExpGramEv(Properties properties, Run runElement, Dataset experimentDataType,
-                             RunService runService, SaveDBService saveDBService, int crossRunIdentifier, String objective, boolean DE) {
+                             RunService runService, SaveDBService saveDBService, int crossRunIdentifier, String objective, boolean de) {
         this.properties = properties;
         this.runElement = runElement;
         this.experimentDataType = experimentDataType;
@@ -30,7 +30,7 @@ public class RunnableExpGramEv implements Runnable {
         this.crossRunIdentifier = crossRunIdentifier;
         this.saveDBService = saveDBService;
         this.objective = objective;
-        this.DE = DE;
+        this.de = de;
     }
 
     @Override
@@ -46,15 +46,15 @@ public class RunnableExpGramEv implements Runnable {
         runElement.setBestIndividual(0.0);
         runElement.setCurrentGeneration(0);
 
-        ge = new SymbolicRegressionGE(properties, numObjectives, objective, DE);
+        ge = new SymbolicRegressionGE(properties, numObjectives, objective, de);
 
         RunGeObserver observer = new RunGeObserver();
         observer.setDiagramData(runElement);
-        String datasetInfo = experimentDataType.getInfo();
-        if (datasetInfo.contains("K-Fold")) {
-            String[] splitInfo = datasetInfo.split("\r\n");
-            datasetInfo = "";
-            datasetInfo += splitInfo[0].substring(0, splitInfo[0].length() - ";K-Fold".length()) + "\r\n";
+        StringBuilder datasetInfo = new StringBuilder(experimentDataType.getInfo());
+        if (datasetInfo.toString().contains("K-Fold")) {
+            String[] splitInfo = datasetInfo.toString().split("\r\n");
+            datasetInfo = new StringBuilder();
+            datasetInfo.append(splitInfo[0].substring(0, splitInfo[0].length() - ";K-Fold".length())).append("\r\n");
 
             int indexFold;
             int identifier;
@@ -63,15 +63,14 @@ public class RunnableExpGramEv implements Runnable {
                 identifier = Integer.parseInt(splitInfo[i].substring(indexFold + 1));
                 //check if have cross
                 if (crossRunIdentifier < 0 || identifier != crossRunIdentifier) {
-                    StringBuilder stringBuilder = new StringBuilder();
-                    stringBuilder.append(splitInfo[i].substring(0, indexFold));
-                    stringBuilder.append("\r\n");
-                    datasetInfo+= stringBuilder.toString();
+                    String stringBuilder = splitInfo[i].substring(0, indexFold) +
+                            "\r\n";
+                    datasetInfo.append(stringBuilder);
                 }
             }
         }
 
-        ge.runGE(observer, datasetInfo, runElement, runService, saveDBService);
+        ge.runGE(observer, datasetInfo.toString(), runElement, runService, saveDBService);
     }
 
     public void stopExecution() {
