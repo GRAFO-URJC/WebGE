@@ -92,13 +92,13 @@ public class SolutionDEGE {
     }
 
     public Map<String,Double> obtainParameterValues(Solution<Variable<?>> sol, List<String> parameters) {
-        Map<String,Double> parameterValues = new HashMap<>(sol.getVariables().size());
+        Map<String,Double> parameterValuesNew = new HashMap<>(sol.getVariables().size());
         // Include the values of the parameters:
         for (int j = 0; j < sol.getVariables().size(); j++) {
-            parameterValues.put(parameters.get(j), (Double) sol.getVariable(j).getValue());
+            parameterValuesNew.put(parameters.get(j), (Double) sol.getVariable(j).getValue());
         }
 
-        return parameterValues;
+        return parameterValuesNew;
     }
 
     public void setTrainingPrediction(double[] input) {

@@ -153,7 +153,6 @@ public class UtilStats {
     public static double computeAbsoluteErrorWeightedCED(double[] y, double[] yp) {
         double error = 0.0;
         int region;
-        double weight = 1.0;
         for (int k = 0; k < y.length; ++k) {
             region = determineCEGRegion(y[k], yp[k]);
 //            switch (region) {
