@@ -3,8 +3,9 @@ package com.engine.algorithm;
 import jeco.core.problem.Solution;
 import jeco.core.problem.Variable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 /**
@@ -15,12 +16,15 @@ public class SolutionDEGE {
     private double cost;
     private double relativeError;
     private String model;
-    private HashMap<String,Double> parameterValues;
+    private Map<String,Double> parameterValues;
 
     private double testCost;
     private double testRelativeError;
     private double[] trainingPrediction;
     private double[] testPrediction;
+
+    private static final String relativeErrorString = "\t"+"Relative error=";
+    private static final String tCostString= "\t"+"Cost=";
 
     public double getCost() {
         return cost;
@@ -34,7 +38,7 @@ public class SolutionDEGE {
         this.model = model;
     }
 
-    public void setParameterValues(HashMap<String,Double> parameterValues) {
+    public void setParameterValues(Map<String,Double> parameterValues) {
         this.parameterValues = parameterValues;
     }
 
@@ -42,7 +46,7 @@ public class SolutionDEGE {
         return model;
     }
 
-    public HashMap<String,Double> getParameterValues() {
+    public Map<String,Double> getParameterValues() {
         return parameterValues;
     }
 
@@ -52,30 +56,30 @@ public class SolutionDEGE {
 
     @Override
     public String toString() {
-        String trainPredStr = "";
+        StringBuilder trainPredStr = new StringBuilder();
         for (int i=0; i<trainingPrediction.length; i++) {
-            trainPredStr += trainingPrediction[i]+";";
+            trainPredStr.append(trainingPrediction[i]).append(";");
         }
-        String testPredStr = "";
+        StringBuilder testPredStr = new StringBuilder();
         for (int i=0; i<testPrediction.length; i++) {
-            testPredStr += testPrediction[i]+";";
+            testPredStr.append(testPrediction[i]).append(";");
         }
 
         return "\nModel="+ model + "\n" + "Parameter values=" + parameterValues + "\n" +
-                "Training:\n" + "\tCost=" + cost + "\n" + "\tRelative error=" + relativeError + "\n" +
+                "Training:\n" + tCostString + cost + "\n" + relativeErrorString + relativeError + "\n" +
                 "\tTraining prediction: ;"+trainPredStr + "\n" +
-                "Test:\n" + "\tCost=" + testCost + "\n" + "\tRelative error=" + testRelativeError + "\n" +
+                "Test:\n" + tCostString + testCost + "\n" + relativeErrorString + testRelativeError + "\n" +
                 "\tTest prediction: ;"+testPredStr + "\n";
     }
 
     public String evaluationReport() {
-        String predStr = "";
+        StringBuilder predStr = new StringBuilder();
         for (int i=0; i<trainingPrediction.length; i++) {
-            predStr += trainingPrediction[i]+";";
+            predStr.append(trainingPrediction[i]).append(";");
         }
 
         return "\nModel="+ model + "\n" + "Parameter values=" + parameterValues + "\n" +
-                "Evaluation:\n" + "\tCost=" + cost + "\n" + "\tRelative error=" + relativeError + "\n" +
+                "Evaluation:\n" + tCostString + cost + "\n" + relativeErrorString + relativeError + "\n" +
                 "\tPrediction: ;"+predStr + "\n";
     }
 
@@ -87,8 +91,8 @@ public class SolutionDEGE {
         this.testCost = testCost;
     }
 
-    public HashMap<String,Double> obtainParameterValues(Solution<Variable<?>> sol, ArrayList<String> parameters) {
-        HashMap<String,Double> parameterValues = new HashMap<>(sol.getVariables().size());
+    public Map<String,Double> obtainParameterValues(Solution<Variable<?>> sol, List<String> parameters) {
+        Map<String,Double> parameterValues = new HashMap<>(sol.getVariables().size());
         // Include the values of the parameters:
         for (int j = 0; j < sol.getVariables().size(); j++) {
             parameterValues.put(parameters.get(j), (Double) sol.getVariable(j).getValue());
