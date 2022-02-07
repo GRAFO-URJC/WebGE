@@ -69,7 +69,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
     private Algorithm<Variable<Double>> alg;
     private boolean stop;
-    public ArrayList<String> parameters;
+    private List<String> parameters;
 
     public static final String REPORT_HEADER = "Obj.;Model;Time";
     private final List<String> executionReport = new ArrayList<>();
@@ -278,15 +278,14 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         vars = getVariables(func);
         logger.setLevel(Level.ALL);
 
-        int vars = func[0].length-1;
+        int numVars = func[0].length-1;
         int entries = func.length-1;
-        logger.log(Level.INFO,"Training set input variables: {0}",vars);
+        logger.log(Level.INFO,"Training set input variables: {0}",numVars);
         logger.log(Level.INFO,"Training set entries: {0}\n",entries);
 
         // Log population:
         int logPopulation = Integer.parseInt(properties.getProperty(com.engine.util.Common.LOG_POPULATION_PROP));
         if (logPopulation > 0) {
-            String fileName = "Log_Population_" + currentDateTimeAsFormattedString() + ".csv";
             // Report the elements that are logged:
             StringBuilder buffer = new StringBuilder("Reported stats;;");
             if ((logPopulation & LOG_GENOTYPE_MASK) == LOG_GENOTYPE_MASK) {
@@ -472,14 +471,21 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         ArrayList<String> columnList = new ArrayList<>();
 
         String[] columns = infoSplit[0].split("\r\n");
-        int index = 0;
-        for (String ignored : columns[0].split(";")) {
+        //int index = 0;
+        /*for (String ignored : columns[0].split(";")) {
             if (index == 0) {
                 columnList.add("#Y");
             } else {
                 columnList.add("X" + index);
             }
             index++;
+        }*/
+        for (int index = 0, i = 0; i < columns[0].split(";").length; i++, index++) {
+            if (index == 0) {
+                columnList.add("#Y");
+            } else {
+                columnList.add("X" + index);
+            }
         }
         matrix[0] = columnList.toArray(new String[0]);
 

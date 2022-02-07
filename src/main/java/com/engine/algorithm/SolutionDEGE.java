@@ -23,8 +23,8 @@ public class SolutionDEGE {
     private double[] trainingPrediction;
     private double[] testPrediction;
 
-    private static final String relativeErrorString = "\t"+"Relative error=";
-    private static final String tCostString= "\t"+"Cost=";
+    private static final String RELATIVE_ERROR_STRING = "\t"+"Relative error=";
+    private static final String T_COST_STRING = "\t"+"Cost=";
 
     public double getCost() {
         return cost;
@@ -66,9 +66,9 @@ public class SolutionDEGE {
         }
 
         return "\nModel="+ model + "\n" + "Parameter values=" + parameterValues + "\n" +
-                "Training:\n" + tCostString + cost + "\n" + relativeErrorString + relativeError + "\n" +
+                "Training:\n" + T_COST_STRING + cost + "\n" + RELATIVE_ERROR_STRING + relativeError + "\n" +
                 "\tTraining prediction: ;"+trainPredStr + "\n" +
-                "Test:\n" + tCostString + testCost + "\n" + relativeErrorString + testRelativeError + "\n" +
+                "Test:\n" + T_COST_STRING + testCost + "\n" + RELATIVE_ERROR_STRING + testRelativeError + "\n" +
                 "\tTest prediction: ;"+testPredStr + "\n";
     }
 
@@ -79,7 +79,7 @@ public class SolutionDEGE {
         }
 
         return "\nModel="+ model + "\n" + "Parameter values=" + parameterValues + "\n" +
-                "Evaluation:\n" + tCostString + cost + "\n" + relativeErrorString + relativeError + "\n" +
+                "Evaluation:\n" + T_COST_STRING + cost + "\n" + RELATIVE_ERROR_STRING + relativeError + "\n" +
                 "\tPrediction: ;"+predStr + "\n";
     }
 
