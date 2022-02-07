@@ -53,7 +53,7 @@ public class ModelEvaluator {
             acu += Math.abs(expected[i]- prediction[i]) / Math.abs(expected[i]);
         }
 
-        return acu / (double) prediction.length;
+        return acu / prediction.length;
     }
 
 
@@ -65,7 +65,7 @@ public class ModelEvaluator {
             acu += Math.pow(expected[i]- observed[i], 2);
         }
 
-        return acu / (double) observed.length;
+        return acu / observed.length;
     }
 
 

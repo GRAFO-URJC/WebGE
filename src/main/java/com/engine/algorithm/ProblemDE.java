@@ -17,7 +17,7 @@ public class ProblemDE extends Problem<Variable<Double>> {
     String model;
     String objective;
     String[][] func;
-    public List<String> parameters;
+    private List<String> parameters;
 
     public ProblemDE(int numberOfVariables, double lowerBnd, double upperBnd, String objective, String[][] func, String model,
                      List<String> parameters) {
