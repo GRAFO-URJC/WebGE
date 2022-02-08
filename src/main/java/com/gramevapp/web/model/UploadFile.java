@@ -1,10 +1,11 @@
 package com.gramevapp.web.model;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "UPLOAD_FILE")
-public class UploadFile {
+public class UploadFile implements Serializable {
 
     @Id
     @Column(name = "UPLOAD_FILE_ID")

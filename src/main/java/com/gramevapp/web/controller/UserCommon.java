@@ -138,7 +138,8 @@ public class UserCommon {
                     uploadFile.setFilePath(fileName);
 
                     user.getUserDetails().setProfilePicture(uploadFile);
-                    logger.info("Image Saved::: " + fileName);
+                    String logMessage = "Image Saved::: {}" + fileName;
+                    logger.info(logMessage);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -48,7 +48,7 @@ public class Role implements Serializable {
     }
 
     public String getRole() {
-        return role;
+        return getName();
     }
 
     public void setRole(String role) {

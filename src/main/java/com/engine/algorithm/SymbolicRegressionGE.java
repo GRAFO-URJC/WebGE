@@ -471,15 +471,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         ArrayList<String> columnList = new ArrayList<>();
 
         String[] columns = infoSplit[0].split("\r\n");
-        //int index = 0;
-        /*for (String ignored : columns[0].split(";")) {
-            if (index == 0) {
-                columnList.add("#Y");
-            } else {
-                columnList.add("X" + index);
-            }
-            index++;
-        }*/
+
         for (int index = 0, i = 0; i < columns[0].split(";").length; i++, index++) {
             if (index == 0) {
                 columnList.add("#Y");
