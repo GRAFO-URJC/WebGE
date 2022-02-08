@@ -12,7 +12,7 @@ public class BeanUtil implements ApplicationContextAware {
     private static ApplicationContext context;
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext){
+    public synchronized void setApplicationContext(ApplicationContext applicationContext){
         context = applicationContext;
     }
 

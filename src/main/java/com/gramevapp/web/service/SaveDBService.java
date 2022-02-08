@@ -27,52 +27,45 @@ public class SaveDBService {
     boolean terminate = false;
     boolean terminate2 = false;
 
+    private void takeRunsFromQueue() { //th
+        while(!terminate) {
+            try {
+                if (runsQueue.isEmpty() && th.isInterrupted()) {
+                    return;
+                }
+                runService.saveRun(runsQueue.take());
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                terminate = true;
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    private void takeDiagramsFromQueue() { //th2
+        while(!terminate2) {
+            try {
+                if (diagramDataqueue.isEmpty() && th2.isInterrupted()) {
+                    return;
+                }
+                diagramDataService.saveDiagram(diagramDataqueue.take());
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                terminate2 = true;
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
     @PostConstruct
     public void onInit() {
 
         diagramDataqueue = new ArrayBlockingQueue<>(1000);
         runsQueue = new ArrayBlockingQueue<>(1000);
-        th = new Thread() {
-            @Override
-            public void run() {
-
-                while(!terminate) {
-                    try {
-                        if (runsQueue.isEmpty() && th.isInterrupted()) {
-                            return;
-                        }
-                        runService.saveRun(runsQueue.take());
-
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        terminate = true;
-                        Thread.currentThread().interrupt();
-                    }
-                }
-
-
-            }
-        };
-
-        th2 = new Thread() {
-            @Override
-            public void run() {
-
-                while(!terminate2) {
-                    try {
-                        if (diagramDataqueue.isEmpty() && th2.isInterrupted()) {
-                            return;
-                        }
-                        diagramDataService.saveDiagram(diagramDataqueue.take());
-
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        terminate2 = true;
-                        Thread.currentThread().interrupt();
-                    }
-                }
-            }
-        };
+        th = new Thread(this::takeRunsFromQueue);
+        th2 = new Thread(this::takeDiagramsFromQueue);
 
         th.start();
         th2.start();
@@ -84,7 +77,6 @@ public class SaveDBService {
             diagramDataqueue.put(diagramData);
 
         } catch (InterruptedException e) {
-           // e.printStackTrace();
             Thread.currentThread().interrupt();
         }
     }
@@ -93,8 +85,6 @@ public class SaveDBService {
         try {
             runsQueue.put(run);
         } catch (InterruptedException e) {
-            // e.printStackTrace();
-
             Thread.currentThread().interrupt();
         }
     }
