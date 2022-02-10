@@ -28,8 +28,6 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.engine.util.Common.currentDateTimeAsFormattedString;
-
 /**
  * @author Carlos García Moreno, J. M. Colmenar
  */
@@ -107,115 +105,129 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         }
     }
 
-    @Override
-    public void evaluate(Solution<Variable<Integer>> solution, Phenotype phenotype) {
+    // Method used for refactoring evaluate()
+    private void iterateModel(String model, Set<String> paramIds) {
+        int i = 0;
 
-        if (de) {
-
-            // Parameters are stored in a list according to their position.
-            // The number of elements to be tuned is the number of variables -> size of the list.
-            // In addition, we control that repetition of parameters are not new parameters !
-            HashSet<String> paramIds = new HashSet<>();
-            parameters = new ArrayList<>();
-            int i = 0;
-
-            String model = phenotype.toString();
-            while (i < model.length()) {
-                if (model.charAt(i) == ID_FOR_PARAMS) {
-                    // Parse element:
-                    StringBuilder id = new StringBuilder(ID_FOR_PARAMS + "");
-                    i++;
-                    while ((i < model.length()) && (Character.isDigit(model.charAt(i)))) {
-                        id.append(model.charAt(i));
-                        i++;
-                    }
-                    if (!paramIds.contains(id.toString())) {
-                        parameters.add(id.toString());
-                        paramIds.add(id.toString());
-                    }
-                } else {
+        while (i < model.length()) {
+            if (model.charAt(i) == ID_FOR_PARAMS) {
+                // Parse element:
+                StringBuilder id = new StringBuilder(ID_FOR_PARAMS + "");
+                i++;
+                while ((i < model.length()) && (Character.isDigit(model.charAt(i)))) {
+                    id.append(model.charAt(i));
                     i++;
                 }
+                if (!paramIds.contains(id.toString())) {
+                    parameters.add(id.toString());
+                    paramIds.add(id.toString());
+                }
+            } else {
+                i++;
             }
+        }
+    }
 
-            ProblemDE problem = new ProblemDE(parameters.size(),
-                    Double.valueOf(properties.getProperty(LOWER_BOUND_PROP)),
-                    Double.valueOf(properties.getProperty(UPPER_BOUND_PROP)), objective, func, phenotype.toString(), parameters);
+    // Method used for refactoring evaluate()
+    private void evaluateWithDe(Solution<Variable<Integer>> solution, Phenotype phenotype) {
+        // Parameters are stored in a list according to their position.
+        // The number of elements to be tuned is the number of variables -> size of the list.
+        // In addition, we control that repetition of parameters are not new parameters !
+        HashSet<String> paramIds = new HashSet<>();
+        parameters = new ArrayList<>();
+        String model = phenotype.toString();
 
-            // Optimize model with DE
-            alg = new DifferentialEvolution(problem,
-                    Integer.valueOf(properties.getProperty(POPULATION_DE)),
-                    Integer.valueOf(properties.getProperty(NUM_GENERATIONS_PROP)),
-                    true,
-                    Double.valueOf(properties.getProperty(MUTATION_FACTOR_DE_PROP)),
-                    Double.valueOf(properties.getProperty(RECOMB_FACTOR_PROP)));
+        // func
+        iterateModel(model, paramIds);
+
+        ProblemDE problem = new ProblemDE(parameters.size(),
+                Double.parseDouble(properties.getProperty(LOWER_BOUND_PROP)),
+                Double.parseDouble(properties.getProperty(UPPER_BOUND_PROP)), objective, func, phenotype.toString(), parameters);
+
+        // Optimize model with DE
+        alg = new DifferentialEvolution(problem,
+                Integer.valueOf(properties.getProperty(POPULATION_DE)),
+                Integer.valueOf(properties.getProperty(NUM_GENERATIONS_PROP)),
+                true,
+                Double.valueOf(properties.getProperty(MUTATION_FACTOR_DE_PROP)),
+                Double.valueOf(properties.getProperty(RECOMB_FACTOR_PROP)));
+        try {
+            alg.initialize();
+        } catch (Exception e) {
+            logger.info(e.toString());
+        }
+
+
+        if (!stop) {
+            Solution<Variable<Double>> best = alg.execute().get(0);
+            // Store objective
+            double obj = best.getObjective(0);
+            solution.getObjectives().set(0, obj);
+
+
+            if (obj < bestSolution.getCost()) {
+                bestSolution.setCost(obj);
+                bestSolution.setModel(phenotype.toString());
+                HashMap<String, Double> parameterValues = new HashMap<>(best.getVariables().size());
+                // Include the values of the parameters:
+                for (int j = 0; j < best.getVariables().size(); j++) {
+                    parameterValues.put(parameters.get(j), best.getVariable(j).getValue());
+                }
+                bestSolution.setParameterValues(parameterValues);
+            }
+        }
+    }
+
+    // Method used for refactoring evaluate()
+    private void evaluateWithoutDe(Solution<Variable<Integer>> solution, Phenotype phenotype) {
+        String originalFunction = phenotype.toString();
+
+        //Create array of prediction
+        String[] prediction = new String[func.length];
+        prediction[0] = originalFunction;
+
+        //Evaluation from phenotype
+        for (int i = 1; i < func.length; i++) {
+            String currentFunction = calculateFunctionValued(originalFunction, i);
+            Double funcI;
+
+            Expression e = new ExpressionBuilder(currentFunction).build();
             try {
-                alg.initialize();
-            } catch (Exception e) {
-                logger.info(e.toString());
-            }
-
-
-            if (!stop) {
-                Solution<Variable<Double>> best = alg.execute().get(0);
-                // Store objective
-                double obj = best.getObjective(0);
-                solution.getObjectives().set(0, obj);
-
-
-                if (obj < bestSolution.getCost()) {
-                    bestSolution.setCost(obj);
-                    bestSolution.setModel(phenotype.toString());
-                    HashMap<String, Double> parameterValues = new HashMap<>(best.getVariables().size());
-                    // Include the values of the parameters:
-                    for (int j = 0; j < best.getVariables().size(); j++) {
-                        parameterValues.put(parameters.get(j), best.getVariable(j).getValue());
-                    }
-                    bestSolution.setParameterValues(parameterValues);
-                }
-            }
-
-        } else {
-            String originalFunction = phenotype.toString();
-
-            //Create array of prediction
-            String[] prediction = new String[func.length];
-            prediction[0] = originalFunction;
-
-            //Evaluation from phenotype
-            for (int i = 1; i < func.length; i++) {
-                String currentFunction = calculateFunctionValued(originalFunction, i);
-                Double funcI;
-
-                Expression e = new ExpressionBuilder(currentFunction).build();
-                try {
-                    funcI = e.evaluate();
-                    if (funcI.isNaN()) {
-                        funcI = Double.POSITIVE_INFINITY;
-                    }
-                } catch (IllegalArgumentException ex) {
-                    illegalArgumentException = ex;
-                    failed = true;
-                    this.stopExecution();
+                funcI = e.evaluate();
+                if (funcI.isNaN()) {
                     funcI = Double.POSITIVE_INFINITY;
                 }
-                //Add to prediction array the evaluation calculated
-                prediction[i] = String.valueOf(funcI);
-                solution.getProperties().put(String.valueOf(i), funcI);
-            }
-
-            try {
-                double fValue = ModelEvaluator.calculateObjective(func, prediction, objective);
-                if (Double.isNaN(fValue)) {
-                    solution.getObjectives().set(0, Double.POSITIVE_INFINITY);
-                } else {
-                    solution.getObjectives().set(0, fValue);
-
-                }
-            } catch (NumberFormatException e) {
+            } catch (IllegalArgumentException ex) {
+                illegalArgumentException = ex;
                 failed = true;
-                numberFormatException = e;
+                this.stopExecution();
+                funcI = Double.POSITIVE_INFINITY;
             }
+            //Add to prediction array the evaluation calculated
+            prediction[i] = String.valueOf(funcI);
+            solution.getProperties().put(String.valueOf(i), funcI);
+        }
+
+        try {
+            double fValue = ModelEvaluator.calculateObjective(func, prediction, objective);
+            if (Double.isNaN(fValue)) {
+                solution.getObjectives().set(0, Double.POSITIVE_INFINITY);
+            } else {
+                solution.getObjectives().set(0, fValue);
+
+            }
+        } catch (NumberFormatException e) {
+            failed = true;
+            numberFormatException = e;
+        }
+    }
+
+    @Override
+    public void evaluate(Solution<Variable<Integer>> solution, Phenotype phenotype) {
+        if(de) {
+            evaluateWithDe(solution, phenotype);
+        } else {
+            evaluateWithoutDe(solution, phenotype);
         }
     }
 
