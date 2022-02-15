@@ -279,6 +279,82 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         return new SymbolicRegressionGE(properties, this.numberOfObjectives, objective, de);
     }
 
+    private void addToExecutionReport(double time) {
+        executionReport.add(solutions.get(0).getObjective(0) + ";" + this.generatePhenotype(solutions.get(0)).toString() + ";" + time);
+        if (bestSolution.getModel() != null) {
+            for (int j = 0; j <= (this.vars.size()); j++) {
+                String currentWeight = "w" + j;
+                if (bestSolution.getParameterValues().get(currentWeight) != null) {
+                    executionReport.add(currentWeight + "= " + bestSolution.getParameterValues().get(currentWeight) + ";");
+                }
+            }
+        }
+    }
+
+    private void startExecutions(int numExecutions, Run run, SaveDBService saveDBService, RunService runService, int numObjectives, List<String> log) {
+        int i = 0;
+        stop = false;
+        while (!stop && (i < numExecutions)) {
+
+            double startTime = new Date().getTime();
+            try {
+                algorithm.initialize();
+            } catch (Exception e) {
+                logger.log(Level.INFO,"{0} Incorrect grammar",e.toString());
+                run = runService.findByRunId(run.getId());
+                run.setStatus(Run.Status.FAILED);
+                saveDBService.saveRunAsync(run);
+                return;
+            }
+            solutions = algorithm.execute();
+            if (failed) {
+                handleFailed();
+            }
+            logger.log(Level.INFO,"Run #{0}", i);
+            logger.info("========");
+            double time = (new Date().getTime() - startTime) / 1000;
+            logger.log(Level.INFO,"Execution time: {0} seconds.",time);
+
+            executionReport.clear();
+
+            if (numObjectives == 2) {
+                for (Solution<Variable<Integer>> s : solutions) {
+                    executionReport.add(s.getObjective(0) + " " + s.getObjective(1) + ";" + this.generatePhenotype(s).toString() + ";" + time);
+                }
+
+            } else {
+                addToExecutionReport(time);
+                // Just for interrupted executions:
+                logger.log(Level.INFO,"@@;{0}",this.generatePhenotype(solutions.get(0)));
+            }
+
+            for (String s : executionReport) {
+                log.add(i + 1 + ";" + s);
+            }
+
+            i++;
+        }
+    }
+
+    private void handleFailed() {
+        if (illegalArgumentException != null) {
+            logger.log(Level.INFO,"{0} Incorrect grammar",illegalArgumentException.toString());
+        }
+        if (numberFormatException != null) {
+            logger.log(Level.INFO,"{0} target duplicate in dataset",numberFormatException.toString());
+        }
+    }
+
+    private void updateAlgorithmFromNumObjetives(int numObjectives, RunGeObserver obs, double mutationProb, double crossOverProb, int tournamentSize) {
+        if (numObjectives == 2) { //+
+            algorithm = new MultiObjectiveGrammaticalEvolution(this, Integer.parseInt(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.parseInt(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), mutationProb, crossOverProb, tournamentSize);
+        } else {
+            algorithm = new SimpleGrammaticalEvolution(this, Integer.parseInt(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.parseInt(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), mutationProb, crossOverProb);
+        }
+        if (obs != null) {
+            algorithm.addObserver(obs);
+        }
+    }
 
     /**
      * Method to run the GE algorithm with the provided properties.
@@ -294,29 +370,6 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         int entries = func.length-1;
         logger.log(Level.INFO,"Training set input variables: {0}",numVars);
         logger.log(Level.INFO,"Training set entries: {0}\n",entries);
-
-        // Log population:
-        int logPopulation = Integer.parseInt(properties.getProperty(com.engine.util.Common.LOG_POPULATION_PROP));
-        if (logPopulation > 0) {
-            // Report the elements that are logged:
-            StringBuilder buffer = new StringBuilder("Reported stats;;");
-            if ((logPopulation & LOG_GENOTYPE_MASK) == LOG_GENOTYPE_MASK) {
-                buffer.append("Genotype;");
-            }
-            if ((logPopulation & LOG_USED_GENES_MASK) == LOG_USED_GENES_MASK) {
-                buffer.append("Used genes;");
-            }
-            if ((logPopulation & LOG_FITNESS_MASK) == LOG_FITNESS_MASK) {
-                buffer.append("Fitness;");
-            }
-            if ((logPopulation & LOG_PHENOTYPE_MASK) == LOG_PHENOTYPE_MASK) {
-                buffer.append("Phenotype;");
-            }
-            if ((logPopulation & LOG_EVALUATION_MASK) == LOG_EVALUATION_MASK) {
-                buffer.append("Evaluation;");
-            }
-            buffer.append("\n");
-        }
 
         int numObjectives = 1;
         if ((properties.getProperty(com.engine.util.Common.OBJECTIVES_PROP) != null)
@@ -342,14 +395,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         // Set weight for CEG penalty
         UtilStats.setCEGPenalties(properties);
 
-        if (numObjectives == 2) {
-            algorithm = new MultiObjectiveGrammaticalEvolution(this, Integer.parseInt(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.parseInt(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), mutationProb, crossOverProb, tournamentSize);
-        } else {
-            algorithm = new SimpleGrammaticalEvolution(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), mutationProb, crossOverProb);
-        }
-        if (obs != null) {
-            algorithm.addObserver(obs);
-        }
+        updateAlgorithmFromNumObjetives(numObjectives, obs, mutationProb, crossOverProb, tournamentSize);
 
         int numExecutions = 1;
         if (properties.getProperty(com.engine.util.Common.NUM_EXECUTIONS) != null) {
@@ -358,63 +404,8 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
         ArrayList<String> log = new ArrayList<>();
 
-        int i = 0;
-        stop = false;
-        while (!stop && (i < numExecutions)) {
-
-            double startTime = new Date().getTime();
-            try {
-                algorithm.initialize();
-            } catch (Exception e) {
-                logger.log(Level.INFO,"{0} Incorrect grammar",e.toString());
-                run = runService.findByRunId(run.getId());
-                run.setStatus(Run.Status.FAILED);
-                saveDBService.saveRunAsync(run);
-                return;
-            }
-            solutions = algorithm.execute();
-            if (failed) {
-                if (illegalArgumentException != null) {
-                    logger.log(Level.INFO,"{0} Incorrect grammar",illegalArgumentException.toString());
-                }
-                if (numberFormatException != null) {
-                    logger.log(Level.INFO,"{0} target duplicate in dataset",numberFormatException.toString());
-                }
-            }
-            logger.log(Level.INFO,"Run #{0}", i);
-            logger.info("========");
-            double time = (new Date().getTime() - startTime) / 1000;
-            logger.log(Level.INFO,"Execution time: {0} seconds.",time);
-
-            executionReport.clear();
-
-            if (numObjectives == 2) {
-                for (Solution<Variable<Integer>> s : solutions) {
-                    executionReport.add(s.getObjective(0) + " " + s.getObjective(1) + ";" + this.generatePhenotype(s).toString() + ";" + time);
-                }
-
-            } else {
-                executionReport.add(solutions.get(0).getObjective(0) + ";" + this.generatePhenotype(solutions.get(0)).toString() + ";" + time);
-                if (bestSolution.getModel() != null) {
-                    for (int j = 0; j <= (this.vars.size()); j++) {
-                        String currentWeight = "w" + j;
-                        if (bestSolution.getParameterValues().get(currentWeight) != null) {
-
-                            executionReport.add(currentWeight + "= " + bestSolution.getParameterValues().get(currentWeight) + ";");
-                        }
-                    }
-
-                }
-                // Just for interrupted executions:
-                logger.log(Level.INFO,"@@;{0}",this.generatePhenotype(solutions.get(0)));
-            }
-
-            for (String s : executionReport) {
-                log.add(i + 1 + ";" + s);
-            }
-
-            i++;
-        }
+        // refactor method
+        startExecutions(numExecutions, run, saveDBService, runService, numObjectives, log);
 
         System.out.flush();
         System.err.flush();
