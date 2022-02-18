@@ -1,11 +1,8 @@
 package com.gramevapp.web.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.gramevapp.web.other.BeanUtil;
 import com.gramevapp.web.other.DateFormat;
-import com.gramevapp.web.service.ExperimentService;
 import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.context.ApplicationContext;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -166,8 +163,6 @@ public class Experiment {
 
     public void setDefaultExpDataType(Long defaultExpDataTypeId) {
         this.defaultExpDataType = defaultExpDataTypeId;
-        ApplicationContext context = BeanUtil.getAppContext();
-        ExperimentService experimentService = (ExperimentService) context.getBean("experimentService");
     }
 
     public List<Run> getIdRunList() {

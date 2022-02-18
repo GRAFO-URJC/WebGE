@@ -47,42 +47,49 @@ public class DataSetController {
                 experimentDataTypeListInUse.add(experimentService.findExperimentDataTypeById(experiment.getDefaultTestExpDataTypeId()));
             }
         }
-
-        for (Dataset experimentDataType : datasetList) {
-            disabled.add(experimentDataTypeListInUse.contains(experimentDataType));
-            StringBuilder stringBuilder = new StringBuilder();
-            String info = experimentDataType.getInfo();
-            List<String> currentDataset = new ArrayList<>();
-            if (info != null && !info.equals("")) {
-                int maxSize = info.split("\\n").length / 35;
-                if (maxSize == 0) {
-                    maxSize = 12;
-                }
-                int count = 0;
-                for (int i = 0; i < info.length(); i++) {
-                    if (info.charAt(i) == '\n') {
-                        count++;
-                    } else {
-                        stringBuilder.append(info.charAt(i));
-                    }
-                    if (count == maxSize) {
-                        currentDataset.add(stringBuilder.toString());
-                        count = 0;
-                        stringBuilder = new StringBuilder();
-                    }
-                }
-                if (count != 0 && !stringBuilder.toString().equals("\r") && !stringBuilder.toString().equals("\n")) {
-                    currentDataset.add(stringBuilder.toString());
-                }
-            }
-            datasetInformation.add(currentDataset);
-        }
+        setDatasetInfo(datasetList, disabled, datasetInformation, experimentDataTypeListInUse);
 
         model.addAttribute("datasetList", datasetList);
         model.addAttribute("datasetListDisabled", disabled);
         model.addAttribute("datasetInformationList", datasetInformation);
 
         return "dataset/datasetRepository";
+    }
+
+    private void setDatasetInfo(List<Dataset> datasetList, List<Boolean> disabled, List<List<String>> datasetInformation, HashSet<Dataset> experimentDataTypeListInUse) {
+        for (Dataset experimentDataType : datasetList) {
+            disabled.add(experimentDataTypeListInUse.contains(experimentDataType));
+            StringBuilder stringBuilder = new StringBuilder();
+            String info = experimentDataType.getInfo();
+            List<String> currentDataset = new ArrayList<>();
+            if (info != null && !info.equals("")) {
+                generateInfo(stringBuilder, info, currentDataset);
+            }
+            datasetInformation.add(currentDataset);
+        }
+    }
+
+    private void generateInfo(StringBuilder stringBuilder, String info, List<String> currentDataset) {
+        int maxSize = info.split("\\n").length / 35;
+        if (maxSize == 0) {
+            maxSize = 12;
+        }
+        int count = 0;
+        for (int i = 0; i < info.length(); i++) {
+            if (info.charAt(i) == '\n') {
+                count++;
+            } else {
+                stringBuilder.append(info.charAt(i));
+            }
+            if (count == maxSize) {
+                currentDataset.add(stringBuilder.toString());
+                count = 0;
+                stringBuilder = new StringBuilder();
+            }
+        }
+        if (count != 0 && !stringBuilder.toString().equals("\r") && !stringBuilder.toString().equals("\n")) {
+            currentDataset.add(stringBuilder.toString());
+        }
     }
 
     @RequestMapping(value = "/dataset/datasetDetail")

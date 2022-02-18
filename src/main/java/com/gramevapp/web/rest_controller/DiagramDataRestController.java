@@ -1,4 +1,4 @@
-package com.gramevapp.web.restController;
+package com.gramevapp.web.rest_controller;
 
 import com.gramevapp.web.model.DiagramData;
 import com.gramevapp.web.model.DiagramDataDto;

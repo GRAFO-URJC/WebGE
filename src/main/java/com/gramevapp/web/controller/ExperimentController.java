@@ -34,7 +34,7 @@ public class ExperimentController {
     private static final String LOGGER_BASE_PATH = "resources/files/logs/population";
 
     Logger logger = Logger.getLogger(ExperimentController.class.getName());
-    private final static String CONFIGEXPERIMENTPATH = "experiment/configExperiment";
+    private static final String CONFIGEXPERIMENTPATH = "experiment/configExperiment";
     @Autowired
     private ExperimentService experimentService;
 

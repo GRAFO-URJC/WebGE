@@ -17,6 +17,7 @@ import javax.validation.Valid;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Collections;
 
 @Controller
 public class UserController extends UserCommon {
@@ -126,13 +127,13 @@ public class UserController extends UserCommon {
             model.addAttribute("userStudy", upStudyDto);
             model.addAttribute(USERBASICINFO, upBasicDto);
             model.addAttribute(USERLOGGED, user);
-            return REDIRECTPROFILE;
-        }
-        user.getUserDetails().setAboutMe(userUpDto.getAboutMe());
-        userService.save(user);
+        } else {
+            user.getUserDetails().setAboutMe(userUpDto.getAboutMe());
+            userService.save(user);
 
-        redirectAttrs.addAttribute(MESSAGE, "About me information area updated").addFlashAttribute("aboutMe", "About me area");
-        redirectAttrs.addAttribute(AREAACTIVE, "aboutMeActive").addFlashAttribute("aboutMeActive", "Activate About me area");
+            redirectAttrs.addAttribute(MESSAGE, "About me information area updated").addFlashAttribute("aboutMe", "About me area");
+            redirectAttrs.addAttribute(AREAACTIVE, "aboutMeActive").addFlashAttribute("aboutMeActive", "Activate About me area");
+        }
         return REDIRECTPROFILE;
     }
 
@@ -181,7 +182,7 @@ public class UserController extends UserCommon {
         if (new File(profilePicture).exists()) {
             return IOUtils.toByteArray(new FileInputStream(profilePicture));
         } else {
-            return null;
+            return new byte[1];
         }
     }
 }
