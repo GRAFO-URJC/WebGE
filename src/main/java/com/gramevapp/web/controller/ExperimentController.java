@@ -74,6 +74,12 @@ public class ExperimentController {
     private static final String RUNID = "runId";
     private static final String RUNLIST = "runList";
     private static final String RUN = "run";
+    private static final String LISTYLINE = "listYLine";
+    private static final String LISTFUNCTIONRESULT = "listFunctionResult";
+    private static final String TRAININGRESULT = "trainingResult";
+    private static final String TESTRESULT = "testResult";
+    private static final String TESTLISTYLINE = "testListYLine";
+    private static final String TESTLISTFUNCTIONRESULT = "testListFunctionResult";
 
     private void modelAddData(Model model, User user, Dataset experimentDataType,
                               List<Dataset> experimentDataTypeList, Long testExperimentDataTypeId) {
@@ -177,7 +183,6 @@ public class ExperimentController {
             try {
                 int i = 0;
                 while (i < threads.size() && !executionCancelled) {
-                    ArrayList<Thread> runThreads = new ArrayList<>();
                     int limit = availableProcessors;
                     if ((threads.size()-i) < availableProcessors) limit = threads.size()-i;
                     // Start threads
@@ -236,7 +241,7 @@ public class ExperimentController {
                                  @RequestParam("testExperimentDataTypeId") String testExperimentDataTypeId,
                                  @ModelAttribute("typeFile") FileModelDto fileModelDto,
                                  @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
-                                 BindingResult result) throws IOException {
+                                 BindingResult result) {
 
         User user = userService.getLoggedInUser();
         modelAddData(model, user, null, null, null);
@@ -279,6 +284,7 @@ public class ExperimentController {
                             exp.getCrossoverProb().equals(configExpDto.getCrossoverProb()) &&
                             exp.getPopulationSize().equals(configExpDto.getPopulationSize()) &&
                             exp.getMutationProb().equals(configExpDto.getMutationProb()) &&
+
                             exp.getMaxWraps().equals(configExpDto.getMaxWraps()) &&
                             exp.getTournament().equals(configExpDto.getTournament()) &&
                             exp.getNumberRuns().equals(configExpDto.getNumberRuns()) &&
@@ -378,7 +384,7 @@ public class ExperimentController {
         }
         model.addAttribute("experimentList", lExperiment);
         model.addAttribute("user", user);
-        model.addAttribute("runList", lRuns);
+        model.addAttribute(RUNLIST, lRuns);
 
         return "experiment/experimentRepository";
     }
@@ -487,13 +493,13 @@ public class ExperimentController {
 
         HashMap<String, List<Double>> results = collectTrainingAndTestStats(run,true);
 
-        List<Double> listYLine = results.get("listYLine");
-        List<Double> listFunctionResult = results.get("listFunctionResult");
-        List<Double> trainingResult = results.get("trainingResult");
+        List<Double> listYLine = results.get(LISTYLINE);
+        List<Double> listFunctionResult = results.get(LISTFUNCTIONRESULT);
+        List<Double> trainingResult = results.get(TRAININGRESULT);
 
         model.addAttribute(EXPDETAILS, run.getExperimentId());
-        model.addAttribute("listYLine", listYLine);
-        model.addAttribute("listFunctionResult", listFunctionResult);
+        model.addAttribute(LISTYLINE, listYLine);
+        model.addAttribute(LISTFUNCTIONRESULT, listFunctionResult);
         model.addAttribute("RMSE", trainingResult.get(0));
         model.addAttribute("AvgError", trainingResult.get(1));
         model.addAttribute("RSquare", trainingResult.get(2));
@@ -503,17 +509,17 @@ public class ExperimentController {
         model.addAttribute("model", run.getModel());
 
         if (run.getExperimentId().getDefaultTestExpDataTypeId() != null || run.getExperimentId().isCrossExperiment()) {
-            List<Double> testResult = results.get("testResult");
-            List<Double> testListYLine = results.get("testListYLine");;
-            List<Double> testListFunctionResult = results.get("testListFunctionResult");
+            List<Double> testResult = results.get(TESTRESULT);
+            List<Double> testListYLine = results.get(TESTLISTYLINE);
+            List<Double> testListFunctionResult = results.get(TESTLISTFUNCTIONRESULT);
 
             model.addAttribute("testRMSE", testResult.get(0));
             model.addAttribute("testAvgError", testResult.get(1));
             model.addAttribute("testRSquare", testResult.get(2));
             model.addAttribute("testAbsoluteError", testResult.get(3));
             model.addAttribute("testRelativeError", testResult.get(4));
-            model.addAttribute("testListYLine", testListYLine);
-            model.addAttribute("testListFunctionResult", testListFunctionResult);
+            model.addAttribute(TESTLISTYLINE, testListYLine);
+            model.addAttribute(TESTLISTFUNCTIONRESULT, testListFunctionResult);
 
         } else {
             model.addAttribute("noTest", true);
@@ -559,9 +565,10 @@ public class ExperimentController {
 
         processExperimentDataTypeInfo(splitContent, listYLine, listFunctionResult, trainingResult, run);
 
-        results.put("listYLine",listYLine);
-        results.put("listFunctionResult",listFunctionResult);
-        results.put("trainingResult",trainingResult);
+
+        results.put(LISTYLINE,listYLine);
+        results.put(LISTFUNCTIONRESULT,listFunctionResult);
+        results.put(TRAININGRESULT,trainingResult);
 
 
         if (run.getExperimentId().getDefaultTestExpDataTypeId() != null || considerCrossValidation) {
@@ -575,9 +582,9 @@ public class ExperimentController {
             }
             if (splitContent != null) {
                 processExperimentDataTypeInfo(splitContent, testListYLine, testListFunctionResult, testResult, run);
-                results.put("testListYLine",testListYLine);
-                results.put("testListFunctionResult",testListFunctionResult);
-                results.put("testResult",testResult);
+                results.put(TESTLISTYLINE,testListYLine);
+                results.put(TESTLISTFUNCTIONRESULT,testListFunctionResult);
+                results.put(TESTRESULT,testResult);
             }
         }
 
@@ -618,7 +625,7 @@ public class ExperimentController {
         result.add(ModelEvaluator.computeRelativeError(yDoubleArray, functionResultDoubleArray));
     }
 
-    private Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier, String objective, boolean DE) throws IOException {
+    private Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) throws IOException {
         File propertiesFile = new File(propPath);
         Properties properties = new Properties();
 
@@ -631,11 +638,12 @@ public class ExperimentController {
 
         RunnableExpGramEv obj = new RunnableExpGramEv(properties, run,
                 experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService,
-                saveDBService, crossRunIdentifier, objective, DE);
+                saveDBService, crossRunIdentifier, objective, de);
         Thread.UncaughtExceptionHandler h = (th, ex) -> {
             run.setStatus(Run.Status.FAILED);
             run.setExecReport(run.getExecReport() + "\nUncaught exception: " + ex);
-            logger.warning("Uncaught exception: " + ex);
+            String warningMsg = "Uncaught exception: " + ex;
+            logger.warning(warningMsg);
         };
         Thread th = new Thread(obj);
         th.setUncaughtExceptionHandler(h);
@@ -653,10 +661,9 @@ public class ExperimentController {
                                       ConfigExperimentDto configExpDto, User user, String grammarFilePath,
                                       String dataTypeDirectoryPath, Dataset expDataType) throws IOException {
         File propertiesNewFile = new File(propertiesFilePath);
-        if (!propertiesNewFile.exists()) {
-            if (!propertiesNewFile.createNewFile()) {
-                logger.log(Level.SEVERE,"Cannot create properties file at "+propertiesFilePath);
-            }
+        if ((!propertiesNewFile.exists()) && (!propertiesNewFile.createNewFile())) {
+            String logMsg = "Cannot create properties file at "+propertiesFilePath;
+            logger.log(Level.SEVERE, logMsg);
         }
         PrintWriter propertiesWriter = new PrintWriter(propertiesNewFile);
 
@@ -711,10 +718,8 @@ public class ExperimentController {
                 grammarRepository.getNextValue() + ".bnf";
 
         File grammarNewFile = new File(grammarFilePath);
-        if (!grammarNewFile.exists()) {
-            if (!grammarNewFile.createNewFile()) {
-                logger.log(Level.SEVERE, "Grammar file could not be created at {0}",grammarFilePath);
-            }
+        if((!grammarNewFile.exists()) && (!grammarNewFile.createNewFile())) {
+            logger.log(Level.SEVERE, "Grammar file could not be created at {0}",grammarFilePath);
         }
 
         PrintWriter grammarWriter = new PrintWriter(grammarNewFile);
@@ -993,7 +998,7 @@ public class ExperimentController {
             HashMap<String, List<Double>> results = collectTrainingAndTestStats(run,true);
 
             if (run.getModel() != null && !run.getModel().isEmpty()) {
-                List<Double> trainingResult = results.get("trainingResult");
+                List<Double> trainingResult = results.get(TRAININGRESULT);
                 runResultsDto.getTrainingRMSE()[index] = trainingResult.get(0);
                 runResultsDto.getTrainingAVG()[index] = trainingResult.get(1);
                 runResultsDto.getTrainingR2()[index] = trainingResult.get(2);
@@ -1001,7 +1006,7 @@ public class ExperimentController {
                 runResultsDto.getTrainingRel()[index] = trainingResult.get(4);
 
                 if (haveTest || experiment.isCrossExperiment()) {
-                    List<Double> testResult = results.get("testResult");
+                    List<Double> testResult = results.get(TESTRESULT);
                     runResultsDto.getTestRMSE()[index] = testResult.get(0);
                     runResultsDto.getTestAVG()[index] = testResult.get(1);
                     runResultsDto.getTestR2()[index] = testResult.get(2);
@@ -1044,21 +1049,21 @@ public class ExperimentController {
             HashMap<String, List<Double>> results = collectTrainingAndTestStats(run,false);
 
             if (trainingTarget == null) {
-                trainingTarget = results.get("listYLine");
+                trainingTarget = results.get(LISTYLINE);
             }
 
             if (run.getModel() != null && !run.getModel().isEmpty()) {
 
                 models.add(run.getModel());
-                trainingPreds.add(results.get("listFunctionResult"));
-                trainingStats.add(results.get("trainingResult"));
+                trainingPreds.add(results.get(LISTFUNCTIONRESULT));
+                trainingStats.add(results.get(TRAININGRESULT));
 
                 if (haveTest) {
                     if (testTarget == null) {
-                        testTarget = results.get("testListYLine");
+                        testTarget = results.get(TESTLISTYLINE);
                     }
-                    testPreds.add(results.get("testListFunctionResult"));
-                    testStats.add(results.get("testResult"));
+                    testPreds.add(results.get(TESTLISTFUNCTIONRESULT));
+                    testStats.add(results.get(TESTRESULT));
                 }
             }
         }
@@ -1079,7 +1084,7 @@ public class ExperimentController {
     }
 
     private String[][] fillInResultsAndStats(String label,List<Double> target, List<List<Double>> predictions, List<List<Double>> stats, ArrayList<String> models) {
-        if (target == null) return null;
+        if (target == null) return new String[0][0];
         String[][] results = new String[target.size()+6][models.size()+1];
         results[0][0] = label + "Target";
         for (int i=1; i <= target.size(); i++)
