@@ -33,7 +33,6 @@ public class ExperimentController {
     private static HashMap<Long, RunnableExpGramEv> runnables = new HashMap<>();
     private static final String LOGGER_BASE_PATH = "resources/files/logs/population";
 
-    //private LegacyExperimentRunnerService legacyExperimentRunnerService;
 
     Logger logger = Logger.getLogger(ExperimentController.class.getName());
     private static final String CONFIGEXPERIMENTPATH = "experiment/configExperiment";
@@ -56,7 +55,14 @@ public class ExperimentController {
     @Autowired
     private SaveDBService saveDBService;
 
-    private boolean executionCancelled;
+    //private boolean executionCancelled;
+
+
+    /*private LegacyExperimentRunnerService legacyExperimentRunnerService =
+            new LegacyExperimentRunnerService(experimentService, saveDBService, threadMap, runService, threadRunMap, runnables);*/
+    @Autowired
+    private LegacyExperimentRunnerService legacyExperimentRunnerService;
+
 
     @ModelAttribute
     public FileModelDto fileModel() {
@@ -165,7 +171,7 @@ public class ExperimentController {
         Run run;
         String propPath;
 
-        List<Thread> threads = new ArrayList<>();
+        //List<Thread> threads = new ArrayList<>();
 
 
         //check if need to run more runs
@@ -181,13 +187,15 @@ public class ExperimentController {
             int crossRunIdentifier = exp.isCrossExperiment() ? run.getExperimentId().getIdRunList().indexOf(run) + 1 : -1;
 
             // llamada al service nuevo here..
-            //
+            legacyExperimentRunnerService.accept(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe());
             //threads.add(runExperimentDetails(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe()));
 
         }
         experimentService.saveExperiment(exp);
-        executionCancelled = false;
+        //executionCancelled = false;
+        legacyExperimentRunnerService.setExecutionCancelled(false);
 
+        /*
         // Use half of the available processors.
         int availableProcessors = Runtime.getRuntime().availableProcessors() / 2;
 
@@ -212,7 +220,9 @@ public class ExperimentController {
             }
         });
 
-        thread.start();
+        thread.start();*/
+        // start experiment
+        legacyExperimentRunnerService.startExperiment();
 
         redirectAttrs.addAttribute("id", exp.getId());
         redirectAttrs.addAttribute("loadExperimentButton", "loadExperimentButton");
@@ -859,7 +869,8 @@ public class ExperimentController {
     @ResponseBody
     public boolean ajaxStopAllRunsExperiment(@RequestParam("expId") Long expId) throws InterruptedException {
 
-        this.executionCancelled = true;
+        //this.executionCancelled = true;
+        legacyExperimentRunnerService.setExecutionCancelled(true);
         Experiment experiment = experimentService.findExperimentById(expId);
         List<Run> runList = experiment.getIdRunList();
         for (Run run : runList) {

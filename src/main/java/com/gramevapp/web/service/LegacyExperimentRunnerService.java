@@ -1,7 +1,9 @@
 package com.gramevapp.web.service;
 
 import com.engine.algorithm.RunnableExpGramEv;
+import com.gramevapp.web.model.ConfigExperimentDto;
 import com.gramevapp.web.model.Run;
+import org.codehaus.groovy.transform.SourceURIASTTransformation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +17,7 @@ import java.util.logging.Logger;
 
 import static com.engine.util.Common.TRAINING_PATH_PROP;
 
-@Service
+@Service("legacyExperimentRunnerService")
 public class LegacyExperimentRunnerService implements ExperimentRunner{
 
     private List<Thread> threads;
@@ -26,6 +28,7 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
     private RunService runService;
     private Map<String, Long> threadRunMap;
     private Map<Long, RunnableExpGramEv> runnables;
+    private boolean executionCancelled;
 
 
 
@@ -43,12 +46,47 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
         this.runnables = runnables;
     }
 
+    public void setExecutionCancelled(boolean newStatus) { this.executionCancelled = newStatus; }
+
     @Override
-    public void accept(Run run) {
-        //threads.add(runExperimentDetails(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe()));
+    public void accept(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) {
+        try {
+            System.out.println("ACEPTOOO");
+            threads.add(runExperimentDetails(run, propPath, crossRunIdentifier, objective, de));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    // Metodos del controller, con mas argumentos
+    public void startExperiment() {
+        // Use half of the available processors.
+        System.out.println("EMPIEZO 1");
+        int availableProcessors = Runtime.getRuntime().availableProcessors() / 2;
+
+        Thread thread = new Thread(() -> {
+            try {
+                int i = 0;
+                while (i < threads.size() && !executionCancelled) {
+                    int limit = availableProcessors;
+                    if ((threads.size()-i) < availableProcessors) limit = threads.size()-i;
+                    // Start threads
+                    for (int j = i; j < i+limit; j++) {
+                        System.out.println("HE LANZADO UNO");
+                        threads.get(j).start();
+                    }
+                    // Wait for them
+                    for (int j = i; j < i+limit; j++) {
+                        threads.get(j).join();
+                    }
+                    i += limit;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        System.out.println("LANZO CREADOR");
+        thread.start();
+    }
 
     private Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) throws IOException {
 
@@ -81,4 +119,6 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
 
         return th;
     }
+
+
 }
