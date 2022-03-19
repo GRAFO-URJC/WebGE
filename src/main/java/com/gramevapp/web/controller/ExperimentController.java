@@ -28,13 +28,16 @@ import static com.engine.util.Common.TRAINING_PATH_PROP;
 @Controller
 public class ExperimentController {
 
-    private HashMap<Long, Thread> threadMap = new HashMap<>();
+    private Map<Long, Thread> threadMap = new HashMap<>();
     private static HashMap<String, Long> threadRunMap = new HashMap<>();
     private static HashMap<Long, RunnableExpGramEv> runnables = new HashMap<>();
     private static final String LOGGER_BASE_PATH = "resources/files/logs/population";
 
+    //private LegacyExperimentRunnerService legacyExperimentRunnerService;
+
     Logger logger = Logger.getLogger(ExperimentController.class.getName());
     private static final String CONFIGEXPERIMENTPATH = "experiment/configExperiment";
+
     @Autowired
     private ExperimentService experimentService;
 
@@ -59,6 +62,12 @@ public class ExperimentController {
     public FileModelDto fileModel() {
         return new FileModelDto();
     }
+
+    // constructor para el controller que he creado ahora
+    /*@Autowired
+    public ExperimentController(LegacyExperimentRunnerService legacyExperimentRunnerService) {
+        this.legacyExperimentRunnerService = legacyExperimentRunnerService;
+    }*/
 
     private static final String RESOURCES = "resources";
     private static final String FILES = "files";
@@ -170,7 +179,10 @@ public class ExperimentController {
                     user, expDataType, grammarFilePath);
             // Run experiment in new thread
             int crossRunIdentifier = exp.isCrossExperiment() ? run.getExperimentId().getIdRunList().indexOf(run) + 1 : -1;
-            threads.add(runExperimentDetails(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe()));
+
+            // llamada al service nuevo here..
+            //
+            //threads.add(runExperimentDetails(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe()));
 
         }
         experimentService.saveExperiment(exp);
