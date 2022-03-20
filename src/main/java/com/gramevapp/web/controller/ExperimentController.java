@@ -968,7 +968,7 @@ public class ExperimentController {
 
     @PostConstruct
     public void initSystemStream() {
-        String messageSkip = "\u001B[0;39m \u001B[36mc.engine.algorithm.SymbolicRegressionGE \u001B[0;39m \u001B[2m:\u001B[0;39m ";
+        /*String messageSkip = "\u001B[0;39m \u001B[36mc.engine.algorithm.SymbolicRegressionGE \u001B[0;39m \u001B[2m:\u001B[0;39m ";
         System.setOut(new PrintStream(System.out) {
             @Override
             public void write(byte[] buf, int off, int len) {
@@ -1013,7 +1013,8 @@ public class ExperimentController {
 
                 super.write(buf, off, len);
             }
-        });
+        });*/
+        legacyExperimentRunnerService.initSystemStream();
     }
 
     /**

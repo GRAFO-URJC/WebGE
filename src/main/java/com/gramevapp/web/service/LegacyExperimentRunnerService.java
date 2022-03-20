@@ -16,6 +16,8 @@ import java.util.*;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.engine.util.Common.TRAINING_PATH_PROP;
 
@@ -289,5 +291,52 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
         propertiesWriter.println("MutationFactorDE=" + configExpDto.getMutationFactorDE());
         propertiesWriter.println("PopulationSizeDE=" + configExpDto.getPopulationDE());
         propertiesWriter.close();
+    }
+
+    public void initSystemStream() {
+        String messageSkip = "\u001B[0;39m \u001B[36mc.engine.algorithm.SymbolicRegressionGE \u001B[0;39m \u001B[2m:\u001B[0;39m ";
+        System.setOut(new PrintStream(System.out) {
+            @Override
+            public void write(byte[] buf, int off, int len) {
+                //Convert byte[] to String
+                String logInfo = new String(buf);
+                if (logInfo.contains("j.c.algorithm.ga.SimpleGeneticAlgorithm") ||
+                        logInfo.contains("c.engine.algorithm.SymbolicRegressionGE")) {
+                    String infoFormatted = "";
+                    Pattern pattern =
+                            Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}");
+                    Matcher matcher = pattern.matcher(logInfo);
+                    if (matcher.find()) {
+                        infoFormatted += matcher.group() + (logInfo.contains("j.c.algorithm.ga.SimpleGeneticAlgorithm") ?
+                                " j.c.algorithm.ga.SimpleGeneticAlgorithm :" : " c.engine.algorithm.SymbolicRegressionGE :");
+                    }
+                    pattern =
+                            Pattern.compile("[0-9]{1,3}% performed.*$");
+                    matcher = pattern.matcher(logInfo);
+
+                    if (matcher.find()) {
+                        //j.c.algorithm.ga.SimpleGeneticAlgorithm
+                        infoFormatted += matcher.group() + "\r\n";
+                    } else {
+                        //c.engine.algorithm.SymbolicRegressionGE
+                        infoFormatted += logInfo.substring(logInfo.indexOf(messageSkip) + messageSkip.length());
+                    }
+                    pattern =
+                            Pattern.compile("Thread-[0-9]+");
+                    matcher = pattern.matcher(logInfo);
+                    if (matcher.find()) {
+                        String threadName = matcher.group();
+
+                        if (infoFormatted.contains("2m---\u001B[0;39m \u001B[2m[     Thread-")) {
+                            infoFormatted = infoFormatted.replaceAll("2m---\u001B\\[0;39m \u001B\\[2m\\[     Thread-[0-9]+]\u001B\\[0;39m \u001B\\[36mj.c.algorithm.ga.SimpleGeneticAlgorithm \u001B\\[0;39m \u001B\\[2m:\u001B\\[0;39m ", "");
+                        }
+
+                        runService.updateExecutionReport(threadRunMap.get(threadName),infoFormatted);
+
+                    }
+                }
+                super.write(buf, off, len);
+            }
+        });
     }
 }
