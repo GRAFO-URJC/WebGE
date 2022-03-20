@@ -96,7 +96,7 @@ public class ExperimentController {
     private static final String TESTLISTYLINE = "testListYLine";
     private static final String TESTLISTFUNCTIONRESULT = "testListFunctionResult";
 
-    private void modelAddData(Model model, User user, Dataset experimentDataType,
+    /*private void modelAddData(Model model, User user, Dataset experimentDataType,
                               List<Dataset> experimentDataTypeList, Long testExperimentDataTypeId) {
         Dataset testExperimentDataType = testExperimentDataTypeId == null ? null : experimentService.findDataTypeById(testExperimentDataTypeId);
         model.addAttribute("grammarList", grammarRepository.findByUserId(user.getId()));
@@ -104,7 +104,7 @@ public class ExperimentController {
         model.addAttribute("experimentDataType", experimentDataType);
         model.addAttribute("testExperimentDataType", testExperimentDataType);
         model.addAttribute("dataTypeList", experimentDataTypeList);
-    }
+    }*/
 
     @GetMapping("/experiment/configExperiment")
     public String configExperiment(Model model,
@@ -117,7 +117,8 @@ public class ExperimentController {
         model.addAttribute("user", user);
         model.addAttribute("configExp", new ConfigExperimentDto());
         model.addAttribute("disabledClone", true);
-        modelAddData(model, user, null, null, null);
+        //modelAddData(model, user, null, null, null);
+        legacyExperimentRunnerService.modelAddData(model, user, null, null, null, grammarRepository);
 
         return CONFIGEXPERIMENTPATH;
     }
@@ -138,7 +139,8 @@ public class ExperimentController {
                                 RedirectAttributes redirectAttrs) throws IOException {
 
         User user = userService.getLoggedInUser();
-        modelAddData(model, user, null, null, null);
+        //modelAddData(model, user, null, null, null);
+        legacyExperimentRunnerService.modelAddData(model, user, null, null, null, grammarRepository);
 
         // Check the data received
         if (result.hasErrors()) {
@@ -237,8 +239,11 @@ public class ExperimentController {
             dir.mkdirs();
 
         String propertiesFilePath = PROPERTIES_DIR_PATH + user.getId() + File.separator + configExpDto.getExperimentName().replaceAll("\\s+", "") + "_" + UUID.randomUUID() + ".properties";
-        createPropertiesFile(propertiesFilePath, configExpDto.getExperimentName(),
-                configExpDto, user, grammarFilePath, DATATYPE_DIR_PATH + "training\\" + user.getId(), expDataType);  // Write in property file
+
+        /*createPropertiesFile(propertiesFilePath, configExpDto.getExperimentName(),
+                configExpDto, user, grammarFilePath, DATATYPE_DIR_PATH + "training\\" + user.getId(), expDataType);*/  // Write in property file
+        legacyExperimentRunnerService.createPropertiesFile(propertiesFilePath, configExpDto.getExperimentName(),
+                configExpDto, user, grammarFilePath, DATATYPE_DIR_PATH + "training\\" + user.getId(), expDataType);
         // END - Create ExpPropertiesDto file
 
         // Execute program with experiment info
@@ -266,7 +271,8 @@ public class ExperimentController {
                                  BindingResult result) {
 
         User user = userService.getLoggedInUser();
-        modelAddData(model, user, null, null, null);
+        //modelAddData(model, user, null, null, null);
+        legacyExperimentRunnerService.modelAddData(model, user, null, null, null, grammarRepository);
         model.addAttribute(CONFIGURATION, configExpDto);
 
         if (result.hasErrors()) {
@@ -366,9 +372,12 @@ public class ExperimentController {
         experimentService.saveExperiment(exp);
         fillConfigExpDto(configExpDto, exp, exp.getDefaultGrammar(), expDataType, false);
 
-        modelAddData(model, user,
+        /*modelAddData(model, user,
                 experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
-                exp.getIdExpDataTypeList(), testExperimentDataType == null ? null : testExperimentDataType.getId());
+                exp.getIdExpDataTypeList(), testExperimentDataType == null ? null : testExperimentDataType.getId());*/
+        legacyExperimentRunnerService.modelAddData(model, user,
+                experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
+                exp.getIdExpDataTypeList(), testExperimentDataType == null ? null : testExperimentDataType.getId(), grammarRepository);
 
         model.addAttribute(EXPCONFIG, configExpDto);
         model.addAttribute(RUNLIST, runList);
@@ -386,9 +395,12 @@ public class ExperimentController {
 
         model.addAttribute(CONFIGURATION, configExpDto);
         model.addAttribute(EXPCONFIG, configExpDto);
-        modelAddData(model, user,
+        /*modelAddData(model, user,
                 experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
-                null, configExpDto.getTestDefaultExpDataTypeId());
+                null, configExpDto.getTestDefaultExpDataTypeId());*/
+        legacyExperimentRunnerService.modelAddData(model, user,
+                experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
+                null, configExpDto.getTestDefaultExpDataTypeId() ,grammarRepository);
         model.addAttribute("disabledClone", true);
         model.addAttribute("messageClone", "This experiment is cloned and not saved yet.");
 
@@ -428,8 +440,10 @@ public class ExperimentController {
                 exp.getDefaultGrammar(), experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()),
                 false);
 
-        modelAddData(model, user, experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()),
-                exp.getIdExpDataTypeList(), exp.getDefaultTestExpDataTypeId());
+        /*modelAddData(model, user, experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()),
+                exp.getIdExpDataTypeList(), exp.getDefaultTestExpDataTypeId());*/
+        legacyExperimentRunnerService.modelAddData(model, user, experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()),
+                exp.getIdExpDataTypeList(), exp.getDefaultTestExpDataTypeId(), grammarRepository);
         model.addAttribute(CONFIGURATION, configExpDto);
         model.addAttribute("configExp", configExpDto);
         model.addAttribute(RUNLIST, runList);
@@ -513,7 +527,9 @@ public class ExperimentController {
                                              @RequestParam(value = RUNID) String runId) {
         Run run = runService.findByRunId(Long.parseLong(runId));
 
-        HashMap<String, List<Double>> results = collectTrainingAndTestStats(run,true);
+        //HashMap<String, List<Double>> results = collectTrainingAndTestStats(run,true);
+        HashMap<String, List<Double>> results = legacyExperimentRunnerService.collectTrainingAndTestStats(run,true);
+
 
         List<Double> listYLine = results.get(LISTYLINE);
         List<Double> listFunctionResult = results.get(LISTFUNCTIONRESULT);
@@ -551,7 +567,7 @@ public class ExperimentController {
     }
 
 
-    private HashMap<String,List<Double>> collectTrainingAndTestStats(Run run, boolean mustConsiderCrossValidation) {
+    /*private HashMap<String,List<Double>> collectTrainingAndTestStats(Run run, boolean mustConsiderCrossValidation) {
 
         boolean considerCrossValidation = mustConsiderCrossValidation && run.getExperimentId().isCrossExperiment();
 
@@ -611,11 +627,11 @@ public class ExperimentController {
         }
 
         return results;
-    }
+    }*/
 
 
 
-    public static void processExperimentDataTypeInfo(String[] splitContent, List<Double> listYLine, List<Double> listFunctionResult, List<Double> result,
+    /*public static void processExperimentDataTypeInfo(String[] splitContent, List<Double> listYLine, List<Double> listFunctionResult, List<Double> result,
                                                      Run run) {
         double[] yDoubleArray = new double[splitContent.length - 1];
         double[] functionResultDoubleArray = new double[splitContent.length - 1];
@@ -645,9 +661,9 @@ public class ExperimentController {
         result.add(ModelEvaluator.computeR2(yDoubleArray, functionResultDoubleArray));
         result.add(ModelEvaluator.computeAbsoluteError(yDoubleArray, functionResultDoubleArray));
         result.add(ModelEvaluator.computeRelativeError(yDoubleArray, functionResultDoubleArray));
-    }
+    }*/
 
-    private Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) throws IOException {
+    /*private Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) throws IOException {
         File propertiesFile = new File(propPath);
         Properties properties = new Properties();
 
@@ -676,10 +692,10 @@ public class ExperimentController {
         // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
 
         return th;
-    }
+    }*/
 
 
-    private void createPropertiesFile(String propertiesFilePath, String expName,
+    /*private void createPropertiesFile(String propertiesFilePath, String expName,
                                       ConfigExperimentDto configExpDto, User user, String grammarFilePath,
                                       String dataTypeDirectoryPath, Dataset expDataType) throws IOException {
         File propertiesNewFile = new File(propertiesFilePath);
@@ -719,7 +735,7 @@ public class ExperimentController {
         propertiesWriter.println("MutationFactorDE=" + configExpDto.getMutationFactorDE());
         propertiesWriter.println("PopulationSizeDE=" + configExpDto.getPopulationDE());
         propertiesWriter.close();
-    }
+    }*/
 
     private void runSection(Run run, Experiment exp) {
         run.setStatus(Run.Status.INITIALIZING);
@@ -1018,7 +1034,9 @@ public class ExperimentController {
             runResultsDto.getRunIndex()[index] = index + 1;
             runResultsDto.getModel()[index] = run.getModel();
 
-            HashMap<String, List<Double>> results = collectTrainingAndTestStats(run,true);
+           // HashMap<String, List<Double>> results = collectTrainingAndTestStats(run,true);
+            HashMap<String, List<Double>> results = legacyExperimentRunnerService.collectTrainingAndTestStats(run,true);
+
 
             if (run.getModel() != null && !run.getModel().isEmpty()) {
                 List<Double> trainingResult = results.get(TRAININGRESULT);
@@ -1069,7 +1087,8 @@ public class ExperimentController {
         // For each model, information is retrieved.
         for (Run run : experiment.getIdRunList()) {
 
-            HashMap<String, List<Double>> results = collectTrainingAndTestStats(run,false);
+            //HashMap<String, List<Double>> results = collectTrainingAndTestStats(run,false);
+            HashMap<String, List<Double>> results = legacyExperimentRunnerService.collectTrainingAndTestStats(run,false);
 
             if (trainingTarget == null) {
                 trainingTarget = results.get(LISTYLINE);
