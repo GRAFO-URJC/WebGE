@@ -3,15 +3,13 @@ package com.gramevapp.web.service;
 import com.engine.algorithm.ModelEvaluator;
 import com.engine.algorithm.RunnableExpGramEv;
 import com.engine.algorithm.SymbolicRegressionGE;
-import com.gramevapp.web.model.ConfigExperimentDto;
-import com.gramevapp.web.model.Dataset;
-import com.gramevapp.web.model.Run;
-import com.gramevapp.web.model.User;
+import com.gramevapp.web.model.*;
 import com.gramevapp.web.repository.GrammarRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
 import java.io.*;
+import java.sql.Timestamp;
 import java.util.*;
 
 import java.util.logging.Level;
@@ -57,7 +55,42 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
     private static final String TESTLISTFUNCTIONRESULT = "testListFunctionResult";
     private static final String LOGGER_BASE_PATH = "resources/files/logs/population";
 
+    // getter and setter
+    public List<Thread> getThreads() {
+        return threads;
+    }
 
+    public void setThreads(List<Thread> threads) {
+        this.threads = threads;
+    }
+
+    public Map<Long, Thread> getThreadMap() {
+        return threadMap;
+    }
+
+    public Map<Long, RunnableExpGramEv> getRunnables() {
+        return runnables;
+    }
+
+    public void setThreadMap(Map<Long, Thread> threadMap) {
+        this.threadMap = threadMap;
+    }
+
+    public Map<String, Long> getThreadRunMap() {
+        return threadRunMap;
+    }
+
+    public void setThreadRunMap(Map<String, Long> threadRunMap) {
+        this.threadRunMap = threadRunMap;
+    }
+
+    /*public Map<Long, RunnableExpGramEv> getRunnables() {
+        return runnables;
+    }*/
+
+    public void setRunnables(Map<Long, RunnableExpGramEv> runnables) {
+        this.runnables = runnables;
+    }
 
     public LegacyExperimentRunnerService(ExperimentService experimentService, SaveDBService saveDBService
             , Map<Long, Thread> threadMap, RunService runService, Map<String, Long> threadRunMap
@@ -115,7 +148,7 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
         thread.start();
     }
 
-    private Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) throws IOException {
+    public Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) throws IOException {
 
         File propertiesFile = new File(propPath);
         Properties properties = new Properties();
@@ -338,5 +371,147 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
                 super.write(buf, off, len);
             }
         });
+    }
+
+    public void removeRuns(Experiment exp) {
+        List<Run> oldRunList = new ArrayList<>(exp.getIdRunList());
+        //remove old run
+        for (Run oldRun : oldRunList) {
+            Thread th = threadMap.get(oldRun.getThreaId());
+            if (th != null && th.isAlive()) {
+                th.interrupt();
+                runnables.get(oldRun.getThreaId()).stopExecution();
+            }
+            exp.removeRun(oldRun);
+            runService.deleteRun(oldRun);
+        }
+    }
+
+    public void runSection(Run run, Experiment exp) {
+        run.setStatus(Run.Status.INITIALIZING);
+        run.setIniDate(new Timestamp(new Date().getTime()));
+        run.setModificationDate(new Timestamp(new Date().getTime()));
+        exp.getIdRunList().add(run);
+        run.setExperimentId(exp);
+        run.setExecReport(run.getExecReport()+"Initializing...\n\n");
+    }
+
+    public String grammarFileSection(User user, ConfigExperimentDto configExpDto, String grammar, GrammarRepository grammarRepository) throws IOException {
+
+        File dir = new File(GRAMMAR_DIR_PATH + user.getId());
+        if (!dir.exists())
+            dir.mkdirs();
+
+        String grammarFilePath = GRAMMAR_DIR_PATH + user.getId() + File.separator + configExpDto.getExperimentName().replaceAll("\\s+", "") + "_" +
+                grammarRepository.getNextValue() + ".bnf";
+
+        File grammarNewFile = new File(grammarFilePath);
+        if((!grammarNewFile.exists()) && (!grammarNewFile.createNewFile())) {
+            logger.log(Level.SEVERE, "Grammar file could not be created at {0}",grammarFilePath);
+        }
+
+        PrintWriter grammarWriter = new PrintWriter(grammarNewFile);
+
+        String[] parts = grammar.split("\\r\\n");
+        for (String part : parts) {
+            grammarWriter.println(part);
+        }
+
+        grammarWriter.close();
+
+        return grammarFilePath;
+    }
+
+    public Experiment experimentSection(Experiment exp, User user, Dataset testExpDataType,
+                                         Dataset expDataType,
+                                         ConfigExperimentDto configExpDto, String grammar, boolean removeRuns) {
+        if (exp == null) {   // We create it
+            exp = new Experiment(user, configExpDto.getExperimentName(), configExpDto.getExperimentDescription(), configExpDto.getGenerations(),
+                    configExpDto.getPopulationSize(), configExpDto.getMaxWraps(), configExpDto.getTournament(), configExpDto.getCrossoverProb(), configExpDto.getMutationProb(),
+                    configExpDto.getNumCodons(), configExpDto.getNumberRuns(), configExpDto.getObjective(),
+                    new Timestamp(new Date().getTime()), new Timestamp(new Date().getTime()), configExpDto.isDe(),
+                    configExpDto.getLowerBoundDE(), configExpDto.getUpperBoundDE(), configExpDto.getRecombinationFactorDE(), configExpDto.getMutationFactorDE(), configExpDto.getTagsText(), configExpDto.getPopulationDE());
+
+        } else {  // The experiment data type configuration already exist
+            exp.setUserId(user);
+
+            exp.setExperimentName(configExpDto.getExperimentName());
+            exp.setExperimentDescription(configExpDto.getExperimentDescription());
+            exp.setGenerations(configExpDto.getGenerations());
+            exp.setPopulationSize(configExpDto.getPopulationSize());
+            exp.setMaxWraps(configExpDto.getMaxWraps());
+            exp.setTournament(configExpDto.getTournament());
+            exp.setCrossoverProb(configExpDto.getCrossoverProb());
+            exp.setMutationProb(configExpDto.getMutationProb());
+            exp.setNumCodons(configExpDto.getNumCodons());
+            exp.setNumberRuns(configExpDto.getNumberRuns());
+            exp.setObjective(configExpDto.getObjective());
+            exp.setDe(configExpDto.isDe());
+            exp.setCreationDate(new Timestamp(new Date().getTime()));
+            exp.setModificationDate(new Timestamp(new Date().getTime()));
+            exp.setLowerBoundDE(configExpDto.getLowerBoundDE());
+            exp.setUpperBoundDE(configExpDto.getUpperBoundDE());
+            exp.setRecombinationFactorDE(configExpDto.getRecombinationFactorDE());
+            exp.setMutationFactorDE(configExpDto.getMutationFactorDE());
+            exp.setTags(configExpDto.getTagsText());
+            exp.setPopulationDE(configExpDto.getPopulationDE());
+            if (removeRuns)
+                removeRuns(exp);
+
+        }
+        exp.addExperimentDataType(expDataType);
+        exp.setDefaultGrammar(grammar);
+        exp.setDefaultExpDataType(expDataType.getId());
+        exp.setDefaultTestExpDataTypeId(testExpDataType != null ? testExpDataType.getId() : null);
+        exp.setModificationDate(new Timestamp(new Date().getTime()));
+        exp.setCrossExperiment(configExpDto.getCrossExperiment().equals("true"));
+        return exp;
+    }
+
+    public ConfigExperimentDto fillConfigExpDto(ConfigExperimentDto configExpDto, Experiment exp, String grammar,
+                                                Dataset dataset, boolean forEqual) {
+
+        setConfigExpDtoWIthExperiment(configExpDto, forEqual ? configExpDto.getExperimentName() : exp.getExperimentName(),
+                forEqual ? configExpDto.getExperimentDescription() : exp.getExperimentDescription(), exp.getCrossoverProb(), exp.getGenerations(),
+                exp.getPopulationSize(), exp.getMaxWraps(), exp.getTournament(), exp.getMutationProb(),
+                exp.getNumCodons(), exp.getNumberRuns(), exp.getObjective(), exp.isDe(), exp.getLowerBoundDE(), exp.getUpperBoundDE(), exp.getRecombinationFactorDE(), exp.getMutationFactorDE(),
+                forEqual ? configExpDto.getTagsText() : exp.getTags(), exp.getPopulationDE());
+
+        configExpDto.setId(exp.getId());
+        configExpDto.setDefaultExpDataTypeId(exp.getDefaultExpDataType());
+        if (!forEqual) {
+            configExpDto.setFileText(grammar);
+        }
+        configExpDto.setCrossExperiment(exp.isCrossExperiment() ? "true" : "false");
+        configExpDto.setContentFold(dataset.getInfo().contains("K-Fold"));
+
+        return configExpDto;
+    }
+
+    public void setConfigExpDtoWIthExperiment(ConfigExperimentDto configExpDto, String experimentName, String experimentDescription,
+                                               Double crossoverProb, Integer generations, Integer populationSize, Integer maxWraps,
+                                               Integer tournament, Double mutationProb,
+                                               Integer numCodons, Integer numberRuns, String objective, boolean de,
+                                               Double lowerBoundDE, Double upperBoundDE, Double recombinationFactorDE, Double mutationFactorDE,
+                                               String tags, Integer populationDE) {
+        configExpDto.setExperimentName(experimentName);
+        configExpDto.setExperimentDescription(experimentDescription);
+        configExpDto.setCrossoverProb(crossoverProb);
+        configExpDto.setGenerations(generations);
+        configExpDto.setPopulationSize(populationSize);
+        configExpDto.setMaxWraps(maxWraps);
+        configExpDto.setTournament(tournament);
+        configExpDto.setCrossoverProb(crossoverProb);
+        configExpDto.setMutationProb(mutationProb);
+        configExpDto.setNumCodons(numCodons);
+        configExpDto.setNumberRuns(numberRuns);
+        configExpDto.setObjective(objective);
+        configExpDto.setDe(de);
+        configExpDto.setLowerBoundDE(lowerBoundDE);
+        configExpDto.setUpperBoundDE(upperBoundDE);
+        configExpDto.setRecombinationFactorDE(recombinationFactorDE);
+        configExpDto.setMutationFactorDE(mutationFactorDE);
+        configExpDto.setTagsText(tags);
+        configExpDto.setPopulationDE(populationDE);
     }
 }
