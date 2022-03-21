@@ -7,6 +7,8 @@ import com.gramevapp.web.model.*;
 import com.gramevapp.web.repository.GrammarRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.*;
 import java.sql.Timestamp;
@@ -513,5 +515,71 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
         configExpDto.setMutationFactorDE(mutationFactorDE);
         configExpDto.setTagsText(tags);
         configExpDto.setPopulationDE(populationDE);
+    }
+
+    public String stopRunExperimentService(Model model, String runIdStop, RedirectAttributes redirectAttrs
+            , DiagramDataService diagramDataService) throws InterruptedException {
+        Run run = runService.findByRunId(Long.parseLong(runIdStop));
+        Long threadId = run.getThreaId();
+
+        // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
+        Thread th = threadMap.get(threadId);
+        if (th == null) {
+            run.setStatus(Run.Status.FAILED);
+
+            if (redirectAttrs != null) {
+                redirectAttrs.addAttribute(RUNID, run.getId()).addFlashAttribute("Stop", "Stop execution failed");
+                redirectAttrs.addAttribute("showPlotExecutionButton", "showPlotExecutionButton");
+            }
+            return "redirect:experiment/runList";
+        }
+        th.interrupt();
+        runnables.get(threadId).stopExecution();
+        th.join();
+        run = runService.findByRunId(Long.parseLong(runIdStop));
+        run.getDiagramData().setStopped(true);
+        diagramDataService.saveDiagram(run.getDiagramData());
+        run.setStatus(Run.Status.STOPPED);
+        runService.saveRun(run);
+
+        if (model != null) {
+            model.addAttribute(EXPDETAILS, run.getExperimentId());
+            model.addAttribute(RUNID, run.getId());
+            model.addAttribute(RUN, run);
+            model.addAttribute(INDEX, run.getExperimentId().getIdRunList().indexOf(run) + 1);
+        }
+
+        return "experiment/experimentDetails";
+    }
+
+    public Long expRepoSelectedDeleteService(String experimentId) {
+
+        Long idExp = Long.parseLong(experimentId);
+        Experiment expConfig = experimentService.findExperimentById(idExp);
+
+        Iterator<Run> listRunIt = expConfig.getIdRunList().iterator();
+        while (listRunIt.hasNext()) {
+            Run runIt = listRunIt.next();
+            Long threadId = runIt.getThreaId();
+            Thread th = threadMap.get(threadId);
+            if (th != null) {
+                runIt.setStatus(Run.Status.STOPPED);
+                runService.saveRun(runIt);
+                th.interrupt();
+                runnables.get(threadId).stopExecution();
+            }
+            listRunIt.remove();
+            runIt.setExperimentId(null);
+        }
+
+        Iterator<Dataset> listDataTypeIt = expConfig.getIdExpDataTypeList().iterator();
+        while (listDataTypeIt.hasNext()) {
+            listDataTypeIt.next();
+            listDataTypeIt.remove();
+        }
+
+        experimentService.saveExperiment(expConfig);
+        experimentService.deleteExperiment(expConfig);
+        return idExp;
     }
 }

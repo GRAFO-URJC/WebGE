@@ -376,35 +376,7 @@ public class ExperimentController {
     public
     @ResponseBody
     Long expRepoSelectedDelete(@RequestParam("experimentId") String experimentId) {
-        Long idExp = Long.parseLong(experimentId);
-
-        Experiment expConfig = experimentService.findExperimentById(idExp);
-
-        Iterator<Run> listRunIt = expConfig.getIdRunList().iterator();
-        while (listRunIt.hasNext()) {
-            Run runIt = listRunIt.next();
-            Long threadId = runIt.getThreaId();
-            // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
-            Thread th = legacyExperimentRunnerService.getThreadMap().get(threadId);
-            if (th != null) {
-                runIt.setStatus(Run.Status.STOPPED);
-                runService.saveRun(runIt);
-                th.interrupt();
-                legacyExperimentRunnerService.getRunnables().get(threadId).stopExecution(); //TODO
-            }
-            listRunIt.remove();
-            runIt.setExperimentId(null);
-        }
-
-        Iterator<Dataset> listDataTypeIt = expConfig.getIdExpDataTypeList().iterator();
-        while (listDataTypeIt.hasNext()) {
-            listDataTypeIt.next();
-            listDataTypeIt.remove();
-        }
-
-        experimentService.saveExperiment(expConfig);
-        experimentService.deleteExperiment(expConfig);
-        return idExp;
+        return legacyExperimentRunnerService.expRepoSelectedDeleteService(experimentId);
     }
 
 
@@ -495,37 +467,7 @@ public class ExperimentController {
     public String stopRunExperiment(Model model,
                                     @RequestParam("runIdStop") String runIdStop,
                                     RedirectAttributes redirectAttrs) throws InterruptedException {
-        Run run = runService.findByRunId(Long.parseLong(runIdStop));
-        Long threadId = run.getThreaId();
-
-        // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
-        Thread th = legacyExperimentRunnerService.getThreadMap().get(threadId);
-        if (th == null) {
-            run.setStatus(Run.Status.FAILED);
-
-            if (redirectAttrs != null) {
-                redirectAttrs.addAttribute(RUNID, run.getId()).addFlashAttribute("Stop", "Stop execution failed");
-                redirectAttrs.addAttribute("showPlotExecutionButton", "showPlotExecutionButton");
-            }
-            return "redirect:experiment/runList";
-        }
-        th.interrupt();
-        legacyExperimentRunnerService.getRunnables().get(threadId).stopExecution();
-        th.join();
-        run = runService.findByRunId(Long.parseLong(runIdStop));
-        run.getDiagramData().setStopped(true);
-        diagramDataService.saveDiagram(run.getDiagramData());
-        run.setStatus(Run.Status.STOPPED);
-        runService.saveRun(run);
-
-        if (model != null) {
-            model.addAttribute(EXPDETAILS, run.getExperimentId());
-            model.addAttribute(RUNID, run.getId());
-            model.addAttribute(RUN, run);
-            model.addAttribute(INDEX, run.getExperimentId().getIdRunList().indexOf(run) + 1);
-        }
-
-        return "experiment/experimentDetails";
+        return legacyExperimentRunnerService.stopRunExperimentService(model, runIdStop, redirectAttrs, diagramDataService);
     }
 
     @PostMapping(value = "/experiment/stopRunAjax")
@@ -588,7 +530,6 @@ public class ExperimentController {
             runResultsDto.getRunIndex()[index] = index + 1;
             runResultsDto.getModel()[index] = run.getModel();
 
-           // HashMap<String, List<Double>> results = collectTrainingAndTestStats(run,true);
             HashMap<String, List<Double>> results = legacyExperimentRunnerService.collectTrainingAndTestStats(run,true);
 
 
