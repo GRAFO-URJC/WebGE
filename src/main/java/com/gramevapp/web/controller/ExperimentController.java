@@ -81,7 +81,7 @@ public class ExperimentController {
         model.addAttribute("user", user);
         model.addAttribute("configExp", new ConfigExperimentDto());
         model.addAttribute("disabledClone", true);
-        legacyExperimentRunnerService.modelAddData(model, user, null, null, null, grammarRepository);
+        legacyExperimentRunnerService.modelAddData(model, user, null, null, null);
 
         return CONFIGEXPERIMENTPATH;
     }
@@ -102,7 +102,7 @@ public class ExperimentController {
                                 RedirectAttributes redirectAttrs) throws IOException {
 
         User user = userService.getLoggedInUser();
-        legacyExperimentRunnerService.modelAddData(model, user, null, null, null, grammarRepository);
+        legacyExperimentRunnerService.modelAddData(model, user, null, null, null);
 
         // Check the data received
         if (result.hasErrors()) {
@@ -115,7 +115,7 @@ public class ExperimentController {
         Dataset expDataType = experimentService.
                 findExperimentDataTypeById(Long.valueOf(experimentDataTypeId));
 
-        experimentDataTypeSection(expDataType);
+        legacyExperimentRunnerService.experimentDataTypeSection(expDataType);
         // END - Experiment Data Type SECTION
 
         // Experiment section:
@@ -130,7 +130,7 @@ public class ExperimentController {
         // END - Experiment section
 
         // Grammar File SECTION
-        String grammarFilePath = legacyExperimentRunnerService.grammarFileSection(user, configExpDto, exp.getDefaultGrammar(), grammarRepository);
+        String grammarFilePath = legacyExperimentRunnerService.grammarFileSection(user, configExpDto, exp.getDefaultGrammar());
         // END - Grammar File SECTION
 
         Run run;
@@ -201,113 +201,8 @@ public class ExperimentController {
                                  @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
                                  BindingResult result) {
 
-        User user = userService.getLoggedInUser();
-        legacyExperimentRunnerService.modelAddData(model, user, null, null, null, grammarRepository);
-        model.addAttribute(CONFIGURATION, configExpDto);
-
-        if (result.hasErrors()) {
-            return CONFIGEXPERIMENTPATH;
-        }
-
-        Experiment exp = null;
-
-        // Experiment Data Type SECTION
-        Dataset expDataType;
-        if (experimentDataTypeId.equals("-1")) {
-            model.addAttribute(CONFIGURATION, configExpDto);
-            model.addAttribute(EXPCONFIG, configExpDto);
-            result.rejectValue("typeFile", "error.typeFile", "Choose one file");
-            return CONFIGEXPERIMENTPATH;
-        } else {
-            expDataType = experimentService.findDataTypeById(Long.parseLong(experimentDataTypeId));
-        }
-
-        experimentDataTypeSection(expDataType);
-        // END - Experiment Data Type SECTION
-
-        // Experiment section:
-        Dataset testExperimentDataType = (testExperimentDataTypeId.equals("")) ? null : experimentService.
-                findExperimentDataTypeById(Long.valueOf(testExperimentDataTypeId));
-
-
-        boolean sameExp = false;
-        if (configExpDto.getId() != null) {
-            exp = experimentService.findExperimentById(configExpDto.getId());
-           /* configExpDto = fillConfigExpDto(configExpDto, exp,
-            exp.getDefaultGrammar(), expDataType, true);
-            // check if only test was changed
-
-            boolean sameExp =
-                    exp.getGenerations().equals(configExpDto.getGenerations()) &&
-                            exp.getCrossoverProb().equals(configExpDto.getCrossoverProb()) &&
-                            exp.getPopulationSize().equals(configExpDto.getPopulationSize()) &&
-                            exp.getMutationProb().equals(configExpDto.getMutationProb()) &&
-
-                            exp.getMaxWraps().equals(configExpDto.getMaxWraps()) &&
-                            exp.getTournament().equals(configExpDto.getTournament()) &&
-                            exp.getNumberRuns().equals(configExpDto.getNumberRuns()) &&
-                            exp.getObjective().equals(configExpDto.getObjective()) &&
-                            exp.getDefaultGrammar().equals(configExpDto.getFileText()) &&
-                            exp.getDefaultExpDataType().equals(Long.valueOf(experimentDataTypeId)) &&
-                            exp.getTags().equals(configExpDto.getTagsText());
-            if (sameExp) {
-                if (!testExperimentDataTypeId.equals("")) {
-                    exp.setDefaultTestExpDataTypeId(Long.valueOf(testExperimentDataTypeId));
-                } else {
-                    exp.setDefaultTestExpDataTypeId(null);
-                }
-                exp.setModificationDate(new Timestamp(new Date().getTime()));
-                exp.setExperimentName(configExpDto.getExperimentName());
-                exp.setExperimentDescription(configExpDto.getExperimentDescription());
-                experimentService.saveExperiment(exp);
-                modelAddData(model, user,
-                        experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
-                        exp.getIdExpDataTypeList(), testExperimentDataType == null ? null : testExperimentDataType.getId());
-
-                model.addAttribute(RUNLIST, exp.getIdRunList());
-                return CONFIGEXPERIMENTPATH;
-            }
-            */
-
-            /*Check if exp only changed name, desc or tags, in that case, dont remove runs*/
-            sameExp =
-                    exp.getGenerations().equals(configExpDto.getGenerations()) &&
-                            exp.getCrossoverProb().equals(configExpDto.getCrossoverProb()) &&
-                            exp.getPopulationSize().equals(configExpDto.getPopulationSize()) &&
-                            exp.getMutationProb().equals(configExpDto.getMutationProb()) &&
-                            exp.getMaxWraps().equals(configExpDto.getMaxWraps()) &&
-                            exp.getNumCodons().equals(configExpDto.getNumCodons()) &&
-                            exp.getTournament().equals(configExpDto.getTournament()) &&
-                            exp.getNumberRuns().equals(configExpDto.getNumberRuns()) &&
-                            exp.getObjective().equals(configExpDto.getObjective()) &&
-                            exp.getDefaultGrammar().equals(configExpDto.getFileText()) &&
-                            exp.getDefaultExpDataType().equals(Long.valueOf(experimentDataTypeId)) &&
-                            exp.isDe() == configExpDto.isDe() &&
-                            exp.getUpperBoundDE().equals(configExpDto.getUpperBoundDE()) &&
-                            exp.getLowerBoundDE().equals(configExpDto.getLowerBoundDE()) &&
-                            exp.getRecombinationFactorDE().equals(configExpDto.getRecombinationFactorDE()) &&
-                            exp.getMutationFactorDE().equals(configExpDto.getMutationFactorDE()) &&
-                            exp.getPopulationDE().equals(configExpDto.getPopulationDE());
-
-        }
-
-
-        // END - Experiment section
-        exp = legacyExperimentRunnerService.experimentSection(exp, user, testExperimentDataType, expDataType, configExpDto, configExpDto.getFileText(), !sameExp);
-
-        List<Run> runList = exp.getIdRunList();
-
-        experimentService.saveExperiment(exp);
-        legacyExperimentRunnerService.fillConfigExpDto(configExpDto, exp, exp.getDefaultGrammar(), expDataType, false);
-
-        legacyExperimentRunnerService.modelAddData(model, user,
-                experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
-                exp.getIdExpDataTypeList(), testExperimentDataType == null ? null : testExperimentDataType.getId(), grammarRepository);
-
-        model.addAttribute(EXPCONFIG, configExpDto);
-        model.addAttribute(RUNLIST, runList);
-        return CONFIGEXPERIMENTPATH;
-
+        return legacyExperimentRunnerService.saveExperimentService(model, experimentDataTypeId, testExperimentDataTypeId
+                , fileModelDto, configExpDto, result);
     }
 
     @PostMapping(value = "/experiment/start", params = "cloneExperimentButton")
@@ -323,7 +218,7 @@ public class ExperimentController {
 
         legacyExperimentRunnerService.modelAddData(model, user,
                 experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
-                null, configExpDto.getTestDefaultExpDataTypeId() ,grammarRepository);
+                null, configExpDto.getTestDefaultExpDataTypeId());
         model.addAttribute("disabledClone", true);
         model.addAttribute("messageClone", "This experiment is cloned and not saved yet.");
 
@@ -332,44 +227,14 @@ public class ExperimentController {
 
     @GetMapping(value = "/experiment/experimentRepository")
     public String experimentRepository(Model model) {
-
-        User user = userService.getLoggedInUser();
-        List<Experiment> lExperiment = experimentService.findByUserOptimized(user);
-        HashMap<Long,List<IRunDto>> lRuns = new HashMap<>();
-        for (Experiment exp : lExperiment) {
-            lRuns.put(exp.getId(),runService.findRunsByExpId(exp.getId()));
-        }
-        model.addAttribute("experimentList", lExperiment);
-        model.addAttribute("user", user);
-        model.addAttribute(RUNLIST, lRuns);
-
-        return "experiment/experimentRepository";
+        return legacyExperimentRunnerService.experimentRepositoryService(model);
     }
 
     @GetMapping(value = "/experiment/expRepoSelected", params = "loadExperimentButton")
     public String expRepoSelected(Model model,
                                   @RequestParam(required = false) String id) { // Exp ID
 
-        User user = userService.getLoggedInUser();
-
-        if (id == null)
-            return "redirect:experiment/experimentRepository";
-
-        Experiment exp = experimentService.findExperimentById(Long.parseLong(id));
-
-        List<Run> runList = exp.getIdRunList();
-
-        ConfigExperimentDto configExpDto = legacyExperimentRunnerService.fillConfigExpDto(new ConfigExperimentDto(), exp,
-                exp.getDefaultGrammar(), experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()),
-                false);
-
-        legacyExperimentRunnerService.modelAddData(model, user, experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()),
-                exp.getIdExpDataTypeList(), exp.getDefaultTestExpDataTypeId(), grammarRepository);
-        model.addAttribute(CONFIGURATION, configExpDto);
-        model.addAttribute("configExp", configExpDto);
-        model.addAttribute(RUNLIST, runList);
-
-        return CONFIGEXPERIMENTPATH;
+        return legacyExperimentRunnerService.expRepoSelectedService(model, id);
     }
 
     @PostMapping(value = "/experiment/expRepoSelected", params = "deleteExperiment")
@@ -384,20 +249,7 @@ public class ExperimentController {
     public
     @ResponseBody
     Boolean expRepoSelectedCheckRunning(@RequestParam("experimentId") String experimentId) {
-        Long idExp = Long.parseLong(experimentId);
-
-        Experiment expConfig = experimentService.findExperimentById(idExp);
-
-        Iterator<Run> listRunIt = expConfig.getIdRunList().iterator();
-        while (listRunIt.hasNext()) {
-            Run runIt = listRunIt.next();
-
-            if (runIt.getStatus().equals(Run.Status.RUNNING)) {
-                return true;
-            }
-
-        }
-        return false;
+        return legacyExperimentRunnerService.expRepoSelectedCheckRunningService(experimentId);
     }
 
 
@@ -458,10 +310,11 @@ public class ExperimentController {
         return "experiment/showTestStatsPlot";
     }
 
-    private void experimentDataTypeSection(Dataset expDataType) {
+    // movido
+    /*private void experimentDataTypeSection(Dataset expDataType) {
         expDataType.setCreationDate(new Timestamp(new Date().getTime()));
         expDataType.setDataTypeType("training");
-    }
+    }*/
 
     @PostMapping(value = "/experiment/stopRun", params = "stopRunExperimentButton")
     public String stopRunExperiment(Model model,
@@ -520,7 +373,7 @@ public class ExperimentController {
     @GetMapping(value = "/runResultsInfo")
     @ResponseBody
     public RunResultsDto getRunResultsInfo(@RequestParam("expId") String expId) {
-        Experiment experiment = experimentService.findExperimentById(Long.valueOf(expId));
+        /*Experiment experiment = experimentService.findExperimentById(Long.valueOf(expId));
         boolean haveTest = experiment.getDefaultTestExpDataTypeId() != null;
         RunResultsDto runResultsDto = new RunResultsDto(experiment.getIdRunList().size(),
                 haveTest || experiment.isCrossExperiment());
@@ -553,7 +406,8 @@ public class ExperimentController {
             }
             index++;
         }
-        return runResultsDto;
+        return runResultsDto;*/
+        return legacyExperimentRunnerService.getRunResultsInfo(expId);
     }
 
     /**
