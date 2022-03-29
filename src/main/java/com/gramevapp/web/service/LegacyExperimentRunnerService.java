@@ -113,7 +113,6 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
     @Override
     public void accept(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) {
         try {
-            System.out.println("ACEPTOOO");
             threads.add(runExperimentDetails(run, propPath, crossRunIdentifier, objective, de));
         } catch (IOException e) {
             e.printStackTrace();
@@ -122,7 +121,6 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
 
     public void startExperiment() {
         // Use half of the available processors.
-        System.out.println("EMPIEZO 1");
         int availableProcessors = Runtime.getRuntime().availableProcessors() / 2;
 
         Thread thread = new Thread(() -> {
@@ -133,7 +131,6 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
                     if ((threads.size()-i) < availableProcessors) limit = threads.size()-i;
                     // Start threads
                     for (int j = i; j < i+limit; j++) {
-                        System.out.println("HE LANZADO UNO");
                         threads.get(j).start();
                     }
                     // Wait for them
@@ -146,7 +143,6 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
                 e.printStackTrace();
             }
         });
-        System.out.println("LANZO CREADOR");
         thread.start();
     }
 
