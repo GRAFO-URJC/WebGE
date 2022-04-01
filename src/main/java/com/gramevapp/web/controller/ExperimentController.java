@@ -14,11 +14,14 @@ import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 @Controller
 public class ExperimentController {
     private static final String CONFIGEXPERIMENTPATH = "experiment/configExperiment";
+    Logger logger = Logger.getLogger(ExperimentController.class.getName());
 
     @Autowired
     private ExperimentService experimentService;
@@ -85,7 +88,7 @@ public class ExperimentController {
     }
 
     /**
-     * Load al the data from the view, save it and run the application.
+     * Load all the data from the view, save it and run the application.
      * "configExpDto" for validation -> configExp
      * "configuration" is for send data from Controller to View and
      * "configExp" is the object from the form View
@@ -198,6 +201,8 @@ public class ExperimentController {
     @ResponseBody
     public boolean ajaxStopAllRunsExperiment(@RequestParam("expId") Long expId) throws InterruptedException {
         legacyExperimentRunnerService.setExecutionCancelled(true);
+        logger.log(Level.SEVERE,"EJECUION CANCELADA");
+        logger.log(Level.SEVERE,legacyExperimentRunnerService.getExecutionCancelled()+"");
         Experiment experiment = experimentService.findExperimentById(expId);
         List<Run> runList = experiment.getIdRunList();
         for (Run run : runList) {

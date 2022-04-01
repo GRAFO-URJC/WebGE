@@ -28,7 +28,6 @@ import static com.engine.util.Common.TRAINING_PATH_PROP;
 @Service("legacyExperimentRunnerService")
 public class LegacyExperimentRunnerService implements ExperimentRunner{
 
-    private List<Thread> threads;
     private ExperimentService experimentService;
     private SaveDBService saveDBService;
     private Map<Long, Thread> threadMap;
@@ -68,14 +67,6 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
     private static final String LOGGER_BASE_PATH = "resources/files/logs/population";
     private static final String CONFIGEXPERIMENTPATH = "experiment/configExperiment";
 
-    // getter and setter
-    public List<Thread> getThreads() {
-        return threads;
-    }
-
-    public void setThreads(List<Thread> threads) {
-        this.threads = threads;
-    }
 
     public Map<Long, Thread> getThreadMap() {
         return threadMap;
@@ -97,10 +88,6 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
         this.threadRunMap = threadRunMap;
     }
 
-    /*public Map<Long, RunnableExpGramEv> getRunnables() {
-        return runnables;
-    }*/
-
     public void setRunnables(Map<Long, RunnableExpGramEv> runnables) {
         this.runnables = runnables;
     }
@@ -109,7 +96,6 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
             , Map<Long, Thread> threadMap, RunService runService, Map<String, Long> threadRunMap
             , Map<Long, RunnableExpGramEv> runnables) {
 
-        threads = new ArrayList<>();
         this.experimentService = experimentService;
         this.saveDBService = saveDBService;
         this.threadMap = threadMap;
@@ -121,40 +107,21 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
 
     public void setExecutionCancelled(boolean newStatus) { this.executionCancelled = newStatus; }
 
+    public boolean getExecutionCancelled() { return this.executionCancelled; }
+
     @Override
-    public void accept(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) {
+    public void accept(List<Thread> threadList, Run run, String propPath, int crossRunIdentifier
+            , String objective, boolean de) {
+
         try {
-            threads.add(runExperimentDetails(run, propPath, crossRunIdentifier, objective, de));
+            threadList.add(runExperimentDetails(run, propPath, crossRunIdentifier, objective, de));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-    public void startExperiment() {
-        // Use half of the available processors.
-        int availableProcessors = Runtime.getRuntime().availableProcessors() / 2;
-
-        Thread thread = new Thread(() -> {
-            try {
-                int i = 0;
-                while (i < threads.size() && !executionCancelled) {
-                    int limit = availableProcessors;
-                    if ((threads.size()-i) < availableProcessors) limit = threads.size()-i;
-                    // Start threads
-                    for (int j = i; j < i+limit; j++) {
-                        threads.get(j).start();
-                    }
-                    // Wait for them
-                    for (int j = i; j < i+limit; j++) {
-                        threads.get(j).join();
-                    }
-                    i += limit;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        thread.start();
+    @Override
+    public void accept(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) {
+        // Legacy service won't implement this version.
     }
 
     public Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) throws IOException {
@@ -843,7 +810,7 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
                                 RedirectAttributes redirectAttrs) throws IOException {
 
         User user = userService.getLoggedInUser();
-        this.modelAddDataService(model, user, null, null, null);
+        modelAddDataService(model, user, null, null, null);
 
         // Check the data received
         if (result.hasErrors()) {
@@ -856,47 +823,70 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
         Dataset expDataType = experimentService.
                 findExperimentDataTypeById(Long.valueOf(experimentDataTypeId));
 
-        this.experimentDataTypeSection(expDataType);
+        experimentDataTypeSection(expDataType);
         // END - Experiment Data Type SECTION
 
         // Experiment section:
-        Experiment exp = this.experimentSectionService(configExpDto.getId() != null ?
+        Experiment exp = experimentSectionService(configExpDto.getId() != null ?
                         experimentService.findExperimentById(configExpDto.getId()) : null
                 , user,
                 (testExperimentDataTypeId.equals("")) ? null : experimentService.
                         findExperimentDataTypeById(Long.valueOf(testExperimentDataTypeId))
                 , expDataType, configExpDto, configExpDto.getFileText(), true);
-
         experimentService.saveExperiment(exp);
         // END - Experiment section
 
         // Grammar File SECTION
-        String grammarFilePath = this.grammarFileSectionService(user, configExpDto, exp.getDefaultGrammar());
+        String grammarFilePath = grammarFileSectionService(user, configExpDto, exp.getDefaultGrammar());
         // END - Grammar File SECTION
 
         Run run;
         String propPath;
 
+        List<Thread> threads = new ArrayList<>();
+
         //check if need to run more runs
         for (int i = 0; i < configExpDto.getNumberRuns(); i++) {
             // RUN SECTION
             run = runService.saveRun(new Run());
-            this.runSectionService(run, exp);
+            runSectionService(run, exp);
             run.setStatus(Run.Status.WAITING);
             // Create ExpPropertiesDto file
             propPath = expPropertiesSet(configExpDto,
                     user, expDataType, grammarFilePath);
             // Run experiment in new thread
             int crossRunIdentifier = exp.isCrossExperiment() ? run.getExperimentId().getIdRunList().indexOf(run) + 1 : -1;
-
-            this.accept(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe());
-
+            accept(threads, run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe());
+            //threads.add(runExperimentDetails(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe()));
         }
         experimentService.saveExperiment(exp);
-        this.setExecutionCancelled(false);
+        executionCancelled = false;
 
-        // start experiment
-        this.startExperiment();
+        // Use half of the available processors.
+        int availableProcessors = Runtime.getRuntime().availableProcessors() / 2;
+
+        Thread thread = new Thread(() -> {
+            try {
+                int i = 0;
+                while (i < threads.size() && !executionCancelled) {
+                    int limit = availableProcessors;
+                    if ((threads.size()-i) < availableProcessors) limit = threads.size()-i;
+                    // Start threads
+                    for (int j = i; j < i+limit; j++) {
+                        threads.get(j).start();
+                    }
+                    // Wait for them
+                    for (int j = i; j < i+limit; j++) {
+                        threads.get(j).join();
+                    }
+                    i += limit;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        thread.start();
 
         redirectAttrs.addAttribute("id", exp.getId());
         redirectAttrs.addAttribute("loadExperimentButton", "loadExperimentButton");
