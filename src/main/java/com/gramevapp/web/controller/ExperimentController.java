@@ -14,14 +14,11 @@ import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 import java.io.*;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 @Controller
 public class ExperimentController {
     private static final String CONFIGEXPERIMENTPATH = "experiment/configExperiment";
-    Logger logger = Logger.getLogger(ExperimentController.class.getName());
 
     @Autowired
     private ExperimentService experimentService;
@@ -201,8 +198,6 @@ public class ExperimentController {
     @ResponseBody
     public boolean ajaxStopAllRunsExperiment(@RequestParam("expId") Long expId) throws InterruptedException {
         legacyExperimentRunnerService.setExecutionCancelled(true);
-        logger.log(Level.SEVERE,"EJECUION CANCELADA");
-        logger.log(Level.SEVERE,legacyExperimentRunnerService.getExecutionCancelled()+"");
         Experiment experiment = experimentService.findExperimentById(expId);
         List<Run> runList = experiment.getIdRunList();
         for (Run run : runList) {
