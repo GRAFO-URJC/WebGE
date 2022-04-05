@@ -120,7 +120,7 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
         }
     }
     @Override
-    public void accept(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) {
+    public void accept(Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
         // Legacy service won't implement this version.
     }
 
@@ -801,13 +801,9 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
         return results;
     }
 
-    public String runExperimentService(Model model,
-                                @RequestParam("experimentDataTypeId") String experimentDataTypeId,
-                                @RequestParam("testExperimentDataTypeId") String testExperimentDataTypeId,
-                                @ModelAttribute("typeFile") FileModelDto fileModelDto,
-                                @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
-                                BindingResult result,
-                                RedirectAttributes redirectAttrs) throws IOException {
+    public String runExperimentService(Model model, String experimentDataTypeId, String testExperimentDataTypeId
+            , FileModelDto fileModelDto, ConfigExperimentDto configExpDto, BindingResult result
+            , RedirectAttributes redirectAttrs) throws IOException {
 
         User user = userService.getLoggedInUser();
         modelAddDataService(model, user, null, null, null);
