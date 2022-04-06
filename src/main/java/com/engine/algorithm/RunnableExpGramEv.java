@@ -6,10 +6,13 @@ import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.SaveDBService;
 
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.engine.util.Common.OBJECTIVES_PROP;
 
 public class RunnableExpGramEv implements Runnable {
+
+    private static AtomicLong idGenerator = new AtomicLong(0);
 
     private final Properties properties;
     private final Run runElement;
@@ -20,6 +23,7 @@ public class RunnableExpGramEv implements Runnable {
     private SaveDBService saveDBService;
     private String objective;
     private boolean de;
+    private Long id;
 
     public RunnableExpGramEv(Properties properties, Run runElement, Dataset experimentDataType,
                              RunService runService, SaveDBService saveDBService, int crossRunIdentifier, String objective, boolean de) {
@@ -31,7 +35,10 @@ public class RunnableExpGramEv implements Runnable {
         this.saveDBService = saveDBService;
         this.objective = objective;
         this.de = de;
+        this.id = idGenerator.incrementAndGet();
     }
+
+    public long getId() { return this.id; }
 
     @Override
     public void run() {
