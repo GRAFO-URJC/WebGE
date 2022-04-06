@@ -7,27 +7,22 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.validation.Valid;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 import com.engine.algorithm.ModelEvaluator;
 import com.engine.algorithm.RunnableExpGramEv;
 import com.engine.algorithm.SymbolicRegressionGE;
-import com.gramevapp.web.model.*;
 import com.gramevapp.web.repository.GrammarRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
 
-import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -92,12 +87,13 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
     public void setExecutionCancelled(boolean newStatus) { this.executionCancelled = newStatus; }
 
     @Override
-    public void accept(ExecutorService tPool, Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
+    public Future<?> accept(ExecutorService tPool, Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
         // Mete una tarea al threadpool.
         try {
-            tPool.execute(runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, objective, de));
+            return tPool.submit(runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, objective, de));
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
     }
 
@@ -990,14 +986,10 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
 
 
 
-    private class CaughtExceptionsThreadFactory implements ThreadFactory {
+    /*private static class CaughtExceptionsThreadFactory implements ThreadFactory {
         private Run run;
         private Logger logger;
 
-        private CaughtExceptionsThreadFactory(Run run) {
-            this.logger = Logger.getLogger(CaughtExceptionsThreadFactory.class.getName());
-            this.run = run;
-        }
         Thread.UncaughtExceptionHandler h = (th, ex) -> {
             run.setStatus(Run.Status.FAILED);
             run.setExecReport(run.getExecReport() + "\nUncaught exception: " + ex);
@@ -1011,7 +1003,7 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
             t.setUncaughtExceptionHandler(h);
             return t;
         }
-    }
+    }*/
 
 }
 

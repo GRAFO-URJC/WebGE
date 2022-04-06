@@ -1,36 +1,19 @@
 package com.gramevapp.web.service;
 
-import com.engine.algorithm.ModelEvaluator;
-import com.engine.algorithm.RunnableExpGramEv;
-import com.engine.algorithm.SymbolicRegressionGE;
 import com.gramevapp.web.model.*;
-import com.gramevapp.web.repository.GrammarRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.validation.Valid;
-import java.io.*;
-import java.sql.Timestamp;
 import java.util.*;
 
 import java.util.concurrent.ExecutorService;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static com.engine.util.Common.TRAINING_PATH_PROP;
+import java.util.concurrent.Future;
 
 @Service("legacyExperimentRunnerService")
 public class LegacyExperimentRunnerService implements ExperimentRunner{
     @Override
-    public void accept(ExecutorService tPool,Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
+    public Future<?> accept(ExecutorService tPool, Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
 
+        return null;
     }
 
     @Override
