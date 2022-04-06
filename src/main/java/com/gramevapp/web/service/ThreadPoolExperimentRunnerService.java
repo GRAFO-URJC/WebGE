@@ -35,12 +35,10 @@ import java.util.regex.Pattern;
 
 import static com.engine.util.Common.TRAINING_PATH_PROP;
 
-@Service
+@Service("threadPoolExperimentRunnerService")
 public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
 
-    private int numThreads;
     //private Map<Long, ExecutorService> threadPoolMap;
-    private ExecutorService threadPool;
 
     private ExperimentService experimentService;
     private SaveDBService saveDBService;
@@ -56,6 +54,15 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
 
     @Autowired
     private UserService userService;
+
+    public ThreadPoolExperimentRunnerService(ExperimentService experimentService, SaveDBService saveDBService
+            , RunService runService, Map<Long, RunnableExpGramEv> runnables) {
+        this.experimentService = experimentService;
+        this.saveDBService = saveDBService;
+        this.logger = Logger.getLogger(ThreadPoolExperimentRunnerService.class.getName());
+        this.runService = runService;
+        this.runnables = runnables;
+    }
 
     // Constants
     private static final String RESOURCES = "resources";
@@ -82,22 +89,16 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
     private static final String CONFIGEXPERIMENTPATH = "experiment/configExperiment";
 
 
-    /*public ThreadPoolExperimentRunnerService() {
-        numThreads = Runtime.getRuntime().availableProcessors()/2;
-        threadPool = Executors.newFixedThreadPool(numThreads);
-        //threadPoolMap = new HashMap<>();
-    }*/
+    public void setExecutionCancelled(boolean newStatus) { this.executionCancelled = newStatus; }
 
     @Override
-    public void accept(Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
-        // not sure
-        /*threadPool.execute(()-> {
-            try {
-                runExperimentDetails(run, propPath, crossRunIdentifier, objective, de);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });*/
+    public void accept(ExecutorService tPool, Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
+        // Mete una tarea al threadpool.
+        try {
+            tPool.execute(runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, objective, de));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -144,6 +145,8 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
 
         Run run;
         String propPath;
+        int numThreads = Runtime.getRuntime().availableProcessors()/2;
+        ExecutorService threadPool = Executors.newFixedThreadPool(numThreads);
 
         //check if need to run more runs
         for (int i = 0; i < configExpDto.getNumberRuns(); i++) {
@@ -156,7 +159,7 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
                     user, expDataType, grammarFilePath);
             // Run experiment in new thread
             int crossRunIdentifier = exp.isCrossExperiment() ? run.getExperimentId().getIdRunList().indexOf(run) + 1 : -1;
-            accept(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe(), expId);
+            accept(threadPool, run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe(), expId);
             //threads.add(runExperimentDetails(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe()));
         }
         experimentService.saveExperiment(exp);
@@ -196,7 +199,7 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
 
     ///////////////////////
 
-    public Thread runExperimentDetailsServiceWorker(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) throws IOException {
+    public RunnableExpGramEv runExperimentDetailsServiceWorker(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) throws IOException {
 
         File propertiesFile = new File(propPath);
         Properties properties = new Properties();
@@ -211,21 +214,21 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
         RunnableExpGramEv obj = new RunnableExpGramEv(properties, run,
                 experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService,
                 saveDBService, crossRunIdentifier, objective, de);
-        Thread.UncaughtExceptionHandler h = (th, ex) -> {
+        /*Thread.UncaughtExceptionHandler h = (th, ex) -> {
             run.setStatus(Run.Status.FAILED);
             run.setExecReport(run.getExecReport() + "\nUncaught exception: " + ex);
             String warningMsg = "Uncaught exception: " + ex;
             logger.warning(warningMsg);
-        };
+        };*/
         //Thread th = new Thread(obj);
         //th.setUncaughtExceptionHandler(h);
         //threadMap.put(th.getId(), th);
         //threadRunMap.put(th.getName(), run.getId());
         //run.setThreaId(th.getId());
-        runnables.put(th.getId(), obj);
-        // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
 
-        return th;
+        //runnables.put(th.getId(), obj);
+        runnables.put(obj.getId(), obj);
+        return obj;
     }
 
     /*public Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) throws IOException {
@@ -434,16 +437,16 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
                         //c.engine.algorithm.SymbolicRegressionGE
                         infoFormatted += logInfo.substring(logInfo.indexOf(messageSkip) + messageSkip.length());
                     }
-                    pattern =
-                            Pattern.compile("Thread-[0-9]+");
-                    matcher = pattern.matcher(logInfo);
-                    if (matcher.find()) {
-                        String threadName = matcher.group();
-                        if (infoFormatted.contains("2m---\u001B[0;39m \u001B[2m[     Thread-")) {
-                            infoFormatted = infoFormatted.replaceAll("2m---\u001B\\[0;39m \u001B\\[2m\\[     Thread-[0-9]+]\u001B\\[0;39m \u001B\\[36mj.c.algorithm.ga.SimpleGeneticAlgorithm \u001B\\[0;39m \u001B\\[2m:\u001B\\[0;39m ", "");
-                        }
-                        runService.updateExecutionReport(threadRunMap.get(threadName),infoFormatted);
-                    }
+//                    pattern =
+//                            Pattern.compile("Thread-[0-9]+");
+//                    matcher = pattern.matcher(logInfo);
+//                    if (matcher.find()) {
+//                        String threadName = matcher.group();
+//                        if (infoFormatted.contains("2m---\u001B[0;39m \u001B[2m[     Thread-")) {
+//                            infoFormatted = infoFormatted.replaceAll("2m---\u001B\\[0;39m \u001B\\[2m\\[     Thread-[0-9]+]\u001B\\[0;39m \u001B\\[36mj.c.algorithm.ga.SimpleGeneticAlgorithm \u001B\\[0;39m \u001B\\[2m:\u001B\\[0;39m ", "");
+//                        }
+//                        //runService.updateExecutionReport(threadRunMap.get(threadName),infoFormatted);
+//                    }
                 }
                 super.write(buf, off, len);
             }
@@ -454,11 +457,14 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
         List<Run> oldRunList = new ArrayList<>(exp.getIdRunList());
         //remove old run
         for (Run oldRun : oldRunList) {
-            Thread th = threadMap.get(oldRun.getThreaId());
+            Long runId = oldRun.getId();
+            /*Thread th = threadMap.get(oldRun.getThreaId());
             if (th != null && th.isAlive()) {
                 th.interrupt();
                 runnables.get(oldRun.getThreaId()).stopExecution();
-            }
+            }*/
+            runnables.get(runId).stopExecution();
+
             exp.removeRun(oldRun);
             runService.deleteRun(oldRun);
         }
@@ -595,11 +601,12 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
     public String stopRunExperimentService(Model model, String runIdStop, RedirectAttributes redirectAttrs
             , DiagramDataService diagramDataService) throws InterruptedException {
         Run run = runService.findByRunId(Long.parseLong(runIdStop));
-        Long threadId = run.getThreaId();
+        //Long threadId = run.getThreaId();
+        Long runId = run.getId();
 
         // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
-        Thread th = threadMap.get(threadId);
-        if (th == null) {
+        //Thread th = threadMap.get(threadId);
+        /*if (th == null) {
             run.setStatus(Run.Status.FAILED);
 
             if (redirectAttrs != null) {
@@ -607,11 +614,13 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
                 redirectAttrs.addAttribute("showPlotExecutionButton", "showPlotExecutionButton");
             }
             return "redirect:experiment/runList";
-        }
-        th.interrupt();
-        runnables.get(threadId).stopExecution();
-        th.join();
-        run = runService.findByRunId(Long.parseLong(runIdStop));
+        }*/
+        //th.interrupt();
+        //runnables.get(threadId).stopExecution();
+        runnables.get(runId).stopExecution();
+        //th.join();
+        // redundante
+        //run = runService.findByRunId(Long.parseLong(runIdStop));
         run.getDiagramData().setStopped(true);
         diagramDataService.saveDiagram(run.getDiagramData());
         run.setStatus(Run.Status.STOPPED);
@@ -635,14 +644,17 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
         Iterator<Run> listRunIt = expConfig.getIdRunList().iterator();
         while (listRunIt.hasNext()) {
             Run runIt = listRunIt.next();
-            Long threadId = runIt.getThreaId();
-            Thread th = threadMap.get(threadId);
-            if (th != null) {
+            runIt.setStatus(Run.Status.STOPPED);
+            runService.saveRun(runIt);
+            runnables.get(runIt.getId()).stopExecution();
+            //Long threadId = runIt.getThreaId();
+            //Thread th = threadMap.get(threadId);
+            /*if (th != null) {
                 runIt.setStatus(Run.Status.STOPPED);
                 runService.saveRun(runIt);
                 th.interrupt();
                 runnables.get(threadId).stopExecution();
-            }
+            }*/
             listRunIt.remove();
             runIt.setExperimentId(null);
         }

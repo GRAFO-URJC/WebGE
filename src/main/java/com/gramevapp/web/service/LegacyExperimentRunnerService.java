@@ -18,6 +18,7 @@ import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
 
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -27,8 +28,17 @@ import static com.engine.util.Common.TRAINING_PATH_PROP;
 
 @Service("legacyExperimentRunnerService")
 public class LegacyExperimentRunnerService implements ExperimentRunner{
+    @Override
+    public void accept(ExecutorService tPool,Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
 
-    private ExperimentService experimentService;
+    }
+
+    @Override
+    public void accept(List<Thread> threadList, Run run, String propPath, int crossRunIdentifier, String objective, boolean de) {
+
+    }
+
+    /*private ExperimentService experimentService;
     private SaveDBService saveDBService;
     private Map<Long, Thread> threadMap;
     private Logger logger;
@@ -595,7 +605,7 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
         if (configExpDto.getId() != null) {
             exp = experimentService.findExperimentById(configExpDto.getId());
 
-            /*Check if exp only changed name, desc or tags, in that case, dont remove runs*/
+            /*Check if exp only changed name, desc or tags, in that case, dont remove runs
             sameExp =
                     exp.getGenerations().equals(configExpDto.getGenerations()) &&
                             exp.getCrossoverProb().equals(configExpDto.getCrossoverProb()) &&
@@ -957,5 +967,5 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
             model.addAttribute("noTest", true);
         }
         return "experiment/showTestStatsPlot";
-    }
+    }*/
 }

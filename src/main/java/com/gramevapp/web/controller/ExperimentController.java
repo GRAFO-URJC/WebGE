@@ -39,7 +39,8 @@ public class ExperimentController {
     private SaveDBService saveDBService;
 
     @Autowired
-    private LegacyExperimentRunnerService legacyExperimentRunnerService;
+    private ThreadPoolExperimentRunnerService threadPoolExperimentRunnerService;
+    //private LegacyExperimentRunnerService legacyExperimentRunnerService;
 
 
     @ModelAttribute
@@ -79,7 +80,7 @@ public class ExperimentController {
         model.addAttribute("user", user);
         model.addAttribute("configExp", new ConfigExperimentDto());
         model.addAttribute("disabledClone", true);
-        legacyExperimentRunnerService.modelAddDataService(model, user, null, null, null);
+        threadPoolExperimentRunnerService.modelAddDataService(model, user, null, null, null);
 
         return CONFIGEXPERIMENTPATH;
     }
@@ -99,7 +100,7 @@ public class ExperimentController {
                                 BindingResult result,
                                 RedirectAttributes redirectAttrs) throws IOException {
 
-        return legacyExperimentRunnerService.runExperimentService(model, experimentDataTypeId, testExperimentDataTypeId, fileModelDto, configExpDto, result, redirectAttrs);
+        return threadPoolExperimentRunnerService.runExperimentService(model, experimentDataTypeId, testExperimentDataTypeId, fileModelDto, configExpDto, result, redirectAttrs);
     }
 
     @PostMapping(value = "/experiment/start", params = "saveExperimentButton")
@@ -110,7 +111,7 @@ public class ExperimentController {
                                  @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
                                  BindingResult result) {
 
-        return legacyExperimentRunnerService.saveExperimentService(model, experimentDataTypeId, testExperimentDataTypeId
+        return threadPoolExperimentRunnerService.saveExperimentService(model, experimentDataTypeId, testExperimentDataTypeId
                 , fileModelDto, configExpDto, result);
     }
 
@@ -125,7 +126,7 @@ public class ExperimentController {
         model.addAttribute(CONFIGURATION, configExpDto);
         model.addAttribute(EXPCONFIG, configExpDto);
 
-        legacyExperimentRunnerService.modelAddDataService(model, user,
+        threadPoolExperimentRunnerService.modelAddDataService(model, user,
                 experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
                 null, configExpDto.getTestDefaultExpDataTypeId());
         model.addAttribute("disabledClone", true);
@@ -136,28 +137,28 @@ public class ExperimentController {
 
     @GetMapping(value = "/experiment/experimentRepository")
     public String experimentRepository(Model model) {
-        return legacyExperimentRunnerService.experimentRepositoryService(model);
+        return threadPoolExperimentRunnerService.experimentRepositoryService(model);
     }
 
     @GetMapping(value = "/experiment/expRepoSelected", params = "loadExperimentButton")
     public String expRepoSelected(Model model,
                                   @RequestParam(required = false) String id) { // Exp ID
 
-        return legacyExperimentRunnerService.expRepoSelectedService(model, id);
+        return threadPoolExperimentRunnerService.expRepoSelectedService(model, id);
     }
 
     @PostMapping(value = "/experiment/expRepoSelected", params = "deleteExperiment")
     public
     @ResponseBody
     Long expRepoSelectedDelete(@RequestParam("experimentId") String experimentId) {
-        return legacyExperimentRunnerService.expRepoSelectedDeleteService(experimentId);
+        return threadPoolExperimentRunnerService.expRepoSelectedDeleteService(experimentId);
     }
 
     @PostMapping(value = "/experiment/expRepoSelected", params = "checkIfRunning")
     public
     @ResponseBody
     Boolean expRepoSelectedCheckRunning(@RequestParam("experimentId") String experimentId) {
-        return legacyExperimentRunnerService.expRepoSelectedCheckRunningService(experimentId);
+        return threadPoolExperimentRunnerService.expRepoSelectedCheckRunningService(experimentId);
     }
 
     @GetMapping(value = "/experiment/runList", params = "showPlotExecutionButton")
@@ -177,14 +178,14 @@ public class ExperimentController {
     @GetMapping(value = "/experiment/runList", params = "showTestStatsPlotButton")
     public String showRunTestStatsExperiment(Model model,
                                              @RequestParam(value = RUNID) String runId) {
-        return legacyExperimentRunnerService.showRunTestStatsExperimentService(model, runId);
+        return threadPoolExperimentRunnerService.showRunTestStatsExperimentService(model, runId);
     }
 
     @PostMapping(value = "/experiment/stopRun", params = "stopRunExperimentButton")
     public String stopRunExperiment(Model model,
                                     @RequestParam("runIdStop") String runIdStop,
                                     RedirectAttributes redirectAttrs) throws InterruptedException {
-        return legacyExperimentRunnerService.stopRunExperimentService(model, runIdStop, redirectAttrs, diagramDataService);
+        return threadPoolExperimentRunnerService.stopRunExperimentService(model, runIdStop, redirectAttrs, diagramDataService);
     }
 
     @PostMapping(value = "/experiment/stopRunAjax")
@@ -197,7 +198,7 @@ public class ExperimentController {
     @PostMapping(value = "/experiment/stopAllRunsAjax")
     @ResponseBody
     public boolean ajaxStopAllRunsExperiment(@RequestParam("expId") Long expId) throws InterruptedException {
-        legacyExperimentRunnerService.setExecutionCancelled(true);
+        threadPoolExperimentRunnerService.setExecutionCancelled(true);
         Experiment experiment = experimentService.findExperimentById(expId);
         List<Run> runList = experiment.getIdRunList();
         for (Run run : runList) {
@@ -224,7 +225,7 @@ public class ExperimentController {
 
     @PostConstruct
     public void initSystemStream() {
-        legacyExperimentRunnerService.initSystemStream();
+        threadPoolExperimentRunnerService.initSystemStream();
     }
 
     /**
@@ -235,7 +236,7 @@ public class ExperimentController {
     @GetMapping(value = "/runResultsInfo")
     @ResponseBody
     public RunResultsDto getRunResultsInfo(@RequestParam("expId") String expId) {
-        return legacyExperimentRunnerService.getRunResultsInfoService(expId);
+        return threadPoolExperimentRunnerService.getRunResultsInfoService(expId);
     }
 
     /**
@@ -246,6 +247,6 @@ public class ExperimentController {
     @GetMapping(value = "/experimentRunsPredictions")
     @ResponseBody
     public Map<String,String[][]> getExperimentPredictions(@RequestParam("expId") String expId) {
-        return legacyExperimentRunnerService.getExperimentPredictionsService(expId);
+        return threadPoolExperimentRunnerService.getExperimentPredictionsService(expId);
     }
 }
