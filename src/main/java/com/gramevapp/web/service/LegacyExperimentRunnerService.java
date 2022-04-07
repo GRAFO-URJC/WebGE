@@ -6,14 +6,12 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 @Service("legacyExperimentRunnerService")
 public class LegacyExperimentRunnerService implements ExperimentRunner{
     @Override
-    public Future<?> accept(ExecutorService tPool, Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
+    public void accept(ExecutorService tPool, Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
 
-        return null;
     }
 
     @Override

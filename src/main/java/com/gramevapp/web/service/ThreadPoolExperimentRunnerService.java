@@ -87,13 +87,12 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
     public void setExecutionCancelled(boolean newStatus) { this.executionCancelled = newStatus; }
 
     @Override
-    public Future<?> accept(ExecutorService tPool, Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
+    public void accept(ExecutorService tPool, Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
         // Mete una tarea al threadpool.
         try {
-            return tPool.submit(runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, objective, de));
+            tPool.submit(runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, objective, de));
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
         }
     }
 
