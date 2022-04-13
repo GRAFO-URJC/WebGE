@@ -8,6 +8,7 @@ import com.gramevapp.web.service.SaveDBService;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Logger;
 
 import static com.engine.util.Common.OBJECTIVES_PROP;
 
@@ -50,7 +51,7 @@ public class CallableExpGramEv implements Callable<Void> {
             numObjectives = 2;
         }
 
-        runElement.setStatus(Run.Status.INITIALIZING);
+        //runElement.setStatus(Run.Status.INITIALIZING);
         runElement.setBestIndividual(0.0);
         runElement.setCurrentGeneration(0);
 

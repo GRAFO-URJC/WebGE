@@ -540,6 +540,7 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
 
     public void runSectionService(Run run, Experiment exp) {
         run.setStatus(Run.Status.INITIALIZING);
+        logger.warning("ME HAN PUESTO INITIALIZING SERVICE");
         run.setIniDate(new Timestamp(new Date().getTime()));
         run.setModificationDate(new Timestamp(new Date().getTime()));
         exp.getIdRunList().add(run);
