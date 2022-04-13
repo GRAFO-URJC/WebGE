@@ -23,7 +23,7 @@ public class RunnableExpGramEv implements Runnable {
     private SaveDBService saveDBService;
     private String objective;
     private boolean de;
-    private Long id;
+    private Long runnablesKey;
 
     public RunnableExpGramEv(Properties properties, Run runElement, Dataset experimentDataType,
                              RunService runService, SaveDBService saveDBService, int crossRunIdentifier, String objective, boolean de) {
@@ -35,14 +35,13 @@ public class RunnableExpGramEv implements Runnable {
         this.saveDBService = saveDBService;
         this.objective = objective;
         this.de = de;
-        this.id = idGenerator.incrementAndGet();
+        this.runnablesKey = idGenerator.incrementAndGet();
     }
 
-    public long getId() { return this.id; }
+    public long getRunnablesKey() { return this.runnablesKey; }
 
     @Override
     public void run() {
-
         int numObjectives = 1;
         if ((properties.getProperty(OBJECTIVES_PROP) != null)
                 && (Integer.parseInt(properties.getProperty(OBJECTIVES_PROP)) == 2)) {

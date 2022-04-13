@@ -1,5 +1,6 @@
 package com.gramevapp.web.service;
 
+import com.engine.algorithm.CallableExpGramEv;
 import com.gramevapp.web.model.*;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -41,8 +42,10 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
     private Logger logger;
     private RunService runService;
     //private Map<String, Long> threadRunMap;
-    private Map<Long, RunnableExpGramEv> runnables;
+    private Map<Long, CallableExpGramEv> callables;
     private boolean executionCancelled;
+
+    private Run[] runElementsInExecution;
 
     @Autowired
     private GrammarRepository grammarRepository;
@@ -51,12 +54,12 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
     private UserService userService;
 
     public ThreadPoolExperimentRunnerService(ExperimentService experimentService, SaveDBService saveDBService
-            , RunService runService, Map<Long, RunnableExpGramEv> runnables) {
+            , RunService runService, Map<Long, CallableExpGramEv> callables) {
         this.experimentService = experimentService;
         this.saveDBService = saveDBService;
         this.logger = Logger.getLogger(ThreadPoolExperimentRunnerService.class.getName());
         this.runService = runService;
-        this.runnables = runnables;
+        this.callables = callables;
     }
 
     // Constants
@@ -87,10 +90,11 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
     public void setExecutionCancelled(boolean newStatus) { this.executionCancelled = newStatus; }
 
     @Override
-    public void accept(ExecutorService tPool, Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
+    public void accept(CompletionService<Void> completionService, Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
         // Mete una tarea al threadpool.
         try {
-            tPool.submit(runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, objective, de));
+            completionService.submit(runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, objective, de));
+            //tPool.submit(runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, objective, de));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -138,10 +142,13 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
         String grammarFilePath = grammarFileSectionService(user, configExpDto, exp.getDefaultGrammar());
         // END - Grammar File SECTION
 
-        Run run;
+        Run run = null;
         String propPath;
         int numThreads = Runtime.getRuntime().availableProcessors()/2;
         ExecutorService threadPool = Executors.newFixedThreadPool(numThreads);
+        CompletionService<Void> completionService = new ExecutorCompletionService<>(threadPool);
+
+        runElementsInExecution = new Run[configExpDto.getNumberRuns()];
 
         //check if need to run more runs
         for (int i = 0; i < configExpDto.getNumberRuns(); i++) {
@@ -154,7 +161,8 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
                     user, expDataType, grammarFilePath);
             // Run experiment in new thread
             int crossRunIdentifier = exp.isCrossExperiment() ? run.getExperimentId().getIdRunList().indexOf(run) + 1 : -1;
-            accept(threadPool, run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe(), expId);
+            accept(completionService, run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe(), expId);
+            runElementsInExecution[i] = run;
             //threads.add(runExperimentDetails(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe()));
         }
         experimentService.saveExperiment(exp);
@@ -184,7 +192,38 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
 
         thread.start();*/
         // Stop adding task to threadPool, and wait them to finish.
-        threadPool.shutdown();
+        //threadPool.shutdown();
+
+        /*
+            -Esperamos al CompletionService
+            - Si queremos gestionar las excepciones que salten dentro del threadpool, necesitamos esperar los
+                futures.
+            - Para que se pueden ejecutar y ademas ver su evolucion en la web, se lanzan en un hilo aparte.
+        */
+        Thread lanzaPool = new Thread(
+                () -> {
+                    int tareasFinalizadas = 0;
+                    while(tareasFinalizadas < configExpDto.getNumberRuns()) {
+                        try {
+                            Future<Void> resultFuture = completionService.take();
+                            resultFuture.get();
+                        } catch (InterruptedException e) {
+                            logger.warning("Interrupted thread in service worker");
+                            e.printStackTrace();
+                        } catch (ExecutionException e) {
+                            // gestion error por que falla el mismo. Quiero replicar Thread.unCaughtExceptionHandler
+                            Run runFinish = runElementsInExecution[tareasFinalizadas];
+                            runFinish.setStatus(Run.Status.FAILED);
+                            runFinish.setExecReport(runFinish.getExecReport() + "\nUncaught exception: " + e);
+                            String warningMsg = "Uncaught exception: " + e;
+                            logger.warning(warningMsg);
+                        } finally {
+                            tareasFinalizadas++;
+                        }
+                    }
+                }
+        );
+        lanzaPool.start();
 
         redirectAttrs.addAttribute("id", exp.getId());
         redirectAttrs.addAttribute("loadExperimentButton", "loadExperimentButton");
@@ -194,7 +233,7 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
 
     ///////////////////////
 
-    public RunnableExpGramEv runExperimentDetailsServiceWorker(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) throws IOException {
+    /*public RunnableExpGramEv runExperimentDetailsServiceWorker(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) throws IOException {
 
         File propertiesFile = new File(propPath);
         Properties properties = new Properties();
@@ -214,6 +253,40 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
             run.setExecReport(run.getExecReport() + "\nUncaught exception: " + ex);
             String warningMsg = "Uncaught exception: " + ex;
             logger.warning(warningMsg);
+        };
+        //Thread th = new Thread(obj);
+        //th.setUncaughtExceptionHandler(h);
+        //threadMap.put(th.getId(), th);
+        //threadRunMap.put(th.getName(), run.getId());
+        //run.setThreaId(th.getId());
+
+        //runnables.put(th.getId(), obj);
+        String msg = "***************************** ID: "+obj.getRunnablesKey();
+        logger.warning(msg);
+        runnables.put(obj.getRunnablesKey(), obj);
+        return obj;
+    }*/
+
+    public CallableExpGramEv runExperimentDetailsServiceWorker(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) throws IOException {
+
+        File propertiesFile = new File(propPath);
+        Properties properties = new Properties();
+
+        // Try-with-resources does not need closing stream
+        try(Reader propertiesReader = new FileReader(propertiesFile)) {
+            properties.load(propertiesReader);
+        }
+        properties.setProperty(TRAINING_PATH_PROP, propPath);
+
+
+        CallableExpGramEv obj = new CallableExpGramEv(properties, run,
+                experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService,
+                saveDBService, crossRunIdentifier, objective, de);
+        /*Thread.UncaughtExceptionHandler h = (th, ex) -> {
+            run.setStatus(Run.Status.FAILED);
+            run.setExecReport(run.getExecReport() + "\nUncaught exception: " + ex);
+            String warningMsg = "Uncaught exception: " + ex;
+            logger.warning(warningMsg);
         };*/
         //Thread th = new Thread(obj);
         //th.setUncaughtExceptionHandler(h);
@@ -222,7 +295,7 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
         //run.setThreaId(th.getId());
 
         //runnables.put(th.getId(), obj);
-        runnables.put(obj.getId(), obj);
+        callables.put(obj.getCallablesKey(), obj);
         return obj;
     }
 
@@ -458,7 +531,7 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
                 th.interrupt();
                 runnables.get(oldRun.getThreaId()).stopExecution();
             }*/
-            runnables.get(runId).stopExecution();
+            callables.get(runId).stopExecution();
 
             exp.removeRun(oldRun);
             runService.deleteRun(oldRun);
@@ -612,7 +685,7 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
         }*/
         //th.interrupt();
         //runnables.get(threadId).stopExecution();
-        runnables.get(runId).stopExecution();
+        callables.get(runId).stopExecution();
         //th.join();
         // redundante
         //run = runService.findByRunId(Long.parseLong(runIdStop));
@@ -640,8 +713,11 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
         while (listRunIt.hasNext()) {
             Run runIt = listRunIt.next();
             runIt.setStatus(Run.Status.STOPPED);
-            runService.saveRun(runIt);
-            runnables.get(runIt.getId()).stopExecution();
+            // borro esto porque creo q no tiene sentido
+            //runService.saveRun(runIt);
+            String msg = "************************************************************pppo****"+runIt.getId();
+            logger.warning(msg);
+            callables.get(runIt.getId()).stopExecution();
             //Long threadId = runIt.getThreaId();
             //Thread th = threadMap.get(threadId);
             /*if (th != null) {
