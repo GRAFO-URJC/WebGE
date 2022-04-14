@@ -545,7 +545,6 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
 
     public void runSectionService(Run run, Experiment exp) {
         run.setStatus(Run.Status.INITIALIZING);
-        logger.warning("ME HAN PUESTO INITIALIZING SERVICE");
         run.setIniDate(new Timestamp(new Date().getTime()));
         run.setModificationDate(new Timestamp(new Date().getTime()));
         exp.getIdRunList().add(run);
@@ -719,11 +718,16 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
         while (listRunIt.hasNext()) {
             Run runIt = listRunIt.next();
             runIt.setStatus(Run.Status.STOPPED);
-            // borro esto porque creo q no tiene sentido
-            //runService.saveRun(runIt);
-            String msg = "************************************************************pppo****"+runIt.getId();
-            logger.warning(msg);
-            callables.get(runIt.getId()).stopExecution();
+            runService.saveRun(runIt);
+            // Este petaba
+            //callables.get(runIt.getId()).stopExecution();
+
+            Long runId = runIt.getId();
+            Future<Void> runFuture = runToFuture.get(runId);
+            if(runFuture != null) {
+                // Si sigue ejecutando se interrumpe
+                runFuture.cancel(true);
+            }
             //Long threadId = runIt.getThreaId();
             //Thread th = threadMap.get(threadId);
             /*if (th != null) {
@@ -871,6 +875,9 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
 
         while (listRunIt.hasNext()) {
             Run runIt = listRunIt.next();
+            if(runIt == null) {
+                return false;
+            }
             if (runIt.getStatus().equals(Run.Status.RUNNING)) {
                 return true;
             }
