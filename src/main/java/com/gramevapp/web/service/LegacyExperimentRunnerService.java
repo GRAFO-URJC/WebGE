@@ -7,12 +7,13 @@ import java.util.*;
 
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 @Service("legacyExperimentRunnerService")
 public class LegacyExperimentRunnerService implements ExperimentRunner{
     @Override
-    public void accept(CompletionService<Void> completionService, Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
-
+    public Future<Void> accept(CompletionService<Void> completionService, Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
+        return null;
     }
 
     @Override

@@ -44,6 +44,7 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
     //private Map<String, Long> threadRunMap;
     private Map<Long, CallableExpGramEv> callables;
     private boolean executionCancelled;
+    private Map<Long, Future<Void>> runToFuture;
 
     private Run[] runElementsInExecution;
 
@@ -54,12 +55,13 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
     private UserService userService;
 
     public ThreadPoolExperimentRunnerService(ExperimentService experimentService, SaveDBService saveDBService
-            , RunService runService, Map<Long, CallableExpGramEv> callables) {
+            , RunService runService, Map<Long, CallableExpGramEv> callables, Map<Long, Future<Void>> runToFuture) {
         this.experimentService = experimentService;
         this.saveDBService = saveDBService;
         this.logger = Logger.getLogger(ThreadPoolExperimentRunnerService.class.getName());
         this.runService = runService;
         this.callables = callables;
+        this.runToFuture = runToFuture;
     }
 
     // Constants
@@ -90,13 +92,14 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
     public void setExecutionCancelled(boolean newStatus) { this.executionCancelled = newStatus; }
 
     @Override
-    public void accept(CompletionService<Void> completionService, Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
+    public Future<Void> accept(CompletionService<Void> completionService, Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
         // Mete una tarea al threadpool.
         try {
-            completionService.submit(runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, objective, de));
+            return completionService.submit(runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, objective, de));
             //tPool.submit(runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, objective, de));
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
     }
 
@@ -154,6 +157,7 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
         for (int i = 0; i < configExpDto.getNumberRuns(); i++) {
             // RUN SECTION
             run = runService.saveRun(new Run());
+            Long runId = run.getId();
             runSectionService(run, exp);
             run.setStatus(Run.Status.WAITING);
             // Create ExpPropertiesDto file
@@ -161,7 +165,8 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
                     user, expDataType, grammarFilePath);
             // Run experiment in new thread
             int crossRunIdentifier = exp.isCrossExperiment() ? run.getExperimentId().getIdRunList().indexOf(run) + 1 : -1;
-            accept(completionService, run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe(), expId);
+            Future<Void> future = accept(completionService, run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe(), expId);
+            runToFuture.put(runId, future);
             runElementsInExecution[i] = run;
             //threads.add(runExperimentDetails(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe()));
         }
