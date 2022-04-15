@@ -42,7 +42,7 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
     private Logger logger;
     private RunService runService;
     //private Map<String, Long> threadRunMap;
-    private Map<Long, CallableExpGramEv> callables;
+    //private Map<Long, CallableExpGramEv> callables;
     private boolean executionCancelled;
     private Map<Long, Future<Void>> runToFuture;
     private Map<Long, CallableExpGramEv> runToCallable;
@@ -56,13 +56,12 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
     private UserService userService;
 
     public ThreadPoolExperimentRunnerService(ExperimentService experimentService, SaveDBService saveDBService
-            , RunService runService, Map<Long, CallableExpGramEv> callables, Map<Long, Future<Void>> runToFuture
+            , RunService runService, Map<Long, Future<Void>> runToFuture
             , Map<Long, CallableExpGramEv> runToCallable) {
         this.experimentService = experimentService;
         this.saveDBService = saveDBService;
         this.logger = Logger.getLogger(ThreadPoolExperimentRunnerService.class.getName());
         this.runService = runService;
-        this.callables = callables;
         this.runToFuture = runToFuture;
         this.runToCallable = runToCallable;
     }
@@ -303,7 +302,7 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
         //run.setThreaId(th.getId());
 
         //runnables.put(th.getId(), obj);
-        callables.put(obj.getCallablesKey(), obj);
+        //callables.put(obj.getCallablesKey(), obj);
 
         // run -> obj
         runToCallable.put(run.getId(), obj);
@@ -542,7 +541,7 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
                 th.interrupt();
                 runnables.get(oldRun.getThreaId()).stopExecution();
             }*/
-            callables.get(runId).stopExecution();
+            //callables.get(runId).stopExecution();
 
             exp.removeRun(oldRun);
             runService.deleteRun(oldRun);
@@ -696,10 +695,12 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
         }*/
         //th.interrupt();
         //runnables.get(threadId).stopExecution();
-        callables.get(runId).stopExecution();
+        //callables.get(runId).stopExecution();
         //th.join();
         // redundante
         //run = runService.findByRunId(Long.parseLong(runIdStop));
+        logger.warning("Llamada a stopRunExperimentService");
+        runToCallable.get(runId).stopExecution();
         run.getDiagramData().setStopped(true);
         diagramDataService.saveDiagram(run.getDiagramData());
         run.setStatus(Run.Status.STOPPED);
