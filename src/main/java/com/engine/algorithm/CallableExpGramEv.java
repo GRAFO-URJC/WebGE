@@ -28,6 +28,8 @@ public class CallableExpGramEv implements Callable<Void> {
     private boolean de;
     private Long callablesKey;
 
+    Logger logger = Logger.getLogger(CallableExpGramEv.class.getName());
+
     public CallableExpGramEv(Properties properties, Run runElement, Dataset experimentDataType,
                              RunService runService, SaveDBService saveDBService, int crossRunIdentifier, String objective, boolean de) {
         this.properties = properties;
@@ -55,7 +57,9 @@ public class CallableExpGramEv implements Callable<Void> {
         runElement.setBestIndividual(0.0);
         runElement.setCurrentGeneration(0);
 
+
         ge = new SymbolicRegressionGE(properties, numObjectives, objective, de);
+
 
         RunGeObserver observer = new RunGeObserver();
         observer.setDiagramData(runElement);
@@ -68,6 +72,7 @@ public class CallableExpGramEv implements Callable<Void> {
             int indexFold;
             int identifier;
             for (int i = 1; i < splitInfo.length; i++) {
+
                 indexFold = splitInfo[i].lastIndexOf(';');
                 identifier = Integer.parseInt(splitInfo[i].substring(indexFold + 1));
                 //check if have cross

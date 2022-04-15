@@ -405,6 +405,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         ArrayList<String> log = new ArrayList<>();
 
         // refactor method
+        // long startTime = 0, endTime = 0;
         startExecutions(numExecutions, run, saveDBService, runService, numObjectives, log);
 
         System.out.flush();

@@ -45,6 +45,7 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
     private Map<Long, CallableExpGramEv> callables;
     private boolean executionCancelled;
     private Map<Long, Future<Void>> runToFuture;
+    private Map<Long, CallableExpGramEv> runToCallable;
 
     private Run[] runElementsInExecution;
 
@@ -55,13 +56,15 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
     private UserService userService;
 
     public ThreadPoolExperimentRunnerService(ExperimentService experimentService, SaveDBService saveDBService
-            , RunService runService, Map<Long, CallableExpGramEv> callables, Map<Long, Future<Void>> runToFuture) {
+            , RunService runService, Map<Long, CallableExpGramEv> callables, Map<Long, Future<Void>> runToFuture
+            , Map<Long, CallableExpGramEv> runToCallable) {
         this.experimentService = experimentService;
         this.saveDBService = saveDBService;
         this.logger = Logger.getLogger(ThreadPoolExperimentRunnerService.class.getName());
         this.runService = runService;
         this.callables = callables;
         this.runToFuture = runToFuture;
+        this.runToCallable = runToCallable;
     }
 
     // Constants
@@ -301,6 +304,9 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
 
         //runnables.put(th.getId(), obj);
         callables.put(obj.getCallablesKey(), obj);
+
+        // run -> obj
+        runToCallable.put(run.getId(), obj);
         return obj;
     }
 
@@ -726,7 +732,8 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
             Future<Void> runFuture = runToFuture.get(runId);
             if(runFuture != null) {
                 // Si sigue ejecutando se interrumpe
-                runFuture.cancel(true);
+                //runFuture.cancel(true);
+                runToCallable.get(runId).stopExecution();
             }
             //Long threadId = runIt.getThreaId();
             //Thread th = threadMap.get(threadId);
@@ -738,6 +745,9 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
             }*/
             listRunIt.remove();
             runIt.setExperimentId(null);
+            runIt.setStatus(Run.Status.STOPPED);
+            //callables.get(runId).stopExecution();
+            runService.saveRun(runIt);
         }
 
         Iterator<Dataset> listDataTypeIt = expConfig.getIdExpDataTypeList().iterator();
