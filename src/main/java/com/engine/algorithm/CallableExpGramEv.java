@@ -7,15 +7,11 @@ import com.gramevapp.web.service.SaveDBService;
 
 import java.util.Properties;
 import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Logger;
 
 import static com.engine.util.Common.OBJECTIVES_PROP;
 
 // Clon de RunnableExpGramEv pero implementando Callable
 public class CallableExpGramEv implements Callable<Void> {
-
-    private static AtomicLong idGenerator = new AtomicLong(0);
 
     private final Properties properties;
     private final Run runElement;
@@ -26,9 +22,6 @@ public class CallableExpGramEv implements Callable<Void> {
     private SaveDBService saveDBService;
     private String objective;
     private boolean de;
-    private Long callablesKey;
-
-    Logger logger = Logger.getLogger(CallableExpGramEv.class.getName());
 
     public CallableExpGramEv(Properties properties, Run runElement, Dataset experimentDataType,
                              RunService runService, SaveDBService saveDBService, int crossRunIdentifier, String objective, boolean de) {
@@ -40,10 +33,7 @@ public class CallableExpGramEv implements Callable<Void> {
         this.saveDBService = saveDBService;
         this.objective = objective;
         this.de = de;
-        this.callablesKey = idGenerator.incrementAndGet();
     }
-
-    public long getCallablesKey() { return this.callablesKey; }
 
     @Override
     public Void call() throws Exception {
