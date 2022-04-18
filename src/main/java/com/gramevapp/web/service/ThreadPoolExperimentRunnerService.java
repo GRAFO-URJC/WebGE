@@ -92,7 +92,6 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
         try {
             return completionService.submit(runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, objective, de));
         } catch (IOException e) {
-            e.printStackTrace();
             return null;
         }
     }
@@ -182,7 +181,6 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
                             resultFuture.get();
                         } catch (InterruptedException e) {
                             logger.warning("Interrupted thread in service worker");
-                            e.printStackTrace();
                         } catch (ExecutionException e) {
                             // gestion error por que falla el mismo. Quiero replicar Thread.unCaughtExceptionHandler
                             Run runFinish = runElementsInExecution[tareasFinalizadas];
