@@ -578,20 +578,22 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
         Iterator<Run> listRunIt = expConfig.getIdRunList().iterator();
         while (listRunIt.hasNext()) {
             Run runIt = listRunIt.next();
-            runIt.setStatus(Run.Status.STOPPED);
-            runService.saveRun(runIt);
+            if(runIt != null) {
+                runIt.setStatus(Run.Status.STOPPED);
+                runService.saveRun(runIt);
 
-            Long runId = runIt.getId();
-            Future<Void> runFuture = runToFuture.get(runId);
-            if(runFuture != null) {
-                // No se interrumpen los hilos del threadpool
-                // Solo detenemos el run.
-                runToCallable.get(runId).stopExecution();
+                Long runId = runIt.getId();
+                Future<Void> runFuture = runToFuture.get(runId);
+                if(runFuture != null) {
+                    // No se interrumpen los hilos del threadpool
+                    // Solo detenemos el run.
+                    runToCallable.get(runId).stopExecution();
+                }
+                listRunIt.remove();
+                runIt.setExperimentId(null);
+                runIt.setStatus(Run.Status.STOPPED);
+                runService.saveRun(runIt);
             }
-            listRunIt.remove();
-            runIt.setExperimentId(null);
-            runIt.setStatus(Run.Status.STOPPED);
-            runService.saveRun(runIt);
         }
 
         Iterator<Dataset> listDataTypeIt = expConfig.getIdExpDataTypeList().iterator();
