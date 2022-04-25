@@ -18,7 +18,6 @@ import java.util.concurrent.*;
 import com.engine.algorithm.ModelEvaluator;
 import com.engine.algorithm.SymbolicRegressionGE;
 import com.gramevapp.web.repository.GrammarRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
@@ -35,6 +34,8 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
 
     private ExperimentService experimentService;
     private SaveDBService saveDBService;
+    private GrammarRepository grammarRepository;
+    private UserService userService;
     private Logger logger;
     private RunService runService;
     private boolean executionCancelled;
@@ -42,21 +43,20 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
     private Map<Long, CallableExpGramEv> runToCallable;
     private Run[] runElementsInExecution;
 
-    @Autowired
-    private GrammarRepository grammarRepository;
 
-    @Autowired
-    private UserService userService;
 
     public ThreadPoolExperimentRunnerService(ExperimentService experimentService, SaveDBService saveDBService
             , RunService runService, Map<Long, Future<Void>> runToFuture
-            , Map<Long, CallableExpGramEv> runToCallable) {
+            , Map<Long, CallableExpGramEv> runToCallable, GrammarRepository grammarRepository, UserService userService) {
         this.experimentService = experimentService;
         this.saveDBService = saveDBService;
         this.logger = Logger.getLogger(ThreadPoolExperimentRunnerService.class.getName());
         this.runService = runService;
         this.runToFuture = runToFuture;
         this.runToCallable = runToCallable;
+
+        this.grammarRepository = grammarRepository;
+        this.userService = userService;
     }
 
     // Constants
