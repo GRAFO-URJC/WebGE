@@ -43,6 +43,8 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
     private Map<Long, CallableExpGramEv> runToCallable;
     private Run[] runElementsInExecution;
 
+    private ExecutorService threadPool;
+
 
 
     public ThreadPoolExperimentRunnerService(ExperimentService experimentService, SaveDBService saveDBService
@@ -57,6 +59,9 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
 
         this.grammarRepository = grammarRepository;
         this.userService = userService;
+
+        int numThreads = Runtime.getRuntime().availableProcessors()/2;
+        this.threadPool = Executors.newFixedThreadPool(numThreads);
     }
 
     // Constants
@@ -87,10 +92,9 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
     public void setExecutionCancelled(boolean newStatus) { this.executionCancelled = newStatus; }
 
     @Override
-    public Future<Void> accept(CompletionService<Void> completionService, Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
-        // Mete una tarea al threadpool.
+    public Future<Void> accept(Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
         try {
-            return completionService.submit(runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, objective, de));
+            return threadPool.submit(runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, objective, de));
         } catch (IOException e) {
             return null;
         }
@@ -140,11 +144,9 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
 
         Run run = null;
         String propPath;
-        int numThreads = Runtime.getRuntime().availableProcessors()/2;
-        ExecutorService threadPool = Executors.newFixedThreadPool(numThreads);
-        CompletionService<Void> completionService = new ExecutorCompletionService<>(threadPool);
 
         runElementsInExecution = new Run[configExpDto.getNumberRuns()];
+        List<Future<Void>> futures = new ArrayList<>();
 
         //check if need to run more runs
         for (int i = 0; i < configExpDto.getNumberRuns(); i++) {
@@ -154,47 +156,38 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
             runSectionService(run, exp);
             run.setStatus(Run.Status.WAITING);
             // Create ExpPropertiesDto file
-            propPath = expPropertiesSet(configExpDto,
-                    user, expDataType, grammarFilePath);
+            propPath = expPropertiesSet(configExpDto, user, expDataType, grammarFilePath);
             // Run experiment in new thread
             int crossRunIdentifier = exp.isCrossExperiment() ? run.getExperimentId().getIdRunList().indexOf(run) + 1 : -1;
-            Future<Void> future = accept(completionService, run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe(), expId);
+            Future<Void> future = accept(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe(), expId);
             runToFuture.put(runId, future);
+            futures.add(future);
             runElementsInExecution[i] = run;
         }
         experimentService.saveExperiment(exp);
         executionCancelled = false;
 
-        /*
-            -Esperamos al CompletionService
-            - Si queremos gestionar las excepciones que salten dentro del threadpool, necesitamos esperar los
-                futures.
-            - Para que se pueden ejecutar y ademas ver su evolucion en la web, se lanzan en un hilo aparte.
-        */
-
-        Thread lanzaPool = new Thread(
-                () -> {
-                    int tareasFinalizadas = 0;
-                    while(tareasFinalizadas < configExpDto.getNumberRuns()) {
-                        try {
-                            Future<Void> resultFuture = completionService.take();
-                            resultFuture.get();
-                        } catch (InterruptedException e) {
-                            logger.warning("Interrupted thread in service worker");
-                        } catch (ExecutionException e) {
-                            // gestion error por que falla el mismo. Quiero replicar Thread.unCaughtExceptionHandler
-                            Run runFinish = runElementsInExecution[tareasFinalizadas];
-                            runFinish.setStatus(Run.Status.FAILED);
-                            runFinish.setExecReport(runFinish.getExecReport() + "\nUncaught exception: " + e);
-                            String warningMsg = "Uncaught exception: " + e;
-                            logger.warning(warningMsg);
-                        } finally {
-                            tareasFinalizadas++;
-                        }
-                    }
+        // Start all runs and handle their exceptions.
+        threadPool.submit(() ->  {
+            int tareasFinalizadas = 0;
+            for (Future<Void> resultFuture : futures) {
+                try {
+                    resultFuture.get();
+                } catch (InterruptedException e) {
+                    logger.warning("Interrupted thread in service worker");
+                } catch (ExecutionException e) {
+                    Run runFinish = runElementsInExecution[tareasFinalizadas];
+                    runFinish.setStatus(Run.Status.FAILED);
+                    runFinish.setExecReport(runFinish.getExecReport() + "\nUncaught exception: " + e);
+                    String warningMsg = "Uncaught exception: " + e;
+                    logger.warning(warningMsg);
+                } finally {
+                    tareasFinalizadas++;
                 }
-        );
-        lanzaPool.start();
+            }
+        });
+
+        threadPool.shutdown();
 
         redirectAttrs.addAttribute("id", exp.getId());
         redirectAttrs.addAttribute("loadExperimentButton", "loadExperimentButton");
