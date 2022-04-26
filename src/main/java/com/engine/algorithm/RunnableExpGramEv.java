@@ -12,7 +12,7 @@ import static com.engine.util.Common.OBJECTIVES_PROP;
 
 public class RunnableExpGramEv implements Runnable {
 
-    private static AtomicLong idGenerator = new AtomicLong(0);
+    //private static AtomicLong idGenerator = new AtomicLong(0);
 
     private final Properties properties;
     private final Run runElement;
@@ -23,7 +23,7 @@ public class RunnableExpGramEv implements Runnable {
     private SaveDBService saveDBService;
     private String objective;
     private boolean de;
-    private Long runnablesKey;
+    //private Long runnablesKey;
 
     public RunnableExpGramEv(Properties properties, Run runElement, Dataset experimentDataType,
                              RunService runService, SaveDBService saveDBService, int crossRunIdentifier, String objective, boolean de) {
@@ -35,10 +35,10 @@ public class RunnableExpGramEv implements Runnable {
         this.saveDBService = saveDBService;
         this.objective = objective;
         this.de = de;
-        this.runnablesKey = idGenerator.incrementAndGet();
+        //this.runnablesKey = idGenerator.incrementAndGet();
     }
 
-    public long getRunnablesKey() { return this.runnablesKey; }
+    //public long getRunnablesKey() { return this.runnablesKey; }
 
     @Override
     public void run() {

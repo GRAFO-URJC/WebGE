@@ -28,7 +28,6 @@ public class RunGeObserver implements Observer {
 
     private Run run;
     private Lock lock = new ReentrantLock();
-    private Logger logger = Logger.getLogger(RunGeObserver.class.getName());
 
 
     @Override

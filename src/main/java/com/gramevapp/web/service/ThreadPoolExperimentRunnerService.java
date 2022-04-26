@@ -175,6 +175,7 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
                     resultFuture.get();
                 } catch (InterruptedException e) {
                     logger.warning("Interrupted thread in service worker");
+                    Thread.currentThread().interrupt();
                 } catch (ExecutionException e) {
                     Run runFinish = runElementsInExecution[tareasFinalizadas];
                     runFinish.setStatus(Run.Status.FAILED);
@@ -186,8 +187,6 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
                 }
             }
         });
-
-        threadPool.shutdown();
 
         redirectAttrs.addAttribute("id", exp.getId());
         redirectAttrs.addAttribute("loadExperimentButton", "loadExperimentButton");
