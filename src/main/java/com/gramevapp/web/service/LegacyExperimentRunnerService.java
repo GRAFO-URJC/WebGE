@@ -1,34 +1,27 @@
 package com.gramevapp.web.service;
 
-import com.engine.algorithm.ModelEvaluator;
-import com.engine.algorithm.RunnableExpGramEv;
-import com.engine.algorithm.SymbolicRegressionGE;
 import com.gramevapp.web.model.*;
-import com.gramevapp.web.repository.GrammarRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.validation.Valid;
-import java.io.*;
-import java.sql.Timestamp;
 import java.util.*;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static com.engine.util.Common.TRAINING_PATH_PROP;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 @Service("legacyExperimentRunnerService")
 public class LegacyExperimentRunnerService implements ExperimentRunner{
+    @Override
+    public Future<Void> accept(Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
+        return null;
+    }
 
-    private ExperimentService experimentService;
+    @Override
+    public void accept(List<Thread> threadList, Run run, String propPath, int crossRunIdentifier, String objective, boolean de) {
+
+    }
+
+    /*private ExperimentService experimentService;
     private SaveDBService saveDBService;
     private Map<Long, Thread> threadMap;
     private Logger logger;
@@ -120,7 +113,7 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
         }
     }
     @Override
-    public void accept(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) {
+    public void accept(Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
         // Legacy service won't implement this version.
     }
 
@@ -595,7 +588,7 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
         if (configExpDto.getId() != null) {
             exp = experimentService.findExperimentById(configExpDto.getId());
 
-            /*Check if exp only changed name, desc or tags, in that case, dont remove runs*/
+            /*Check if exp only changed name, desc or tags, in that case, dont remove runs
             sameExp =
                     exp.getGenerations().equals(configExpDto.getGenerations()) &&
                             exp.getCrossoverProb().equals(configExpDto.getCrossoverProb()) &&
@@ -801,13 +794,9 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
         return results;
     }
 
-    public String runExperimentService(Model model,
-                                @RequestParam("experimentDataTypeId") String experimentDataTypeId,
-                                @RequestParam("testExperimentDataTypeId") String testExperimentDataTypeId,
-                                @ModelAttribute("typeFile") FileModelDto fileModelDto,
-                                @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
-                                BindingResult result,
-                                RedirectAttributes redirectAttrs) throws IOException {
+    public String runExperimentService(Model model, String experimentDataTypeId, String testExperimentDataTypeId
+            , FileModelDto fileModelDto, ConfigExperimentDto configExpDto, BindingResult result
+            , RedirectAttributes redirectAttrs) throws IOException {
 
         User user = userService.getLoggedInUser();
         modelAddDataService(model, user, null, null, null);
@@ -961,5 +950,5 @@ public class LegacyExperimentRunnerService implements ExperimentRunner{
             model.addAttribute("noTest", true);
         }
         return "experiment/showTestStatsPlot";
-    }
+    }*/
 }
