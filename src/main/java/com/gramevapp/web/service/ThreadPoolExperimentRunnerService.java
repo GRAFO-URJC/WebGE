@@ -1,8 +1,10 @@
 package com.gramevapp.web.service;
 
 import com.engine.algorithm.CallableExpGramEv;
+import com.gramevapp.GramevApplication;
 import com.gramevapp.web.model.*;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -45,13 +47,14 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
     private Run[] runElementsInExecution;
 
     //private ExecutorService threadPool;
+    @Autowired
     private RabbitTemplate rabbitTemplate;
 
 
 
     public ThreadPoolExperimentRunnerService(ExperimentService experimentService, SaveDBService saveDBService
             , RunService runService, Map<Long, Future<Void>> runToFuture
-            , Map<Long, CallableExpGramEv> runToCallable, GrammarRepository grammarRepository, UserService userService, RabbitTemplate rabbitTemplate) {
+            , Map<Long, CallableExpGramEv> runToCallable, GrammarRepository grammarRepository, UserService userService) {
         this.experimentService = experimentService;
         this.saveDBService = saveDBService;
         this.logger = Logger.getLogger(ThreadPoolExperimentRunnerService.class.getName());
@@ -64,7 +67,6 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
 
         int numThreads = Runtime.getRuntime().availableProcessors()/2;
 
-        this.rabbitTemplate = rabbitTemplate;
         //this.threadPool = Executors.newFixedThreadPool(numThreads);
     }
 
@@ -176,7 +178,9 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
             //Future<Void> future = accept(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe(), expId);
             //runToFuture.put(runId, future);
             //futures.add(future);
-            rabbitTemplate.convertAndSend(MessagingRabbitmqApplication.topicExchangeName, "foo.bar.baz", runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe()));
+            logger.warning("---------------- antes");
+            rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.ROUTING_KEY, runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe()));
+            logger.warning("---------------- despues");
             runElementsInExecution[i] = run;
         }
         experimentService.saveExperiment(exp);

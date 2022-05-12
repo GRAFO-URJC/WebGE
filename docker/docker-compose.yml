@@ -1,16 +1,10 @@
 # https://docs.docker.com/compose/compose-file/
 version: '3'
 services:
-  rabbitmq:
-    image: rabbitmq:management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-
   db:
     image: postgres:12
     ports:
-      - 5432:5432
+      - "5432:5432"
     restart: always
     environment:
       POSTGRES_USER: usuario
@@ -29,9 +23,9 @@ services:
     depends_on:
       - db
     ports:
-      - 8182:8182
-      - 5005:5005
-      - 9010:9010
+      - "8182:8182"
+      - "5005:5005"
+      - "9010:9010"
     environment:
       SPRING_DATASOURCE_URL: "jdbc:postgresql://db:5432/webge"
       SPRING_DATASOURCE_USERNAME: "usuario"
@@ -41,6 +35,11 @@ services:
       SPRING_FLYWAY_PASSWORD: "01234"
     networks:
       - backend
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 volumes:
   pgdata:
 

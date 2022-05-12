@@ -25,10 +25,10 @@ public class CallablesSubmiter {
 
     public static final String RECEIVE_MESSAGE_METHOD_NAME = "receiveMessage";
 
-    public CallablesSubmiter() {
-        this.threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()/2);
-        this.logger = Logger.getLogger(CallablesSubmiter.class.getName());
-    }
+//    public CallablesSubmiter() {
+//        this.threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()/2);
+//        this.logger = Logger.getLogger(CallablesSubmiter.class.getName());
+//    }
 
     public Future<Void> accept(CallableExpGramEvWrapper callableExpGramEvWrapper) {
         CallableExpGramEv callable = callableExpGramEvWrapper.getCallable();
@@ -43,7 +43,8 @@ public class CallablesSubmiter {
     }
 
     public void receiveMessage(CallableExpGramEvWrapper message) {
-        threadPool.submit(message.getCallable());
+        accept(message);
+       //threadPool.submit(message.getCallable());
         logger.info("Callable submited to threadpool");
     }
 }
