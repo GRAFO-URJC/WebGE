@@ -179,7 +179,7 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
             //runToFuture.put(runId, future);
             //futures.add(future);
             logger.warning("---------------- antes");
-            rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.ROUTING_KEY, runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe()));
+            rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.ROUTING_KEY, "mensjaexd");
             logger.warning("---------------- despues");
             runElementsInExecution[i] = run;
         }
