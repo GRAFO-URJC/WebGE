@@ -34,7 +34,7 @@ public class MQConfig {
 
     @Bean
     public MessageConverter messageConverter() {
-        return  new Jackson2JsonMessageConverter(); // todo
+       return new Jackson2JsonMessageConverter();
     }
 
     @Bean
