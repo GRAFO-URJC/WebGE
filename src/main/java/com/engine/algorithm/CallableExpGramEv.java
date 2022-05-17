@@ -4,6 +4,7 @@ import com.gramevapp.web.model.Dataset;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.SaveDBService;
+import lombok.NoArgsConstructor;
 
 import java.util.Properties;
 import java.util.concurrent.Callable;
@@ -13,8 +14,8 @@ import static com.engine.util.Common.OBJECTIVES_PROP;
 // Clon de RunnableExpGramEv pero implementando Callable
 public class CallableExpGramEv implements Callable<Void> {
 
-    private final Properties properties;
-    private final Run runElement;
+    private Properties properties;
+    private Run runElement;
     private SymbolicRegressionGE ge;
     private Dataset experimentDataType;
     private RunService runService;
@@ -33,6 +34,10 @@ public class CallableExpGramEv implements Callable<Void> {
         this.saveDBService = saveDBService;
         this.objective = objective;
         this.de = de;
+    }
+
+    public CallableExpGramEv() {
+
     }
 
     @Override

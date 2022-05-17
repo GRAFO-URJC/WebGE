@@ -1,7 +1,11 @@
 package com.gramevapp.web.service;
 
 import com.engine.algorithm.CallableExpGramEv;
+import lombok.Data;
+import lombok.ToString;
 
+@Data
+@ToString
 public class CallableExpGramEvWrapper {
     private CallableExpGramEv callable;
     private Long expId, runId;
@@ -11,6 +15,8 @@ public class CallableExpGramEvWrapper {
         this.expId = expId;
         this.runId = runId;
     }
+
+    public CallableExpGramEvWrapper() { }
 
     public CallableExpGramEv getCallable() {
         return callable;

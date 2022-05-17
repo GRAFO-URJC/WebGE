@@ -1,9 +1,11 @@
 package com.gramevapp.web.service;
 
 import com.engine.algorithm.CallableExpGramEv;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gramevapp.GramevApplication;
 import com.gramevapp.web.model.*;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.utils.SerializationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -46,7 +48,7 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
     //private Map<Long, CallableExpGramEv> runToCallable;
     private Run[] runElementsInExecution;
 
-    //private ExecutorService threadPool;
+    public static ExecutorService threadPool;
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
@@ -67,7 +69,7 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
 
         int numThreads = Runtime.getRuntime().availableProcessors()/2;
 
-        //this.threadPool = Executors.newFixedThreadPool(numThreads);
+        threadPool = Executors.newFixedThreadPool(numThreads);
     }
 
     // Constants
@@ -178,37 +180,21 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
             //Future<Void> future = accept(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe(), expId);
             //runToFuture.put(runId, future);
             //futures.add(future);
-            logger.warning("---------------- antes");
-            rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.ROUTING_KEY, "mensjaexd");
-            logger.warning("---------------- despues");
+            CallableExpGramEvWrapper messageToSend = new CallableExpGramEvWrapper(
+                    runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, configExpDto.getObjective()
+                            , configExpDto.isDe()), expId, runId);
+
+            rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.ROUTING_KEY, messageToSend);
+            logger.warning("Done sent");
             runElementsInExecution[i] = run;
         }
         experimentService.saveExperiment(exp);
         executionCancelled = false;
 
         // Start all runs and handle their exceptions.
-//        threadPool.submit(() ->  {
-//            int tareasFinalizadas = 0;
-//            for (Future<Void> resultFuture : futures) {
-//                try {
-//                    resultFuture.get();
-//                } catch (InterruptedException e) {
-//                    logger.warning("Interrupted thread in service worker");
-//                    Thread.currentThread().interrupt();
-//                } catch (ExecutionException e) {
-//                    Run runFinish = runElementsInExecution[tareasFinalizadas];
-//                    runFinish.setStatus(Run.Status.FAILED);
-//                    runFinish.setExecReport(runFinish.getExecReport() + "\nUncaught exception: " + e);
-//                    String warningMsg = "Uncaught exception: " + e;
-//                    logger.warning(warningMsg);
-//                } finally {
-//                    tareasFinalizadas++;
-//                }
-//            }
-//        });
-        Thread th = new Thread(() ->  {
+        threadPool.submit(() ->  {
             int tareasFinalizadas = 0;
-            for (Future<Void> resultFuture : CallablesSubmiter.futuresList) {
+            for (Future<Void> resultFuture : CallablesSubmiter. futuresList) {
                 try {
                     resultFuture.get();
                 } catch (InterruptedException e) {
@@ -225,7 +211,27 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
                 }
             }
         });
-        th.start();
+//        Thread th = new Thread(() ->  {
+//            logger.warning("Empiezo a esperar futures");
+//            int tareasFinalizadas = 0;
+//            for (Future<Void> resultFuture : CallablesSubmiter.futuresList) {
+//                try {
+//                    resultFuture.get();
+//                } catch (InterruptedException e) {
+//                    logger.warning("Interrupted thread in service worker");
+//                    Thread.currentThread().interrupt();
+//                } catch (ExecutionException e) {
+//                    Run runFinish = runElementsInExecution[tareasFinalizadas];
+//                    runFinish.setStatus(Run.Status.FAILED);
+//                    runFinish.setExecReport(runFinish.getExecReport() + "\nUncaught exception: " + e);
+//                    String warningMsg = "Uncaught exception: " + e;
+//                    logger.warning(warningMsg);
+//                } finally {
+//                    tareasFinalizadas++;
+//                }
+//            }
+//        });
+//        th.start();
 
         redirectAttrs.addAttribute("id", exp.getId());
         redirectAttrs.addAttribute("loadExperimentButton", "loadExperimentButton");
