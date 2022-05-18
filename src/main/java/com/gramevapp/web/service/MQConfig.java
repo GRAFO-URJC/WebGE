@@ -3,6 +3,7 @@ package com.gramevapp.web.service;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
@@ -20,6 +21,8 @@ public class MQConfig {
     public static final String QUEUE = "message_queue";
     public static final String EXCHANGE = "message_exchange";
     public static final String ROUTING_KEY = "message_routingKey";
+
+    private static final int NUM_THREADS = Runtime.getRuntime().availableProcessors()/2;
 
     @Bean
     public Queue queue() {
@@ -48,6 +51,13 @@ public class MQConfig {
     public AmqpTemplate template(ConnectionFactory connectionFactory) {
         RabbitTemplate template = new RabbitTemplate(connectionFactory);
         template.setMessageConverter(messageConverter());
-        return  template;
+        return template;
+    }
+
+    @Bean
+    public SimpleMessageListenerContainer simpleMessageListenerContainer(ConnectionFactory connectionFactory) {
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(connectionFactory);
+        container.setConcurrentConsumers(NUM_THREADS);
+        return container;
     }
 }

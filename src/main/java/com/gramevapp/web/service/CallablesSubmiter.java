@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -39,6 +40,13 @@ public class CallablesSubmiter {
 
     public Future<Void> accept(CallableExpGramEvWrapper callableExpGramEvWrapper) {
         CallableExpGramEv callable = callableExpGramEvWrapper.getCallable();
+        try {
+            callable.call();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
         Long runId = callableExpGramEvWrapper.getRunId();
         Long expId = callableExpGramEvWrapper.getExpId();
         Future<Void> future = ThreadPoolExperimentRunnerService.threadPool.submit(callable);
