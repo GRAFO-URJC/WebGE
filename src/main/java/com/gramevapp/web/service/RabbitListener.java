@@ -17,6 +17,8 @@ public class RabbitListener {
     private GrammarRepository grammarRepository;
     private UserService userService;
 
+    //boolean autoAck = true;
+
     public RabbitListener(ExperimentService experimentService, SaveDBService saveDBService, RunService runService
             , GrammarRepository grammarRepository, UserService userService) {
         this.logger = Logger.getLogger(RabbitListener.class.getName());

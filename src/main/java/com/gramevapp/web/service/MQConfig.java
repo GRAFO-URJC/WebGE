@@ -57,6 +57,7 @@ public class MQConfig {
     public SimpleMessageListenerContainer simpleMessageListenerContainer(ConnectionFactory connectionFactory) {
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(connectionFactory);
         container.setConcurrentConsumers(NUM_THREADS);
+        container.setAcknowledgeMode(AcknowledgeMode.AUTO);
         return container;
     }
 }
