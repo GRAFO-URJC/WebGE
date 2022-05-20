@@ -165,6 +165,10 @@ public class Run {
         return diagramData;
     }
 
+    public void setDiagramDataList(List<DiagramData> diagramData) {
+        this.diagramData = diagramData;
+    }
+
     public void addDiagramData(DiagramData diagramData) {
         this.diagramData.add(diagramData);
     }
