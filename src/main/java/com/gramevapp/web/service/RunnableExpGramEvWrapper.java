@@ -2,7 +2,6 @@ package com.gramevapp.web.service;
 
 import com.engine.algorithm.RunnableExpGramEv;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.gramevapp.web.model.Run;
 
 public class RunnableExpGramEvWrapper {
     private RunnableExpGramEv runnable;

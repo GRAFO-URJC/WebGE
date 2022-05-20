@@ -2,11 +2,8 @@ package com.gramevapp.web.service;
 
 import com.engine.algorithm.CallableExpGramEv;
 import com.engine.algorithm.RunnableExpGramEv;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gramevapp.GramevApplication;
 import com.gramevapp.web.model.*;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.utils.SerializationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;

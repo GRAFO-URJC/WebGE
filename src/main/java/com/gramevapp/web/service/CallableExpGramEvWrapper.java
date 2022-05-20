@@ -16,8 +16,6 @@ public class CallableExpGramEvWrapper {
         this.runId = runId;
     }
 
-    public CallableExpGramEvWrapper() { }
-
     public CallableExpGramEv getCallable() {
         return callable;
     }
