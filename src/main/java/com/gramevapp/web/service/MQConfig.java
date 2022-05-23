@@ -13,6 +13,9 @@ import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
+import org.springframework.util.ErrorHandler;
+
+import java.util.logging.Logger;
 
 
 @Configuration
@@ -20,6 +23,7 @@ public class MQConfig {
     public static final String QUEUE = "message_queue";
     public static final String EXCHANGE = "message_exchange";
     public static final String ROUTING_KEY = "message_routingKey";
+    Logger logger = Logger.getLogger(MQConfig.class.getName());
 
     private static final int NUM_THREADS = Runtime.getRuntime().availableProcessors()/2;
 
@@ -57,7 +61,6 @@ public class MQConfig {
     public SimpleMessageListenerContainer simpleMessageListenerContainer(ConnectionFactory connectionFactory) {
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(connectionFactory);
         container.setConcurrentConsumers(NUM_THREADS);
-        container.setAcknowledgeMode(AcknowledgeMode.AUTO);
         return container;
     }
 }
