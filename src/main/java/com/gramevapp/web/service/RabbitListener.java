@@ -17,6 +17,8 @@ public class RabbitListener {
     private GrammarRepository grammarRepository;
     private UserService userService;
 
+    private final String NUM_THREADS = "2";
+
     //boolean autoAck = true;
 
     public RabbitListener(ExperimentService experimentService, SaveDBService saveDBService, RunService runService
@@ -29,14 +31,14 @@ public class RabbitListener {
         this.userService = userService;
     }
 
-    @org.springframework.amqp.rabbit.annotation.RabbitListener(queues = MQConfig.QUEUE)
+    @org.springframework.amqp.rabbit.annotation.RabbitListener(queues = MQConfig.QUEUE, concurrency = NUM_THREADS)
     public void listener(RunnableExpGramEvWrapper message) {
         Long runId = message.getRunId();
         Run run = runService.findByRunId(runId);
         logger.warning("Id sacado del service: "+ run.getId());
         RunnableExpGramEv elementToRun = message.getRunnable();
         Thread.UncaughtExceptionHandler h = (th, ex) -> {
-            logger.warning("=-=-=-=-=-=-=-= DEBERIA SALIR. LINEA 39 LISTENER current");
+            // Esto no vale para nada pues no se entera el service
             run.setStatus(Run.Status.FAILED);
             run.setExecReport(run.getExecReport() + "\nUncaught exception: " + ex);
             String warningMsg = "Uncaught exception: " + ex;
@@ -47,29 +49,4 @@ public class RabbitListener {
         Thread.currentThread().setUncaughtExceptionHandler(h);
         elementToRun.run();
     }
-
-//    @org.springframework.amqp.rabbit.annotation.RabbitListener(queues = MQConfig.QUEUE)
-//    public void listener(RunnableExpGramEvWrapper message) {
-//        Long runId = message.getRunId();
-//        Run run = runService.findByRunId(runId);
-//        logger.warning("Id sacado del service: "+ run.getId());
-//        RunnableExpGramEv elementToRun = message.getRunnable();
-//        Thread.UncaughtExceptionHandler h = (th, ex) -> {
-//            logger.warning("=-=-=-=-=-=-=-= DEBERIA SALIR. LINEA 39 LISTENER");
-//            run.setStatus(Run.Status.FAILED);
-//            run.setExecReport(run.getExecReport() + "\nUncaught exception: " + ex);
-//            String warningMsg = "Uncaught exception: " + ex;
-//            logger.warning(warningMsg);
-//        };
-//
-//        // No me gusta nada, revisar despues.
-//        Thread thread = new Thread(elementToRun);
-//        thread.setUncaughtExceptionHandler(h);
-//        thread.start();
-//        try {
-//            thread.join();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//    }
 }
