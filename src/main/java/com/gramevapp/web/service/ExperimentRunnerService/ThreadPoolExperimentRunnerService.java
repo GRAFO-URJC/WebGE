@@ -1,11 +1,8 @@
 package com.gramevapp.web.service.ExperimentRunnerService;
 
 import com.engine.algorithm.CallableExpGramEv;
-import com.engine.algorithm.RunnableExpGramEv;
 import com.gramevapp.web.model.*;
 import com.gramevapp.web.service.*;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -43,13 +40,11 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
     private Logger logger;
     private RunService runService;
     private boolean executionCancelled;
-    //private Map<Long, Future<Void>> runToFuture;
-    //private Map<Long, CallableExpGramEv> runToCallable;
-    //private Run[] runElementsInExecution;
+    private Map<Long, Future<Void>> runToFuture;
+    private Map<Long, CallableExpGramEv> runToCallable;
+    private Run[] runElementsInExecution;
 
-    public static ExecutorService threadPool;
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
+    private ExecutorService threadPool;
 
 
 
@@ -60,15 +55,14 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
         this.saveDBService = saveDBService;
         this.logger = Logger.getLogger(ThreadPoolExperimentRunnerService.class.getName());
         this.runService = runService;
-        //this.runToFuture = runToFuture;
-        //this.runToCallable = runToCallable;
+        this.runToFuture = runToFuture;
+        this.runToCallable = runToCallable;
 
         this.grammarRepository = grammarRepository;
         this.userService = userService;
 
         int numThreads = Runtime.getRuntime().availableProcessors()/2;
-
-        threadPool = Executors.newFixedThreadPool(numThreads);
+        this.threadPool = Executors.newFixedThreadPool(numThreads);
     }
 
     // Constants
@@ -98,18 +92,13 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
 
     public void setExecutionCancelled(boolean newStatus) { this.executionCancelled = newStatus; }
 
-    //    @Override
-//    public Future<Void> accept(Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
-//        try {
-//            return threadPool.submit(runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, objective, de));
-//            return null;
-//        } catch (IOException e) {
-//            return null;
-//        }
-//    }
     @Override
     public Future<Void> accept(Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
-        return null;
+        try {
+            return threadPool.submit(runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, objective, de));
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     @Override
@@ -157,8 +146,8 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
         Run run = null;
         String propPath;
 
-        //runElementsInExecution = new Run[configExpDto.getNumberRuns()];
-        //List<Future<Void>> futures = new ArrayList<>();
+        runElementsInExecution = new Run[configExpDto.getNumberRuns()];
+        List<Future<Void>> futures = new ArrayList<>();
 
         //check if need to run more runs
         for (int i = 0; i < configExpDto.getNumberRuns(); i++) {
@@ -171,72 +160,41 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
             propPath = expPropertiesSet(configExpDto, user, expDataType, grammarFilePath);
             // Run experiment in new thread
             int crossRunIdentifier = exp.isCrossExperiment() ? run.getExperimentId().getIdRunList().indexOf(run) + 1 : -1;
-
-            // send to rabbitmq
-
-
-
-            //Future<Void> future = accept(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe(), expId);
-            //runToFuture.put(runId, future);
-            //futures.add(future);
-            RunnableExpGramEvWrapper messageToSend = new RunnableExpGramEvWrapper(
-                    runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, configExpDto.getObjective()
-                            , configExpDto.isDe()), expId, runId);
-
-            rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.ROUTING_KEY, messageToSend);
-            //runElementsInExecution[i] = run;
+            Future<Void> future = accept(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe(), expId);
+            runToFuture.put(runId, future);
+            futures.add(future);
+            runElementsInExecution[i] = run;
         }
         experimentService.saveExperiment(exp);
         executionCancelled = false;
 
         // Start all runs and handle their exceptions.
-//        threadPool.submit(() ->  {
-//            int tareasFinalizadas = 0;
-//            for (Future<Void> resultFuture : CallablesSubmiter. futuresList) {
-//                try {
-//                    resultFuture.get();
-//                } catch (InterruptedException e) {
-//                    logger.warning("Interrupted thread in service worker");
-//                    Thread.currentThread().interrupt();
-//                } catch (ExecutionException e) {
-//                    Run runFinish = runElementsInExecution[tareasFinalizadas];
-//                    runFinish.setStatus(Run.Status.FAILED);
-//                    runFinish.setExecReport(runFinish.getExecReport() + "\nUncaught exception: " + e);
-//                    String warningMsg = "Uncaught exception: " + e;
-//                    logger.warning(warningMsg);
-//                } finally {
-//                    tareasFinalizadas++;
-//                }
-//            }
-//        });
-//        Thread th = new Thread(() ->  {
-//            logger.warning("Empiezo a esperar futures");
-//            int tareasFinalizadas = 0;
-//            for (Future<Void> resultFuture : CallablesSubmiter.futuresList) {
-//                try {
-//                    resultFuture.get();
-//                } catch (InterruptedException e) {
-//                    logger.warning("Interrupted thread in service worker");
-//                    Thread.currentThread().interrupt();
-//                } catch (ExecutionException e) {
-//                    Run runFinish = runElementsInExecution[tareasFinalizadas];
-//                    runFinish.setStatus(Run.Status.FAILED);
-//                    runFinish.setExecReport(runFinish.getExecReport() + "\nUncaught exception: " + e);
-//                    String warningMsg = "Uncaught exception: " + e;
-//                    logger.warning(warningMsg);
-//                } finally {
-//                    tareasFinalizadas++;
-//                }
-//            }
-//        });
-//        th.start();
+        threadPool.submit(() ->  {
+            int tareasFinalizadas = 0;
+            for (Future<Void> resultFuture : futures) {
+                try {
+                    resultFuture.get();
+                } catch (InterruptedException e) {
+                    logger.warning("Interrupted thread in service worker");
+                    Thread.currentThread().interrupt();
+                } catch (ExecutionException e) {
+                    Run runFinish = runElementsInExecution[tareasFinalizadas];
+                    runFinish.setStatus(Run.Status.FAILED);
+                    runFinish.setExecReport(runFinish.getExecReport() + "\nUncaught exception: " + e);
+                    String warningMsg = "Uncaught exception: " + e;
+                    logger.warning(warningMsg);
+                } finally {
+                    tareasFinalizadas++;
+                }
+            }
+        });
 
         redirectAttrs.addAttribute("id", exp.getId());
         redirectAttrs.addAttribute("loadExperimentButton", "loadExperimentButton");
         return "redirect:/experiment/expRepoSelected";
     }
 
-    public RunnableExpGramEv runExperimentDetailsServiceWorker(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) throws IOException {
+    public CallableExpGramEv runExperimentDetailsServiceWorker(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) throws IOException {
 
         File propertiesFile = new File(propPath);
         Properties properties = new Properties();
@@ -248,11 +206,11 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
         properties.setProperty(TRAINING_PATH_PROP, propPath);
 
 
-        RunnableExpGramEv obj = new RunnableExpGramEv(properties, run,
+        CallableExpGramEv obj = new CallableExpGramEv(properties, run,
                 experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService,
                 saveDBService, crossRunIdentifier, objective, de);
 
-        //CallablesSubmiter.runToCallable.put(run.getId(), obj);
+        runToCallable.put(run.getId(), obj);
         return obj;
     }
 
@@ -587,7 +545,7 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
             , DiagramDataService diagramDataService) throws InterruptedException {
         Run run = runService.findByRunId(Long.parseLong(runIdStop));
         Long runId = run.getId();
-        //CallablesSubmiter.runToCallable.get(runId).stopExecution();
+        runToCallable.get(runId).stopExecution();
         run.getDiagramData().setStopped(true);
         diagramDataService.saveDiagram(run.getDiagramData());
         run.setStatus(Run.Status.STOPPED);
@@ -616,12 +574,12 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
                 runService.saveRun(runIt);
 
                 Long runId = runIt.getId();
-                //Future<Void> runFuture = CallablesSubmiter.runToFuture.get(runId);
-//                if(runFuture != null) {
-//                    // No se interrumpen los hilos del threadpool
-//                    // Solo detenemos el run.
-//                    CallablesSubmiter.runToCallable.get(runId).stopExecution();
-//                }
+                Future<Void> runFuture = runToFuture.get(runId);
+                if(runFuture != null) {
+                    // No se interrumpen los hilos del threadpool
+                    // Solo detenemos el run.
+                    runToCallable.get(runId).stopExecution();
+                }
                 listRunIt.remove();
                 runIt.setExperimentId(null);
                 runIt.setStatus(Run.Status.STOPPED);
