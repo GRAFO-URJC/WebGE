@@ -30,23 +30,20 @@ public class RabbitListener {
         this.grammarRepository = grammarRepository;
         this.userService = userService;
     }
-
     @org.springframework.amqp.rabbit.annotation.RabbitListener(queues = MQConfig.QUEUE, concurrency = NUM_THREADS)
     public void listener(RunnableExpGramEvWrapper message) {
         Long runId = message.getRunId();
         Run run = runService.findByRunId(runId);
         logger.warning("Id sacado del service: "+ run.getId());
         RunnableExpGramEv elementToRun = message.getRunnable();
-        Thread.UncaughtExceptionHandler h = (th, ex) -> {
-            // Esto no vale para nada pues no se entera el service
+        try {
+            elementToRun.run();
+        }catch (Exception ex) {
             run.setStatus(Run.Status.FAILED);
             run.setExecReport(run.getExecReport() + "\nUncaught exception: " + ex);
             String warningMsg = "Uncaught exception: " + ex;
             logger.warning(warningMsg);
-        };
-
-        // No me gusta nada, revisar despues.
-        Thread.currentThread().setUncaughtExceptionHandler(h);
-        elementToRun.run();
+            runService.saveRun(run);
+        }
     }
 }
