@@ -3,13 +3,14 @@ package com.gramevapp.web.service;
 import com.engine.algorithm.RunnableExpGramEv;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.repository.GrammarRepository;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 import java.util.logging.Logger;
 
 // Receiver
 @Component
-public class RabbitListener {
+public class RabbitListenerService {
     private Logger logger;
     private ExperimentService experimentService;
     private SaveDBService saveDBService;
@@ -21,16 +22,16 @@ public class RabbitListener {
 
     //boolean autoAck = true;
 
-    public RabbitListener(ExperimentService experimentService, SaveDBService saveDBService, RunService runService
+    public RabbitListenerService(ExperimentService experimentService, SaveDBService saveDBService, RunService runService
             , GrammarRepository grammarRepository, UserService userService) {
-        this.logger = Logger.getLogger(RabbitListener.class.getName());
+        this.logger = Logger.getLogger(RabbitListenerService.class.getName());
         this.experimentService = experimentService;
         this.saveDBService = saveDBService;
         this.runService = runService;
         this.grammarRepository = grammarRepository;
         this.userService = userService;
     }
-    @org.springframework.amqp.rabbit.annotation.RabbitListener(queues = MQConfig.QUEUE, concurrency = NUM_THREADS)
+    @RabbitListener(queues = MQConfig.QUEUE, concurrency = NUM_THREADS)
     public void listener(RunnableExpGramEvWrapper message) {
         Long runId = message.getRunId();
         Run run = runService.findByRunId(runId);
