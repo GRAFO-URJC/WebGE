@@ -17,34 +17,58 @@ public class RabbitListenerService {
     private RunService runService;
     private GrammarRepository grammarRepository;
     private UserService userService;
+    private DiagramDataService diagramDataService;
+
 
     private final String NUM_THREADS = "2";
 
     //boolean autoAck = true;
 
     public RabbitListenerService(ExperimentService experimentService, SaveDBService saveDBService, RunService runService
-            , GrammarRepository grammarRepository, UserService userService) {
+            , GrammarRepository grammarRepository, UserService userService, DiagramDataService diagramDataService) {
         this.logger = Logger.getLogger(RabbitListenerService.class.getName());
         this.experimentService = experimentService;
         this.saveDBService = saveDBService;
         this.runService = runService;
         this.grammarRepository = grammarRepository;
         this.userService = userService;
+        this.diagramDataService = diagramDataService;
     }
-    @RabbitListener(queues = MQConfig.QUEUE, concurrency = NUM_THREADS)
-    public void listener(RunnableExpGramEvWrapper message) {
-        Long runId = message.getRunId();
-        Run run = runService.findByRunId(runId);
-        logger.warning("Id sacado del service: "+ run.getId());
-        RunnableExpGramEv elementToRun = message.getRunnable();
+
+    private void stopRun(Run run, RunnableExpGramEv runnable) {
+        runnable.stopExecution();
+        run.getDiagramData().setStopped(true);
+        diagramDataService.saveDiagram(run.getDiagramData());
+        run.setStatus(Run.Status.STOPPED);
+        runService.saveRun(run);
+    }
+
+    private void startRun(Run run, RunnableExpGramEv runnable) {
         try {
-            elementToRun.run();
+            runnable.run();
         }catch (Exception ex) {
             run.setStatus(Run.Status.FAILED);
             run.setExecReport(run.getExecReport() + "\nUncaught exception: " + ex);
             String warningMsg = "Uncaught exception: " + ex;
             logger.warning(warningMsg);
             runService.saveRun(run);
+        }
+    }
+
+    @RabbitListener(queues = MQConfig.QUEUE, concurrency = NUM_THREADS)
+    public void listener(RunnableExpGramEvWrapper message) {
+        Long runId = message.getRunId();
+        Run run = runService.findByRunId(runId);
+        RunnableExpGramEv elementToRun = message.getRunnable();
+        String code = message.getCode();
+
+        // Enhanced java switch.
+        switch (code) {
+            case "run" -> startRun(run, elementToRun);
+            case "stop" -> stopRun(run, elementToRun);
+            default -> {
+                logger.warning("Wrong case in RabbitListenerService");
+            }
         }
     }
 }

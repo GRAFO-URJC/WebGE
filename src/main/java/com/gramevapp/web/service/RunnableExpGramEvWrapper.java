@@ -6,14 +6,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class RunnableExpGramEvWrapper {
     private RunnableExpGramEv runnable;
     private Long expId, runId;
+    private String code;
 
     public RunnableExpGramEvWrapper(
             @JsonProperty("runnable") RunnableExpGramEv runnable,
             @JsonProperty("expId") Long expId,
-            @JsonProperty("runId") Long runId) {
+            @JsonProperty("runId") Long runId,
+            @JsonProperty("code") String code) {
         this.runnable = runnable;
         this.expId = expId;
         this.runId = runId;
+        this.code = code;
     }
 
     public void setRunnable(RunnableExpGramEv runnable) {
@@ -38,5 +41,13 @@ public class RunnableExpGramEvWrapper {
 
     public Long getRunId() {
         return runId;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

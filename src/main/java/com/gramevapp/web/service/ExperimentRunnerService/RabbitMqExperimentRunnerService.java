@@ -44,7 +44,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
     private RunService runService;
     private boolean executionCancelled;
     //private Map<Long, Future<Void>> runToFuture;
-    //private Map<Long, CallableExpGramEv> runToCallable;
+    private Map<Long, RunnableExpGramEv> runToRunnable;
     //private Run[] runElementsInExecution;
 
     public static ExecutorService threadPool;
@@ -166,7 +166,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
             // send to rabbitmq
             RunnableExpGramEvWrapper messageToSend = new RunnableExpGramEvWrapper(
                     runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, configExpDto.getObjective()
-                            , configExpDto.isDe()), expId, runId);
+                            , configExpDto.isDe()), expId, runId, "run");
 
             rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.ROUTING_KEY, messageToSend);
             //runElementsInExecution[i] = run;
@@ -389,7 +389,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         });
     }
 
-    public void removeRunsService(Experiment exp) {
+    public void removeRunsService(Experiment exp) { // check later
         List<Run> oldRunList = new ArrayList<>(exp.getIdRunList());
         //remove old run
         for (Run oldRun : oldRunList) {
@@ -530,11 +530,13 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
             , DiagramDataService diagramDataService) throws InterruptedException {
         Run run = runService.findByRunId(Long.parseLong(runIdStop));
         Long runId = run.getId();
-        //CallablesSubmiter.runToCallable.get(runId).stopExecution();
-        run.getDiagramData().setStopped(true);
-        diagramDataService.saveDiagram(run.getDiagramData());
-        run.setStatus(Run.Status.STOPPED);
-        runService.saveRun(run);
+        RunnableExpGramEv runnable = runToRunnable.get(runId);
+
+        RunnableExpGramEvWrapper stopMessage = new RunnableExpGramEvWrapper(runnable, run.getExperimentId().getId()
+                , runId, "stop");
+
+        rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.ROUTING_KEY, stopMessage);
+
 
         if (model != null) {
             model.addAttribute(EXPDETAILS, run.getExperimentId());
@@ -557,14 +559,6 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
             if(runIt != null) {
                 runIt.setStatus(Run.Status.STOPPED);
                 runService.saveRun(runIt);
-
-                Long runId = runIt.getId();
-                //Future<Void> runFuture = CallablesSubmiter.runToFuture.get(runId);
-//                if(runFuture != null) {
-//                    // No se interrumpen los hilos del threadpool
-//                    // Solo detenemos el run.
-//                    CallablesSubmiter.runToCallable.get(runId).stopExecution();
-//                }
                 listRunIt.remove();
                 runIt.setExperimentId(null);
                 runIt.setStatus(Run.Status.STOPPED);
