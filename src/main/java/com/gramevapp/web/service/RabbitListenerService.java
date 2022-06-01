@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.logging.Logger;
 
-// Receiver
+// Listener
 @Component
 public class RabbitListenerService {
     private Logger logger;
@@ -21,8 +21,6 @@ public class RabbitListenerService {
 
 
     private final String NUM_THREADS = "2";
-
-    //boolean autoAck = true;
 
     public RabbitListenerService(ExperimentService experimentService, SaveDBService saveDBService, RunService runService
             , GrammarRepository grammarRepository, UserService userService, DiagramDataService diagramDataService) {
@@ -56,7 +54,7 @@ public class RabbitListenerService {
     }
 
     @RabbitListener(queues = MQConfig.QUEUE, concurrency = NUM_THREADS)
-    public void listener(RunnableExpGramEvWrapper message) {
+    public void listener(QueueRabbitMqMessage message) {
         Long runId = message.getRunId();
         Run run = runService.findByRunId(runId);
         RunnableExpGramEv elementToRun = message.getRunnable();
@@ -66,9 +64,7 @@ public class RabbitListenerService {
         switch (code) {
             case "run" -> startRun(run, elementToRun);
             case "stop" -> stopRun(run, elementToRun);
-            default -> {
-                logger.warning("Wrong case in RabbitListenerService");
-            }
+            default -> logger.warning("Wrong case in RabbitListenerService");
         }
     }
 }

@@ -3,12 +3,12 @@ package com.gramevapp.web.service;
 import com.engine.algorithm.RunnableExpGramEv;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class RunnableExpGramEvWrapper {
+public class QueueRabbitMqMessage {
     private RunnableExpGramEv runnable;
     private Long expId, runId;
     private String code;
 
-    public RunnableExpGramEvWrapper(
+    public QueueRabbitMqMessage(
             @JsonProperty("runnable") RunnableExpGramEv runnable,
             @JsonProperty("expId") Long expId,
             @JsonProperty("runId") Long runId,

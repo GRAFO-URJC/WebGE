@@ -164,7 +164,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
             int crossRunIdentifier = exp.isCrossExperiment() ? run.getExperimentId().getIdRunList().indexOf(run) + 1 : -1;
 
             // send to rabbitmq
-            RunnableExpGramEvWrapper messageToSend = new RunnableExpGramEvWrapper(
+            QueueRabbitMqMessage messageToSend = new QueueRabbitMqMessage(
                     runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, configExpDto.getObjective()
                             , configExpDto.isDe()), expId, runId, "run");
 
@@ -532,7 +532,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         Long runId = run.getId();
         RunnableExpGramEv runnable = runToRunnable.get(runId);
 
-        RunnableExpGramEvWrapper stopMessage = new RunnableExpGramEvWrapper(runnable, run.getExperimentId().getId()
+        QueueRabbitMqMessage stopMessage = new QueueRabbitMqMessage(runnable, run.getExperimentId().getId()
                 , runId, "stop");
 
         rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.ROUTING_KEY, stopMessage);
