@@ -1,75 +1,38 @@
-package com.gramevapp.web.service.ExperimentRunnerService;
+package com.gramevapp.web.service.experimentrunnerservice;
 
-import com.engine.algorithm.CallableExpGramEv;
-import com.engine.algorithm.RunnableExpGramEv;
 import com.gramevapp.web.model.*;
-import com.gramevapp.web.service.*;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.*;
-
-import com.engine.algorithm.ModelEvaluator;
-import com.engine.algorithm.SymbolicRegressionGE;
-import com.gramevapp.web.repository.GrammarRepository;
-import java.io.*;
-import java.sql.Timestamp;
 import java.util.*;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.concurrent.Future;
 
-import static com.engine.util.Common.TRAINING_PATH_PROP;
+@Service("legacyExperimentRunnerService")
+public class LegacyExperimentRunnerService implements ExperimentRunner {
+    @Override
+    public Future<Void> accept(Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
+        return null;
+    }
 
-@Service("rabbitMqExperimentRunnerService")
-public class RabbitMqExperimentRunnerService implements ExperimentRunner {
+    @Override
+    public void accept(List<Thread> threadList, Run run, String propPath, int crossRunIdentifier, String objective, boolean de) {
 
-    private ExperimentService experimentService;
+    }
+
+    /*private ExperimentService experimentService;
     private SaveDBService saveDBService;
-    private GrammarRepository grammarRepository;
-    private UserService userService;
+    private Map<Long, Thread> threadMap;
     private Logger logger;
     private RunService runService;
+    private Map<String, Long> threadRunMap;
+    private Map<Long, RunnableExpGramEv> runnables;
     private boolean executionCancelled;
-    //private Map<Long, Future<Void>> runToFuture;
-    private Map<Long, RunnableExpGramEv> runToRunnable;
-    //private Run[] runElementsInExecution;
 
-    public static ExecutorService threadPool;
     @Autowired
-    private RabbitTemplate rabbitTemplate;
+    private GrammarRepository grammarRepository;
 
-
-
-    public RabbitMqExperimentRunnerService(ExperimentService experimentService, SaveDBService saveDBService
-            , RunService runService, Map<Long, Future<Void>> runToFuture
-            , Map<Long, CallableExpGramEv> runToCallable, GrammarRepository grammarRepository, UserService userService) {
-        this.experimentService = experimentService;
-        this.saveDBService = saveDBService;
-        this.logger = Logger.getLogger(ThreadPoolExperimentRunnerService.class.getName());
-        this.runService = runService;
-        //this.runToFuture = runToFuture;
-        //this.runToCallable = runToCallable;
-
-        this.grammarRepository = grammarRepository;
-        this.userService = userService;
-
-        int numThreads = Runtime.getRuntime().availableProcessors()/2;
-
-        threadPool = Executors.newFixedThreadPool(numThreads);
-    }
+    @Autowired
+    private UserService userService;
 
     // Constants
     private static final String RESOURCES = "resources";
@@ -96,90 +59,63 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
     private static final String CONFIGEXPERIMENTPATH = "experiment/configExperiment";
 
 
+    public Map<Long, Thread> getThreadMap() {
+        return threadMap;
+    }
+
+    public Map<Long, RunnableExpGramEv> getRunnables() {
+        return runnables;
+    }
+
+    public void setThreadMap(Map<Long, Thread> threadMap) {
+        this.threadMap = threadMap;
+    }
+
+    public Map<String, Long> getThreadRunMap() {
+        return threadRunMap;
+    }
+
+    public void setThreadRunMap(Map<String, Long> threadRunMap) {
+        this.threadRunMap = threadRunMap;
+    }
+
+    public void setRunnables(Map<Long, RunnableExpGramEv> runnables) {
+        this.runnables = runnables;
+    }
+
+    public LegacyExperimentRunnerService(ExperimentService experimentService, SaveDBService saveDBService
+            , Map<Long, Thread> threadMap, RunService runService, Map<String, Long> threadRunMap
+            , Map<Long, RunnableExpGramEv> runnables) {
+
+        this.experimentService = experimentService;
+        this.saveDBService = saveDBService;
+        this.threadMap = threadMap;
+        this.logger = Logger.getLogger(LegacyExperimentRunnerService.class.getName());
+        this.runService = runService;
+        this.threadRunMap = threadRunMap;
+        this.runnables = runnables;
+    }
+
     public void setExecutionCancelled(boolean newStatus) { this.executionCancelled = newStatus; }
 
-    @Override
-    public Future<Void> accept(Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
-        return null;
-    }
+    public boolean getExecutionCancelled() { return this.executionCancelled; }
 
     @Override
-    public void accept(List<Thread> threadList, Run run, String propPath, int crossRunIdentifier, String objective, boolean de) {
+    public void accept(List<Thread> threadList, Run run, String propPath, int crossRunIdentifier
+            , String objective, boolean de) {
 
+        try {
+            threadList.add(runExperimentDetails(run, propPath, crossRunIdentifier, objective, de));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    @Override
+    public void accept(Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
+        // Legacy service won't implement this version.
     }
 
-    public String runExperimentService(Model model, String experimentDataTypeId, String testExperimentDataTypeId
-            , FileModelDto fileModelDto, ConfigExperimentDto configExpDto, BindingResult result
-            , RedirectAttributes redirectAttrs) throws IOException {
-
-        User user = userService.getLoggedInUser();
-        modelAddDataService(model, user, null, null, null);
-
-        // Check the data received
-        if (result.hasErrors()) {
-            model.addAttribute(CONFIGURATION, configExpDto);
-            return CONFIGEXPERIMENTPATH;
-        }
-
-
-        // Experiment Data Type SECTION
-        Dataset expDataType = experimentService.
-                findExperimentDataTypeById(Long.valueOf(experimentDataTypeId));
-
-        experimentDataTypeSection(expDataType);
-        // END - Experiment Data Type SECTION
-
-        // Experiment section:
-        Experiment exp = experimentSectionService(configExpDto.getId() != null ?
-                        experimentService.findExperimentById(configExpDto.getId()) : null
-                , user,
-                (testExperimentDataTypeId.equals("")) ? null : experimentService.
-                        findExperimentDataTypeById(Long.valueOf(testExperimentDataTypeId))
-                , expDataType, configExpDto, configExpDto.getFileText(), true);
-        experimentService.saveExperiment(exp);
-
-        long expId = exp.getId();
-        // END - Experiment section
-
-        // Grammar File SECTION
-        String grammarFilePath = grammarFileSectionService(user, configExpDto, exp.getDefaultGrammar());
-        // END - Grammar File SECTION
-
-        Run run = null;
-        String propPath;
-
-        //runElementsInExecution = new Run[configExpDto.getNumberRuns()];
-        //List<Future<Void>> futures = new ArrayList<>();
-
-        //check if need to run more runs
-        for (int i = 0; i < configExpDto.getNumberRuns(); i++) {
-            // RUN SECTION
-            run = runService.saveRun(new Run());
-            Long runId = run.getId();
-            runSectionService(run, exp);
-            run.setStatus(Run.Status.WAITING);
-            // Create ExpPropertiesDto file
-            propPath = expPropertiesSet(configExpDto, user, expDataType, grammarFilePath);
-            // Run experiment in new thread
-            int crossRunIdentifier = exp.isCrossExperiment() ? run.getExperimentId().getIdRunList().indexOf(run) + 1 : -1;
-
-            // send to rabbitmq
-            QueueRabbitMqMessage messageToSend = new QueueRabbitMqMessage(
-                    runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, configExpDto.getObjective()
-                            , configExpDto.isDe()), expId, runId, "run");
-
-            rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.RUNS_ROUTING_KEY, messageToSend);
-            //runElementsInExecution[i] = run;
-        }
-        experimentService.saveExperiment(exp);
-        executionCancelled = false;
-
-        redirectAttrs.addAttribute("id", exp.getId());
-        redirectAttrs.addAttribute("loadExperimentButton", "loadExperimentButton");
-        return "redirect:/experiment/expRepoSelected";
-    }
-
-    public RunnableExpGramEv runExperimentDetailsServiceWorker(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) throws IOException {
+    public Thread runExperimentDetails(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) throws IOException {
 
         File propertiesFile = new File(propPath);
         Properties properties = new Properties();
@@ -194,12 +130,24 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         RunnableExpGramEv obj = new RunnableExpGramEv(properties, run,
                 experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService,
                 saveDBService, crossRunIdentifier, objective, de);
+        Thread.UncaughtExceptionHandler h = (th, ex) -> {
+            run.setStatus(Run.Status.FAILED);
+            run.setExecReport(run.getExecReport() + "\nUncaught exception: " + ex);
+            String warningMsg = "Uncaught exception: " + ex;
+            logger.warning(warningMsg);
+        };
+        Thread th = new Thread(obj);
+        th.setUncaughtExceptionHandler(h);
+        threadMap.put(th.getId(), th);
+        threadRunMap.put(th.getName(), run.getId());
+        run.setThreaId(th.getId());
+        runnables.put(th.getId(), obj);
+        // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
 
-        //CallablesSubmiter.runToCallable.put(run.getId(), obj);
-        return obj;
+        return th;
     }
 
-    public Map<String,List<Double>> collectTrainingAndTestStats(Run run, boolean mustConsiderCrossValidation) {
+    public HashMap<String,List<Double>> collectTrainingAndTestStats(Run run, boolean mustConsiderCrossValidation) {
 
         boolean considerCrossValidation = mustConsiderCrossValidation && run.getExperimentId().isCrossExperiment();
 
@@ -294,7 +242,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
     }
 
     public void modelAddDataService(Model model, User user, Dataset experimentDataType,
-                                    List<Dataset> experimentDataTypeList, Long testExperimentDataTypeId) {
+                             List<Dataset> experimentDataTypeList, Long testExperimentDataTypeId) {
         Dataset testExperimentDataType = testExperimentDataTypeId == null ? null : experimentService.findDataTypeById(testExperimentDataTypeId);
         model.addAttribute("grammarList", grammarRepository.findByUserId(user.getId()));
         model.addAttribute("datasetList", experimentService.findAllExperimentDataTypeByUserId(user.getId()));
@@ -304,8 +252,8 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
     }
 
     public void createPropertiesFile(String propertiesFilePath, String expName,
-                                     ConfigExperimentDto configExpDto, User user, String grammarFilePath,
-                                     String dataTypeDirectoryPath, Dataset expDataType) throws IOException {
+                                      ConfigExperimentDto configExpDto, User user, String grammarFilePath,
+                                      String dataTypeDirectoryPath, Dataset expDataType) throws IOException {
         File propertiesNewFile = new File(propertiesFilePath);
         if ((!propertiesNewFile.exists()) && (!propertiesNewFile.createNewFile())) {
             String logMsg = "Cannot create properties file at "+propertiesFilePath;
@@ -373,26 +321,31 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
                         //c.engine.algorithm.SymbolicRegressionGE
                         infoFormatted += logInfo.substring(logInfo.indexOf(messageSkip) + messageSkip.length());
                     }
-//                    pattern =
-//                            Pattern.compile("Thread-[0-9]+");
-//                    matcher = pattern.matcher(logInfo);
-//                    if (matcher.find()) {
-//                        String threadName = matcher.group();
-//                        if (infoFormatted.contains("2m---\u001B[0;39m \u001B[2m[     Thread-")) {
-//                            infoFormatted = infoFormatted.replaceAll("2m---\u001B\\[0;39m \u001B\\[2m\\[     Thread-[0-9]+]\u001B\\[0;39m \u001B\\[36mj.c.algorithm.ga.SimpleGeneticAlgorithm \u001B\\[0;39m \u001B\\[2m:\u001B\\[0;39m ", "");
-//                        }
-//                        //runService.updateExecutionReport(threadRunMap.get(threadName),infoFormatted);
-//                    }
+                    pattern =
+                            Pattern.compile("Thread-[0-9]+");
+                    matcher = pattern.matcher(logInfo);
+                    if (matcher.find()) {
+                        String threadName = matcher.group();
+                        if (infoFormatted.contains("2m---\u001B[0;39m \u001B[2m[     Thread-")) {
+                            infoFormatted = infoFormatted.replaceAll("2m---\u001B\\[0;39m \u001B\\[2m\\[     Thread-[0-9]+]\u001B\\[0;39m \u001B\\[36mj.c.algorithm.ga.SimpleGeneticAlgorithm \u001B\\[0;39m \u001B\\[2m:\u001B\\[0;39m ", "");
+                        }
+                        runService.updateExecutionReport(threadRunMap.get(threadName),infoFormatted);
+                    }
                 }
                 super.write(buf, off, len);
             }
         });
     }
 
-    public void removeRunsService(Experiment exp) { // check later
+    public void removeRunsService(Experiment exp) {
         List<Run> oldRunList = new ArrayList<>(exp.getIdRunList());
         //remove old run
         for (Run oldRun : oldRunList) {
+            Thread th = threadMap.get(oldRun.getThreaId());
+            if (th != null && th.isAlive()) {
+                th.interrupt();
+                runnables.get(oldRun.getThreaId()).stopExecution();
+            }
             exp.removeRun(oldRun);
             runService.deleteRun(oldRun);
         }
@@ -434,8 +387,8 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
     }
 
     public Experiment experimentSectionService(Experiment exp, User user, Dataset testExpDataType,
-                                               Dataset expDataType,
-                                               ConfigExperimentDto configExpDto, String grammar, boolean removeRuns) {
+                                         Dataset expDataType,
+                                         ConfigExperimentDto configExpDto, String grammar, boolean removeRuns) {
         if (exp == null) {   // We create it
             exp = new Experiment(user, configExpDto.getExperimentName(), configExpDto.getExperimentDescription(), configExpDto.getGenerations(),
                     configExpDto.getPopulationSize(), configExpDto.getMaxWraps(), configExpDto.getTournament(), configExpDto.getCrossoverProb(), configExpDto.getMutationProb(),
@@ -480,7 +433,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
     }
 
     public ConfigExperimentDto fillConfigExpDtoService(ConfigExperimentDto configExpDto, Experiment exp, String grammar,
-                                                       Dataset dataset, boolean forEqual) {
+                                                Dataset dataset, boolean forEqual) {
 
         setConfigExpDtoWIthExperimentService(configExpDto, forEqual ? configExpDto.getExperimentName() : exp.getExperimentName(),
                 forEqual ? configExpDto.getExperimentDescription() : exp.getExperimentDescription(), exp.getCrossoverProb(), exp.getGenerations(),
@@ -500,11 +453,11 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
     }
 
     public void setConfigExpDtoWIthExperimentService(ConfigExperimentDto configExpDto, String experimentName, String experimentDescription,
-                                                     Double crossoverProb, Integer generations, Integer populationSize, Integer maxWraps,
-                                                     Integer tournament, Double mutationProb,
-                                                     Integer numCodons, Integer numberRuns, String objective, boolean de,
-                                                     Double lowerBoundDE, Double upperBoundDE, Double recombinationFactorDE, Double mutationFactorDE,
-                                                     String tags, Integer populationDE) {
+                                               Double crossoverProb, Integer generations, Integer populationSize, Integer maxWraps,
+                                               Integer tournament, Double mutationProb,
+                                               Integer numCodons, Integer numberRuns, String objective, boolean de,
+                                               Double lowerBoundDE, Double upperBoundDE, Double recombinationFactorDE, Double mutationFactorDE,
+                                               String tags, Integer populationDE) {
         configExpDto.setExperimentName(experimentName);
         configExpDto.setExperimentDescription(experimentDescription);
         configExpDto.setCrossoverProb(crossoverProb);
@@ -529,14 +482,27 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
     public String stopRunExperimentService(Model model, String runIdStop, RedirectAttributes redirectAttrs
             , DiagramDataService diagramDataService) throws InterruptedException {
         Run run = runService.findByRunId(Long.parseLong(runIdStop));
-        Long runId = run.getId();
-        RunnableExpGramEv runnable = runToRunnable.get(runId);
+        Long threadId = run.getThreaId();
 
-        QueueRabbitMqMessage stopMessage = new QueueRabbitMqMessage(runnable, run.getExperimentId().getId()
-                , runId, "stop");
+        // https://stackoverflow.com/questions/26213615/terminating-thread-using-thread-id-in-java
+        Thread th = threadMap.get(threadId);
+        if (th == null) {
+            run.setStatus(Run.Status.FAILED);
 
-        rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.RUNS_ROUTING_KEY, stopMessage);
-
+            if (redirectAttrs != null) {
+                redirectAttrs.addAttribute(RUNID, run.getId()).addFlashAttribute("Stop", "Stop execution failed");
+                redirectAttrs.addAttribute("showPlotExecutionButton", "showPlotExecutionButton");
+            }
+            return "redirect:experiment/runList";
+        }
+        th.interrupt();
+        runnables.get(threadId).stopExecution();
+        th.join();
+        run = runService.findByRunId(Long.parseLong(runIdStop));
+        run.getDiagramData().setStopped(true);
+        diagramDataService.saveDiagram(run.getDiagramData());
+        run.setStatus(Run.Status.STOPPED);
+        runService.saveRun(run);
 
         if (model != null) {
             model.addAttribute(EXPDETAILS, run.getExperimentId());
@@ -556,14 +522,16 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         Iterator<Run> listRunIt = expConfig.getIdRunList().iterator();
         while (listRunIt.hasNext()) {
             Run runIt = listRunIt.next();
-            if(runIt != null) {
+            Long threadId = runIt.getThreaId();
+            Thread th = threadMap.get(threadId);
+            if (th != null) {
                 runIt.setStatus(Run.Status.STOPPED);
                 runService.saveRun(runIt);
-                listRunIt.remove();
-                runIt.setExperimentId(null);
-                runIt.setStatus(Run.Status.STOPPED);
-                runService.saveRun(runIt);
+                th.interrupt();
+                runnables.get(threadId).stopExecution();
             }
+            listRunIt.remove();
+            runIt.setExperimentId(null);
         }
 
         Iterator<Dataset> listDataTypeIt = expConfig.getIdExpDataTypeList().iterator();
@@ -618,7 +586,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         if (configExpDto.getId() != null) {
             exp = experimentService.findExperimentById(configExpDto.getId());
 
-            /*Check if exp only changed name, desc or tags, in that case, dont remove runs*/
+            /*Check if exp only changed name, desc or tags, in that case, dont remove runs
             sameExp =
                     exp.getGenerations().equals(configExpDto.getGenerations()) &&
                             exp.getCrossoverProb().equals(configExpDto.getCrossoverProb()) &&
@@ -701,9 +669,6 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
 
         while (listRunIt.hasNext()) {
             Run runIt = listRunIt.next();
-            if(runIt == null) {
-                return false;
-            }
             if (runIt.getStatus().equals(Run.Status.RUNNING)) {
                 return true;
             }
@@ -722,7 +687,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
             runResultsDto.getRunIndex()[index] = index + 1;
             runResultsDto.getModel()[index] = run.getModel();
 
-            Map<String, List<Double>> results = this.collectTrainingAndTestStats(run,true);
+            HashMap<String, List<Double>> results = this.collectTrainingAndTestStats(run,true);
 
             if (run.getModel() != null && !run.getModel().isEmpty()) {
                 List<Double> trainingResult = results.get(TRAININGRESULT);
@@ -765,7 +730,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
 
         // For each model, information is retrieved.
         for (Run run : experiment.getIdRunList()) {
-            Map<String, List<Double>> results = this.collectTrainingAndTestStats(run,false);
+            HashMap<String, List<Double>> results = this.collectTrainingAndTestStats(run,false);
 
             if (trainingTarget == null) {
                 trainingTarget = results.get(LISTYLINE);
@@ -827,9 +792,96 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         return results;
     }
 
+    public String runExperimentService(Model model, String experimentDataTypeId, String testExperimentDataTypeId
+            , FileModelDto fileModelDto, ConfigExperimentDto configExpDto, BindingResult result
+            , RedirectAttributes redirectAttrs) throws IOException {
+
+        User user = userService.getLoggedInUser();
+        modelAddDataService(model, user, null, null, null);
+
+        // Check the data received
+        if (result.hasErrors()) {
+            model.addAttribute(CONFIGURATION, configExpDto);
+            return CONFIGEXPERIMENTPATH;
+        }
+
+
+        // Experiment Data Type SECTION
+        Dataset expDataType = experimentService.
+                findExperimentDataTypeById(Long.valueOf(experimentDataTypeId));
+
+        experimentDataTypeSection(expDataType);
+        // END - Experiment Data Type SECTION
+
+        // Experiment section:
+        Experiment exp = experimentSectionService(configExpDto.getId() != null ?
+                        experimentService.findExperimentById(configExpDto.getId()) : null
+                , user,
+                (testExperimentDataTypeId.equals("")) ? null : experimentService.
+                        findExperimentDataTypeById(Long.valueOf(testExperimentDataTypeId))
+                , expDataType, configExpDto, configExpDto.getFileText(), true);
+        experimentService.saveExperiment(exp);
+        // END - Experiment section
+
+        // Grammar File SECTION
+        String grammarFilePath = grammarFileSectionService(user, configExpDto, exp.getDefaultGrammar());
+        // END - Grammar File SECTION
+
+        Run run;
+        String propPath;
+
+        List<Thread> threads = new ArrayList<>();
+
+        //check if need to run more runs
+        for (int i = 0; i < configExpDto.getNumberRuns(); i++) {
+            // RUN SECTION
+            run = runService.saveRun(new Run());
+            runSectionService(run, exp);
+            run.setStatus(Run.Status.WAITING);
+            // Create ExpPropertiesDto file
+            propPath = expPropertiesSet(configExpDto,
+                    user, expDataType, grammarFilePath);
+            // Run experiment in new thread
+            int crossRunIdentifier = exp.isCrossExperiment() ? run.getExperimentId().getIdRunList().indexOf(run) + 1 : -1;
+            accept(threads, run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe());
+            //threads.add(runExperimentDetails(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe()));
+        }
+        experimentService.saveExperiment(exp);
+        executionCancelled = false;
+
+        // Use half of the available processors.
+        int availableProcessors = Runtime.getRuntime().availableProcessors() / 2;
+
+        Thread thread = new Thread(() -> {
+            try {
+                int i = 0;
+                while (i < threads.size() && !executionCancelled) {
+                    int limit = availableProcessors;
+                    if ((threads.size()-i) < availableProcessors) limit = threads.size()-i;
+                    // Start threads
+                    for (int j = i; j < i+limit; j++) {
+                        threads.get(j).start();
+                    }
+                    // Wait for them
+                    for (int j = i; j < i+limit; j++) {
+                        threads.get(j).join();
+                    }
+                    i += limit;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        thread.start();
+
+        redirectAttrs.addAttribute("id", exp.getId());
+        redirectAttrs.addAttribute("loadExperimentButton", "loadExperimentButton");
+        return "redirect:/experiment/expRepoSelected";
+    }
 
     private String expPropertiesSet(ConfigExperimentDto configExpDto,
-                                    User user, Dataset expDataType, String grammarFilePath) throws IOException {
+                                      User user, Dataset expDataType, String grammarFilePath) throws IOException {
         // Reader - FILE DATA TYPE - Convert MultipartFile into Generic Java File - Then convert it to Reader
         File dir = new File(PROPERTIES_DIR_PATH + user.getId());
         if (!dir.exists())
@@ -858,10 +910,10 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
     }
 
     public String showRunTestStatsExperimentService(Model model,
-                                                    @RequestParam(value = RUNID) String runId) {
+                                             @RequestParam(value = RUNID) String runId) {
         Run run = runService.findByRunId(Long.parseLong(runId));
 
-        Map<String, List<Double>> results = this.collectTrainingAndTestStats(run,true);
+        HashMap<String, List<Double>> results = this.collectTrainingAndTestStats(run,true);
 
 
         List<Double> listYLine = results.get(LISTYLINE);
@@ -896,5 +948,5 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
             model.addAttribute("noTest", true);
         }
         return "experiment/showTestStatsPlot";
-    }
+    }*/
 }

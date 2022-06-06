@@ -7,6 +7,8 @@ package com.engine.algorithm;
 
 import com.engine.util.UtilStats;
 import com.gramevapp.web.model.Run;
+import com.gramevapp.web.service.MQConfig;
+import com.gramevapp.web.service.ReportRabbitmqMessage;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.SaveDBService;
 import jeco.core.algorithm.Algorithm;
@@ -22,6 +24,8 @@ import jeco.core.problem.Variable;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -74,6 +78,9 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
     private String objective;
     private boolean de = false;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
 
     private final SolutionDEGE bestSolution;
@@ -439,7 +446,9 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             run.setStatus(Run.Status.FINISHED);
         }
         run.setModificationDate(new Timestamp(new Date().getTime()));
-        saveDBService.saveRunAsync(run);
+        //saveDBService.saveRunAsync(run);
+        ReportRabbitmqMessage message = new ReportRabbitmqMessage(run, null, "finish");
+        rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.REPORT_ROUTING_KEY, message);
         obs.getLock().lock();
 
     }

@@ -31,9 +31,6 @@ public class Run {
     @OrderBy("current_generation ASC")
     private List<DiagramData> diagramData = new ArrayList<>();
 
-    /*@Column
-    private Long threaId;*/
-
     @Column
     private Double bestIndividual = 0.0;  // Best solution
 
@@ -137,14 +134,6 @@ public class Run {
     public void setCurrentGeneration(Integer currentGeneration) {
         this.currentGeneration = currentGeneration;
     }
-
-    /*public Long getThreaId() {
-        return threaId;
-    }
-
-    public void setThreaId(Long threaId) {
-        this.threaId = threaId;
-    }*/
 
     public String getModel() {
         return model;
