@@ -4,6 +4,7 @@ import com.engine.algorithm.RunnableExpGramEv;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.repository.GrammarRepository;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.logging.Logger;
@@ -19,11 +20,15 @@ public class RabbitListenerService {
     private UserService userService;
     private DiagramDataService diagramDataService;
 
+   private RabbitTemplate rabbitTemplate;
+
+
 
     private final String NUM_THREADS = "2";
 
     public RabbitListenerService(ExperimentService experimentService, SaveDBService saveDBService, RunService runService
-            , GrammarRepository grammarRepository, UserService userService, DiagramDataService diagramDataService) {
+            , GrammarRepository grammarRepository, UserService userService, DiagramDataService diagramDataService
+            , RabbitTemplate rabbitTemplate) {
         this.logger = Logger.getLogger(RabbitListenerService.class.getName());
         this.experimentService = experimentService;
         this.saveDBService = saveDBService;
@@ -31,6 +36,7 @@ public class RabbitListenerService {
         this.grammarRepository = grammarRepository;
         this.userService = userService;
         this.diagramDataService = diagramDataService;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     private void stopRun(Run run, RunnableExpGramEv runnable) {
@@ -44,12 +50,15 @@ public class RabbitListenerService {
     private void startRun(Run run, RunnableExpGramEv runnable) {
         try {
             runnable.run();
-        }catch (Exception ex) {
-            run.setStatus(Run.Status.FAILED);
-            run.setExecReport(run.getExecReport() + "\nUncaught exception: " + ex);
-            String warningMsg = "Uncaught exception: " + ex;
-            logger.warning(warningMsg);
-            runService.saveRun(run);
+        }catch (Exception ex) { // Esto hay que cambiarlo usando el reportListener
+//            run.setStatus(Run.Status.FAILED);
+//            run.setExecReport(run.getExecReport() + "\nUncaught exception: " + ex);
+//            String warningMsg = "Uncaught exception: " + ex;
+//            logger.warning(warningMsg);
+//            runService.saveRun(run);
+
+            ReportRabbitmqMessage message = new ReportRabbitmqMessage(run, ex, "run-exception");
+            rabbitTemplate.convertAndSend(MQConfig.EXCHANGE ,MQConfig.REPORT_ROUTING_KEY, message);
         }
     }
 
