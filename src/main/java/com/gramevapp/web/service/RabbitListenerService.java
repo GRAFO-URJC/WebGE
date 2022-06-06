@@ -53,7 +53,7 @@ public class RabbitListenerService {
         }
     }
 
-    @RabbitListener(queues = MQConfig.QUEUE, concurrency = NUM_THREADS)
+    @RabbitListener(queues = MQConfig.RUNS_QUEUE, concurrency = NUM_THREADS)
     public void listener(QueueRabbitMqMessage message) {
         Long runId = message.getRunId();
         Run run = runService.findByRunId(runId);

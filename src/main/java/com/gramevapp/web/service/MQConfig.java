@@ -3,7 +3,6 @@ package com.gramevapp.web.service;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.rabbit.listener.DirectMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
@@ -13,37 +12,49 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.TopicExchange;
-import org.springframework.util.ErrorHandler;
 
 import java.util.logging.Logger;
 
 
 @Configuration
 public class MQConfig {
-    public static final String QUEUE = "message_queue";
-    public static final String EXCHANGE = "message_exchange";
-    public static final String ROUTING_KEY = "message_routingKey";
-    Logger logger = Logger.getLogger(MQConfig.class.getName());
-
-    private static final int NUM_THREADS = Runtime.getRuntime().availableProcessors()/2;
+    public static final String RUNS_QUEUE = "message_queue";
+    public static final String REPORTS_QUEUE = "reports_queue";
+    public static final String EXCHANGE = "EXCHANGE";
+    public static final String RUNS_ROUTING_KEY = "message_routingKey";
+    public static final String REPORT_ROUTING_KEY = "report_routingKey";
 
     @Bean
-    public Queue queue() {
-        return  new Queue(QUEUE);
+    public Queue queue1() {
+        return  new Queue(RUNS_QUEUE);
     }
 
     @Bean
-    public TopicExchange exchange() {
-        return new TopicExchange(EXCHANGE);
+    public Queue queue2() {
+        return  new Queue(REPORTS_QUEUE);
     }
 
     @Bean
-    public Binding binding(Queue queue, TopicExchange exchange) {
+    public DirectExchange exchange() {
+        return new DirectExchange(EXCHANGE);
+    }
+
+    // Bind with runs queue
+    @Bean
+    public Binding binding1(Queue queue1, DirectExchange exchange) {
         return BindingBuilder
-                .bind(queue)
+                .bind(queue1)
                 .to(exchange)
-                .with(ROUTING_KEY);
+                .with(RUNS_ROUTING_KEY);
+    }
+
+    // Bind with reports queue
+    @Bean
+    public Binding binding2(Queue queue2, DirectExchange exchange) {
+        return BindingBuilder
+                .bind(queue2)
+                .to(exchange)
+                .with(REPORT_ROUTING_KEY);
     }
 
     @Bean
@@ -60,8 +71,6 @@ public class MQConfig {
 
     @Bean
     public SimpleMessageListenerContainer simpleMessageListenerContainer(ConnectionFactory connectionFactory) {
-        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(connectionFactory);
-        //container.setConcurrentConsumers(NUM_THREADS);
-        return container;
+        return new SimpleMessageListenerContainer(connectionFactory);
     }
 }

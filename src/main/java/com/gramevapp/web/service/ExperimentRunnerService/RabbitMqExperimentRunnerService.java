@@ -168,7 +168,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
                     runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, configExpDto.getObjective()
                             , configExpDto.isDe()), expId, runId, "run");
 
-            rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.ROUTING_KEY, messageToSend);
+            rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.RUNS_ROUTING_KEY, messageToSend);
             //runElementsInExecution[i] = run;
         }
         experimentService.saveExperiment(exp);
@@ -535,7 +535,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         QueueRabbitMqMessage stopMessage = new QueueRabbitMqMessage(runnable, run.getExperimentId().getId()
                 , runId, "stop");
 
-        rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.ROUTING_KEY, stopMessage);
+        rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.RUNS_ROUTING_KEY, stopMessage);
 
 
         if (model != null) {
