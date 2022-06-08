@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 
 // Listener
 @Component
-public class RabbitListenerService {
+public class WebGERabbitListener {
     private Logger logger;
     private RunService runService;
     private DiagramDataService diagramDataService;
@@ -21,9 +21,9 @@ public class RabbitListenerService {
 
     private static final String NUM_THREADS = "2";
 
-    public RabbitListenerService(RunService runService, DiagramDataService diagramDataService
+    public WebGERabbitListener(RunService runService, DiagramDataService diagramDataService
             , RabbitTemplate rabbitTemplate) {
-        this.logger = Logger.getLogger(RabbitListenerService.class.getName());
+        this.logger = Logger.getLogger(WebGERabbitListener.class.getName());
         this.runService = runService;
         this.diagramDataService = diagramDataService;
         this.rabbitTemplate = rabbitTemplate;
