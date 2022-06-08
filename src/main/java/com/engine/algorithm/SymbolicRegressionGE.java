@@ -6,6 +6,7 @@
 package com.engine.algorithm;
 
 import com.engine.util.UtilStats;
+import com.gramevapp.SpringContext;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.service.MQConfig;
 import com.gramevapp.web.service.ReportRabbitmqMessage;
@@ -26,6 +27,8 @@ import net.objecthunter.exp4j.ExpressionBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -79,7 +82,6 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     private String objective;
     private boolean de = false;
 
-    @Autowired
     private RabbitTemplate rabbitTemplate;
 
 
@@ -99,6 +101,8 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         this.de = de;
         bestSolution = new SolutionDEGE();
         bestSolution.setCost(Double.MAX_VALUE);
+
+        rabbitTemplate = SpringContext.getBean(RabbitTemplate.class);
     }
 
     public void stopExecution() {
