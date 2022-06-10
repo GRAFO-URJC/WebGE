@@ -43,32 +43,23 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
     private Logger logger;
     private RunService runService;
     private boolean executionCancelled;
-    //private Map<Long, Future<Void>> runToFuture;
     private Map<Long, RunnableExpGramEv> runToRunnable;
-    //private Run[] runElementsInExecution;
 
-    public static ExecutorService threadPool;
-    @Autowired
     private RabbitTemplate rabbitTemplate;
 
 
 
     public RabbitMqExperimentRunnerService(ExperimentService experimentService, SaveDBService saveDBService
-            , RunService runService, Map<Long, Future<Void>> runToFuture
-            , Map<Long, CallableExpGramEv> runToCallable, GrammarRepository grammarRepository, UserService userService) {
+            , RunService runService, GrammarRepository grammarRepository, UserService userService
+            , RabbitTemplate rabbitTemplate) {
         this.experimentService = experimentService;
         this.saveDBService = saveDBService;
         this.logger = Logger.getLogger(ThreadPoolExperimentRunnerService.class.getName());
         this.runService = runService;
-        //this.runToFuture = runToFuture;
-        //this.runToCallable = runToCallable;
-
+        this.rabbitTemplate = rabbitTemplate;
         this.grammarRepository = grammarRepository;
         this.userService = userService;
 
-        int numThreads = Runtime.getRuntime().availableProcessors()/2;
-
-        threadPool = Executors.newFixedThreadPool(numThreads);
     }
 
     // Constants
