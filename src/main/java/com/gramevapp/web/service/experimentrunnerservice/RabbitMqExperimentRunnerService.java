@@ -184,7 +184,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
 
         RunnableExpGramEv obj = new RunnableExpGramEv(properties, run,
                 experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService,
-                saveDBService, crossRunIdentifier, objective, de);
+                saveDBService, crossRunIdentifier, objective, de, rabbitTemplate);
 
         //CallablesSubmiter.runToCallable.put(run.getId(), obj);
         return obj;

@@ -6,7 +6,6 @@
 package com.engine.algorithm;
 
 import com.engine.util.UtilStats;
-import com.gramevapp.SpringContext;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.service.MQConfig;
 import com.gramevapp.web.service.ReportRabbitmqMessage;
@@ -26,9 +25,6 @@ import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -87,7 +83,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
     private final SolutionDEGE bestSolution;
 
-    public SymbolicRegressionGE(Properties properties, int numObjectives, String objective, boolean de) {
+    public SymbolicRegressionGE(Properties properties, int numObjectives, String objective, boolean de, RabbitTemplate rabbitTemplate) {
         super(properties.getProperty(com.engine.util.Common.BNF_PATH_FILE_PROP), numObjectives,
                 Integer.parseInt(properties.getProperty(com.engine.util.Common.CHROMOSOME_LENGTH_PROP)),
                 Integer.parseInt(properties.getProperty(com.engine.util.Common.MAX_WRAPS_PROP)),
@@ -102,7 +98,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         bestSolution = new SolutionDEGE();
         bestSolution.setCost(Double.MAX_VALUE);
 
-        rabbitTemplate = SpringContext.getBean(RabbitTemplate.class);
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     public void stopExecution() {
@@ -287,7 +283,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
     @Override
     public SymbolicRegressionGE clone() {
-        return new SymbolicRegressionGE(properties, this.numberOfObjectives, objective, de);
+        return new SymbolicRegressionGE(properties, this.numberOfObjectives, objective, de, rabbitTemplate);
     }
 
     private void addToExecutionReport(double time) {

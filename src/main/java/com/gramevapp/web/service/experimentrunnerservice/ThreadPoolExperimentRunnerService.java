@@ -205,10 +205,10 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
         }
         properties.setProperty(TRAINING_PATH_PROP, propPath);
 
-
+        // no necesita el rabbittemplate
         CallableExpGramEv obj = new CallableExpGramEv(properties, run,
                 experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService,
-                saveDBService, crossRunIdentifier, objective, de);
+                saveDBService, crossRunIdentifier, objective, de, null);
 
         runToCallable.put(run.getId(), obj);
         return obj;

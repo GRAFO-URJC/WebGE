@@ -6,6 +6,7 @@ import com.gramevapp.web.model.Dataset;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.SaveDBService;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
@@ -26,7 +27,7 @@ public class RunnableExpGramEv implements Runnable {
     private SaveDBService saveDBService;
     private String objective;
     private boolean de;
-    //private Long runnablesKey;
+    private RabbitTemplate rabbitTemplate;
 
     public RunnableExpGramEv(
             @JsonProperty("properties") Properties properties,
@@ -36,7 +37,8 @@ public class RunnableExpGramEv implements Runnable {
             @JsonProperty("saveDBService") SaveDBService saveDBService,
             @JsonProperty("crossRunIdentifier") int crossRunIdentifier,
             @JsonProperty("objective") String objective,
-            @JsonProperty("de") boolean de) {
+            @JsonProperty("de") boolean de,
+            @JsonProperty("rabbitTemplate") RabbitTemplate rabbitTemplate) {
 
         this.properties = properties;
         this.runElement = runElement;
@@ -46,6 +48,7 @@ public class RunnableExpGramEv implements Runnable {
         this.saveDBService = saveDBService;
         this.objective = objective;
         this.de = de;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @Override
@@ -64,7 +67,7 @@ public class RunnableExpGramEv implements Runnable {
         runElement.setBestIndividual(0.0);
         runElement.setCurrentGeneration(0);
 
-        ge = new SymbolicRegressionGE(properties, numObjectives, objective, de);
+        ge = new SymbolicRegressionGE(properties, numObjectives, objective, de, rabbitTemplate);
 
         RunGeObserver observer = new RunGeObserver();
         observer.setDiagramData(runElement);
