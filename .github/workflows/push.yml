@@ -1,0 +1,23 @@
+name: Push
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  push-dockerhub:
+    name: "Push image to DockerHub"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_NAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: "Clean mvn package"
+        run: mvn clean package -Dmaven.test.skip=true
+      - name: "Build docker image"
+        run: docker build -f docker/Dockerfile -t jmcolmenar/webge:latest .
+      - name: "Push docker image"
+        run: docker push jmcolmenar/webge:latest
