@@ -58,7 +58,7 @@ public class RunnableExpGramEv implements Runnable {
         if(properties == null) {
             logger.warning("PROPERTIES ES NULL");
         }
-        if ((properties.getProperty(OBJECTIVES_PROP) != null)
+        else if ((properties.getProperty(OBJECTIVES_PROP) != null)
                 && (Integer.parseInt(properties.getProperty(OBJECTIVES_PROP)) == 2)) {
             numObjectives = 2;
         }
