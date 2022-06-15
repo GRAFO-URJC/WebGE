@@ -1,10 +1,8 @@
-package com.gramevapp.web.service;
+package com.gramevapp.web.service.experimentrunnerservice;
 
 import com.gramevapp.web.model.Run;
 
 import java.util.List;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 public interface ExperimentRunner {

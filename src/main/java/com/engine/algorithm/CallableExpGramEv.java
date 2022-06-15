@@ -4,6 +4,7 @@ import com.gramevapp.web.model.Dataset;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.SaveDBService;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import java.util.Properties;
 import java.util.concurrent.Callable;
@@ -13,8 +14,8 @@ import static com.engine.util.Common.OBJECTIVES_PROP;
 // Clon de RunnableExpGramEv pero implementando Callable
 public class CallableExpGramEv implements Callable<Void> {
 
-    private final Properties properties;
-    private final Run runElement;
+    private Properties properties;
+    private Run runElement;
     private SymbolicRegressionGE ge;
     private Dataset experimentDataType;
     private RunService runService;
@@ -23,8 +24,10 @@ public class CallableExpGramEv implements Callable<Void> {
     private String objective;
     private boolean de;
 
-    public CallableExpGramEv(Properties properties, Run runElement, Dataset experimentDataType,
-                             RunService runService, SaveDBService saveDBService, int crossRunIdentifier, String objective, boolean de) {
+    private RabbitTemplate rabbitTemplate;
+
+    public CallableExpGramEv(Properties properties, Run runElement, Dataset experimentDataType, RunService runService
+            , SaveDBService saveDBService, int crossRunIdentifier, String objective, boolean de, RabbitTemplate rabbitTemplate) {
         this.properties = properties;
         this.runElement = runElement;
         this.experimentDataType = experimentDataType;
@@ -33,6 +36,11 @@ public class CallableExpGramEv implements Callable<Void> {
         this.saveDBService = saveDBService;
         this.objective = objective;
         this.de = de;
+        this.rabbitTemplate = rabbitTemplate;
+    }
+
+    public CallableExpGramEv() {
+
     }
 
     @Override
@@ -48,7 +56,7 @@ public class CallableExpGramEv implements Callable<Void> {
         runElement.setCurrentGeneration(0);
 
 
-        ge = new SymbolicRegressionGE(properties, numObjectives, objective, de);
+        ge = new SymbolicRegressionGE(properties, numObjectives, objective, de, rabbitTemplate);
 
 
         RunGeObserver observer = new RunGeObserver();

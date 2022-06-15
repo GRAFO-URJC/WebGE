@@ -7,4 +7,4 @@ ENTRYPOINT ["java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,addre
                                                                                            "-Dcom.sun.management.jmxremote.authenticate=false", \
                                                                                            "-Dcom.sun.management.jmxremote.ssl=false", \
                                                                                            "-Dcom.sun.management.jmxremote.rmi.port=9010", \
-                                                                                           "-Djava.rmi.server.hostname=localhost","-jar","gramev.jar"]
+                                                                                        "-Djava.rmi.server.hostname=localhost","-jar","gramev.jar"]

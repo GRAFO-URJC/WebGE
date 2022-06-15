@@ -3,6 +3,7 @@ package com.gramevapp.web.controller;
 import com.gramevapp.web.model.*;
 import com.gramevapp.web.repository.GrammarRepository;
 import com.gramevapp.web.service.*;
+import com.gramevapp.web.service.experimentrunnerservice.RabbitMqExperimentRunnerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,9 +39,9 @@ public class ExperimentController {
     @Autowired
     private SaveDBService saveDBService;
 
+    // Choose between all variants in package service/ExperimentRunnerService
     @Autowired
-    private ThreadPoolExperimentRunnerService threadPoolExperimentRunnerService;
-    //private LegacyExperimentRunnerService legacyExperimentRunnerService;
+    private RabbitMqExperimentRunnerService experimentRunnerService;
 
 
     @ModelAttribute
@@ -80,7 +81,7 @@ public class ExperimentController {
         model.addAttribute("user", user);
         model.addAttribute("configExp", new ConfigExperimentDto());
         model.addAttribute("disabledClone", true);
-        threadPoolExperimentRunnerService.modelAddDataService(model, user, null, null, null);
+        experimentRunnerService.modelAddDataService(model, user, null, null, null);
 
         return CONFIGEXPERIMENTPATH;
     }
@@ -100,7 +101,7 @@ public class ExperimentController {
                                 BindingResult result,
                                 RedirectAttributes redirectAttrs) throws IOException {
 
-        return threadPoolExperimentRunnerService.runExperimentService(model, experimentDataTypeId, testExperimentDataTypeId, fileModelDto, configExpDto, result, redirectAttrs);
+        return experimentRunnerService.runExperimentService(model, experimentDataTypeId, testExperimentDataTypeId, fileModelDto, configExpDto, result, redirectAttrs);
     }
 
     @PostMapping(value = "/experiment/start", params = "saveExperimentButton")
@@ -111,7 +112,7 @@ public class ExperimentController {
                                  @ModelAttribute("configExp") @Valid ConfigExperimentDto configExpDto,
                                  BindingResult result) {
 
-        return threadPoolExperimentRunnerService.saveExperimentService(model, experimentDataTypeId, testExperimentDataTypeId
+        return experimentRunnerService.saveExperimentService(model, experimentDataTypeId, testExperimentDataTypeId
                 , fileModelDto, configExpDto, result);
     }
 
@@ -126,7 +127,7 @@ public class ExperimentController {
         model.addAttribute(CONFIGURATION, configExpDto);
         model.addAttribute(EXPCONFIG, configExpDto);
 
-        threadPoolExperimentRunnerService.modelAddDataService(model, user,
+        experimentRunnerService.modelAddDataService(model, user,
                 experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
                 null, configExpDto.getTestDefaultExpDataTypeId());
         model.addAttribute("disabledClone", true);
@@ -137,28 +138,28 @@ public class ExperimentController {
 
     @GetMapping(value = "/experiment/experimentRepository")
     public String experimentRepository(Model model) {
-        return threadPoolExperimentRunnerService.experimentRepositoryService(model);
+        return experimentRunnerService.experimentRepositoryService(model);
     }
 
     @GetMapping(value = "/experiment/expRepoSelected", params = "loadExperimentButton")
     public String expRepoSelected(Model model,
                                   @RequestParam(required = false) String id) { // Exp ID
 
-        return threadPoolExperimentRunnerService.expRepoSelectedService(model, id);
+        return experimentRunnerService.expRepoSelectedService(model, id);
     }
 
     @PostMapping(value = "/experiment/expRepoSelected", params = "deleteExperiment")
     public
     @ResponseBody
     Long expRepoSelectedDelete(@RequestParam("experimentId") String experimentId) {
-        return threadPoolExperimentRunnerService.expRepoSelectedDeleteService(experimentId);
+        return experimentRunnerService.expRepoSelectedDeleteService(experimentId);
     }
 
     @PostMapping(value = "/experiment/expRepoSelected", params = "checkIfRunning")
     public
     @ResponseBody
     Boolean expRepoSelectedCheckRunning(@RequestParam("experimentId") String experimentId) {
-        return threadPoolExperimentRunnerService.expRepoSelectedCheckRunningService(experimentId);
+        return experimentRunnerService.expRepoSelectedCheckRunningService(experimentId);
     }
 
     @GetMapping(value = "/experiment/runList", params = "showPlotExecutionButton")
@@ -178,14 +179,14 @@ public class ExperimentController {
     @GetMapping(value = "/experiment/runList", params = "showTestStatsPlotButton")
     public String showRunTestStatsExperiment(Model model,
                                              @RequestParam(value = RUNID) String runId) {
-        return threadPoolExperimentRunnerService.showRunTestStatsExperimentService(model, runId);
+        return experimentRunnerService.showRunTestStatsExperimentService(model, runId);
     }
 
     @PostMapping(value = "/experiment/stopRun", params = "stopRunExperimentButton")
     public String stopRunExperiment(Model model,
                                     @RequestParam("runIdStop") String runIdStop,
                                     RedirectAttributes redirectAttrs) throws InterruptedException {
-        return threadPoolExperimentRunnerService.stopRunExperimentService(model, runIdStop, redirectAttrs, diagramDataService);
+        return experimentRunnerService.stopRunExperimentService(model, runIdStop, redirectAttrs, diagramDataService);
     }
 
     @PostMapping(value = "/experiment/stopRunAjax")
@@ -198,7 +199,7 @@ public class ExperimentController {
     @PostMapping(value = "/experiment/stopAllRunsAjax")
     @ResponseBody
     public boolean ajaxStopAllRunsExperiment(@RequestParam("expId") Long expId) throws InterruptedException {
-        threadPoolExperimentRunnerService.setExecutionCancelled(true);
+        experimentRunnerService.setExecutionCancelled(true);
         Experiment experiment = experimentService.findExperimentById(expId);
         List<Run> runList = experiment.getIdRunList();
         for (Run run : runList) {
@@ -225,7 +226,7 @@ public class ExperimentController {
 
     @PostConstruct
     public void initSystemStream() {
-        threadPoolExperimentRunnerService.initSystemStream();
+        experimentRunnerService.initSystemStream();
     }
 
     /**
@@ -236,7 +237,7 @@ public class ExperimentController {
     @GetMapping(value = "/runResultsInfo")
     @ResponseBody
     public RunResultsDto getRunResultsInfo(@RequestParam("expId") String expId) {
-        return threadPoolExperimentRunnerService.getRunResultsInfoService(expId);
+        return experimentRunnerService.getRunResultsInfoService(expId);
     }
 
     /**
@@ -247,6 +248,6 @@ public class ExperimentController {
     @GetMapping(value = "/experimentRunsPredictions")
     @ResponseBody
     public Map<String,String[][]> getExperimentPredictions(@RequestParam("expId") String expId) {
-        return threadPoolExperimentRunnerService.getExperimentPredictionsService(expId);
+        return experimentRunnerService.getExperimentPredictionsService(expId);
     }
 }

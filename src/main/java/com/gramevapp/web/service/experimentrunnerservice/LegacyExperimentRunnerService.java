@@ -1,16 +1,14 @@
-package com.gramevapp.web.service;
+package com.gramevapp.web.service.experimentrunnerservice;
 
 import com.gramevapp.web.model.*;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 @Service("legacyExperimentRunnerService")
-public class LegacyExperimentRunnerService implements ExperimentRunner{
+public class LegacyExperimentRunnerService implements ExperimentRunner {
     @Override
     public Future<Void> accept(Run run, String propPath, int crossRunIdentifier, String objective, boolean de, Long expId) {
         return null;

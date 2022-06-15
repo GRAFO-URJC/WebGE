@@ -7,6 +7,8 @@ package com.engine.algorithm;
 
 import com.engine.util.UtilStats;
 import com.gramevapp.web.model.Run;
+import com.gramevapp.web.service.MQConfig;
+import com.gramevapp.web.service.ReportRabbitmqMessage;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.SaveDBService;
 import jeco.core.algorithm.Algorithm;
@@ -22,6 +24,7 @@ import jeco.core.problem.Variable;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -75,10 +78,12 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
     private String objective;
     private boolean de = false;
 
+    private RabbitTemplate rabbitTemplate;
+
 
     private final SolutionDEGE bestSolution;
 
-    public SymbolicRegressionGE(Properties properties, int numObjectives, String objective, boolean de) {
+    public SymbolicRegressionGE(Properties properties, int numObjectives, String objective, boolean de, RabbitTemplate rabbitTemplate) {
         super(properties.getProperty(com.engine.util.Common.BNF_PATH_FILE_PROP), numObjectives,
                 Integer.parseInt(properties.getProperty(com.engine.util.Common.CHROMOSOME_LENGTH_PROP)),
                 Integer.parseInt(properties.getProperty(com.engine.util.Common.MAX_WRAPS_PROP)),
@@ -92,6 +97,8 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         this.de = de;
         bestSolution = new SolutionDEGE();
         bestSolution.setCost(Double.MAX_VALUE);
+
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     public void stopExecution() {
@@ -276,7 +283,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
     @Override
     public SymbolicRegressionGE clone() {
-        return new SymbolicRegressionGE(properties, this.numberOfObjectives, objective, de);
+        return new SymbolicRegressionGE(properties, this.numberOfObjectives, objective, de, rabbitTemplate);
     }
 
     private void addToExecutionReport(double time) {
@@ -439,7 +446,9 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             run.setStatus(Run.Status.FINISHED);
         }
         run.setModificationDate(new Timestamp(new Date().getTime()));
-        saveDBService.saveRunAsync(run);
+        //saveDBService.saveRunAsync(run);
+        ReportRabbitmqMessage message = new ReportRabbitmqMessage(run, null, "finish");
+        rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.REPORT_ROUTING_KEY, message);
         obs.getLock().lock();
 
     }
