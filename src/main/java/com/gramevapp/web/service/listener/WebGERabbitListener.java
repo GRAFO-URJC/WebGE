@@ -46,7 +46,7 @@ public class WebGERabbitListener {
         }
     }
 
-    @RabbitListener(queues = MQConfig.RUNS_QUEUE, concurrency = NUM_THREADS)
+    @RabbitListener(queues = MQConfig.RUNS_QUEUE)
     public void listener(QueueRabbitMqMessage message) {
         Long runId = message.getRunId();
         Run run = runService.findByRunId(runId);

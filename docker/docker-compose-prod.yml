@@ -20,6 +20,7 @@ services:
     image: jmcolmenar/webge
     depends_on:
       - db
+      - rabbitmq
     ports:
       - 8182:8182
     environment:
@@ -29,6 +30,14 @@ services:
       SPRING_FLYWAY_URL: "jdbc:postgresql://db:5432/webge"
       SPRING_FLYWAY_USER: "usuario"
       SPRING_FLYWAY_PASSWORD: "01234"
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_LISTENER_SIMPLE_CONCURRENCY: "2"
+    networks:
+      - backend
+  rabbitmq:
+    image: rabbitmq:latest
+    ports:
+      - "5672:5672"
     networks:
       - backend
 volumes:

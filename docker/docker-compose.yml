@@ -35,6 +35,7 @@ services:
       SPRING_FLYWAY_USER: "usuario"
       SPRING_FLYWAY_PASSWORD: "01234"
       SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_LISTENER_SIMPLE_CONCURRENCY: "2"
     networks:
       - backend
   rabbitmq:
