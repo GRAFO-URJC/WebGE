@@ -4,21 +4,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gramevapp.web.model.Run;
 
 public class ReportRabbitmqMessage {
-    private Run run;
+    private Long runId;
     private Exception exception;
     private String code;
 
     public ReportRabbitmqMessage(
-            @JsonProperty("run") Run run,
+            @JsonProperty("runId") Long runId,
             @JsonProperty("exception") Exception exception,
             @JsonProperty("code") String code) {
-        this.run = run;
+        this.runId = runId;
         this.exception = exception;
         this.code = code;
     }
 
-    public Run getRun() {
-        return this.run;
+    public Long getRunId() {
+        return this.runId;
     }
 
     public Exception getException() {

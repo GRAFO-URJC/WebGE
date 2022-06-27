@@ -39,7 +39,7 @@ public class ReportsListenerService {
 
     @RabbitListener(queues = MQConfig.REPORTS_QUEUE)
     public void listener(ReportRabbitmqMessage message) {
-        Run run = message.getRun();
+        Run run = runService.findByRunId(message.getRunId());
         Exception ex = message.getException();
         String code = message.getCode();
 

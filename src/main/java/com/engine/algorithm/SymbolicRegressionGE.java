@@ -447,7 +447,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         }
         run.setModificationDate(new Timestamp(new Date().getTime()));
         //saveDBService.saveRunAsync(run);
-        ReportRabbitmqMessage message = new ReportRabbitmqMessage(run, null, "finish");
+        ReportRabbitmqMessage message = new ReportRabbitmqMessage(run.getId(), null, "finish");
         rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.REPORT_ROUTING_KEY, message);
         obs.getLock().lock();
 

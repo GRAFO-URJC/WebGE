@@ -40,7 +40,7 @@ public class WebGERabbitListener {
         try {
             runnable.run();
         }catch (Exception ex) {
-            ReportRabbitmqMessage message = new ReportRabbitmqMessage(run, ex, "run-exception");
+            ReportRabbitmqMessage message = new ReportRabbitmqMessage(run.getId(), ex, "run-exception");
             rabbitTemplate.convertAndSend(MQConfig.EXCHANGE ,MQConfig.REPORT_ROUTING_KEY, message);
         }
     }
