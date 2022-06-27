@@ -1,11 +1,12 @@
 package com.gramevapp.web.service.experimentrunnerservice;
 
-import com.engine.algorithm.CallableExpGramEv;
 import com.engine.algorithm.RunnableExpGramEv;
 import com.gramevapp.web.model.*;
 import com.gramevapp.web.service.*;
+import com.gramevapp.web.service.rabbitmq.MQConfig;
+import com.gramevapp.web.service.rabbitmq.QueueRabbitMqMessage;
+import com.gramevapp.web.service.rabbitmq.WebGERunnableUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -43,7 +44,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
     private Logger logger;
     private RunService runService;
     private boolean executionCancelled;
-    private Map<Long, RunnableExpGramEv> runToRunnable;
+    //private Map<Long, RunnableExpGramEv> runToRunnable;
 
     private RabbitTemplate rabbitTemplate;
 
@@ -170,7 +171,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         return "redirect:/experiment/expRepoSelected";
     }
 
-    public RunnableExpGramEv runExperimentDetailsServiceWorker(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) throws IOException {
+    public WebGERunnableUtils runExperimentDetailsServiceWorker(Run run, String propPath, int crossRunIdentifier, String objective, boolean de) throws IOException {
 
         File propertiesFile = new File(propPath);
         Properties properties = new Properties();
@@ -182,9 +183,12 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         properties.setProperty(TRAINING_PATH_PROP, propPath);
 
 
-        RunnableExpGramEv obj = new RunnableExpGramEv(properties, run,
-                experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService,
-                saveDBService, crossRunIdentifier, objective, de, rabbitTemplate);
+//        RunnableExpGramEv obj = new RunnableExpGramEv(properties, run,
+//                experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService,
+//                saveDBService, crossRunIdentifier, objective, de, rabbitTemplate);
+        WebGERunnableUtils obj = new WebGERunnableUtils(properties, run,
+                experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()),
+                crossRunIdentifier, objective, de);
 
         //CallablesSubmiter.runToCallable.put(run.getId(), obj);
         return obj;
@@ -521,9 +525,10 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
             , DiagramDataService diagramDataService) throws InterruptedException {
         Run run = runService.findByRunId(Long.parseLong(runIdStop));
         Long runId = run.getId();
-        RunnableExpGramEv runnable = runToRunnable.get(runId);
+        //RunnableExpGramEv runnable = runToRunnable.get(runId);
 
-        QueueRabbitMqMessage stopMessage = new QueueRabbitMqMessage(runnable, run.getExperimentId().getId()
+        // TODO
+        QueueRabbitMqMessage stopMessage = new QueueRabbitMqMessage(null, run.getExperimentId().getId()
                 , runId, "stop");
 
         rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.RUNS_ROUTING_KEY, stopMessage);

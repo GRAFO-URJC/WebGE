@@ -1,8 +1,9 @@
-package com.gramevapp.web.service.listener;
+package com.gramevapp.web.service.rabbitmq.listener;
 
 import com.engine.algorithm.RunnableExpGramEv;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.service.*;
+import com.gramevapp.web.service.rabbitmq.*;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
@@ -16,20 +17,18 @@ public class WebGERabbitListener {
     private RunService runService;
     private DiagramDataService diagramDataService;
     private RabbitTemplate rabbitTemplate;
-
-
-
-    private static final String NUM_THREADS = "2";
+    private SaveDBService saveDBService;
 
     public WebGERabbitListener(RunService runService, DiagramDataService diagramDataService
-            , RabbitTemplate rabbitTemplate) {
+            , RabbitTemplate rabbitTemplate, SaveDBService saveDBService) {
         this.logger = Logger.getLogger(WebGERabbitListener.class.getName());
         this.runService = runService;
         this.diagramDataService = diagramDataService;
         this.rabbitTemplate = rabbitTemplate;
+        this.saveDBService = saveDBService;
     }
 
-    private void stopRun(Run run, RunnableExpGramEv runnable) {
+    private void stopRun(Run run, WebGERunnable runnable) {
         runnable.stopExecution();
         run.getDiagramData().setStopped(true);
         diagramDataService.saveDiagram(run.getDiagramData());
@@ -37,7 +36,7 @@ public class WebGERabbitListener {
         runService.saveRun(run);
     }
 
-    private void startRun(Run run, RunnableExpGramEv runnable) {
+    private void startRun(Run run, WebGERunnable runnable) {
         try {
             runnable.run();
         }catch (Exception ex) {
@@ -50,8 +49,9 @@ public class WebGERabbitListener {
     public void listener(QueueRabbitMqMessage message) {
         Long runId = message.getRunId();
         Run run = runService.findByRunId(runId);
-        RunnableExpGramEv elementToRun = message.getRunnable();
+        WebGERunnableUtils utils = message.getRunnable();
         String code = message.getCode();
+        WebGERunnable elementToRun = new WebGERunnable(utils, runService, saveDBService, rabbitTemplate);
 
         // Enhanced java switch.
         switch (code) {

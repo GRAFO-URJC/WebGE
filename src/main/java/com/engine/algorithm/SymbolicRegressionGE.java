@@ -7,8 +7,8 @@ package com.engine.algorithm;
 
 import com.engine.util.UtilStats;
 import com.gramevapp.web.model.Run;
-import com.gramevapp.web.service.MQConfig;
-import com.gramevapp.web.service.ReportRabbitmqMessage;
+import com.gramevapp.web.service.rabbitmq.MQConfig;
+import com.gramevapp.web.service.rabbitmq.ReportRabbitmqMessage;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.SaveDBService;
 import jeco.core.algorithm.Algorithm;

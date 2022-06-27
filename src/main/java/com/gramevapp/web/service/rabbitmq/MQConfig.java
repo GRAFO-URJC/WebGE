@@ -1,4 +1,4 @@
-package com.gramevapp.web.service;
+package com.gramevapp.web.service.rabbitmq;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;

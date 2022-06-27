@@ -1,21 +1,20 @@
-package com.engine.algorithm;
+package com.gramevapp.web.service.rabbitmq;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.gramevapp.web.LoggingAccessDeniedHandler;
+import com.engine.algorithm.RunGeObserver;
+import com.engine.algorithm.SymbolicRegressionGE;
 import com.gramevapp.web.model.Dataset;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.SaveDBService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.stereotype.Service;
 
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
 import static com.engine.util.Common.OBJECTIVES_PROP;
 
-public class RunnableExpGramEv implements Runnable {
-
+public class WebGERunnable implements Runnable {
     private Properties properties;
     private Run runElement;
     private SymbolicRegressionGE ge;
@@ -27,31 +26,21 @@ public class RunnableExpGramEv implements Runnable {
     private boolean de;
     private RabbitTemplate rabbitTemplate;
 
-    public RunnableExpGramEv(
-            @JsonProperty("properties") Properties properties,
-            @JsonProperty("runElement") Run runElement,
-            @JsonProperty("experimentDataType") Dataset experimentDataType,
-            @JsonProperty("runService") RunService runService,
-            @JsonProperty("saveDBService") SaveDBService saveDBService,
-            @JsonProperty("crossRunIdentifier") int crossRunIdentifier,
-            @JsonProperty("objective") String objective,
-            @JsonProperty("de") boolean de,
-            @JsonProperty("rabbitTemplate") RabbitTemplate rabbitTemplate) {
-
-        this.properties = properties;
-        this.runElement = runElement;
-        this.experimentDataType = experimentDataType;
+    public WebGERunnable(WebGERunnableUtils utils, RunService runService, SaveDBService saveDBService, RabbitTemplate rabbitTemplate) {
+        this.properties = utils.getProperties();
+        this.runElement = utils.getRunElement();
+        this.experimentDataType = utils.getExperimentDataType();
         this.runService = runService;
-        this.crossRunIdentifier = crossRunIdentifier;
+        this.crossRunIdentifier = utils.getCrossRunIdentifier();
         this.saveDBService = saveDBService;
-        this.objective = objective;
-        this.de = de;
+        this.objective = utils.getObjective();
+        this.de = utils.getDe();
         this.rabbitTemplate = rabbitTemplate;
     }
 
     @Override
     public void run() {
-        Logger logger = Logger.getLogger(RunnableExpGramEv.class.getName());
+        Logger logger = Logger.getLogger(WebGERunnable.class.getName());
         int numObjectives = 1;
         if(properties == null) {
             logger.warning("PROPERTIES ES NULL");
@@ -168,3 +157,8 @@ public class RunnableExpGramEv implements Runnable {
         this.de = de;
     }
 }
+
+
+
+
+

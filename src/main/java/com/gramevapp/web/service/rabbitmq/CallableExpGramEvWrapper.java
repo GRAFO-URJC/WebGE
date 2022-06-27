@@ -1,4 +1,4 @@
-package com.gramevapp.web.service;
+package com.gramevapp.web.service.rabbitmq;
 
 import com.engine.algorithm.CallableExpGramEv;
 import lombok.Data;

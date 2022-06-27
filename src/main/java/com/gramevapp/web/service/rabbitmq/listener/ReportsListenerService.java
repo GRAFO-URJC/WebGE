@@ -1,8 +1,8 @@
-package com.gramevapp.web.service.listener;
+package com.gramevapp.web.service.rabbitmq.listener;
 
 import com.gramevapp.web.model.Run;
-import com.gramevapp.web.service.MQConfig;
-import com.gramevapp.web.service.ReportRabbitmqMessage;
+import com.gramevapp.web.service.rabbitmq.MQConfig;
+import com.gramevapp.web.service.rabbitmq.ReportRabbitmqMessage;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.SaveDBService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
