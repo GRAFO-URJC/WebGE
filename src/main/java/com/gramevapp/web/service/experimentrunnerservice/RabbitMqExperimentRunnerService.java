@@ -5,6 +5,7 @@ import com.gramevapp.web.model.*;
 import com.gramevapp.web.service.*;
 import com.gramevapp.web.service.rabbitmq.MQConfig;
 import com.gramevapp.web.service.rabbitmq.QueueRabbitMqMessage;
+import com.gramevapp.web.service.rabbitmq.WebGERunnable;
 import com.gramevapp.web.service.rabbitmq.WebGERunnableUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
@@ -44,7 +45,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
     private Logger logger;
     private RunService runService;
     private boolean executionCancelled;
-    //private Map<Long, RunnableExpGramEv> runToRunnable;
+    private Map<Long, WebGERunnable> runToRunnable;
 
     private RabbitTemplate rabbitTemplate;
 
@@ -528,10 +529,14 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         //RunnableExpGramEv runnable = runToRunnable.get(runId);
 
         // TODO
-        QueueRabbitMqMessage stopMessage = new QueueRabbitMqMessage(null, run.getExperimentId().getId()
-                , runId, "stop");
+//        QueueRabbitMqMessage stopMessage = new QueueRabbitMqMessage(null, run.getExperimentId().getId()
+//                , runId, "stop");
+//
+//        rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.RUNS_ROUTING_KEY, stopMessage);
 
-        rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.RUNS_ROUTING_KEY, stopMessage);
+        // Lo unico que se puede hacer es detener el run, y esperar a que se de cuenta
+        run.setStatus(Run.Status.STOPPED);
+        runService.saveRun(run);
 
 
         if (model != null) {
