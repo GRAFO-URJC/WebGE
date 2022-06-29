@@ -8,7 +8,7 @@ import java.util.Properties;
 
 public class WebGERunnableUtils {
     private Properties properties;
-    private Run runElement;
+    private Long runId;
     private Dataset experimentDataType;
     private int crossRunIdentifier;
     private String objective;
@@ -16,13 +16,13 @@ public class WebGERunnableUtils {
 
     public WebGERunnableUtils(
             @JsonProperty("properties")Properties properties,
-            @JsonProperty("runElement")Run runElement,
+            @JsonProperty("runId")Long runId,
             @JsonProperty("experimentDataType") Dataset experimentDataType,
             @JsonProperty("crossRunIdentifier")int crossRunIdentifier,
             @JsonProperty("objective")String objective,
             @JsonProperty("de") boolean de) {
         this.properties = properties;
-        this.runElement = runElement;
+        this.runId = runId;
         this.experimentDataType = experimentDataType;
         this.crossRunIdentifier = crossRunIdentifier;
         this.objective = objective;
@@ -37,13 +37,10 @@ public class WebGERunnableUtils {
         this.properties = properties;
     }
 
-    public Run getRunElement() {
-        return runElement;
+    public Long getRunId() {
+        return runId;
     }
 
-    public void setRunElement(Run runElement) {
-        this.runElement = runElement;
-    }
 
     public Dataset getExperimentDataType() {
         return experimentDataType;

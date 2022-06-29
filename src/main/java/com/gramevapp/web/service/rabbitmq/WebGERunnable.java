@@ -28,9 +28,9 @@ public class WebGERunnable implements Runnable {
 
     public WebGERunnable(WebGERunnableUtils utils, RunService runService, SaveDBService saveDBService, RabbitTemplate rabbitTemplate) {
         this.properties = utils.getProperties();
-        this.runElement = utils.getRunElement();
         this.experimentDataType = utils.getExperimentDataType();
         this.runService = runService;
+        this.runElement = runService.findByRunId(utils.getRunId());
         this.crossRunIdentifier = utils.getCrossRunIdentifier();
         this.saveDBService = saveDBService;
         this.objective = utils.getObjective();

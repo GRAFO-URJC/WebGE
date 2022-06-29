@@ -5,17 +5,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class QueueRabbitMqMessage {
     private WebGERunnableUtils runnable;
-    private Long expId, runId;
+    private Long expId;
     private String code;
 
     public QueueRabbitMqMessage(
             @JsonProperty("runnable") WebGERunnableUtils runnable,
             @JsonProperty("expId") Long expId,
-            @JsonProperty("runId") Long runId,
             @JsonProperty("code") String code) {
         this.runnable = runnable;
         this.expId = expId;
-        this.runId = runId;
         this.code = code;
     }
 
@@ -27,9 +25,6 @@ public class QueueRabbitMqMessage {
         this.expId = expId;
     }
 
-    public void setRunId(Long runId) {
-        this.runId = runId;
-    }
 
     public WebGERunnableUtils getRunnable() {
         return runnable;
@@ -37,10 +32,6 @@ public class QueueRabbitMqMessage {
 
     public Long getExpId() {
         return expId;
-    }
-
-    public Long getRunId() {
-        return runId;
     }
 
     public String getCode() {

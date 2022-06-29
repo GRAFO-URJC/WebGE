@@ -157,9 +157,10 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
             int crossRunIdentifier = exp.isCrossExperiment() ? run.getExperimentId().getIdRunList().indexOf(run) + 1 : -1;
 
             // send to rabbitmq
+            run = runService.saveRun(run);
             QueueRabbitMqMessage messageToSend = new QueueRabbitMqMessage(
                     runExperimentDetailsServiceWorker(run, propPath, crossRunIdentifier, configExpDto.getObjective()
-                            , configExpDto.isDe()), expId, runId, "run");
+                            , configExpDto.isDe()), expId, "run");
 
             rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.RUNS_ROUTING_KEY, messageToSend);
             //runElementsInExecution[i] = run;
@@ -187,7 +188,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
 //        RunnableExpGramEv obj = new RunnableExpGramEv(properties, run,
 //                experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()), runService,
 //                saveDBService, crossRunIdentifier, objective, de, rabbitTemplate);
-        WebGERunnableUtils obj = new WebGERunnableUtils(properties, run,
+        WebGERunnableUtils obj = new WebGERunnableUtils(properties, run.getId(),
                 experimentService.findExperimentDataTypeById(run.getExperimentId().getDefaultExpDataType()),
                 crossRunIdentifier, objective, de);
 

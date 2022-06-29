@@ -439,7 +439,6 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
         run.setModel(model);
 
-
         if (failed) {
             run.setStatus(Run.Status.FAILED);
         } else if (run.getStatus() != null && !run.getStatus().equals(Run.Status.STOPPED)) {
@@ -450,7 +449,6 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         ReportRabbitmqMessage message = new ReportRabbitmqMessage(run.getId(), null, "finish");
         rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.REPORT_ROUTING_KEY, message);
         obs.getLock().lock();
-
     }
 
     //Method to get the variables

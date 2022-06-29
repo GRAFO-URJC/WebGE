@@ -47,9 +47,9 @@ public class WebGERabbitListener {
 
     @RabbitListener(queues = MQConfig.RUNS_QUEUE)
     public void listener(QueueRabbitMqMessage message) {
-        Long runId = message.getRunId();
-        Run run = runService.findByRunId(runId);
         WebGERunnableUtils utils = message.getRunnable();
+        Long runId = utils.getRunId();
+        Run run = runService.findByRunId(runId);
         String code = message.getCode();
         WebGERunnable elementToRun = new WebGERunnable(utils, runService, saveDBService, rabbitTemplate);
 
