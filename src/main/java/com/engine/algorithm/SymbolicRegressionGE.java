@@ -404,18 +404,34 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         // Set weight for CEG penalty
         UtilStats.setCEGPenalties(properties);
 
-        var scheduledPool = Executors.newScheduledThreadPool(1);
+//        var scheduledPool = Executors.newScheduledThreadPool(1);
+//
+//        scheduledPool.scheduleAtFixedRate(() -> {
+//            if(isRunCancelled(finalRun.getId(), runService)){
+//                logger.warning("Run cancelled.");
+//                stopExecution();
+//            }
+//            if(isRunStopped(finalRun.getId(), runService)) {
+//                logger.warning("Run stopped");
+//                stopExecution();
+//            }
+//        }, 5, 5, TimeUnit.SECONDS);
         Run finalRun = run;
-        scheduledPool.scheduleAtFixedRate(() -> {
-            if(isRunCancelled(finalRun.getId(), runService)){
-                logger.warning("Run cancelled.");
-                stopExecution();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                if(isRunCancelled(finalRun.getId(), runService)){
+                    logger.warning("Run cancelled.");
+                    stopExecution();
+                }
+                if(isRunStopped(finalRun.getId(), runService)) {
+                    logger.warning("Run stopped");
+                    stopExecution();
+                }
             }
-            if(isRunStopped(finalRun.getId(), runService)) {
-                logger.warning("Run stopped");
-                stopExecution();
-            }
-        }, 20, 20, TimeUnit.SECONDS);
+        };
+        Timer timer = new Timer("Timer");
+        timer.scheduleAtFixedRate(task, 20000, 20000);
 
         try {
             updateAlgorithmFromNumObjetives(numObjectives, obs, mutationProb, crossOverProb, tournamentSize);
@@ -470,7 +486,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             }
             obs.getLock().lock();
         } finally {
-            scheduledPool.shutdown();
+            timer.cancel();
         }
     }
 
