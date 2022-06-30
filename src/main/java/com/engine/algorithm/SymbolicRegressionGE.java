@@ -411,6 +411,10 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
                 logger.warning("Run cancelled.");
                 stopExecution();
             }
+            if(isRunStopped(finalRun.getId(), runService)) {
+                logger.warning("Run stopped");
+                stopExecution();
+            }
         }, 20, 20, TimeUnit.SECONDS);
 
         try {

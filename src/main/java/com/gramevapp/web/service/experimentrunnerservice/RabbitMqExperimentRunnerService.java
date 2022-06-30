@@ -526,19 +526,10 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
     public String stopRunExperimentService(Model model, String runIdStop, RedirectAttributes redirectAttrs
             , DiagramDataService diagramDataService) throws InterruptedException {
         Run run = runService.findByRunId(Long.parseLong(runIdStop));
-        Long runId = run.getId();
-        //RunnableExpGramEv runnable = runToRunnable.get(runId);
-
-        // TODO
-//        QueueRabbitMqMessage stopMessage = new QueueRabbitMqMessage(null, run.getExperimentId().getId()
-//                , runId, "stop");
-//
-//        rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.RUNS_ROUTING_KEY, stopMessage);
 
         // Lo unico que se puede hacer es detener el run, y esperar a que se de cuenta
         run.setStatus(Run.Status.STOPPED);
         runService.saveRun(run);
-
 
         if (model != null) {
             model.addAttribute(EXPDETAILS, run.getExperimentId());
