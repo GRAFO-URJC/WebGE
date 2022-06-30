@@ -446,9 +446,21 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         }
         run.setModificationDate(new Timestamp(new Date().getTime()));
         //saveDBService.saveRunAsync(run);
-        ReportRabbitmqMessage message = new ReportRabbitmqMessage(run.getId(), null, "finish");
-        rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.REPORT_ROUTING_KEY, message);
+
+        // Only report if run wasn't cancelled before.
+        if(!isRunCancelled(run.getId(), runService)) {
+            ReportRabbitmqMessage message = new ReportRabbitmqMessage(run.getId(), null, "finish");
+            rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.REPORT_ROUTING_KEY, message);
+        }
         obs.getLock().lock();
+    }
+
+    private boolean isRunCancelled(Long runId, RunService runService) {
+        return runService.findByRunId(runId).getStatus().equals(Run.Status.CANCELLED);
+    }
+
+    private boolean isRunStopped(Long runId,  RunService runService) {
+        return runService.findByRunId(runId).getStatus().equals(Run.Status.STOPPED);
     }
 
     //Method to get the variables

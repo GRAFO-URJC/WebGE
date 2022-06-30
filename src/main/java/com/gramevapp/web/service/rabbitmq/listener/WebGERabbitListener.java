@@ -28,7 +28,16 @@ public class WebGERabbitListener {
         this.saveDBService = saveDBService;
     }
 
-    private void stopRun(Run run, WebGERunnable runnable) {
+    private boolean isRunCancelled(Long runId) {
+        return runService.findByRunId(runId).getStatus().equals(Run.Status.CANCELLED);
+    }
+
+    private boolean isRunStopped(Long runId) {
+        return runService.findByRunId(runId).getStatus().equals(Run.Status.STOPPED);
+    }
+
+    private void stopRun(Long runId, WebGERunnable runnable) {
+        Run run = runService.findByRunId(runId);
         runnable.stopExecution();
         run.getDiagramData().setStopped(true);
         diagramDataService.saveDiagram(run.getDiagramData());
@@ -36,12 +45,17 @@ public class WebGERabbitListener {
         runService.saveRun(run);
     }
 
-    private void startRun(Run run, WebGERunnable runnable) {
+    private void startRun(Long runId, WebGERunnable runnable) {
         try {
-            runnable.run();
+            if(!isRunCancelled(runId)){
+                runnable.run();
+            }
         }catch (Exception ex) {
-            ReportRabbitmqMessage message = new ReportRabbitmqMessage(run.getId(), ex, "run-exception");
-            rabbitTemplate.convertAndSend(MQConfig.EXCHANGE ,MQConfig.REPORT_ROUTING_KEY, message);
+            // Solo notificar si no se ha cancelado el run
+            if(!isRunCancelled(runId)) {
+                ReportRabbitmqMessage message = new ReportRabbitmqMessage(runId, ex, "run-exception");
+                rabbitTemplate.convertAndSend(MQConfig.EXCHANGE ,MQConfig.REPORT_ROUTING_KEY, message);
+            }
         }
     }
 
@@ -49,14 +63,13 @@ public class WebGERabbitListener {
     public void listener(QueueRabbitMqMessage message) {
         WebGERunnableUtils utils = message.getRunnable();
         Long runId = utils.getRunId();
-        Run run = runService.findByRunId(runId);
         String code = message.getCode();
         WebGERunnable elementToRun = new WebGERunnable(utils, runService, saveDBService, rabbitTemplate);
 
         // Enhanced java switch.
         switch (code) {
-            case "run" -> startRun(run, elementToRun);
-            case "stop" -> stopRun(run, elementToRun);
+            case "run" -> startRun(runId, elementToRun);
+            case "stop" -> stopRun(runId, elementToRun);
             default -> logger.warning("Wrong case in RabbitListenerService");
         }
     }
