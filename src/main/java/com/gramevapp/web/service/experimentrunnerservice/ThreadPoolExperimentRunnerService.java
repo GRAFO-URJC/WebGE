@@ -106,6 +106,14 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
 
     }
 
+    private boolean isRunCancelled(Long runId) {
+        return runService.findByRunId(runId).getStatus().equals(Run.Status.CANCELLED);
+    }
+
+    private boolean isRunStopped(Long runId) {
+        return runService.findByRunId(runId).getStatus().equals(Run.Status.STOPPED);
+    }
+
     public String runExperimentService(Model model, String experimentDataTypeId, String testExperimentDataTypeId
             , FileModelDto fileModelDto, ConfigExperimentDto configExpDto, BindingResult result
             , RedirectAttributes redirectAttrs) throws IOException {
@@ -160,10 +168,14 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
             propPath = expPropertiesSet(configExpDto, user, expDataType, grammarFilePath);
             // Run experiment in new thread
             int crossRunIdentifier = exp.isCrossExperiment() ? run.getExperimentId().getIdRunList().indexOf(run) + 1 : -1;
-            Future<Void> future = accept(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe(), expId);
-            runToFuture.put(runId, future);
-            futures.add(future);
-            runElementsInExecution[i] = run;
+
+            // Dont run runs that are cancelled
+            if(!isRunCancelled(runId)) {
+                Future<Void> future = accept(run, propPath, crossRunIdentifier, configExpDto.getObjective(), configExpDto.isDe(), expId);
+                runToFuture.put(runId, future);
+                futures.add(future);
+                runElementsInExecution[i] = run;
+            }
         }
         experimentService.saveExperiment(exp);
         executionCancelled = false;
@@ -181,8 +193,12 @@ public class ThreadPoolExperimentRunnerService implements ExperimentRunner{
                     Run runFinish = runElementsInExecution[tareasFinalizadas];
                     runFinish.setStatus(Run.Status.FAILED);
                     runFinish.setExecReport(runFinish.getExecReport() + "\nUncaught exception: " + e);
-                    String warningMsg = "Uncaught exception: " + e;
-                    logger.warning(warningMsg);
+                    if(!isRunCancelled(runFinish.getId())) {
+                        runFinish.setStatus(Run.Status.CANCELLED);
+                        String warningMsg = "Uncaught exception: " + e;
+                        logger.warning(warningMsg);
+                        runService.saveRun(runFinish);
+                    }
                 } finally {
                     tareasFinalizadas++;
                 }

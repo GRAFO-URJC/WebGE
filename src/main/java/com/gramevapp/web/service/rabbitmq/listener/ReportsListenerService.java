@@ -1,8 +1,8 @@
-package com.gramevapp.web.service.listener;
+package com.gramevapp.web.service.rabbitmq.listener;
 
 import com.gramevapp.web.model.Run;
-import com.gramevapp.web.service.MQConfig;
-import com.gramevapp.web.service.ReportRabbitmqMessage;
+import com.gramevapp.web.service.rabbitmq.MQConfig;
+import com.gramevapp.web.service.rabbitmq.ReportRabbitmqMessage;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.SaveDBService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -39,7 +39,7 @@ public class ReportsListenerService {
 
     @RabbitListener(queues = MQConfig.REPORTS_QUEUE)
     public void listener(ReportRabbitmqMessage message) {
-        Run run = message.getRun();
+        Run run = runService.findByRunId(message.getRunId());
         Exception ex = message.getException();
         String code = message.getCode();
 

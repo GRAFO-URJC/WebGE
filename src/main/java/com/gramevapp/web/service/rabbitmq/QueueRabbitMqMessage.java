@@ -1,25 +1,23 @@
-package com.gramevapp.web.service;
+package com.gramevapp.web.service.rabbitmq;
 
 import com.engine.algorithm.RunnableExpGramEv;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class QueueRabbitMqMessage {
-    private RunnableExpGramEv runnable;
-    private Long expId, runId;
+    private WebGERunnableUtils runnable;
+    private Long expId;
     private String code;
 
     public QueueRabbitMqMessage(
-            @JsonProperty("runnable") RunnableExpGramEv runnable,
+            @JsonProperty("runnable") WebGERunnableUtils runnable,
             @JsonProperty("expId") Long expId,
-            @JsonProperty("runId") Long runId,
             @JsonProperty("code") String code) {
         this.runnable = runnable;
         this.expId = expId;
-        this.runId = runId;
         this.code = code;
     }
 
-    public void setRunnable(RunnableExpGramEv runnable) {
+    public void setRunnable(WebGERunnableUtils runnable) {
         this.runnable = runnable;
     }
 
@@ -27,20 +25,13 @@ public class QueueRabbitMqMessage {
         this.expId = expId;
     }
 
-    public void setRunId(Long runId) {
-        this.runId = runId;
-    }
 
-    public RunnableExpGramEv getRunnable() {
+    public WebGERunnableUtils getRunnable() {
         return runnable;
     }
 
     public Long getExpId() {
         return expId;
-    }
-
-    public Long getRunId() {
-        return runId;
     }
 
     public String getCode() {

@@ -7,8 +7,8 @@ package com.engine.algorithm;
 
 import com.engine.util.UtilStats;
 import com.gramevapp.web.model.Run;
-import com.gramevapp.web.service.MQConfig;
-import com.gramevapp.web.service.ReportRabbitmqMessage;
+import com.gramevapp.web.service.rabbitmq.MQConfig;
+import com.gramevapp.web.service.rabbitmq.ReportRabbitmqMessage;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.SaveDBService;
 import jeco.core.algorithm.Algorithm;
@@ -28,6 +28,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -402,55 +404,98 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         // Set weight for CEG penalty
         UtilStats.setCEGPenalties(properties);
 
-        updateAlgorithmFromNumObjetives(numObjectives, obs, mutationProb, crossOverProb, tournamentSize);
+//        var scheduledPool = Executors.newScheduledThreadPool(1);
+//
+//        scheduledPool.scheduleAtFixedRate(() -> {
+//            if(isRunCancelled(finalRun.getId(), runService)){
+//                logger.warning("Run cancelled.");
+//                stopExecution();
+//            }
+//            if(isRunStopped(finalRun.getId(), runService)) {
+//                logger.warning("Run stopped");
+//                stopExecution();
+//            }
+//        }, 5, 5, TimeUnit.SECONDS);
+        Run finalRun = run;
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                if(isRunCancelled(finalRun.getId(), runService)){
+                    logger.warning("Run cancelled.");
+                    stopExecution();
+                }
+                if(isRunStopped(finalRun.getId(), runService)) {
+                    logger.warning("Run stopped");
+                    stopExecution();
+                }
+            }
+        };
+        Timer timer = new Timer("Timer");
+        timer.scheduleAtFixedRate(task, 20000, 20000);
 
-        int numExecutions = 1;
-        if (properties.getProperty(com.engine.util.Common.NUM_EXECUTIONS) != null) {
-            numExecutions = Integer.parseInt(properties.getProperty(com.engine.util.Common.NUM_EXECUTIONS));
-        }
+        try {
+            updateAlgorithmFromNumObjetives(numObjectives, obs, mutationProb, crossOverProb, tournamentSize);
 
-        ArrayList<String> log = new ArrayList<>();
-
-        startExecutions(numExecutions, run, saveDBService, runService, numObjectives, log);
-
-        System.out.flush();
-        System.err.flush();
-
-        logger.info("Execution report");
-        logger.info("==================");
-        logger.log(Level.INFO,"#Run;{0}",SymbolicRegressionGE.REPORT_HEADER);
-        executionReport.clear();
-        for (String s : log) {
-            logger.info(s);
-            executionReport.add(s);
-        }
-        obs.getLock().lock();
-        run = runService.findByRunId(run.getId());
-
-        String model = this.getModel();
-        String replacePart;
-        if (bestSolution.getModel() != null) {
-            for (int j = (this.vars.size()); j >= 0; j--) {
-                replacePart = "w" + j;
-                model = model.replaceAll(replacePart, String.valueOf(bestSolution.getParameterValues().get(replacePart)));
+            int numExecutions = 1;
+            if (properties.getProperty(com.engine.util.Common.NUM_EXECUTIONS) != null) {
+                numExecutions = Integer.parseInt(properties.getProperty(com.engine.util.Common.NUM_EXECUTIONS));
             }
 
+            ArrayList<String> log = new ArrayList<>();
+
+            startExecutions(numExecutions, run, saveDBService, runService, numObjectives, log);
+
+            System.out.flush();
+            System.err.flush();
+
+            logger.info("Execution report");
+            logger.info("==================");
+            logger.log(Level.INFO,"#Run;{0}",SymbolicRegressionGE.REPORT_HEADER);
+            executionReport.clear();
+            for (String s : log) {
+                logger.info(s);
+                executionReport.add(s);
+            }
+            obs.getLock().lock();
+            run = runService.findByRunId(run.getId());
+
+            String model = this.getModel();
+            String replacePart;
+            if (bestSolution.getModel() != null) {
+                for (int j = (this.vars.size()); j >= 0; j--) {
+                    replacePart = "w" + j;
+                    model = model.replaceAll(replacePart, String.valueOf(bestSolution.getParameterValues().get(replacePart)));
+                }
+
+            }
+
+            run.setModel(model);
+
+            if (failed) {
+                run.setStatus(Run.Status.FAILED);
+            } else if (run.getStatus() != null && !run.getStatus().equals(Run.Status.STOPPED)) {
+                run.setStatus(Run.Status.FINISHED);
+            }
+            run.setModificationDate(new Timestamp(new Date().getTime()));
+            //saveDBService.saveRunAsync(run);
+
+            // Only report if run wasn't cancelled before.
+            if(!isRunCancelled(run.getId(), runService)) {
+                ReportRabbitmqMessage message = new ReportRabbitmqMessage(run.getId(), null, "finish");
+                rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.REPORT_ROUTING_KEY, message);
+            }
+            obs.getLock().lock();
+        } finally {
+            timer.cancel();
         }
+    }
 
-        run.setModel(model);
+    private boolean isRunCancelled(Long runId, RunService runService) {
+        return runService.findByRunId(runId).getStatus().equals(Run.Status.CANCELLED);
+    }
 
-
-        if (failed) {
-            run.setStatus(Run.Status.FAILED);
-        } else if (run.getStatus() != null && !run.getStatus().equals(Run.Status.STOPPED)) {
-            run.setStatus(Run.Status.FINISHED);
-        }
-        run.setModificationDate(new Timestamp(new Date().getTime()));
-        //saveDBService.saveRunAsync(run);
-        ReportRabbitmqMessage message = new ReportRabbitmqMessage(run, null, "finish");
-        rabbitTemplate.convertAndSend(MQConfig.EXCHANGE, MQConfig.REPORT_ROUTING_KEY, message);
-        obs.getLock().lock();
-
+    private boolean isRunStopped(Long runId,  RunService runService) {
+        return runService.findByRunId(runId).getStatus().equals(Run.Status.STOPPED);
     }
 
     //Method to get the variables
