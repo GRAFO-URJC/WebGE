@@ -528,6 +528,8 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         Run run = runService.findByRunId(Long.parseLong(runIdStop));
 
         // Lo unico que se puede hacer es detener el run, y esperar a que se de cuenta
+        run.getDiagramData().setStopped(true);
+        diagramDataService.saveDiagram(run.getDiagramData());
         run.setStatus(Run.Status.STOPPED);
         runService.saveRun(run);
 
