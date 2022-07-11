@@ -477,6 +477,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
                 run.setStatus(Run.Status.FINISHED);
             }
             run.setModificationDate(new Timestamp(new Date().getTime()));
+            runService.saveRun(run); //save run status
             //saveDBService.saveRunAsync(run);
 
             // Only report if run wasn't cancelled before.
