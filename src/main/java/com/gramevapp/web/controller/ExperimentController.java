@@ -202,7 +202,8 @@ public class ExperimentController {
         experimentRunnerService.setExecutionCancelled(true);
         Experiment experiment = experimentService.findExperimentById(expId);
         List<Run> runList = experiment.getIdRunList();
-        for (Run run : runList) {
+        for (Run runExp : runList) {
+            Run run = runService.findByRunId(runExp.getId());
             if (!run.getStatus().equals(Run.Status.RUNNING) && !run.getStatus().equals(Run.Status.FINISHED)) {
                 run.setStatus(Run.Status.CANCELLED);
                 saveDBService.saveRunAsync(run);
