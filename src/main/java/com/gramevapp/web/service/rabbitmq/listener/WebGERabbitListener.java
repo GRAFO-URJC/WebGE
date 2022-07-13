@@ -47,9 +47,7 @@ public class WebGERabbitListener {
 
     private void startRun(Long runId, WebGERunnable runnable) {
         try {
-            if(!isRunCancelled(runId)){
-                runnable.run();
-            }
+            runnable.run();
         }catch (Exception ex) {
             // Solo notificar si no se ha cancelado el run
             if(!isRunCancelled(runId)) {

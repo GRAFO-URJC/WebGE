@@ -369,6 +369,9 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
      * Method to run the GE algorithm with the provided properties.
      */
     public void runGE(RunGeObserver obs, String experimentDatatypeInfo, Run run, RunService runService, SaveDBService saveDBService) {
+        if(isRunStopped(run.getId(), runService) || isRunCancelled(run.getId(), runService)) {
+            stopExecution();
+        }
         // Load target data
         // TODO: NO distinguir entre training, validation y test.
         func = processExperimentDataTypeInfo(experimentDatatypeInfo);
@@ -404,18 +407,6 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         // Set weight for CEG penalty
         UtilStats.setCEGPenalties(properties);
 
-//        var scheduledPool = Executors.newScheduledThreadPool(1);
-//
-//        scheduledPool.scheduleAtFixedRate(() -> {
-//            if(isRunCancelled(finalRun.getId(), runService)){
-//                logger.warning("Run cancelled.");
-//                stopExecution();
-//            }
-//            if(isRunStopped(finalRun.getId(), runService)) {
-//                logger.warning("Run stopped");
-//                stopExecution();
-//            }
-//        }, 5, 5, TimeUnit.SECONDS);
         Run finalRun = run;
         TimerTask task = new TimerTask() {
             @Override
@@ -469,6 +460,7 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
             }
 
+
             run.setModel(model);
 
             if (failed) {
@@ -477,7 +469,9 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
                 run.setStatus(Run.Status.FINISHED);
             }
             run.setModificationDate(new Timestamp(new Date().getTime()));
+            runService.saveRun(run); //save run status
             //saveDBService.saveRunAsync(run);
+
 
             // Only report if run wasn't cancelled before.
             if(!isRunCancelled(run.getId(), runService)) {
