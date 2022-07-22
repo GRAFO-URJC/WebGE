@@ -39,4 +39,4 @@ jobs:
         run: docker build -f docker/Dockerfile -t jmcolmenar/webge:${{ github.event.release.tag_name }} .
       - name: "Push New Release"
         if: github.event_name == 'release'
-        run: docker push jmcolmenar/webge:${{ github.event.release.tag_name }} .
+        run: docker push jmcolmenar/webge:${{ github.event.release.tag_name }}
