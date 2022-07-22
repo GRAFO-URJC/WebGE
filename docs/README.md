@@ -4,20 +4,23 @@ Grammatical Evolution (GE) is a metaheuristic from the Genetic Programming famil
 
 The main idea of this project is to create a web environment for Grammatical Evolution experimentation for **symbolic regression problems**. Hence,by means of a web interface, researchers will be able to configure, run and analyze their experiments with GE.
 
-GitHub repository available in https://github.com/GRAFO-URJC/WebGE
+Source code and running instructions available in [WebGE GitHub repository](https://github.com/GRAFO-URJC/WebGE).
 
 
 ## Contributors to this project
 
- * J. Manuel Colmenar (@jmcolmenar)
- * Raúl Martín-Santamaría (@raulmartin)
+ * Proyect leaders
+    * J. Manuel Colmenar (@jmcolmenar)
+    * Raúl Martín-Santamaría (@raulmartin)
 
- * Andrea Rodríguez (@AndreoPSullivan) - Degree final work 2021.
- * Lei Chen Xu (@leichenxu) - Degree final work 2020.
- * Gonçalo Silveira (@gonkyprojects) - Internship 2019.
- * Victor Oliveira (@victorOliveira1997) - Internship 2019.
- * Carlos García Moreno (@garciamorenc) - By means of https://github.com/jmcolmenar/tfg-evaluacion-ge-2016-2017 .
- * Alberto Niironen (@smensito) - Degree final work 2018.
+ * Students
+    * Antonio Cao (@antoniocao99) - Degree final work 2022.
+    * Andrea Rodríguez (@AndreoPSullivan) - Degree final work 2021.
+    * Lei Chen Xu (@leichenxu) - Degree final work 2020.
+    * Gonçalo Silveira (@gonkyprojects) - Internship 2019.
+    * Victor Oliveira (@victorOliveira1997) - Internship 2019.
+    * Carlos García Moreno (@garciamorenc) - By means of https://github.com/jmcolmenar/tfg-evaluacion-ge-2016-2017 .
+    * Alberto Niironen (@smensito) - Degree final work 2018.
 
 
 ## Grammatical Evolution
