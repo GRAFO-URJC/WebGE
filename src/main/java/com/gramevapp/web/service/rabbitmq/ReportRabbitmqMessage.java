@@ -1,7 +1,6 @@
 package com.gramevapp.web.service.rabbitmq;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.gramevapp.web.model.Run;
 
 public class ReportRabbitmqMessage {
     private Long runId;
