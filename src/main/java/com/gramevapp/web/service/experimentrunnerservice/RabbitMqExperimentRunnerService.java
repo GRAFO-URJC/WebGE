@@ -1,6 +1,5 @@
 package com.gramevapp.web.service.experimentrunnerservice;
 
-import com.engine.algorithm.RunnableExpGramEv;
 import com.gramevapp.web.model.*;
 import com.gramevapp.web.service.*;
 import com.gramevapp.web.service.rabbitmq.MQConfig;
@@ -56,7 +55,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
             , RabbitTemplate rabbitTemplate) {
         this.experimentService = experimentService;
         this.saveDBService = saveDBService;
-        this.logger = Logger.getLogger(ThreadPoolExperimentRunnerService.class.getName());
+        this.logger = Logger.getLogger(SymbolicRegressionGE.class.getName());
         this.runService = runService;
         this.rabbitTemplate = rabbitTemplate;
         this.grammarRepository = grammarRepository;

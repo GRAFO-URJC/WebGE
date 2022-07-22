@@ -1,6 +1,5 @@
 package com.gramevapp.web.service.rabbitmq;
 
-import com.engine.algorithm.RunnableExpGramEv;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class QueueRabbitMqMessage {

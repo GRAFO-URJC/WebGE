@@ -1,6 +1,5 @@
 package com.gramevapp.web.service.rabbitmq.listener;
 
-import com.engine.algorithm.RunnableExpGramEv;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.service.*;
 import com.gramevapp.web.service.rabbitmq.*;
