@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+  release:
+    types: [published]
 
 jobs:
   push-dockerhub:
@@ -31,4 +33,8 @@ jobs:
       - name: "Build docker image"
         run: docker build -f docker/Dockerfile -t jmcolmenar/webge:latest .
       - name: "Push docker image"
+        if: github.event_name == 'push'
         run: docker push jmcolmenar/webge:latest
+      - name: "Push New Release"
+        if: github.event_name == 'release'
+        run: docker build -f docker/Dockerfile -t jmcolmenar/webge:${{ github.event.release.tag_name }} .
