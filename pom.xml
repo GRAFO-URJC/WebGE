@@ -213,17 +213,17 @@
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
 
-		<!-- Dependencies for the evolutionary algorithms -->
-		<dependency>
-			<groupId>com.github.absysgroup.jeco</groupId>
-			<artifactId>jeco-core</artifactId>
-			<version>1.0.15</version>
-		</dependency>
-
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>
 			<version>3.4</version>
+		</dependency>
+
+		<!-- Dependencies for the evolutionary algorithms -->
+		<dependency>
+			<groupId>com.github.absysgroup.jeco</groupId>
+			<artifactId>jeco-core</artifactId>
+			<version>1.0.20</version>
 		</dependency>
 
 		<dependency>
@@ -290,6 +290,7 @@
 			<version>1.18.24</version>
 			<scope>provided</scope>
 		</dependency>
+
 	</dependencies>
 
 	<build>

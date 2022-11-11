@@ -1,5 +1,6 @@
 package com.gramevapp.web.service.experimentrunnerservice;
 
+import com.engine.algorithm.CommonBehaviour;
 import com.gramevapp.web.model.*;
 import com.gramevapp.web.service.*;
 import com.gramevapp.web.service.rabbitmq.MQConfig;
@@ -268,7 +269,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
             String[] contentSplit = splitContent[i].split(";");
             yValue = Double.parseDouble(contentSplit[0]);
             if (run.getModel() != null && !run.getModel().isEmpty()) {
-                modelValue = SymbolicRegressionGE.calculateFunctionValuedResultWithCSVData(run.getModel(),
+                modelValue = CommonBehaviour.calculateFunctionValuedResultWithCSVData(run.getModel(),
                         contentSplit);
                 if (listFunctionResult != null)
                     listFunctionResult.add(modelValue);
@@ -327,8 +328,20 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         propertiesWriter.println("ChromosomeLength=" + configExpDto.getNumCodons());
         propertiesWriter.println("NumIndividuals=" + configExpDto.getPopulationSize());
         propertiesWriter.println("NumGenerations=" + configExpDto.getGenerations());
+
         propertiesWriter.println("ViewResults=" + false);
         propertiesWriter.println("MaxWraps=" + configExpDto.getMaxWraps());
+
+        propertiesWriter.println("GrammaticalEvolutionType=" + configExpDto.getProblem());
+        propertiesWriter.println("MaxRecusionDepth=" + configExpDto.getDepthS());
+        propertiesWriter.println("MaxTreeDepth=" + configExpDto.getDepthD());
+        propertiesWriter.println("MutationTypeDynamic=" + configExpDto.getMutationDSGE());
+        propertiesWriter.println("MutationTypeStatic=" + configExpDto.getMutationSGE());
+        propertiesWriter.println("CrossoverTypeDynamic=" + configExpDto.getCrossoverDSGE());
+        propertiesWriter.println("CrossoverTypeStatic=" + configExpDto.getCrossoverSGE());
+        propertiesWriter.println("ChangeProbabilityDynamic=" + configExpDto.getProbChangeDSGE());
+        propertiesWriter.println("ChangeProbabilityStatic=" + configExpDto.getProbChangeSGE());
+
         propertiesWriter.println("ModelWidth=" + 500);
         propertiesWriter.println("TrainingPath=" + (dataTypeDirectoryPath + File.separator + configExpDto.getExperimentName()
                 + "_" + expDataType.getId() + ".csv").substring(2).replace("\\", "/"));
@@ -349,14 +362,28 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
                 //Convert byte[] to String
                 String logInfo = new String(buf);
                 if (logInfo.contains("j.c.algorithm.ga.SimpleGeneticAlgorithm") ||
-                        logInfo.contains("c.engine.algorithm.SymbolicRegressionGE")) {
+                        logInfo.contains("c.engine.algorithm.SymbolicRegressionGE") ||
+                        logInfo.contains("c.engine.algorithm.StaticSGE") ||
+                        logInfo.contains("c.engine.algorithm.DynamicSGE")) {
                     String infoFormatted = "";
                     Pattern pattern =
                             Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}");
                     Matcher matcher = pattern.matcher(logInfo);
                     if (matcher.find()) {
-                        infoFormatted += matcher.group() + (logInfo.contains("j.c.algorithm.ga.SimpleGeneticAlgorithm") ?
-                                " j.c.algorithm.ga.SimpleGeneticAlgorithm :" : " c.engine.algorithm.SymbolicRegressionGE :");
+                        String str = "";
+                        if(logInfo.contains("j.c.algorithm.ga.SimpleGeneticAlgorithm")){
+                            str = " j.c.algorithm.ga.SimpleGeneticAlgorithm :";
+                        }else if(logInfo.contains("c.engine.algorithm.SymbolicRegressionGE")){
+                            str = " c.engine.algorithm.SymbolicRegressionGE :";
+                        }else if(logInfo.contains("c.engine.algorithm.StaticSGE")){
+                            str = " c.engine.algorithm.StaticSGE :";
+                        }else if(logInfo.contains("c.engine.algorithm.DynamicSGE")){
+                            str = " c.engine.algorithm.DynamicSGE :";
+                        }
+
+                        infoFormatted += matcher.group() + str;
+                        //infoFormatted += matcher.group() + (logInfo.contains("j.c.algorithm.ga.SimpleGeneticAlgorithm") ?
+                         //       " j.c.algorithm.ga.SimpleGeneticAlgorithm :" : " c.engine.algorithm.SymbolicRegressionGE :");
                     }
                     pattern =
                             Pattern.compile("[0-9]{1,3}% performed.*$");
@@ -435,7 +462,11 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         if (exp == null) {   // We create it
             exp = new Experiment(user, configExpDto.getExperimentName(), configExpDto.getExperimentDescription(), configExpDto.getGenerations(),
                     configExpDto.getPopulationSize(), configExpDto.getMaxWraps(), configExpDto.getTournament(), configExpDto.getCrossoverProb(), configExpDto.getMutationProb(),
-                    configExpDto.getNumCodons(), configExpDto.getNumberRuns(), configExpDto.getObjective(),
+                    configExpDto.getNumCodons(),
+                    configExpDto.getProblem(), configExpDto.getDepthS(), configExpDto.getDepthD(), configExpDto.getMutationDSGE(),
+                    configExpDto.getMutationSGE(), configExpDto.getCrossoverDSGE(), configExpDto.getCrossoverSGE(), configExpDto.getProbChangeDSGE(),
+                    configExpDto.getProbChangeSGE(),
+                    configExpDto.getNumberRuns(), configExpDto.getObjective(),
                     new Timestamp(new Date().getTime()), new Timestamp(new Date().getTime()), configExpDto.isDe(),
                     configExpDto.getLowerBoundDE(), configExpDto.getUpperBoundDE(), configExpDto.getRecombinationFactorDE(), configExpDto.getMutationFactorDE(), configExpDto.getTagsText(), configExpDto.getPopulationDE());
 
@@ -453,6 +484,17 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
             exp.setNumCodons(configExpDto.getNumCodons());
             exp.setNumberRuns(configExpDto.getNumberRuns());
             exp.setObjective(configExpDto.getObjective());
+
+            exp.setProblem(configExpDto.getProblem());
+            exp.setDepthS(configExpDto.getDepthS());
+            exp.setDepthD(configExpDto.getDepthD());
+            exp.setMutationDSGE(configExpDto.getMutationDSGE());
+            exp.setMutationSGE(configExpDto.getMutationSGE());
+            exp.setCrossoverDSGE(configExpDto.getCrossoverDSGE());
+            exp.setCrossoverSGE(configExpDto.getCrossoverSGE());
+            exp.setProbChangeDSGE(configExpDto.getProbChangeDSGE());
+            exp.setProbChangeSGE(configExpDto.getProbChangeSGE());
+
             exp.setDe(configExpDto.isDe());
             exp.setCreationDate(new Timestamp(new Date().getTime()));
             exp.setModificationDate(new Timestamp(new Date().getTime()));
@@ -481,7 +523,12 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         setConfigExpDtoWIthExperimentService(configExpDto, forEqual ? configExpDto.getExperimentName() : exp.getExperimentName(),
                 forEqual ? configExpDto.getExperimentDescription() : exp.getExperimentDescription(), exp.getCrossoverProb(), exp.getGenerations(),
                 exp.getPopulationSize(), exp.getMaxWraps(), exp.getTournament(), exp.getMutationProb(),
-                exp.getNumCodons(), exp.getNumberRuns(), exp.getObjective(), exp.isDe(), exp.getLowerBoundDE(), exp.getUpperBoundDE(), exp.getRecombinationFactorDE(), exp.getMutationFactorDE(),
+                exp.getNumCodons(),
+
+                exp.getProblem(), exp.getDepthS(), exp.getDepthD(), exp.getMutationDSGE(), exp.getMutationSGE(),
+                exp.getCrossoverDSGE(), exp.getCrossoverSGE(), exp.getProbChangeDSGE(), exp.getProbChangeSGE(),
+
+                exp.getNumberRuns(), exp.getObjective(), exp.isDe(), exp.getLowerBoundDE(), exp.getUpperBoundDE(), exp.getRecombinationFactorDE(), exp.getMutationFactorDE(),
                 forEqual ? configExpDto.getTagsText() : exp.getTags(), exp.getPopulationDE());
 
         configExpDto.setId(exp.getId());
@@ -498,7 +545,11 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
     public void setConfigExpDtoWIthExperimentService(ConfigExperimentDto configExpDto, String experimentName, String experimentDescription,
                                                      Double crossoverProb, Integer generations, Integer populationSize, Integer maxWraps,
                                                      Integer tournament, Double mutationProb,
-                                                     Integer numCodons, Integer numberRuns, String objective, boolean de,
+                                                     Integer numCodons,
+                                                     String problem, int depthS, int depthD, String mutationDSGE,
+                                                     String mutationSGE, String crossoverDSGE, String crossoverSGE, double probchangeDSGE,
+                                                     double probchangeSGE,
+                                                     Integer numberRuns, String objective, boolean de,
                                                      Double lowerBoundDE, Double upperBoundDE, Double recombinationFactorDE, Double mutationFactorDE,
                                                      String tags, Integer populationDE) {
         configExpDto.setExperimentName(experimentName);
@@ -511,6 +562,17 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         configExpDto.setCrossoverProb(crossoverProb);
         configExpDto.setMutationProb(mutationProb);
         configExpDto.setNumCodons(numCodons);
+
+        configExpDto.setProblem(problem);
+        configExpDto.setDepthS(depthS);
+        configExpDto.setDepthD(depthD);
+        configExpDto.setMutationDSGE(mutationDSGE);
+        configExpDto.setMutationSGE(mutationSGE);
+        configExpDto.setCrossoverDSGE(crossoverDSGE);
+        configExpDto.setCrossoverSGE(crossoverSGE);
+        configExpDto.setProbChangeDSGE(probchangeDSGE);
+        configExpDto.setProbChangeSGE(probchangeSGE);
+
         configExpDto.setNumberRuns(numberRuns);
         configExpDto.setObjective(objective);
         configExpDto.setDe(de);
@@ -525,7 +587,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
     public String stopRunExperimentService(Model model, String runIdStop, RedirectAttributes redirectAttrs
             , DiagramDataService diagramDataService) throws InterruptedException {
         Run run = runService.findByRunId(Long.parseLong(runIdStop));
-
+        
         // Lo unico que se puede hacer es detener el run, y esperar a que se de cuenta
         run.getDiagramData().setStopped(true);
         diagramDataService.saveDiagram(run.getDiagramData());
@@ -620,6 +682,17 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
                             exp.getMutationProb().equals(configExpDto.getMutationProb()) &&
                             exp.getMaxWraps().equals(configExpDto.getMaxWraps()) &&
                             exp.getNumCodons().equals(configExpDto.getNumCodons()) &&
+
+                            exp.getProblem().equals(configExpDto.getProblem()) &&
+                            exp.getDepthD().equals(configExpDto.getDepthS()) &&
+                            exp.getDepthS().equals(configExpDto.getDepthD()) &&
+                            exp.getMutationDSGE().equals(configExpDto.getMutationDSGE()) &&
+                            exp.getMutationSGE().equals(configExpDto.getMutationSGE()) &&
+                            exp.getCrossoverDSGE().equals(configExpDto.getCrossoverDSGE()) &&
+                            exp.getCrossoverSGE().equals(configExpDto.getCrossoverSGE()) &&
+                            exp.getProbChangeDSGE().equals(configExpDto.getProbChangeDSGE()) &&
+                            exp.getProbChangeSGE().equals(configExpDto.getProbChangeSGE()) &&
+
                             exp.getTournament().equals(configExpDto.getTournament()) &&
                             exp.getNumberRuns().equals(configExpDto.getNumberRuns()) &&
                             exp.getObjective().equals(configExpDto.getObjective()) &&

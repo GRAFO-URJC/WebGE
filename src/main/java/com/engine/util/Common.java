@@ -36,6 +36,22 @@ public class Common {
     public static final String MAX_WRAPS_PROP = "MaxWraps";
     public static final String SENSIBLE_INITIALIZATION = "SensibleInitialization";
 
+    public static final String MAX_TREE_DEPTH = "MaxTreeDepth";
+    public static final String MAX_RECURSION_GRAMMAR_DEPTH = "MaxRecusionDepth";
+
+    public static final String MUTATION_TYPE_D = "MutationTypeDynamic";
+    public static final String MUTATION_TYPE_S = "MutationTypeStatic";
+    public static final String CROSSOVER_TYPE_D = "CrossoverTypeDynamic";
+    public static final String CROSSOVER_TYPE_S = "CrossoverTypeStatic";
+    public static final String CHANGE_PROB_D = "ChangeProbabilityDynamic";
+    public static final String CHANGE_PROB_S = "ChangeProbabilityStatic";
+
+    public static final String ALGORITHM_TYPE = "AlgorithmType";
+    public static final String GRAMMATICAL_EVOLUTION_TYPE = "GrammaticalEvolutionType";
+
+    public static final String DYNAMIC_TYPE_DEPTH = "TypeOfDepthForDynamicSGE";
+
+
     public static final int NUM_PROPS = 14;
     public static final String WINDOW_TITLE = "Pancreas Model Tools - ABSys Group (Complutense University of Madrid)";
 
@@ -86,6 +102,22 @@ public class Common {
         m.put(RECOMBINATION_FACTOR_DE, "Recombination factor DE (" +RECOMBINATION_FACTOR_DE + ")");
         m.put(MUTATION_FACTOR_DE, "Mutation factor DE (" +MUTATION_FACTOR_DE + ")");
         m.put(POPULATION_DE, "Population size DE (" +POPULATION_DE + ")");
+
+
+        m.put(MAX_TREE_DEPTH, "For Dynamic SGE the maximun tree depth ("+ MAX_TREE_DEPTH + ")");
+        m.put(MAX_RECURSION_GRAMMAR_DEPTH, "For Static SGE the maximun depth the grammar reaches in case there are some recursive rules("+ MAX_RECURSION_GRAMMAR_DEPTH + ")");
+
+        m.put(MUTATION_TYPE_S, "Mutation type for static structured GE");
+        m.put(MUTATION_TYPE_D, "Mutation type for dynamic structured GE");
+        m.put(CROSSOVER_TYPE_S, "Crossover type for static structured GE");
+        m.put(CROSSOVER_TYPE_D, "Crossover type for dynamic structured GE");
+        m.put(CHANGE_PROB_S, "Change probability of a gene in uniform crossover for static structured GE");
+        m.put(CHANGE_PROB_D, "Change probability of a gene in uniform crossover for dynamic structured GE");
+
+        m.put(ALGORITHM_TYPE, "Algorithm used for the Gramatical Evolution");
+        m.put(GRAMMATICAL_EVOLUTION_TYPE, "Gramatical Evolution type used for the optimization");
+
+        m.put(DYNAMIC_TYPE_DEPTH, "Choose whether the dynamic SGE uses tree depth or recursive depth");
 
         return m;
     }

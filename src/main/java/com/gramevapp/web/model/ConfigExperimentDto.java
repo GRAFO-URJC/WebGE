@@ -40,6 +40,54 @@ public class ConfigExperimentDto {
     @Max(value = 100)
     @NotNull
     private Integer numCodons = 10;
+
+    public String getProblem() {
+        return problem;
+    }
+
+    public void setProblem(String problem) {
+        this.problem = problem;
+    }
+
+    @NotNull
+    @Size(min = 1)
+    private String problem = "";
+    //SGE
+    @Min(value = 0)
+    @Max(value = 100)
+    @NotNull
+    private Integer depthS = 10;
+
+    @NotNull
+    @Size(min = 1)
+    private String crossoverSGE = "";
+
+    @NotNull
+    @Size(min = 1)
+    private String mutationSGE = "";
+    @Min(value = 0)
+    @Max(value = 1)
+    @NotNull
+    private Double probChangeSGE = 0.0;
+
+    //DSGE
+    @Min(value = 0)
+    @Max(value = 100)
+    @NotNull
+    private Integer depthD = 10;
+
+    @NotNull
+    @Size(min = 1)
+    private String crossoverDSGE = "";
+
+    @NotNull
+    @Size(min = 1)
+    private String mutationDSGE = "";
+    @Min(value = 0)
+    @Max(value = 1)
+    @NotNull
+    private Double probChangeDSGE = 0.0;
+
     @Min(value = 0)
     @Max(value = 100)
     @NotNull
@@ -195,6 +243,69 @@ public class ConfigExperimentDto {
         this.numberRuns = numberRuns;
     }
 
+    public Integer getDepthS() {
+        return depthS;
+    }
+
+    public void setDepthS(Integer depthS) {
+        this.depthS = depthS;
+    }
+
+    public String getCrossoverSGE() {
+        return crossoverSGE;
+    }
+
+    public void setCrossoverSGE(String CrossoverSGE) {
+        this.crossoverSGE = CrossoverSGE;
+    }
+
+    public String getMutationSGE() {
+        return mutationSGE;
+    }
+
+    public void setMutationSGE(String MutationSGE) {
+        this.mutationSGE = MutationSGE;
+    }
+
+    public Double getProbChangeSGE() {
+        return probChangeSGE;
+    }
+
+    public void setProbChangeSGE(Double probChangeSGE) {
+        this.probChangeSGE = probChangeSGE;
+    }
+
+    public Integer getDepthD() {
+        return depthD;
+    }
+
+    public void setDepthD(Integer depthD) {
+        this.depthD = depthD;
+    }
+
+    public String getCrossoverDSGE() {
+        return crossoverDSGE;
+    }
+
+    public void setCrossoverDSGE(String crossoverDSGE) {
+        this.crossoverDSGE = crossoverDSGE;
+    }
+
+    public String getMutationDSGE() {
+        return mutationDSGE;
+    }
+
+    public void setMutationDSGE(String mutationDSGE) {
+        this.mutationDSGE = mutationDSGE;
+    }
+
+    public Double getProbChangeDSGE() {
+        return probChangeDSGE;
+    }
+
+    public void setProbChangeDSGE(Double probChangeDSGE) {
+        this.probChangeDSGE = probChangeDSGE;
+    }
 
     public String getDataTypeType() {
         return dataTypeType;

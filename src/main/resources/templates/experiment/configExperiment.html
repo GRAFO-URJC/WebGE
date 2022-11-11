@@ -187,20 +187,22 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-12 col-md-6 col-lg-4">
+                                    <label for="populationSize">Population size:</label>
+                                    <div th:classappend="${#fields.hasErrors('populationSize')}? 'has-error':'populationSize error'">
+                                        <input type="number" class="text-center" th:min="0" style="width: 100%"
+                                               th:value="${configuration.getPopulationSize()}" name="populationSize"
+                                               id="populationSize"/>
+                                    </div>
+                                </div>
+                                <div>
+                                </div>
+                                <div class="col-sm-12 col-md-6 col-lg-4">
                                     <label for="crossoverProb">Crossover Prob.:</label>
                                     <div th:classappend="${#fields.hasErrors('crossoverProb')}? 'has-error':'crossoverProb error'">
                                         <input type="number" class="text-center" th:min="0" th:max="1" th:step="0.01"
                                                style="width: 100%"
                                                th:value="${configuration.getCrossoverProb()}" name="crossoverProb"
                                                id="crossoverProb"/>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 col-md-6 col-lg-4">
-                                    <label for="populationSize">Population size:</label>
-                                    <div th:classappend="${#fields.hasErrors('populationSize')}? 'has-error':'populationSize error'">
-                                        <input type="number" class="text-center" th:min="0" style="width: 100%"
-                                               th:value="${configuration.getPopulationSize()}" name="populationSize"
-                                               id="populationSize"/>
                                     </div>
                                 </div>
                                 <div class="col-sm-12 col-md-6 col-lg-4">
@@ -213,39 +215,125 @@
                                                id="mutationProb"/>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-6 col-lg-4">
-                                    <label for="maxWraps">Max wraps:</label>
-                                    <div th:classappend="${#fields.hasErrors('maxWraps')}? 'has-error':'maxWraps error'">
-                                        <input type="number" class="text-center" th:min="0" style="width: 100%"
-                                               th:value="${configuration.getMaxWraps()}" value="3" name="maxWraps"
-                                               id="maxWraps"/>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 col-md-6 col-lg-4">
-                                    <label for="numCodons">Num. Codons:</label>
-                                    <div th:classappend="${#fields.hasErrors('numCodons')}? 'has-error':'numCodons error'">
-                                        <input type="number" class="text-center" th:min="0" style="width: 100%"
-                                               th:value="${configuration.getNumCodons()}" value="100" name="numCodons"
-                                               id="numCodons"/>
-                                    </div>
-                                </div>
-                                <div class='col-sm-12 col-md-6 col-lg-6'>
+                                <div class='col-sm-12 col-md-6 col-lg-4'>
                                     <label for="tournament">Tournament:</label>
                                     <div th:classappend="${#fields.hasErrors('tournament')}? 'has-error':'tournament error'">
-                                        <input type="number" class="text-center" th:min="0" style="width: 80%"
+                                        <input type="number" class="text-center" th:min="0" style="width: 100%"
                                                th:value="${configuration.getTournament()}" value="2" name="tournament"
                                                id="tournament"/>
                                     </div>
                                 </div>
-                                <div class='col-sm-12 col-md-6 col-lg-6'>
+                                <div class='col-sm-12 col-md-6 col-lg-4'>
                                     <label for="numberRuns">Number of runs:</label>
                                     <div th:classappend="${#fields.hasErrors('numberRuns')}? 'has-error':'numberRuns error'">
-                                        <input type="number" class="text-center" min="1" style="width: 80%"
+                                        <input type="number" class="text-center" min="1" style="width: 100%"
                                                th:value="${configuration.getNumberRuns()}" value="1" name="numberRuns"
                                                id="numberRuns"/>
                                     </div>
                                 </div>
 
+                                <div class="row form-group text-center">
+                                </div>
+
+                                <div class="row form-group text-center">
+                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                        <label for="problem">Grammatical Evolution type: </label>
+                                        <select class="form-control" name="problem" id="problem" onchange="setProblem()">
+                                            <option value="GE" id="GE"> Grammatical Evolution</option>
+                                            <option value="SGE" id="SGE"> Structured Grammatical Evolution</option>
+                                            <option value="DSGE" id="DSGE">Dynamic Structured Grammatical Evolution</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-sm-12 col-md-6 col-lg-6" id="numCodons_Var">
+                                    <label for="numCodons">Num. Codons:</label>
+                                    <div th:classappend="${#fields.hasErrors('numCodons')}? 'has-error':'numCodons error'">
+                                        <input type="number" class="text-center" th:min="0" style="width: 80%"
+                                               th:value="${configuration.getNumCodons()}" value="100" name="numCodons"
+                                               id="numCodons"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-12 col-md-6 col-lg-6" id="maxWraps_Var">
+                                    <label for="maxWraps">Max wraps:</label>
+                                    <div th:classappend="${#fields.hasErrors('maxWraps')}? 'has-error':'maxWraps error'">
+                                        <input type="number" class="text-center" th:min="0" style="width: 80%"
+                                               th:value="${configuration.getMaxWraps()}" value="3" name="maxWraps"
+                                               id="maxWraps"/>
+                                    </div>
+                                </div>
+
+                                <!-- For SGE -->
+
+                                <div class="col-sm-12 col-md-6 col-lg-6" hidden id="depthS_Var">
+                                    <label for="depthS">Recursive depth:</label>
+                                    <input type="number" class="text-center" th:min="0" style="width: 80%"
+                                           th:value="${configuration.getDepthS()}" value="3" name="depthS"
+                                           id="depthS"/>
+
+                                </div>
+
+                                <div class="col-sm-12 col-md-6 col-lg-6" hidden id="Crossover_Var">
+                                    <label for="crossoverSGE">Crossover Type:</label>
+                                    <select class="form-control" name="crossoverSGE" id="crossoverSGE" style="width: 100%" onchange="CrossoverSGE()">
+                                        <option value="Single Point" id="Single Point"> Single Point</option>
+                                        <option value="Uniform" id="Uniform"> Uniform</option>
+                                        <option value="Tree" id="Tree"> Tree </option>
+                                    </select >
+
+                                </div>
+
+                                <div class="col-sm-12 col-md-6 col-lg-6" hidden id="Mutation_Var">
+                                    <label for="mutationSGE">Mutation Type:</label>
+                                    <select class="form-control" name="mutationSGE" id="mutationSGE" style="width: 100%">>
+                                        <option value="One" id="One"> One gene</option>
+                                        <option value="All" id="All"> All genes</option>
+                                    </select >
+                                </div>
+
+                                <div class="col-sm-12 col-md-6 col-lg-6" hidden id="ChangeProb_Var">
+                                    <label for="probChangeSGE">Probability change:</label>
+                                    <input type="number" class="text-center" th:min="0" th:max="1" th:step="0.01" style="width: 80%"
+                                           th:value="${configuration.getProbChangeSGE()}" value="0.5" name="probChangeSGE"
+                                           id="probChangeSGE"/>
+                                </div>
+
+                                <!-- For DSGE -->
+
+                                <div class="col-sm-12 col-md-6 col-lg-6" hidden id="depthD_Var">
+                                    <label for="depthD">Max Tree depth:</label>
+                                    <input type="number" class="text-center" th:min="0" style="width: 80%"
+                                           th:value="${configuration.getDepthD()}" value="3" name="depthD"
+                                           id="depthD"/>
+
+                                </div>
+
+                                <div class="col-sm-12 col-md-6 col-lg-6" hidden id="Crossover_Var_D">
+                                    <label for="crossoverDSGE">Crossover Type:</label>
+                                    <select class="form-control" name="crossoverDSGE" id="crossoverDSGE" style="width: 100%" onchange="CrossoverDSGE()">
+                                        <option value="Single Point" id="Single PointD"> Single Point</option>
+                                        <option value="Uniform" id="UniformD"> Uniform</option>
+                                        <option value="Tree" id="TreeD"> Tree </option>
+                                    </select >
+
+                                </div>
+
+                                <div class="col-sm-12 col-md-6 col-lg-6" hidden id="Mutation_Var_D">
+                                    <label for="mutationDSGE">Mutation Type:</label>
+                                    <select class="form-control" name="mutationDSGE" id="mutationDSGE" style="width: 100%">>
+                                        <option value="One" id="OneD"> One gene</option>
+                                        <option value="All" id="AllD"> All genes</option>
+                                    </select >
+                                </div>
+
+                                <div class="col-sm-12 col-md-6 col-lg-6" hidden id="ChangeProb_Var_D">
+                                    <label for="probChangeDSGE">Probability change:</label>
+                                    <input type="number" class="text-center" th:min="0" th:max="1" th:step="0.01" style="width: 80%"
+                                           th:value="${configuration.getProbChangeDSGE()}" value="0.5" name="probChangeDSGE"
+                                           id="probChangeDSGE"/>
+                                </div>
 
 
                             </div>
@@ -367,7 +455,7 @@
                             <div class="row form-group">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
                                     <textarea rows="8" class="form-control" name="fileText"
-                                              id="fileText" th:inline="text" style="resize: none;height: 180px"
+                                              id="fileText" th:inline="text" style="resize: none;height: 250px"
                                               th:text="${configExp.getFileText()}" placeholder="Grammar content"
                                               required></textarea>
                                 </div>
@@ -740,10 +828,14 @@
             grammarList = [[${grammarList}]];
             /*]]>*/
 
+
             saveDatasetInfo();
             updateDatasetContent()
             updateTestDatasetContent()
             setObjectiveFunction();
+            setProblemParams();
+            //setProblem();
+
             setDE();
             checkStopAllRuns()
 
@@ -819,7 +911,31 @@
 
         }
 
+        function setProblemParams(){
 
+            $('[name=problem ] option').filter(function() {
+                return ($(this).val() == experimentInformation['problem']);
+            }).prop('selected', true);
+
+            $('[name=mutationSGE ] option').filter(function () {
+                return ($(this).val() == experimentInformation['mutationSGE']);
+            }).prop('selected', true);
+
+            $('[name=mutationDSGE ] option').filter(function() {
+                return ($(this).val() == experimentInformation['mutationDSGE']);
+            }).prop('selected', true);
+
+            $('[name=crossoverSGE ] option').filter(function() {
+                return ($(this).val() == experimentInformation['crossoverSGE']);
+            }).prop('selected', true);
+
+            $('[name=crossoverDSGE ] option').filter(function() {
+                return ($(this).val() == experimentInformation['crossoverDSGE']);
+            }).prop('selected', true);
+
+            setProblem();
+
+        }
 
         function copyGrammar() {
             if (grammarList[$("#grammarSelect").val()]) {
@@ -890,6 +1006,60 @@
                 $('#recombinationfactor_col').attr('hidden', 'hidden')
                 $('#mutationfactor_col').attr('hidden', 'hidden')
                  $('#populationDE_col').attr('hidden', 'hidden')
+            }
+
+        }
+
+        function CrossoverSGE(){
+            let selectedValue = $("#crossoverSGE option:selected").val();
+            if(selectedValue == "Single Point"){
+                $('#ChangeProb_Var').attr('hidden', 'hidden')
+            }else{
+                $('#ChangeProb_Var').attr('hidden', false)
+            }
+        }
+
+        function CrossoverDSGE(){
+            let selectedValue = $("#crossoverDSGE option:selected").val();
+            if(selectedValue == "Single Point"){
+                $('#ChangeProb_Var_D').attr('hidden', 'hidden')
+            }else{
+                $('#ChangeProb_Var_D').attr('hidden', false)
+            }
+        }
+
+        function setProblem(){
+            let selectedValue = $("#problem option:selected").val();
+            if(selectedValue == "GE"){
+                $('#maxWraps_Var').attr('hidden', false)
+                $('#numCodons_Var').attr('hidden', false)
+            }else{
+                $('#maxWraps_Var').attr('hidden', 'hidden')
+                $('#numCodons_Var').attr('hidden', 'hidden')
+            }
+
+            if(selectedValue == "SGE"){
+                $('#depthS_Var').attr('hidden', false)
+                $('#Crossover_Var').attr('hidden', false)
+                $('#Mutation_Var').attr('hidden', false)
+                CrossoverSGE()
+            }else{
+                $('#depthS_Var').attr('hidden', 'hidden')
+                $('#Crossover_Var').attr('hidden', 'hidden')
+                $('#Mutation_Var').attr('hidden', 'hidden')
+                $('#ChangeProb_Var').attr('hidden', 'hidden')
+            }
+
+            if(selectedValue == "DSGE"){
+                $('#depthD_Var').attr('hidden', false)
+                $('#Crossover_Var_D').attr('hidden', false)
+                $('#Mutation_Var_D').attr('hidden', false)
+                CrossoverDSGE()
+            }else{
+                $('#depthD_Var').attr('hidden', 'hidden')
+                $('#Crossover_Var_D').attr('hidden', 'hidden')
+                $('#Mutation_Var_D').attr('hidden', 'hidden')
+                $('#ChangeProb_Var_D').attr('hidden', 'hidden')
             }
 
         }
@@ -1118,6 +1288,17 @@
             let tournament = $('#tournament').val();
             let numberRuns = $('#numberRuns').val();
             let objective = $('#objective').val();
+
+            let problem = $('#problem').val();
+            let depthS = $('#depthS').val();
+            let mutationSGE = $('#mutationSGE').val();
+            let crossoverSGE = $('#crossoverSGE').val();
+            let probChangeSGE = $('#probChangeSGE').val();
+            let depthD = $('#depthD').val();
+            let mutationDSGE = $('#mutationDSGE').val();
+            let crossoverDSGE = $('#crossoverDSGE').val();
+            let probChangeDSGE = $('#probChangeDSGE').val();
+
             let de = $('#de').val();
             let grammar = $('#fileText').val();
             let datasetId = $('#experimentDataTypeId').val();
@@ -1138,6 +1319,17 @@
                 experimentInformation['numberRuns'] == numberRuns &&
                 experimentInformation['de'].toString() == de &&
                 experimentInformation['objective'] == objective &&
+
+                experimentInformation['problem'] == problem &&
+                experimentInformation['depthS'] == depthS &&
+                experimentInformation['mutationSGE'] == mutationSGE &&
+                experimentInformation['crossoverSGE'] == crossoverSGE &&
+                experimentInformation['probChangeSGE'] == probChangeSGE &&
+                experimentInformation['depthD'] == depthD &&
+                experimentInformation['mutationDSGE'] == mutationDSGE &&
+                experimentInformation['crossoverDSGE'] == crossoverDSGE &&
+                experimentInformation['probChangeDSGE'] == probChangeDSGE &&
+
                 experimentInformation['mutationFactorDE'] == mutationfactorDE &&
                 experimentInformation['recombinationFactorDE'] == recombinationFactorDE &&
                 experimentInformation['populationDE'] == populationDE &&
@@ -1196,6 +1388,15 @@
                 $("#testDatasetPart").removeClass("hidden");
             }
         })
+
+        /*$("#crossoverDSGE").change(function () {
+            let selectedValue = $("#crossoverDSGE option:selected").val();
+            if(selectedValue == "Single Point"){
+                $('#ChangeProb_Var_D').attr('hidden', true)
+            }else{
+                $('#ChangeProb_Var_D').attr('hidden', false)
+            }
+        })*/
 
 
 

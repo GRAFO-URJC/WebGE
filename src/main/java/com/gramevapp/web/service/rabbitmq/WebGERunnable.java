@@ -1,11 +1,11 @@
 package com.gramevapp.web.service.rabbitmq;
 
-import com.engine.algorithm.RunGeObserver;
-import com.engine.algorithm.SymbolicRegressionGE;
+import com.engine.algorithm.*;
 import com.gramevapp.web.model.Dataset;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.service.RunService;
 import com.gramevapp.web.service.SaveDBService;
+import jeco.core.algorithm.sge.AbstractGECommon;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +17,9 @@ import static com.engine.util.Common.OBJECTIVES_PROP;
 public class WebGERunnable implements Runnable {
     private Properties properties;
     private Run runElement;
-    private SymbolicRegressionGE ge;
+    private AbstractGECommon ge;
+
+    private CommonBehaviour common;
     private Dataset experimentDataType;
     private RunService runService;
     private int crossRunIdentifier;
@@ -54,7 +56,6 @@ public class WebGERunnable implements Runnable {
         runElement.setBestIndividual(0.0);
         runElement.setCurrentGeneration(0);
 
-        ge = new SymbolicRegressionGE(properties, numObjectives, objective, de, rabbitTemplate);
 
         RunGeObserver observer = new RunGeObserver();
         observer.setDiagramData(runElement);
@@ -77,12 +78,28 @@ public class WebGERunnable implements Runnable {
                 }
             }
         }
+        if(properties.getProperty("GrammaticalEvolutionType").equals("GE")) {
+            SymbolicRegressionGE symR = new SymbolicRegressionGE(properties, numObjectives, objective, de, rabbitTemplate);
+            symR.runGE(observer, datasetInfo.toString(), runElement, runService, saveDBService);
+            common = symR.getCommon();
+            ge = symR;
+        }else if(properties.getProperty("GrammaticalEvolutionType").equals("SGE")){
+            StaticSGE SGE = new StaticSGE(properties, numObjectives, objective, de, rabbitTemplate);
+            SGE.runGE(observer, datasetInfo.toString(), runElement, runService, saveDBService);
+            common = SGE.getCommon();
+            ge = SGE;
+        }else if(properties.getProperty("GrammaticalEvolutionType").equals("DSGE")){
+            DynamicSGE DSGE = new DynamicSGE(properties, numObjectives, objective, de, rabbitTemplate);
+            DSGE.runGE(observer, datasetInfo.toString(), runElement, runService, saveDBService);
+            common = DSGE.getCommon();
+            ge = DSGE;
+        }
 
-        ge.runGE(observer, datasetInfo.toString(), runElement, runService, saveDBService);
+
     }
 
     public void stopExecution() {
-        ge.stopExecution();
+        common.stopExecution();
     }
 
     public Properties getProperties() {
@@ -101,11 +118,11 @@ public class WebGERunnable implements Runnable {
         this.runElement = runElement;
     }
 
-    public SymbolicRegressionGE getGe() {
+    public AbstractGECommon getGe() {
         return ge;
     }
 
-    public void setGe(SymbolicRegressionGE ge) {
+    public void setGe(AbstractGECommon ge) {
         this.ge = ge;
     }
 

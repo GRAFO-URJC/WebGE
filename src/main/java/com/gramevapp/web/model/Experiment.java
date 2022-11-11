@@ -65,6 +65,7 @@ public class Experiment {
     private Integer generations = 1000;
     @Column
     private Integer populationSize = 50;
+    /*GE*/
     @Column
     private Integer maxWraps = 3;
     @Column
@@ -77,6 +78,104 @@ public class Experiment {
     private String objective;
     @Column
     private Integer numCodons = 10;
+
+    /*SGE*/
+    @Column
+    private String problem;
+    //SGE
+    @Column
+    private Integer depthS = 10;
+
+    @Column
+    private String crossoverSGE;
+
+    public String getProblem() {
+        return problem;
+    }
+
+    public void setProblem(String problem) {
+        this.problem = problem;
+    }
+
+    public Integer getDepthS() {
+        return depthS;
+    }
+
+    public void setDepthS(Integer depthS) {
+        this.depthS = depthS;
+    }
+
+    public String getCrossoverSGE() {
+        return crossoverSGE;
+    }
+
+    public void setCrossoverSGE(String crossoverSGE) {
+        this.crossoverSGE = crossoverSGE;
+    }
+
+    public String getMutationSGE() {
+        return mutationSGE;
+    }
+
+    public void setMutationSGE(String mutationSGE) {
+        this.mutationSGE = mutationSGE;
+    }
+
+    public Double getProbChangeSGE() {
+        return probChangeSGE;
+    }
+
+    public void setProbChangeSGE(Double probChangeSGE) { this.probChangeSGE = probChangeSGE; }
+
+    public Integer getDepthD() {
+        return depthD;
+    }
+
+    public void setDepthD(Integer depthD) {
+        this.depthD = depthD;
+    }
+
+    public String getCrossoverDSGE() {
+        return crossoverDSGE;
+    }
+
+    public void setCrossoverDSGE(String crossoverDSGE) {
+        this.crossoverDSGE = crossoverDSGE;
+    }
+
+    public String getMutationDSGE() {
+        return mutationDSGE;
+    }
+
+    public void setMutationDSGE(String mutationDSGE) {
+        this.mutationDSGE = mutationDSGE;
+    }
+
+    public Double getProbChangeDSGE() {
+        return probChangeDSGE;
+    }
+
+    public void setProbChangeDSGE(Double probChangeDSGE) {
+        this.probChangeDSGE = probChangeDSGE;
+    }
+
+    @Column
+    private String mutationSGE;
+    @Column
+    private Double probChangeSGE = 0.0;
+
+    //DSGE
+    @Column
+    private Integer depthD = 10;
+
+    @Column
+    private String crossoverDSGE;
+
+    @Column
+    private String mutationDSGE;
+    @Column
+    private Double probChangeDSGE = 0.0;
+
     @Column
     private Integer numberRuns = 1;
 
@@ -113,6 +212,11 @@ public class Experiment {
     public Experiment(User user, String experimentName, String experimentDescription, Integer generations, Integer populationSize,
                       Integer maxWraps, Integer tournament, Double crossoverProb,
                       Double mutationProb, Integer numCodons,
+
+                      String problem, int depthS, int depthD, String mutationDSGE,
+                      String mutationSGE, String crossoverDSGE, String CrossoverSGE, double probChangeDSGE,
+                      double probChangeSGE,
+
                       Integer numberRuns, String objective, Timestamp creationDate, Timestamp modificationDate,
                       Boolean de, Double lowerBoundDE, Double upperBoundDE, Double recombinationFactorDE,
                       Double mutationFactorDE, String tagsText, Integer populationDE) {
@@ -126,6 +230,17 @@ public class Experiment {
         this.crossoverProb = crossoverProb;
         this.mutationProb = mutationProb;
         this.numCodons = numCodons;
+
+        this.problem = problem;
+        this.depthS = depthS;
+        this.depthD = depthD;
+        this.mutationDSGE = mutationDSGE;
+        this.mutationSGE = mutationSGE;
+        this.crossoverDSGE = crossoverDSGE;
+        this.crossoverSGE = CrossoverSGE;
+        this.probChangeDSGE = probChangeDSGE;
+        this.probChangeSGE = probChangeSGE;
+
         this.numberRuns = numberRuns;
         this.objective = objective;
         this.idExpDataTypeList = new ArrayList<>();
@@ -340,6 +455,17 @@ public class Experiment {
         experiment.mutationProb = this.mutationProb;
         experiment.objective = this.objective;
         experiment.numCodons = this.numCodons;
+
+        experiment.problem = this.problem;
+        experiment.depthS = this.depthS;
+        experiment.depthD = this.depthD;
+        experiment.mutationDSGE = this.mutationDSGE;
+        experiment.mutationSGE = this.mutationSGE;
+        experiment.crossoverSGE = this.crossoverSGE;
+        experiment.crossoverDSGE = this.crossoverDSGE;
+        experiment.probChangeDSGE = this.probChangeDSGE;
+        experiment.probChangeSGE = this.probChangeSGE;
+
         experiment.numberRuns = this.numberRuns;
         experiment.de = this.de;
         experiment.lowerBoundDE = this.lowerBoundDE;
