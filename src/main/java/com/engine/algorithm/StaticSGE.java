@@ -144,18 +144,18 @@ public class StaticSGE extends AbstractProblemSSGE {
 		if (numObjectives == 2) {
 			algorithm =  new NSGAII<VariableArray<Integer>>(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), mutationOperator, crossoverOperator, selectionOp);
 		} else {
-			algorithm = new SimpleGeneticAlgorithm<VariableArray<Integer>>(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), true, mutationOperator, crossoverOperator, selectionOp);
+			//algorithm = new SimpleGeneticAlgorithm<VariableArray<Integer>>(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), true, mutationOperator, crossoverOperator, selectionOp);
 
-			/*if(Integer.parseInt(properties.getProperty(com.engine.util.Common.ALGORITHM_TYPE))== 1) {
+			if(properties.getProperty(com.engine.util.Common.ALGORITHM_TYPE).equals("SSGA")) {
 				algorithm = new StaticSimpleGeneticAlgorithm<VariableArray<Integer>>(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), true, mutationOperator, crossoverOperator, selectionOp);
 
 
-			}else if(Integer.parseInt(properties.getProperty(com.engine.util.Common.ALGORITHM_TYPE))== 2) {
+			}else if(properties.getProperty(com.engine.util.Common.ALGORITHM_TYPE).equals("SGA")) {
 				algorithm = new SimpleGeneticAlgorithm<VariableArray<Integer>>(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), true, mutationOperator, crossoverOperator, selectionOp);
-			}else if(Integer.parseInt(properties.getProperty(com.engine.util.Common.ALGORITHM_TYPE))== 3) {
+			}else if(properties.getProperty(com.engine.util.Common.ALGORITHM_TYPE).equals("BGAP")) {
 				algorithm = new StaticSimpleGeneticAlgorithmBestWithPopRenovation<VariableArray<Integer>>(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), true, mutationOperator, crossoverOperator, selectionOp, 0.1);
 
-			}*/
+			}
 
 		}
 

@@ -553,6 +553,7 @@ public class CommonBehaviour<T  extends Variable<?>> {
      * Stops problem execution, called from mainWindow
      */
     public void stopExecution() {
+        System.out.println("Stop");
         stop = true;
         algorithm.stopExection();
         logger.log(Level.INFO,">>>> GE STOPPED - {0}",Thread.currentThread().getName());

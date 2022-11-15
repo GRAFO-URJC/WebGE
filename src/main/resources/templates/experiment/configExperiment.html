@@ -178,6 +178,19 @@
                                 <div class="jumbotron row form-group">
                                     <h4>Properties of the experiment</h4>
                                 </div>
+
+                                <div class="row form-group text-center">
+                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                        <label for="algorithm">Internal Genetic Algorithm: </label>
+                                        <select class="form-control" name="algorithm" id="algorithm" >
+                                            <option value="SGA" id="SGA"> Simple Genetic Algorithm</option>
+                                            <option value="SSGA" id="SSGA"> Static Simple Genetic Algorithm</option>
+                                            <option value="BGAP" id="BGAP"> Best Individuals GA with Pop Renovation</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+
                                 <div class="col-sm-12 col-md-6 col-lg-4">
                                     <label for="generations">Generations:</label>
                                     <div th:classappend="${#fields.hasErrors('generations')}? 'has-error':'generations error'">
@@ -913,6 +926,10 @@
 
         function setProblemParams(){
 
+            $('[name=algorithm ] option').filter(function() {
+                return ($(this).val() == experimentInformation['algorithm']);
+            }).prop('selected', true);
+
             $('[name=problem ] option').filter(function() {
                 return ($(this).val() == experimentInformation['problem']);
             }).prop('selected', true);
@@ -1289,6 +1306,7 @@
             let numberRuns = $('#numberRuns').val();
             let objective = $('#objective').val();
 
+            let algorithm = $('#algorithm').val();
             let problem = $('#problem').val();
             let depthS = $('#depthS').val();
             let mutationSGE = $('#mutationSGE').val();
@@ -1320,6 +1338,7 @@
                 experimentInformation['de'].toString() == de &&
                 experimentInformation['objective'] == objective &&
 
+                experimentInformation['algorithm'] == algorithm &&
                 experimentInformation['problem'] == problem &&
                 experimentInformation['depthS'] == depthS &&
                 experimentInformation['mutationSGE'] == mutationSGE &&

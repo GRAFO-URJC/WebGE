@@ -79,15 +79,29 @@ public class Experiment {
     @Column
     private Integer numCodons = 10;
 
-    /*SGE*/
+
+
+    /*Algorithm*/
+    @Column
+    private String algorithm;
+
     @Column
     private String problem;
+    /*SGE*/
     //SGE
     @Column
     private Integer depthS = 10;
 
     @Column
     private String crossoverSGE;
+
+    public String getAlgorithm() {
+        return algorithm;
+    }
+
+    public void setAlgorithm(String algorithm) {
+        this.algorithm = algorithm;
+    }
 
     public String getProblem() {
         return problem;
@@ -213,7 +227,7 @@ public class Experiment {
                       Integer maxWraps, Integer tournament, Double crossoverProb,
                       Double mutationProb, Integer numCodons,
 
-                      String problem, int depthS, int depthD, String mutationDSGE,
+                      String algorithm, String problem, int depthS, int depthD, String mutationDSGE,
                       String mutationSGE, String crossoverDSGE, String CrossoverSGE, double probChangeDSGE,
                       double probChangeSGE,
 
@@ -231,6 +245,7 @@ public class Experiment {
         this.mutationProb = mutationProb;
         this.numCodons = numCodons;
 
+        this.algorithm = algorithm;
         this.problem = problem;
         this.depthS = depthS;
         this.depthD = depthD;
@@ -456,6 +471,7 @@ public class Experiment {
         experiment.objective = this.objective;
         experiment.numCodons = this.numCodons;
 
+        experiment.algorithm = this.algorithm;
         experiment.problem = this.problem;
         experiment.depthS = this.depthS;
         experiment.depthD = this.depthD;

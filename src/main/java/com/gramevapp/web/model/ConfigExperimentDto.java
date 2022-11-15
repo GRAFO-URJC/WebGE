@@ -49,6 +49,17 @@ public class ConfigExperimentDto {
         this.problem = problem;
     }
 
+    public String getAlgorithm() {
+        return algorithm;
+    }
+
+    public void setAlgorithm(String algorithm) {
+        this.algorithm = algorithm;
+    }
+
+    @NotNull
+    @Size(min = 1)
+    private String algorithm = "";
     @NotNull
     @Size(min = 1)
     private String problem = "";

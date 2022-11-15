@@ -332,6 +332,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         propertiesWriter.println("ViewResults=" + false);
         propertiesWriter.println("MaxWraps=" + configExpDto.getMaxWraps());
 
+        propertiesWriter.println("AlgorithmType=" + configExpDto.getAlgorithm());
         propertiesWriter.println("GrammaticalEvolutionType=" + configExpDto.getProblem());
         propertiesWriter.println("MaxRecusionDepth=" + configExpDto.getDepthS());
         propertiesWriter.println("MaxTreeDepth=" + configExpDto.getDepthD());
@@ -463,6 +464,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
             exp = new Experiment(user, configExpDto.getExperimentName(), configExpDto.getExperimentDescription(), configExpDto.getGenerations(),
                     configExpDto.getPopulationSize(), configExpDto.getMaxWraps(), configExpDto.getTournament(), configExpDto.getCrossoverProb(), configExpDto.getMutationProb(),
                     configExpDto.getNumCodons(),
+                    configExpDto.getAlgorithm(),
                     configExpDto.getProblem(), configExpDto.getDepthS(), configExpDto.getDepthD(), configExpDto.getMutationDSGE(),
                     configExpDto.getMutationSGE(), configExpDto.getCrossoverDSGE(), configExpDto.getCrossoverSGE(), configExpDto.getProbChangeDSGE(),
                     configExpDto.getProbChangeSGE(),
@@ -485,6 +487,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
             exp.setNumberRuns(configExpDto.getNumberRuns());
             exp.setObjective(configExpDto.getObjective());
 
+            exp.setAlgorithm(configExpDto.getAlgorithm());
             exp.setProblem(configExpDto.getProblem());
             exp.setDepthS(configExpDto.getDepthS());
             exp.setDepthD(configExpDto.getDepthD());
@@ -525,7 +528,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
                 exp.getPopulationSize(), exp.getMaxWraps(), exp.getTournament(), exp.getMutationProb(),
                 exp.getNumCodons(),
 
-                exp.getProblem(), exp.getDepthS(), exp.getDepthD(), exp.getMutationDSGE(), exp.getMutationSGE(),
+                exp.getAlgorithm(), exp.getProblem(), exp.getDepthS(), exp.getDepthD(), exp.getMutationDSGE(), exp.getMutationSGE(),
                 exp.getCrossoverDSGE(), exp.getCrossoverSGE(), exp.getProbChangeDSGE(), exp.getProbChangeSGE(),
 
                 exp.getNumberRuns(), exp.getObjective(), exp.isDe(), exp.getLowerBoundDE(), exp.getUpperBoundDE(), exp.getRecombinationFactorDE(), exp.getMutationFactorDE(),
@@ -546,7 +549,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
                                                      Double crossoverProb, Integer generations, Integer populationSize, Integer maxWraps,
                                                      Integer tournament, Double mutationProb,
                                                      Integer numCodons,
-                                                     String problem, int depthS, int depthD, String mutationDSGE,
+                                                     String algorithm, String problem, int depthS, int depthD, String mutationDSGE,
                                                      String mutationSGE, String crossoverDSGE, String crossoverSGE, double probchangeDSGE,
                                                      double probchangeSGE,
                                                      Integer numberRuns, String objective, boolean de,
@@ -563,6 +566,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         configExpDto.setMutationProb(mutationProb);
         configExpDto.setNumCodons(numCodons);
 
+        configExpDto.setAlgorithm(algorithm);
         configExpDto.setProblem(problem);
         configExpDto.setDepthS(depthS);
         configExpDto.setDepthD(depthD);
@@ -587,7 +591,6 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
     public String stopRunExperimentService(Model model, String runIdStop, RedirectAttributes redirectAttrs
             , DiagramDataService diagramDataService) throws InterruptedException {
         Run run = runService.findByRunId(Long.parseLong(runIdStop));
-        
         // Lo unico que se puede hacer es detener el run, y esperar a que se de cuenta
         run.getDiagramData().setStopped(true);
         diagramDataService.saveDiagram(run.getDiagramData());
@@ -683,6 +686,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
                             exp.getMaxWraps().equals(configExpDto.getMaxWraps()) &&
                             exp.getNumCodons().equals(configExpDto.getNumCodons()) &&
 
+                            exp.getAlgorithm().equals(configExpDto.getAlgorithm()) &&
                             exp.getProblem().equals(configExpDto.getProblem()) &&
                             exp.getDepthD().equals(configExpDto.getDepthS()) &&
                             exp.getDepthS().equals(configExpDto.getDepthD()) &&

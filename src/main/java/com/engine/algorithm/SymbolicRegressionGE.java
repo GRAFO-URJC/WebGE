@@ -126,14 +126,14 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
         if (numObjectives == 2) {
             algorithm =  new NSGAII<Variable<Integer>>(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), mutationOperator, crossoverOperator, selectionOp);
         } else {
-            algorithm = new SimpleGeneticAlgorithm<>(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), true, mutationOperator, crossoverOperator, selectionOp);
-            /*if(Integer.parseInt(properties.getProperty(com.engine.util.Common.ALGORITHM_TYPE))== 1) {
-                algorithm = new StaticSimpleGeneticAlgorithm<>(problem, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), true, mutationOperator, crossoverOperator, selectionOp);
-            }else if(Integer.parseInt(properties.getProperty(com.engine.util.Common.ALGORITHM_TYPE))== 2) {
-                algorithm = new SimpleGeneticAlgorithm<>(problem, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), true, mutationOperator, crossoverOperator, selectionOp);
-            }else if(Integer.parseInt(properties.getProperty(com.engine.util.Common.ALGORITHM_TYPE))== 3) {
-                algorithm = new StaticSimpleGeneticAlgorithmBestWithPopRenovation<>(problem, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), true, mutationOperator, crossoverOperator, selectionOp, 0.1);
-            }*/
+            //algorithm = new SimpleGeneticAlgorithm<>(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), true, mutationOperator, crossoverOperator, selectionOp);
+            if(properties.getProperty(com.engine.util.Common.ALGORITHM_TYPE)== "SSGA") {
+                algorithm = new StaticSimpleGeneticAlgorithm<>(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), true, mutationOperator, crossoverOperator, selectionOp);
+            }else if(properties.getProperty(com.engine.util.Common.ALGORITHM_TYPE)== "SGA") {
+                algorithm = new SimpleGeneticAlgorithm<>(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), true, mutationOperator, crossoverOperator, selectionOp);
+            }else if(properties.getProperty(com.engine.util.Common.ALGORITHM_TYPE)== "BGAP") {
+                algorithm = new StaticSimpleGeneticAlgorithmBestWithPopRenovation<>(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), true, mutationOperator, crossoverOperator, selectionOp, 0.1);
+            }
 
         }
 
