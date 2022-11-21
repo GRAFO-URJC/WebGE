@@ -137,9 +137,9 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
 
         }
 
-        if (obs != null) {
+        /*if (obs != null) {
             algorithm.addObserver(obs);
-        }
+        }*/
 
         common.runGE(obs,experimentDatatypeInfo, run,runService,saveDBService, algorithm, this, numObjectives);
 

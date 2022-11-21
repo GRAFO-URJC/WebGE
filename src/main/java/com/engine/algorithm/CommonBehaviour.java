@@ -45,6 +45,9 @@ import jeco.core.problem.Solutions;
 import jeco.core.problem.Variable;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
+import net.objecthunter.exp4j.function.Function;
+import net.objecthunter.exp4j.operator.Operator;
+import net.objecthunter.exp4j.operator.Operators;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
@@ -205,6 +208,104 @@ public class CommonBehaviour<T  extends Variable<?>> {
         }
     }
 
+    List<Operator> newOperators(){
+        List<Operator> newOps= new ArrayList<>();
+        Operator gteq = new Operator(">=", 2, true, Operator.PRECEDENCE_ADDITION - 1) {
+
+            @Override
+            public double apply(double[] values) {
+                if (values[0] >= values[1]) {
+                    return 1d;
+                } else {
+                    return 0d;
+                }
+            }
+        };
+
+        newOps.add(gteq);
+        Operator gt = new Operator(">", 2, true, Operator.PRECEDENCE_ADDITION - 1) {
+
+            @Override
+            public double apply(double[] values) {
+                if (values[0] > values[1]) {
+                    return 1d;
+                } else {
+                    return 0d;
+                }
+            }
+        };
+        newOps.add(gt);
+        Operator lteq = new Operator("<=", 2, true, Operator.PRECEDENCE_ADDITION - 1) {
+
+            @Override
+            public double apply(double[] values) {
+                if (values[0] <= values[1]) {
+                    return 1d;
+                } else {
+                    return 0d;
+                }
+            }
+        };
+
+        newOps.add(lteq);
+        Operator lt = new Operator("<", 2, true, Operator.PRECEDENCE_ADDITION - 1) {
+
+            @Override
+            public double apply(double[] values) {
+                if (values[0] < values[1]) {
+                    return 1d;
+                } else {
+                    return 0d;
+                }
+            }
+        };
+
+        newOps.add(lt);
+
+        Operator BAnd = new Operator("&&", 2, true, Operator.PRECEDENCE_ADDITION - 2) {
+
+            @Override
+            public double apply(double[] values) {
+                if ((values[0] == 1d) && (values[1] == 1d)) {
+                    return 1d;
+                } else {
+                    return 0d;
+                }
+            }
+        };
+
+        newOps.add(BAnd);
+        Operator BOr = new Operator("||", 2, true, Operator.PRECEDENCE_ADDITION - 2) {
+
+            @Override
+            public double apply(double[] values) {
+                if ((values[0] == 1d) || (values[1] == 1d)) {
+                    return 1d;
+                } else {
+                    return 0d;
+                }
+            }
+        };
+
+        newOps.add(BOr);
+
+        Function ifElse = new Function("ifElse", 3) {
+            @Override
+            public double apply(double... args) {
+                double index = 0;
+                double[] arrayArguments = Arrays.stream(args).toArray();
+                System.out.println(arrayArguments[0]+ arrayArguments[1]+ arrayArguments[2]);
+                if(arrayArguments[0] == 1d){
+                    return arrayArguments[1];
+                }else{
+                    return arrayArguments[2];
+                }
+            }
+        };
+
+        return newOps;
+    }
+
     // Method used for refactoring evaluate()
     public void evaluateWithoutDe(Solution<T> solution, Phenotype phenotype) {
         String originalFunction = phenotype.toString();
@@ -218,7 +319,23 @@ public class CommonBehaviour<T  extends Variable<?>> {
             String currentFunction = calculateFunctionValued(originalFunction, i);
             Double funcI;
 
-            Expression e = new ExpressionBuilder(currentFunction).build();
+
+            Function ifElse = new Function("ifElse", 3) {
+                @Override
+                public double apply(double... args) {
+                    double index = 0;
+                    double[] arrayArguments = Arrays.stream(args).toArray();
+                    if(arrayArguments[0] == 1d){
+                        return arrayArguments[1];
+                    }else{
+                        return arrayArguments[2];
+                    }
+                }
+            };
+
+            List<Operator> newOp = newOperators();
+
+            Expression e = new ExpressionBuilder(currentFunction).functions(ifElse).operator(newOp).build();
             try {
                 funcI = e.evaluate();
                 if (funcI.isNaN()) {

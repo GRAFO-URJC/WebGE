@@ -4,7 +4,7 @@ import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 
-import java.util.Arrays;
+import java.util.*;
 
 public class ModelEvaluator {
 
@@ -87,6 +87,256 @@ public class ModelEvaluator {
     }
 
 
+    /**
+     * Return the Weighted Accuracy of a prediction as 1- accuracy*0.5 - F1*0.5
+     * @param expected
+     * @param observed
+     * @return
+     */
+    public static double computeWeightedAccuracy(double[] expected, double[] observed) {
+        double accu = 0.0;
+
+        double total = expected.length;
+        double truePositives = 0;
+
+        if(expected.length != observed.length) {
+            throw new RuntimeException("Not same amount of results");
+        }
+
+        for(int i = 0;i < expected.length; i++) {
+            if(expected[i] == observed[i]) {
+                truePositives++;
+            }
+        }
+
+        double f1 = computeF1(expected, observed);
+
+        accu = 1 - (truePositives/total)*0.5 - f1*0.5;
+
+        return accu;
+    }
+
+    /**
+     * Computes the F1 score for both multiclass and binary prediction, for multiclass it makes the
+     * @param expected
+     * @param observed
+     * @return F1-value
+     */
+    private static double computeF1(double[] expected, double[] observed) {
+        Map<Double, Integer> numberClasses = new HashMap<>();
+        Map<Double, Integer> numberClasses2 = new HashMap<>();
+        List<Double> indexes = new ArrayList<Double>();
+
+        //Counts the amount of actual classes and observed classes of a prediction
+        for(int i = 0; i < expected.length; i++) {
+            if(numberClasses.containsKey(expected[i])) {
+                numberClasses.put(expected[i], numberClasses.get(expected[i])+1);
+            }else{
+                numberClasses.put(expected[i], 1);
+                indexes.add(expected[i]);
+            }
+
+            if(numberClasses2.containsKey(observed[i])) {
+                numberClasses2.put(observed[i], numberClasses2.get(observed[i])+1);
+            }else{
+                numberClasses2.put(observed[i], 1);
+            }
+        }
+
+
+        double macroAverageF1 = 0;
+        if(numberClasses.size() > 2) { //if we have more than 2 classes we compute the F1 value for each class
+            double recalls[] = new double[numberClasses.size()];
+            int truePositives[] = new int[numberClasses.size()];
+
+            for(int i = 0; i < expected.length; i++) { //True positives of each class
+                if(expected[i] == observed[i]) {
+                    truePositives[indexes.indexOf(expected[i])]++;
+
+                }
+            }
+
+
+            for(int i = 0; i <indexes.size(); i++) { // Recall values of each class
+                recalls[i] = (truePositives[i]*1.0)/numberClasses.get(indexes.get(i));
+            }
+
+            double precision[] = new double[numberClasses.size()];
+
+            for(int i = 0; i <indexes.size(); i++) {
+                if(numberClasses2.containsKey(indexes.get(i))) { //Precision values of each class
+                    precision[i] = (truePositives[i]*1.0)/numberClasses2.get(indexes.get(i));
+                }else {
+                    precision[i] = 0;
+                }
+            }
+
+            for(int i = 0; i < recalls.length; i++) {
+                //If the class exists in the prediction we calculate its F1 values, if not we consider it 0
+                if(recalls[i] != 0 || precision[i] != 0) {
+                    macroAverageF1 += 2*((recalls[i]*precision[i])/(recalls[i]+precision[i]));
+                }
+            }
+
+            macroAverageF1 = macroAverageF1/recalls.length; //Compute the macroAverageF1
+
+        }else {
+
+            double recalls = 0;
+            int truePositives = 0;
+
+            for(int i = 0; i < expected.length; i++) {
+                if((expected[i] == 0) && (expected[i] == observed[i])) {
+                    truePositives++;
+
+                }
+            }
+
+            recalls = (truePositives*1.0)/numberClasses.get(0.0);
+
+            double precision = 0;
+            if(numberClasses2.containsKey(0.0)) {
+                precision = (truePositives*1.0)/numberClasses2.get(0.0);
+            }else {
+                precision = 0;
+            }
+
+            //If the class exists in the prediction we calculate its F1 values, if not we consider it 0
+            if (recalls == 0 && precision == 0) {
+                macroAverageF1 = 0;
+            }else {
+                macroAverageF1 = 2*((recalls*precision)/(recalls+precision));
+            }
+
+
+        }
+
+        return macroAverageF1;
+    }
+
+    /**
+     * Compute the Harmonic mean of the recall of each class (both for multiclass and binary prediction)
+     * @param expected
+     * @param observed
+     * @return 1-HarmonicMeanRecalls
+     */
+    public static double computeRecall(double[] expected, double[] observed) {
+        //Number of classes to compute
+        Map<Double, Integer> numberClasses = new HashMap<>();
+        List<Double> indexes = new ArrayList<Double>();
+
+
+        List<Integer> truePositives = new ArrayList<Integer>();
+
+        for(int i = 0; i < expected.length; i++) {
+            //Count how many classes we have
+            if(numberClasses.containsKey(expected[i])) {
+                numberClasses.put(expected[i], numberClasses.get(expected[i])+1);
+
+            }else{
+                numberClasses.put(expected[i], 1);
+                indexes.add(expected[i]);
+                truePositives.add(indexes.indexOf(expected[i]), 0); //Initialize the true positives to 0
+
+            }
+
+            if(expected[i] == observed[i]) {
+
+                truePositives.set(indexes.indexOf(expected[i]), truePositives.get(indexes.indexOf(expected[i]))+1);
+            }
+
+
+        }
+
+        double recalls[] = new double[numberClasses.size()];
+        double macroAverageRecall = 0;
+
+        for(int i = 0; i <indexes.size(); i++) {
+            recalls[i] = (truePositives.get(i)*1.0)/numberClasses.get(indexes.get(i));
+        }
+
+
+        macroAverageRecall = macroAverageRecall/recalls.length;
+
+        double harmonicMean = recalls.length;
+        double inverses= 0;
+        for(int i = 0; i < recalls.length; i++) {
+            inverses += 1.0/recalls[i];
+        }
+        harmonicMean = harmonicMean/inverses;
+
+
+        return 1-harmonicMean;
+    }
+
+
+    /**
+     * Compute the Harmonic mean of the precision of each class
+     * @param expected
+     * @param observed
+     * @return 1- HarmonicMeanPrecision
+     */
+    public static double computePrecision(double[] expected, double[] observed) {
+        Map<Double, Integer> numberClasses = new HashMap<>();
+        Map<Double, Integer> realClases = new HashMap<>();
+        List<Double> indexes = new ArrayList<Double>();
+        for(int i = 0; i < observed.length; i++) {
+            if(numberClasses.containsKey(observed[i])) {
+                numberClasses.put(observed[i], numberClasses.get(observed[i])+1);
+            }else{
+                numberClasses.put(observed[i], 1);
+                indexes.add(observed[i]);
+            }
+
+            if(!realClases.containsKey(expected[i])) {
+                realClases.put(expected[i], 1);
+            }
+        }
+
+        double precision[] = new double[realClases.size()];
+        int truePositives[] = new int[realClases.size()];
+
+        for(int i = 0; i < expected.length; i++) {
+            if(expected[i] == observed[i]) {
+                truePositives[indexes.indexOf(observed[i])]++;
+
+            }
+        }
+
+
+        for(int i = 0; i <indexes.size(); i++) {
+            if(numberClasses.containsKey(indexes.get(i))) {
+                precision[i] = (truePositives[i]*1.0)/numberClasses.get(indexes.get(i));
+            }else {
+                precision[i] = 0;
+            }
+        }
+
+        //Macro average precision
+        double macroAveragePrecision = 0;
+
+        for(int i = 0; i < precision.length; i++) {
+            macroAveragePrecision += precision[i];
+        }
+
+        macroAveragePrecision = macroAveragePrecision/precision.length; //Macro average
+
+        //return 1-macroAveragePrecision;
+
+        //Harmonic mean precision
+        double harmonicMean = precision.length;
+        double inverses= 0;
+        for(int i = 0; i < precision.length; i++) {
+            inverses += 1.0/precision[i];
+        }
+        harmonicMean = harmonicMean/inverses;
+
+        return 1-harmonicMean;
+
+    }
+
+
+
     public static double calculateObjective(String[][] target, String[] prediction, String objective) {
         double[] targetDouble;
         double[] predictionDouble;
@@ -110,6 +360,12 @@ public class ModelEvaluator {
                 return computeMSE(targetDouble, predictionDouble);
             case "REL":
                 return computeRelativeError(targetDouble, predictionDouble);
+            case "WA":
+                return computeWeightedAccuracy(targetDouble, predictionDouble);
+            case"RECALL":
+                return computeRecall(targetDouble, predictionDouble);
+            case "PRECISION":
+                return computePrecision(targetDouble, predictionDouble);
             default:
                 // RMSE
                 return computeRMSE(targetDouble, predictionDouble);
