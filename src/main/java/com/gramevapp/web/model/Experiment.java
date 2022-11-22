@@ -523,6 +523,25 @@ public class Experiment {
         return de;
     }
 
+    public boolean isProblemGE() {
+        return this.problem.equals("GE");
+    }
+
+    public boolean isProblemSGE() {
+        return this.problem.equals("SGE");
+    }
+
+    public boolean isProblemDSGE() {
+        return this.problem.equals("DSGE");
+    }
+
+    public boolean isCrossoverDSGE_CP() {
+        return this.crossoverDSGE.equals("Uniform") || this.crossoverDSGE.equals("Tree");
+    }
+
+    public boolean isCrossoverSGE_CP() {
+        return this.crossoverSGE.equals("Uniform") || this.crossoverSGE.equals("Tree");
+    }
 
     public void setDe(boolean de) {
         this.de = de;

@@ -335,6 +335,57 @@ public class ModelEvaluator {
 
     }
 
+    /**
+     * Computes the ConfusionMatrix of a prediction, as long as the classes go from 0 to n-1 for a nxn matrix
+     *
+     * @param expected
+     * @param observed
+     * @param percentaje (Whether the result will be returned as a percentage or as the number of occurrences)
+     * @return
+     */
+    public static double[][] computeConfusionMatrix(double[] expected, double[] observed, boolean percentaje){
+
+
+        //Number of classes in the real data
+        Map<Double, Integer> realNumberClasses = new HashMap<Double, Integer>();
+        for(double d: expected) {
+
+            if(realNumberClasses.containsKey(d)) {
+                realNumberClasses.put(d, realNumberClasses.get(d)+1);
+
+            }else {
+                realNumberClasses.put(d, 1);
+            }
+
+        }
+
+        //Confusion matrix
+        double[][] confusionMatrix = new double[realNumberClasses.size()][realNumberClasses.size()];
+
+        //For all the observed data we are going to add it to the matrix
+        for(int i = 0; i < observed.length; i++) {
+
+            confusionMatrix[(int) expected[i]][(int) observed[i]]++;
+
+        }
+
+        if(percentaje) { //if percentaje is true we return the percentaje of true and false predictions for each class with 4 decimals accuracy
+
+            for(int i = 0; i < confusionMatrix.length; i++) {
+                for(int j = 0; j < confusionMatrix[i].length; j++) {
+
+                    confusionMatrix[i][j] = confusionMatrix[i][j]/realNumberClasses.get(i *1.0);
+                    confusionMatrix[i][j] = Math.round(confusionMatrix[i][j] * 10000) / 10000.0;
+
+                }
+            }
+
+
+        }
+
+        return confusionMatrix;
+    }
+
 
 
     public static double calculateObjective(String[][] target, String[] prediction, String objective) {

@@ -111,12 +111,35 @@
                                         <label th:text="${exp.getPopulationSize()}"></label>
                                         ; <strong>Mutation Prob:</strong>
                                         <label th:text="${exp.getMutationProb()}"></label>
-                                        ; <strong>Max Wraps:</strong>
-                                        <label th:text="${exp.getMaxWraps()}"></label>
-                                        ; <strong>Num Codons:</strong>
-                                        <label th:text="${exp.getNumCodons()}"></label>
+                                        ; <strong>Internal Genetic Algorithm:</strong>
+                                        <label th:text="${exp.getAlgorithm()}"></label>
+                                        ; <strong>Grammatical Evolution Type:</strong>
+                                        <label th:text="${exp.getProblem()}"></label>
+                                        <strong th:if="${exp.isProblemGE()}">; Max Wraps: </strong>
+                                        <label th:if="${exp.isProblemGE()}" th:text="${exp.getMaxWraps()}"></label>
+                                        <strong th:if="${exp.isProblemGE()}">; Num Codons: </strong>
+                                        <label th:if="${exp.isProblemGE()}" th:text="${exp.getNumCodons()}"></label>
                                         ; <strong>Tournament:</strong>
                                         <label th:text="${exp.getTournament()}"></label>
+
+                                        <strong th:if="${exp.isProblemSGE()}">; Recursive Depth: </strong>
+                                        <label th:if="${exp.isProblemSGE()}" th:text="${exp.getDepthS()}"></label>
+                                        <strong th:if="${exp.isProblemSGE()}">; Mutation Type: </strong>
+                                        <label th:if="${exp.isProblemSGE()}" th:text="${exp.getMutationSGE()}"></label>
+                                        <strong th:if="${exp.isProblemSGE()}">; Crossover Type: </strong>
+                                        <label th:if="${exp.isProblemSGE()}" th:text="${exp.getCrossoverSGE()}"></label>
+                                        <strong th:if="${exp.isProblemSGE() && exp.isCrossoverSGE_CP()}">; Crossover Change Prob: </strong>
+                                        <label th:if="${exp.isProblemSGE() && exp.isCrossoverSGE_CP()}" th:text="${exp.getProbChangeSGE()}"></label>
+
+                                        <strong th:if="${exp.isProblemDSGE()}">; Recursive Depth: </strong>
+                                        <label th:if="${exp.isProblemDSGE()}" th:text="${exp.getDepthD()}"></label>
+                                        <strong th:if="${exp.isProblemDSGE()}">; Mutation Type: </strong>
+                                        <label th:if="${exp.isProblemDSGE()}" th:text="${exp.getMutationDSGE()}"></label>
+                                        <strong th:if="${exp.isProblemDSGE()}">; Crossover Type: </strong>
+                                        <label th:if="${exp.isProblemDSGE()}" th:text="${exp.getCrossoverDSGE()}"></label>
+                                        <strong th:if="${exp.isProblemDSGE() && exp.isCrossoverDSGE_CP()}">; Crossover Change Prob: </strong>
+                                        <label th:if="${exp.isProblemDSGE() && exp.isCrossoverDSGE_CP()}" th:text="${exp.getProbChangeDSGE()}"></label>
+
                                         ; <strong>Number Runs:</strong>
                                         <label th:text="${exp.getNumberRuns()}"></label>
                                         ; <strong>Objective:</strong>

@@ -8,11 +8,23 @@ public class RunResultsDto {
     private double[] trainingAbs;
     private double[] trainingR2;
     private double[] trainingRel;
+
+    private double[] trainingWA;
+
+    private double[] trainingRecall;
+
+    private double[] trainingPrecision;
     private double[] testAVG;
     private double[] testRMSE;
     private double[] testAbs;
     private double[] testR2;
     private double[] testRel;
+
+    private double[] testWA;
+
+    private double[] testRecall;
+
+    private double[] testPrecision;
 
     public RunResultsDto(int size, boolean haveTest) {
         runIndex = new int[size];
@@ -22,13 +34,67 @@ public class RunResultsDto {
         trainingAbs = new double[size];
         trainingR2 = new double[size];
         trainingRel = new double[size];
+        trainingWA = new double[size];
+        trainingRecall = new double[size];
+        trainingPrecision = new double[size];
         if (haveTest) {
             testAVG = new double[size];
             testRMSE = new double[size];
             testAbs = new double[size];
             testR2 = new double[size];
             testRel = new double[size];
+            testWA =new double[size];
+            testRecall =new double[size];
+            testPrecision = new double[size];
         }
+    }
+
+    public double[] getTrainingWA() {
+        return trainingWA;
+    }
+
+    public void setTrainingWA(double[] trainingWA) {
+        this.trainingWA = trainingWA;
+    }
+
+    public double[] getTrainingRecall() {
+        return trainingRecall;
+    }
+
+    public void setTrainingRecall(double[] trainingRecall) {
+        this.trainingRecall = trainingRecall;
+    }
+
+    public double[] getTrainingPrecision() {
+        return trainingPrecision;
+    }
+
+    public void setTrainingPrecision(double[] trainingPrecision) {
+        this.trainingPrecision = trainingPrecision;
+    }
+
+    public double[] getTestWA() {
+        return testWA;
+    }
+
+    public void setTestWA(double[] testWA) {
+        this.testWA = testWA;
+    }
+
+    public double[] getTestRecall() {
+        return testRecall;
+    }
+
+    public void setTestRecall(double[] testRecall) {
+        this.testRecall = testRecall;
+    }
+
+    public double[] getTestPrecision() {
+        return testPrecision;
+    }
+
+    public void setTestPrecision(double[] testPrecision) {
+        this.testPrecision = testPrecision;
     }
 
     public int[] getRunIndex() {

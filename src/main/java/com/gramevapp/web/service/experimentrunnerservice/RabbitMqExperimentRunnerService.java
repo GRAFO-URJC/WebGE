@@ -288,6 +288,9 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         result.add(ModelEvaluator.computeR2(yDoubleArray, functionResultDoubleArray));
         result.add(ModelEvaluator.computeAbsoluteError(yDoubleArray, functionResultDoubleArray));
         result.add(ModelEvaluator.computeRelativeError(yDoubleArray, functionResultDoubleArray));
+        result.add(ModelEvaluator.computeWeightedAccuracy(yDoubleArray, functionResultDoubleArray));
+        result.add(ModelEvaluator.computeRecall(yDoubleArray, functionResultDoubleArray));
+        result.add(ModelEvaluator.computePrecision(yDoubleArray, functionResultDoubleArray));
     }
 
     public void modelAddDataService(Model model, User user, Dataset experimentDataType,
@@ -802,6 +805,9 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
                 runResultsDto.getTrainingR2()[index] = trainingResult.get(2);
                 runResultsDto.getTrainingAbs()[index] = trainingResult.get(3);
                 runResultsDto.getTrainingRel()[index] = trainingResult.get(4);
+                runResultsDto.getTrainingWA()[index] = trainingResult.get(5);
+                runResultsDto.getTrainingRecall()[index] = trainingResult.get(6);
+                runResultsDto.getTestPrecision()[index] = trainingResult.get(7);
 
                 if (haveTest || experiment.isCrossExperiment()) {
                     List<Double> testResult = results.get(TESTRESULT);
@@ -810,6 +816,9 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
                     runResultsDto.getTestR2()[index] = testResult.get(2);
                     runResultsDto.getTestAbs()[index] = testResult.get(3);
                     runResultsDto.getTestRel()[index] = testResult.get(4);
+                    runResultsDto.getTestWA()[index] = testResult.get(5);
+                    runResultsDto.getTestRecall()[index] = testResult.get(6);
+                    runResultsDto.getTestPrecision()[index] = testResult.get(7);
 
                 }
             }
@@ -886,6 +895,9 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         results[target.size()+3][0] = "R2";
         results[target.size()+4][0] = "Absolute Error";
         results[target.size()+5][0] = "Relative Error";
+        results[target.size()+5][0] = "Weighted Accuracy";
+        results[target.size()+5][0] = "Recall";
+        results[target.size()+5][0] = "Precision";
 
         for (int j = 0; j < models.size(); j++) {
             results[0][j+1] = models.get(j);
@@ -947,6 +959,9 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         model.addAttribute("RSquare", trainingResult.get(2));
         model.addAttribute("absoluteError", trainingResult.get(3));
         model.addAttribute("relativeError", trainingResult.get(4));
+        model.addAttribute("WA", 1-trainingResult.get(5));
+        model.addAttribute("Recall", 1-trainingResult.get(6));
+        model.addAttribute("Precision", 1-trainingResult.get(7));
         model.addAttribute(INDEX, run.getExperimentId().getIdRunList().indexOf(run) + 1);
         model.addAttribute("model", run.getModel());
 
@@ -960,6 +975,9 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
             model.addAttribute("testRSquare", testResult.get(2));
             model.addAttribute("testAbsoluteError", testResult.get(3));
             model.addAttribute("testRelativeError", testResult.get(4));
+            model.addAttribute("testWA", 1-testResult.get(5));
+            model.addAttribute("testRecall", 1-testResult.get(6));
+            model.addAttribute("testPrecision", 1-testResult.get(7));
             model.addAttribute(TESTLISTYLINE, testListYLine);
             model.addAttribute(TESTLISTFUNCTIONRESULT, testListFunctionResult);
 

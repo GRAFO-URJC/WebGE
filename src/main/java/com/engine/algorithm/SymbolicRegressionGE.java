@@ -127,16 +127,15 @@ public class SymbolicRegressionGE extends AbstractProblemGE {
             algorithm =  new NSGAII<Variable<Integer>>(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), mutationOperator, crossoverOperator, selectionOp);
         } else {
             //algorithm = new SimpleGeneticAlgorithm<>(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), true, mutationOperator, crossoverOperator, selectionOp);
-            if(properties.getProperty(com.engine.util.Common.ALGORITHM_TYPE)== "SSGA") {
+            if(properties.getProperty(com.engine.util.Common.ALGORITHM_TYPE).equals("SSGA")) {
                 algorithm = new StaticSimpleGeneticAlgorithm<>(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), true, mutationOperator, crossoverOperator, selectionOp);
-            }else if(properties.getProperty(com.engine.util.Common.ALGORITHM_TYPE)== "SGA") {
+            }else if(properties.getProperty(com.engine.util.Common.ALGORITHM_TYPE).equals("SGA")) {
                 algorithm = new SimpleGeneticAlgorithm<>(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), true, mutationOperator, crossoverOperator, selectionOp);
-            }else if(properties.getProperty(com.engine.util.Common.ALGORITHM_TYPE)== "BGAP") {
+            }else if(properties.getProperty(com.engine.util.Common.ALGORITHM_TYPE).equals("BGAP")) {
                 algorithm = new StaticSimpleGeneticAlgorithmBestWithPopRenovation<>(this, Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_INDIVIDUALS_PROP)), Integer.valueOf(properties.getProperty(com.engine.util.Common.NUM_GENERATIONS_PROP)), true, mutationOperator, crossoverOperator, selectionOp, 0.1);
             }
 
         }
-
         /*if (obs != null) {
             algorithm.addObserver(obs);
         }*/

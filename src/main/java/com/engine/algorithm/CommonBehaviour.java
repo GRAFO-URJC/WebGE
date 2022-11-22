@@ -208,7 +208,7 @@ public class CommonBehaviour<T  extends Variable<?>> {
         }
     }
 
-    List<Operator> newOperators(){
+    static List<Operator> newOperators(){
         List<Operator> newOps= new ArrayList<>();
         Operator gteq = new Operator(">=", 2, true, Operator.PRECEDENCE_ADDITION - 1) {
 
@@ -289,12 +289,15 @@ public class CommonBehaviour<T  extends Variable<?>> {
 
         newOps.add(BOr);
 
+        return newOps;
+    }
+
+    static Function ifElseFunction(){
         Function ifElse = new Function("ifElse", 3) {
             @Override
             public double apply(double... args) {
                 double index = 0;
                 double[] arrayArguments = Arrays.stream(args).toArray();
-                System.out.println(arrayArguments[0]+ arrayArguments[1]+ arrayArguments[2]);
                 if(arrayArguments[0] == 1d){
                     return arrayArguments[1];
                 }else{
@@ -303,7 +306,7 @@ public class CommonBehaviour<T  extends Variable<?>> {
             }
         };
 
-        return newOps;
+        return ifElse;
     }
 
     // Method used for refactoring evaluate()
@@ -320,19 +323,7 @@ public class CommonBehaviour<T  extends Variable<?>> {
             Double funcI;
 
 
-            Function ifElse = new Function("ifElse", 3) {
-                @Override
-                public double apply(double... args) {
-                    double index = 0;
-                    double[] arrayArguments = Arrays.stream(args).toArray();
-                    if(arrayArguments[0] == 1d){
-                        return arrayArguments[1];
-                    }else{
-                        return arrayArguments[2];
-                    }
-                }
-            };
-
+            Function ifElse = ifElseFunction();
             List<Operator> newOp = newOperators();
 
             Expression e = new ExpressionBuilder(currentFunction).functions(ifElse).operator(newOp).build();
@@ -405,8 +396,11 @@ public class CommonBehaviour<T  extends Variable<?>> {
             newFunction = newFunction.replaceAll(replacePart, content[i]);
         }
 
+        Function ifElse = ifElseFunction();
+        List<Operator> newOp = newOperators();
 
-        Expression e = new ExpressionBuilder(newFunction).build();
+        Expression e = new ExpressionBuilder(newFunction).functions(ifElse).operator(newOp).build();
+        //Expression e = new ExpressionBuilder(newFunction).build();
         return e.evaluate();
 
     }

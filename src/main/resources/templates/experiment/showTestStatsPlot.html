@@ -81,6 +81,25 @@
                                     <td th:text="${RSquare}"></td>
                                     <td th:if="${noTest==null}" th:text="${testRSquare}"></td>
                                 </tr>
+
+                                <tr>
+                                    <th scope="row">Weighted Accuracy</th>
+                                    <td th:text="${WA}"></td>
+                                    <td th:if="${noTest==null}" th:text="${testWA}"></td>
+                                </tr>
+
+                                <tr>
+                                    <th scope="row">Recall</th>
+                                    <td th:text="${Recall}"></td>
+                                    <td th:if="${noTest==null}" th:text="${testRecall}"></td>
+                                </tr>
+
+                                <tr>
+                                    <th scope="row">Precision</th>
+                                    <td th:text="${Precision}"></td>
+                                    <td th:if="${noTest==null}" th:text="${testPrecision}"></td>
+                                </tr>
+
                                 </tbody>
                             </table>
                         </div>
