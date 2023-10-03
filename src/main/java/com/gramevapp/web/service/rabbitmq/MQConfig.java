@@ -13,15 +13,12 @@ import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
 
-import java.util.logging.Logger;
-
-
 @Configuration
 public class MQConfig {
-    public static final String RUNS_QUEUE = "message_queue";
+    public static final String RUNS_QUEUE = "runs_queue";
     public static final String REPORTS_QUEUE = "reports_queue";
     public static final String EXCHANGE = "EXCHANGE";
-    public static final String RUNS_ROUTING_KEY = "message_routingKey";
+    public static final String RUNS_ROUTING_KEY = "runs_routingKey";
     public static final String REPORT_ROUTING_KEY = "report_routingKey";
 
     @Bean
