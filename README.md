@@ -14,7 +14,7 @@ docker-compose.yml:
 version: '3.2'
 services:
   db:
-    image: postgres:12
+    image: postgres:12-bullseye
     ports:
       - "5432:5432"
     restart: always
