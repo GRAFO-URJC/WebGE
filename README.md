@@ -15,12 +15,10 @@ version: '3.2'
 services:
   db:
     image: postgres:12-bullseye
-    ports:
-      - "5432:5432"
     restart: always
     environment:
-      POSTGRES_USER: usuario
-      POSTGRES_PASSWORD: "01234"
+      POSTGRES_USER: "${POSTGRES_USER:?Set POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}"
       POSTGRES_DB: "webge"
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -34,24 +32,20 @@ services:
       - rabbitmq
     ports:
       - "8182:8182"
-      - "5005:5005"
-      - "9010:9010"
     environment:
       SPRING_DATASOURCE_URL: "jdbc:postgresql://db:5432/webge"
-      SPRING_DATASOURCE_USERNAME: "usuario"
-      SPRING_DATASOURCE_PASSWORD: "01234"
+      SPRING_DATASOURCE_USERNAME: "${POSTGRES_USER:?Set POSTGRES_USER}"
+      SPRING_DATASOURCE_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}"
       SPRING_FLYWAY_URL: "jdbc:postgresql://db:5432/webge"
-      SPRING_FLYWAY_USER: "usuario"
-      SPRING_FLYWAY_PASSWORD: "01234"
+      SPRING_FLYWAY_USER: "${POSTGRES_USER:?Set POSTGRES_USER}"
+      SPRING_FLYWAY_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}"
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_LISTENER_SIMPLE_CONCURRENCY: "2"
+      WEBGE_ADMIN_PASSWORD: "${WEBGE_ADMIN_PASSWORD:?Set WEBGE_ADMIN_PASSWORD}"
     networks:
       - backend
   rabbitmq:
     image: rabbitmq:management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
     networks:
       - backend
 volumes:
@@ -61,8 +55,10 @@ networks:
   backend:
 ```
 
+Set `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `WEBGE_ADMIN_PASSWORD` in the deployment environment before starting Compose. The Compose service configures both JDBC URLs to `jdbc:postgresql://db:5432/webge`; the administrator password must contain at least 12 characters. Existing databases must have unique usernames and email addresses before applying the migration. Database and RabbitMQ ports remain private to the Compose network; only the WebGE HTTP port is published.
+
 Notice that the variable SPRING_RABBITMQ_LISTENER_SIMPLE_CONCURRENCY determines the number of concurrent runs in the server. It is set to 2 by default, but it can be modified to a proper value depending on the computation power of the machine.
 
-WebGE runs in port 8182 by default, and provides an administrator to create users whose credentials are admin/admin as user/password.
+WebGE runs in port 8182 by default. On first startup, the seeded administrator account is enabled with the password supplied through `WEBGE_ADMIN_PASSWORD`; the insecure `admin/admin` default is no longer available.
 
 Enjoy WebGE!

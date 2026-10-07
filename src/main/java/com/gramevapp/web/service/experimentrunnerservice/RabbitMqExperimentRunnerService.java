@@ -43,6 +43,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
     private UserService userService;
     private Logger logger;
     private RunService runService;
+    private RecordAccessService recordAccessService;
     private boolean executionCancelled;
     private Map<Long, WebGERunnable> runToRunnable;
 
@@ -52,7 +53,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
 
     public RabbitMqExperimentRunnerService(ExperimentService experimentService, SaveDBService saveDBService
             , RunService runService, GrammarRepository grammarRepository, UserService userService
-            , RabbitTemplate rabbitTemplate) {
+            , RabbitTemplate rabbitTemplate, RecordAccessService recordAccessService) {
         this.experimentService = experimentService;
         this.saveDBService = saveDBService;
         this.logger = Logger.getLogger(SymbolicRegressionGE.class.getName());
@@ -60,6 +61,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         this.rabbitTemplate = rabbitTemplate;
         this.grammarRepository = grammarRepository;
         this.userService = userService;
+        this.recordAccessService = recordAccessService;
 
     }
 
@@ -115,18 +117,18 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
 
 
         // Experiment Data Type SECTION
-        Dataset expDataType = experimentService.
-                findExperimentDataTypeById(Long.valueOf(experimentDataTypeId));
+        Dataset expDataType = recordAccessService.requireOwnedDataset(Long.valueOf(experimentDataTypeId));
 
         experimentDataTypeSection(expDataType);
         // END - Experiment Data Type SECTION
 
         // Experiment section:
+        Dataset testDataType = testExperimentDataTypeId.equals("") ? null
+                : recordAccessService.requireOwnedDataset(Long.valueOf(testExperimentDataTypeId));
         Experiment exp = experimentSectionService(configExpDto.getId() != null ?
-                        experimentService.findExperimentById(configExpDto.getId()) : null
+                        recordAccessService.requireOwnedExperiment(configExpDto.getId()) : null
                 , user,
-                (testExperimentDataTypeId.equals("")) ? null : experimentService.
-                        findExperimentDataTypeById(Long.valueOf(testExperimentDataTypeId))
+                testDataType
                 , expDataType, configExpDto, configExpDto.getFileText(), true);
         experimentService.saveExperiment(exp);
 
@@ -524,7 +526,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
 
     public String stopRunExperimentService(Model model, String runIdStop, RedirectAttributes redirectAttrs
             , DiagramDataService diagramDataService) throws InterruptedException {
-        Run run = runService.findByRunId(Long.parseLong(runIdStop));
+        Run run = recordAccessService.requireOwnedRun(Long.parseLong(runIdStop));
 
         // Lo unico que se puede hacer es detener el run, y esperar a que se de cuenta
         run.getDiagramData().setStopped(true);
@@ -545,7 +547,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
     public Long expRepoSelectedDeleteService(String experimentId) {
 
         Long idExp = Long.parseLong(experimentId);
-        Experiment expConfig = experimentService.findExperimentById(idExp);
+        Experiment expConfig = recordAccessService.requireOwnedExperiment(idExp);
 
         Iterator<Run> listRunIt = expConfig.getIdRunList().iterator();
         while (listRunIt.hasNext()) {
@@ -597,20 +599,20 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
             result.rejectValue("typeFile", "error.typeFile", "Choose one file");
             return CONFIGEXPERIMENTPATH;
         } else {
-            expDataType = experimentService.findDataTypeById(Long.parseLong(experimentDataTypeId));
+            expDataType = recordAccessService.requireOwnedDataset(Long.parseLong(experimentDataTypeId));
         }
 
         experimentDataTypeSection(expDataType);
         // END - Experiment Data Type SECTION
 
         // Experiment section:
-        Dataset testExperimentDataType = (testExperimentDataTypeId.equals("")) ? null : experimentService.
-                findExperimentDataTypeById(Long.valueOf(testExperimentDataTypeId));
+        Dataset testExperimentDataType = (testExperimentDataTypeId.equals("")) ? null
+                : recordAccessService.requireOwnedDataset(Long.valueOf(testExperimentDataTypeId));
 
 
         boolean sameExp = false;
         if (configExpDto.getId() != null) {
-            exp = experimentService.findExperimentById(configExpDto.getId());
+            exp = recordAccessService.requireOwnedExperiment(configExpDto.getId());
 
             /*Check if exp only changed name, desc or tags, in that case, dont remove runs*/
             sameExp =
@@ -671,16 +673,22 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
         if (id == null)
             return "redirect:experiment/experimentRepository";
 
-        Experiment exp = experimentService.findExperimentById(Long.parseLong(id));
+        Experiment exp = recordAccessService.requireOwnedExperiment(Long.parseLong(id));
+        Dataset defaultDataset = recordAccessService.requireOwnedDataset(exp.getDefaultExpDataType());
+        Dataset defaultTestDataset = exp.getDefaultTestExpDataTypeId() == null ? null
+                : recordAccessService.requireOwnedDataset(exp.getDefaultTestExpDataTypeId());
+        for (Dataset dataset : exp.getIdExpDataTypeList()) {
+            recordAccessService.requireOwnedDataset(dataset.getId());
+        }
 
         List<Run> runList = exp.getIdRunList();
 
         ConfigExperimentDto configExpDto = this.fillConfigExpDtoService(new ConfigExperimentDto(), exp,
-                exp.getDefaultGrammar(), experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()),
+                exp.getDefaultGrammar(), defaultDataset,
                 false);
 
-        this.modelAddDataService(model, user, experimentService.findExperimentDataTypeById(exp.getDefaultExpDataType()),
-                exp.getIdExpDataTypeList(), exp.getDefaultTestExpDataTypeId());
+        this.modelAddDataService(model, user, defaultDataset,
+                exp.getIdExpDataTypeList(), defaultTestDataset == null ? null : defaultTestDataset.getId());
         model.addAttribute(CONFIGURATION, configExpDto);
         model.addAttribute("configExp", configExpDto);
         model.addAttribute(RUNLIST, runList);
@@ -690,7 +698,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
 
     public Boolean expRepoSelectedCheckRunningService(String experimentId) {
         Long idExp = Long.parseLong(experimentId);
-        Experiment expConfig = experimentService.findExperimentById(idExp);
+        Experiment expConfig = recordAccessService.requireOwnedExperiment(idExp);
         Iterator<Run> listRunIt = expConfig.getIdRunList().iterator();
 
         while (listRunIt.hasNext()) {
@@ -706,7 +714,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
     }
 
     public RunResultsDto getRunResultsInfoService(String expId) {
-        Experiment experiment = experimentService.findExperimentById(Long.valueOf(expId));
+        Experiment experiment = recordAccessService.requireOwnedExperiment(Long.valueOf(expId));
         boolean haveTest = experiment.getDefaultTestExpDataTypeId() != null;
         RunResultsDto runResultsDto = new RunResultsDto(experiment.getIdRunList().size(),
                 haveTest || experiment.isCrossExperiment());
@@ -744,7 +752,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
     public Map<String,String[][]> getExperimentPredictionsService(String expId) {
         // For cross-validation experiments, the full evaluation of training is returned. Hence,
         // test is only calculated if a test file is selected.
-        Experiment experiment = experimentService.findExperimentById(Long.valueOf(expId));
+        Experiment experiment = recordAccessService.requireOwnedExperiment(Long.valueOf(expId));
         boolean haveTest = experiment.getDefaultTestExpDataTypeId() != null;
 
         ArrayList<String> models = new ArrayList<>();
@@ -853,7 +861,7 @@ public class RabbitMqExperimentRunnerService implements ExperimentRunner {
 
     public String showRunTestStatsExperimentService(Model model,
                                                     @RequestParam(value = RUNID) String runId) {
-        Run run = runService.findByRunId(Long.parseLong(runId));
+        Run run = recordAccessService.requireOwnedRun(Long.parseLong(runId));
 
         Map<String, List<Double>> results = this.collectTrainingAndTestStats(run,true);
 

@@ -43,7 +43,7 @@ public class WebSecurityConfig
         auth.jdbcAuthentication()
                 .dataSource(dataSource)
                 .usersByUsernameQuery("select username, password, enabled from webge.user where username=?")
-                .authoritiesByUsernameQuery("select username, role_name from webge.users_roles where username=?")
+                .authoritiesByUsernameQuery("select u.username, ur.role_name from webge.user u join webge.users_roles ur on ur.user_id=u.user_id where u.username=?")
                 .passwordEncoder(passwordEncoder());    // When user is doing the login -> We will encode the password with the Hash. thus we will compare the DB password with the user
         // auth.authenticationProvider(authenticationProvider());   // If we turn on this - Our login authenticator will not be the D.B.
     }
@@ -57,6 +57,7 @@ public class WebSecurityConfig
                         "/images/**",
                         "/assets/**",
                         "/webjars/**").permitAll()
+                .antMatchers("/rest/runStatus/**").hasAnyRole("USER", "ADMIN")
                 .antMatchers("/user/**").hasRole("USER")    // Only users can access to /user/whatever
                 .antMatchers("/admin/**").hasRole("ADMIN")    // Only admin can access to /admin/whatever
                 .anyRequest().authenticated()
@@ -78,8 +79,7 @@ public class WebSecurityConfig
                 .realmName(REALM_NAME)
                 .authenticationEntryPoint(new CustomAuthenticationEntryPoint());    // CustomAuthenticationEntryPoint created
 
-        http.csrf().disable();
-        http.headers().frameOptions().disable();
+        http.headers().frameOptions().deny();
     }
 
     @Bean

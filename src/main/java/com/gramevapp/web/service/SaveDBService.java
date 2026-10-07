@@ -9,6 +9,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 @Service("saveDBService")
 public class SaveDBService {
@@ -24,37 +25,37 @@ public class SaveDBService {
 
     Thread th;
     Thread th2;
-    boolean terminate = false;
-    boolean terminate2 = false;
+    volatile boolean terminate = false;
+    volatile boolean terminate2 = false;
 
     private void takeRunsFromQueue() { //th
-        while(!terminate) {
+        while (!terminate || !runsQueue.isEmpty()) {
             try {
-                if (runsQueue.isEmpty() && th.isInterrupted()) {
+                Run run = runsQueue.poll(250, TimeUnit.MILLISECONDS);
+                if (run != null) {
+                    runService.saveRun(run);
+                }
+            } catch (InterruptedException e) {
+                if (!terminate) {
+                    Thread.currentThread().interrupt();
                     return;
                 }
-                runService.saveRun(runsQueue.take());
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                terminate = true;
-                Thread.currentThread().interrupt();
             }
         }
     }
 
     private void takeDiagramsFromQueue() { //th2
-        while(!terminate2) {
+        while (!terminate2 || !diagramDataqueue.isEmpty()) {
             try {
-                if (diagramDataqueue.isEmpty() && th2.isInterrupted()) {
+                DiagramData diagramData = diagramDataqueue.poll(250, TimeUnit.MILLISECONDS);
+                if (diagramData != null) {
+                    diagramDataService.saveDiagram(diagramData);
+                }
+            } catch (InterruptedException e) {
+                if (!terminate2) {
+                    Thread.currentThread().interrupt();
                     return;
                 }
-                diagramDataService.saveDiagram(diagramDataqueue.take());
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                terminate2 = true;
-                Thread.currentThread().interrupt();
             }
         }
     }
@@ -73,26 +74,57 @@ public class SaveDBService {
     }
 
     public void saveDiagramDataAsync(DiagramData diagramData) {
-        try {
-            diagramDataqueue.put(diagramData);
-
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+        synchronized (this) {
+            if (terminate2) {
+                throw new IllegalStateException("Diagram persistence is shutting down.");
+            }
+            try {
+                diagramDataqueue.put(diagramData);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException("Interrupted while queuing diagram persistence.", e);
+            }
         }
     }
 
     public void saveRunAsync(Run run) {
-        try {
-            runsQueue.put(run);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+        synchronized (this) {
+            if (terminate) {
+                throw new IllegalStateException("Run persistence is shutting down.");
+            }
+            try {
+                runsQueue.put(run);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException("Interrupted while queuing run persistence.", e);
+            }
         }
     }
 
     @PreDestroy
     public void onEnd() {
+        synchronized (this) {
+            terminate = true;
+            terminate2 = true;
+        }
         th.interrupt();
         th2.interrupt();
+        joinWriter(th);
+        joinWriter(th2);
+    }
+
+    private void joinWriter(Thread writer) {
+        boolean interrupted = false;
+        while (writer.isAlive()) {
+            try {
+                writer.join();
+            } catch (InterruptedException e) {
+                interrupted = true;
+            }
+        }
+        if (interrupted) {
+            Thread.currentThread().interrupt();
+        }
     }
 
 }

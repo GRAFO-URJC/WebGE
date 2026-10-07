@@ -5,6 +5,7 @@ import com.gramevapp.web.model.GrammarDTO;
 import com.gramevapp.web.model.User;
 import com.gramevapp.web.repository.GrammarRepository;
 import com.gramevapp.web.service.ExperimentService;
+import com.gramevapp.web.service.RecordAccessService;
 import com.gramevapp.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -26,6 +27,9 @@ public class GrammarController {
     @Autowired
     private ExperimentService experimentService;
 
+    @Autowired
+    private RecordAccessService recordAccessService;
+
     Logger logger = Logger.getLogger(GrammarController.class.getName());
     @GetMapping(value = "/grammar/grammarRepository")
     public String grammarRepository(Model model) {
@@ -45,6 +49,7 @@ public class GrammarController {
     @ResponseBody
     Long expRepoSelectedDelete(@RequestParam("grammarId") String grammarId) {
         Long idGrammar = Long.parseLong(grammarId);
+        recordAccessService.requireOwnedGrammar(idGrammar);
 
         try {
             grammarRepository.deleteById(idGrammar);
@@ -67,7 +72,7 @@ public class GrammarController {
 
         Grammar gr = new Grammar();
         if (idGrammar != -1) {
-            gr = grammarRepository.findGrammarByIdOrderByCreationDateDesc(idGrammar);
+            gr = recordAccessService.requireOwnedGrammar(idGrammar);
         }
 
         model.addAttribute("grammar", gr);

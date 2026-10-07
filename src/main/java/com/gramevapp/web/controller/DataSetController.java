@@ -5,6 +5,7 @@ import com.gramevapp.web.model.DatasetDTO;
 import com.gramevapp.web.model.Experiment;
 import com.gramevapp.web.model.User;
 import com.gramevapp.web.service.ExperimentService;
+import com.gramevapp.web.service.RecordAccessService;
 import com.gramevapp.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -26,6 +27,9 @@ public class DataSetController {
 
     @Autowired
     private ExperimentService experimentService;
+
+    @Autowired
+    private RecordAccessService recordAccessService;
 
 
     Logger logger = Logger.getLogger(DataSetController.class.getName());
@@ -140,6 +144,7 @@ public class DataSetController {
     @ResponseBody
     public Long expRepoSelectedDelete(@RequestParam("datasetId") String datasetId) {
         Long idDataset = Long.parseLong(datasetId);
+        recordAccessService.requireOwnedDataset(idDataset);
         try {
             experimentService.deleteDataTypeFile(idDataset);
         } catch (DataIntegrityViolationException e) {
@@ -155,7 +160,7 @@ public class DataSetController {
     @PostMapping(value = "/foldDataset")
     @ResponseBody
     public String ajaxFoldDataset(@RequestParam("datasetId") String datasetId, @RequestParam("kFoldNumber") int kFoldNumber) {
-        Dataset dataset = experimentService.findExperimentDataTypeById(Long.parseLong(datasetId));
+        Dataset dataset = recordAccessService.requireOwnedDataset(Long.parseLong(datasetId));
         foldDataset(dataset, kFoldNumber);
         experimentService.saveDataType(dataset);
         return dataset.getInfo();
@@ -188,7 +193,7 @@ public class DataSetController {
     @PostMapping(value = "/getDataset")
     @ResponseBody
     public String getDatasetContent(@RequestParam("datasetId") String datasetId) {
-        Dataset dataset = experimentService.findExperimentDataTypeById(Long.parseLong(datasetId));
+        Dataset dataset = recordAccessService.requireOwnedDataset(Long.parseLong(datasetId));
         return dataset.getInfo();
     }
 

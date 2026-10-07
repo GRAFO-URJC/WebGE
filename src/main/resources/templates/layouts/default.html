@@ -271,10 +271,12 @@
                     ></span></a></li>
                 </ul>
 
-                <a th:href="@{/logout}"><p sec:authorize="isAuthenticated()"
-                                           class="navbar-text navbar-right btn-sm btn btn-default" rel="tooltip"
-                                           title="Log out">
-                    <span style="color:#4183c4" id="logOutButton" class="glyphicon glyphicon-off"></span></p></a>
+                <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()"
+                      class="navbar-form navbar-right">
+                    <button type="submit" class="btn btn-default" rel="tooltip" title="Log out">
+                        <span style="color:#4183c4" id="logOutButton" class="glyphicon glyphicon-off"></span>
+                    </button>
+                </form>
 
                 <a th:href="@{/login}" rel="tooltip"
                    title="Log in"><p sec:authorize="isAnonymous()"

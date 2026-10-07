@@ -3,6 +3,7 @@ package com.gramevapp.web.rest_controller;
 import com.gramevapp.web.model.Run;
 import com.gramevapp.web.model.RunDto;
 import com.gramevapp.web.service.RunService;
+import com.gramevapp.web.service.RecordAccessService;
 import com.gramevapp.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,9 @@ public class RunRestController {
     @Autowired
     RunService runService;
 
+    @Autowired
+    RecordAccessService recordAccessService;
+
     @GetMapping(value = "/rest/runStatus/", produces = "application/json")
     @ResponseBody
     public RunDto getRunStatus(String runId, String status) {
@@ -23,7 +27,7 @@ public class RunRestController {
         if (runId.equals(""))
             return null;
 
-        Run run = runService.findByRunId(Long.parseLong(runId));
+        Run run = recordAccessService.requireOwnedRun(Long.parseLong(runId));
 
         run.setCurrentGeneration(run.getDiagramData() != null ? run.getDiagramData().getCurrentGeneration() : 0);
         run.setBestIndividual(run.getDiagramData() != null ? run.getDiagramData().getBestIndividual() : 0.0);

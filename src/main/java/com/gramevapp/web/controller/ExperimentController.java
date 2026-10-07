@@ -39,6 +39,9 @@ public class ExperimentController {
     @Autowired
     private SaveDBService saveDBService;
 
+    @Autowired
+    private RecordAccessService recordAccessService;
+
     // Choose between all variants in package service/ExperimentRunnerService
     @Autowired
     private RabbitMqExperimentRunnerService experimentRunnerService;
@@ -127,9 +130,11 @@ public class ExperimentController {
         model.addAttribute(CONFIGURATION, configExpDto);
         model.addAttribute(EXPCONFIG, configExpDto);
 
-        experimentRunnerService.modelAddDataService(model, user,
-                experimentService.findExperimentDataTypeById(Long.valueOf(experimentDataTypeId)),
-                null, configExpDto.getTestDefaultExpDataTypeId());
+        Dataset trainingDataset = recordAccessService.requireOwnedDataset(Long.valueOf(experimentDataTypeId));
+        Dataset testDataset = configExpDto.getTestDefaultExpDataTypeId() == null ? null
+                : recordAccessService.requireOwnedDataset(configExpDto.getTestDefaultExpDataTypeId());
+        experimentRunnerService.modelAddDataService(model, user, trainingDataset,
+                null, testDataset == null ? null : testDataset.getId());
         model.addAttribute("disabledClone", true);
         model.addAttribute("messageClone", "This experiment is cloned and not saved yet.");
 
@@ -166,7 +171,7 @@ public class ExperimentController {
     public String showPlotExecutionExperiment(Model model,
                                               @RequestParam(value = RUNID) String runId) {
         Long longRunId = Long.parseLong(runId);
-        Run run = runService.findByRunId(longRunId);
+        Run run = recordAccessService.requireOwnedRun(longRunId);
 
         model.addAttribute(EXPDETAILS, run.getExperimentId());
         model.addAttribute(RUNID, run.getId());
@@ -200,7 +205,7 @@ public class ExperimentController {
     @ResponseBody
     public boolean ajaxStopAllRunsExperiment(@RequestParam("expId") Long expId) throws InterruptedException {
         experimentRunnerService.setExecutionCancelled(true);
-        Experiment experiment = experimentService.findExperimentById(expId);
+        Experiment experiment = recordAccessService.requireOwnedExperiment(expId);
         List<Run> runList = experiment.getIdRunList();
         for (Run runExp : runList) {
             Run run = runService.findByRunId(runExp.getId());
@@ -220,7 +225,7 @@ public class ExperimentController {
     @ResponseBody
     Long deleteRun(@RequestParam(RUNID) String runId) {
         Long longRunId = Long.parseLong(runId);
-        Run run = runService.findByRunId(longRunId);
+        Run run = recordAccessService.requireOwnedRun(longRunId);
         runService.deleteRun(run);
         return longRunId;
     }

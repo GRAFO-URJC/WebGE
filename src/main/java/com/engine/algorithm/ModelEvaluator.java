@@ -47,13 +47,24 @@ public class ModelEvaluator {
     }
 
     public static double computeRelativeError(double[] expected, double[] prediction) {
-        double acu = 0;
-
-        for (int i = 0; i < expected.length; i++) {
-            acu += Math.abs(expected[i]- prediction[i]) / Math.abs(expected[i]);
+        if (expected.length != prediction.length || expected.length == 0) {
+            throw new IllegalArgumentException("Expected and prediction arrays must have the same non-zero length.");
         }
-
-        return acu / prediction.length;
+        double acu = 0;
+        for (int i = 0; i < expected.length; i++) {
+            if (!Double.isFinite(expected[i]) || !Double.isFinite(prediction[i])) {
+                return Double.MAX_VALUE;
+            }
+            double absoluteError = Math.abs(expected[i] - prediction[i]);
+            double relativeError = expected[i] == 0.0
+                    ? absoluteError
+                    : absoluteError / Math.abs(expected[i]);
+            if (!Double.isFinite(relativeError)) {
+                return Double.MAX_VALUE;
+            }
+            acu += relativeError / expected.length;
+        }
+        return Double.isFinite(acu) ? acu : Double.MAX_VALUE;
     }
 
 

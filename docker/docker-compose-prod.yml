@@ -3,12 +3,10 @@ version: '3.2'
 services:
   db:
     image: postgres:12-bullseye
-    ports:
-      - "5432:5432"
     restart: always
     environment:
-      POSTGRES_USER: usuario
-      POSTGRES_PASSWORD: "01234"
+      POSTGRES_USER: "${POSTGRES_USER:?Set POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}"
       POSTGRES_DB: "webge"
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -22,24 +20,20 @@ services:
       - rabbitmq
     ports:
       - "8182:8182"
-      - "5005:5005"
-      - "9010:9010"
     environment:
       SPRING_DATASOURCE_URL: "jdbc:postgresql://db:5432/webge"
-      SPRING_DATASOURCE_USERNAME: "usuario"
-      SPRING_DATASOURCE_PASSWORD: "01234"
+      SPRING_DATASOURCE_USERNAME: "${POSTGRES_USER:?Set POSTGRES_USER}"
+      SPRING_DATASOURCE_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}"
       SPRING_FLYWAY_URL: "jdbc:postgresql://db:5432/webge"
-      SPRING_FLYWAY_USER: "usuario"
-      SPRING_FLYWAY_PASSWORD: "01234"
+      SPRING_FLYWAY_USER: "${POSTGRES_USER:?Set POSTGRES_USER}"
+      SPRING_FLYWAY_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}"
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_LISTENER_SIMPLE_CONCURRENCY: "2"
+      WEBGE_ADMIN_PASSWORD: "${WEBGE_ADMIN_PASSWORD:?Set WEBGE_ADMIN_PASSWORD}"
     networks:
       - backend
   rabbitmq:
     image: rabbitmq:management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
     networks:
       - backend
 volumes:

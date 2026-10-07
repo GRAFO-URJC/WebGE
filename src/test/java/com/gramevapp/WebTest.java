@@ -23,13 +23,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@SpringBootTest
+@SpringBootTest(properties = "webge.admin.password=AdminTestPassword1")
 class WebTest {
 
     private static WebDriver driver;
     private static WebDriverWait wait;
     private static BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(11);
-    private String adminPasword = "admin";
+    private String adminPasword = "AdminTestPassword1";
     private static String userTestPassword = "userTestPassword";
     private String userTestName = "utn1";
     private String grammarName = "Grammar name";
