@@ -14,22 +14,24 @@ services:
       - "127.0.0.1:9010:9010"
     environment:
       SPRING_DATASOURCE_URL: "jdbc:postgresql://db:5432/webge"
-      SPRING_DATASOURCE_USERNAME: "${POSTGRES_USER:?Set POSTGRES_USER}"
-      SPRING_DATASOURCE_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}"
+      SPRING_DATASOURCE_USERNAME: "${POSTGRES_USER:-usuario}"
+      SPRING_DATASOURCE_PASSWORD: "${POSTGRES_PASSWORD:-01234}"
       SPRING_FLYWAY_URL: "jdbc:postgresql://db:5432/webge"
-      SPRING_FLYWAY_USER: "${POSTGRES_USER:?Set POSTGRES_USER}"
-      SPRING_FLYWAY_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}"
-      WEBGE_ADMIN_PASSWORD: "${WEBGE_ADMIN_PASSWORD:?Set WEBGE_ADMIN_PASSWORD}"
+      SPRING_FLYWAY_USER: "${POSTGRES_USER:-usuario}"
+      SPRING_FLYWAY_PASSWORD: "${POSTGRES_PASSWORD:-01234}"
+      WEBGE_ADMIN_PASSWORD: "${WEBGE_ADMIN_PASSWORD:-AdminLocalOnly123}"
     networks:
       - backend
     command: java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.port=9010 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.rmi.port=9010  -Djava.rmi.server.hostname=localhost -jar gramev.jar
 
   db:
     image: postgres:12
+    ports:
+      - "127.0.0.1:5432:5432"
     restart: always
     environment:
-      POSTGRES_USER: "${POSTGRES_USER:?Set POSTGRES_USER}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}"
+      POSTGRES_USER: "${POSTGRES_USER:-usuario}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-01234}"
       POSTGRES_DB: "webge"
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -38,6 +40,8 @@ services:
 
   rabbitmq:
     image: rabbitmq:management
+    ports:
+      - "127.0.0.1:5672:5672"
 
 volumes:
   pgdata:

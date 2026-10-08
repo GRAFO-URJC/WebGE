@@ -13,6 +13,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -20,10 +21,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.io.File;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@SpringBootTest(properties = "webge.admin.password=AdminTestPassword1")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, properties = {
+        "spring.datasource.url=${TEST_DATASOURCE_URL:jdbc:postgresql://localhost:5432/webge}",
+        "spring.datasource.username=${POSTGRES_USER:usuario}",
+        "spring.datasource.password=${POSTGRES_PASSWORD:01234}",
+        "spring.rabbitmq.host=${TEST_RABBITMQ_HOST:localhost}",
+        "webge.admin.password=AdminTestPassword1"
+})
 class WebTest {
 
     private static WebDriver driver;
@@ -57,24 +66,31 @@ class WebTest {
     private static Experiment experimentSaveTest;
 
 
-    @BeforeAll
-    public static void setupClass() {
-        GramevApplication.start();
-
+    @BeforeEach
+    public void setupBrowser() {
+        if (driver != null) {
+            return;
+        }
         WebDriverManager.firefoxdriver().setup();
-        driver = new FirefoxDriver();
+        FirefoxOptions firefoxOptions = new FirefoxOptions();
+        String firefoxBinary = System.getProperty("webdriver.firefox.bin", System.getenv("FIREFOX_BINARY"));
+        if (firefoxBinary != null && !firefoxBinary.isBlank()) {
+            firefoxOptions.setBinary(firefoxBinary);
+        } else {
+            File macFirefox = new File("/Applications/Firefox.app/Contents/MacOS/firefox");
+            if (macFirefox.isFile()) {
+                firefoxOptions.setBinary(macFirefox.getAbsolutePath());
+            }
+        }
+        driver = new FirefoxDriver(firefoxOptions);
         wait = new WebDriverWait(driver, 5);
-        // Add connection
         driver.get("http://127.0.0.1:8182/");
-
     }
 
     @AfterAll
     public static void teardownClass() {
-        GramevApplication.stop();
         if (driver != null) {
             driver.quit();
-            ;
         }
     }
 

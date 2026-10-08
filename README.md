@@ -55,7 +55,9 @@ networks:
   backend:
 ```
 
-Set `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `WEBGE_ADMIN_PASSWORD` in the deployment environment before starting Compose. The Compose service configures both JDBC URLs to `jdbc:postgresql://db:5432/webge`; the administrator password must contain at least 12 characters. Existing databases must have unique usernames and email addresses before applying the migration. Database and RabbitMQ ports remain private to the Compose network; only the WebGE HTTP port is published.
+The development Compose files run without configuration using local-only defaults (`usuario` / `01234`, administrator `AdminLocalOnly123`). The database defaults match the original development setup so existing named volumes continue to work; PostgreSQL only applies `POSTGRES_USER` and `POSTGRES_PASSWORD` when initializing an empty data volume. Override all three variables for a customized local setup. Never use these defaults outside development. For production (`docker-compose-prod.yml`), provide all three variables explicitly; the administrator password must contain at least 12 characters. The Compose service configures both JDBC URLs to `jdbc:postgresql://db:5432/webge`. Existing databases must have unique usernames and email addresses before applying the migration. Database and RabbitMQ ports are only published on loopback in development and remain private in production.
+
+To run the browser integration test from the host, start only the development dependencies with `docker compose -f docker/docker-compose.yml up -d db rabbitmq` (or use `docker/docker-compose-debug.yml`), then run `mvn -Dtest=WebTest test`. If you override `POSTGRES_USER` or `POSTGRES_PASSWORD`, export the same values to the Maven process. Do not run a separate WebGE container on port 8182 while `WebTest` starts its own application.
 
 Notice that the variable SPRING_RABBITMQ_LISTENER_SIMPLE_CONCURRENCY determines the number of concurrent runs in the server. It is set to 2 by default, but it can be modified to a proper value depending on the computation power of the machine.
 
