@@ -1,4 +1,4 @@
-FROM openjdk:17
+FROM eclipse-temurin:17-jre
 EXPOSE 8182
 COPY "target/gramev-0.0.1-SNAPSHOT.jar" gramev.jar
 ENTRYPOINT ["java", "-jar", "gramev.jar"]
